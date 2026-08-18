@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Random Artist Generator</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <main class="app">
+    <header class="app__header">
+      <h1>🎤 Random Artist Generator</h1>
+      <p class="app__subtitle">Pulls from a pool of 100 of the most popular music artists ever — including the King of Pop himself.</p>
+    </header>
+
+    <section class="card" id="card">
+      <div class="card__badge" id="badge">Ready</div>
+      <h2 class="card__name" id="artistName">Press the button to begin</h2>
+      <p class="card__genre" id="artistGenre">&nbsp;</p>
+      <a class="card__link" id="artistLink" href="#" target="_blank" rel="noopener noreferrer">Search this artist ↗</a>
+    </section>
+
+    <div class="controls">
+      <button class="btn btn--primary" id="generateBtn">🎲 Generate Random Artist</button>
+      <label class="toggle">
+        <input type="checkbox" id="noRepeatToggle" checked />
+        Don't repeat until all 100 shown
+      </label>
+    </div>
+
+    <p class="progress" id="progress"></p>
+
+    <footer class="app__footer">
+      <p>100/100 artists loaded. <button class="link-btn" id="viewAllBtn">View full list</button></p>
+    </footer>
+
+    <dialog id="listDialog">
+      <div class="dialog__header">
+        <h2>All 100 Artists</h2>
+        <button class="btn btn--ghost" id="closeListBtn">Close</button>
+      </div>
+      <ol class="artist-list" id="artistList"></ol>
+    </dialog>
+  </main>
+
+  <script src="artists.js"></script>
+  <script src="script.js"></script>
+</body>
+</html>
