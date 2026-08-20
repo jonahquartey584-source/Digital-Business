@@ -33,3 +33,11 @@ python3 -m http.server 8000
 
 Edit `artists.js` and add/remove `{ name: "...", genre: "..." }` entries.
 The app automatically adapts to however many artists are in the array.
+
+## Auto-Poster
+
+`auto-poster/` is a separate Node.js tool for publishing content to
+YouTube, Instagram, TikTok, and Snapchat from one CLI command or a
+scheduled queue. See [`auto-poster/README.md`](auto-poster/README.md) for
+setup (each platform needs its own developer app + API credentials) and
+usage.

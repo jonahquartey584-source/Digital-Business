@@ -1,0 +1,6 @@
+.env
+node_modules/
+posts/queue.json
+posts/media/*
+!posts/media/.gitkeep
+*.log
