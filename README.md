@@ -28,7 +28,7 @@ It's three pages: a one-page marketing site (`index.html`), a client
   "account record" shown as a terminal/JSON block, and a CTA into the
   activate page
 - **Enquire** — a form visitors fill in to request a service (name,
-  business name, business location, email, phone, service, details);
+  business name, business address, email, phone, service, details);
   submitting it opens a pre-filled email to the business
 - **Footer / Contact** — contact details and quick links
 - **"Already a client?" banner** — a bar right below the header, above the

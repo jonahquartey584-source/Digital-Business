@@ -68,7 +68,7 @@ if (enquiryForm) {
     const data = new FormData(enquiryForm);
     const name = (data.get("name") || "").toString().trim();
     const business = (data.get("business") || "").toString().trim();
-    const location = (data.get("location") || "").toString().trim();
+    const address = (data.get("address") || "").toString().trim();
     const email = (data.get("email") || "").toString().trim();
     const phone = (data.get("phone") || "").toString().trim();
     const service = (data.get("service") || "").toString().trim();
@@ -87,7 +87,7 @@ if (enquiryForm) {
     const bodyLines = [
       `Name: ${name}`,
       business ? `Business: ${business}` : null,
-      location ? `Location: ${location}` : null,
+      address ? `Address: ${address}` : null,
       `Email: ${email}`,
       phone ? `Phone: ${phone}` : null,
       `Service: ${service}`,
