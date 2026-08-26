@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Activate Your Service — Qp Digital</title>
+  <meta name="description" content="Enter your Qp Digital account number and activation code to go straight to payment for your service." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Sora:wght@600;700;800&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@500;600&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="style.css" />
+  <noscript><style>[data-reveal] { opacity: 1 !important; transform: none !important; }</style></noscript>
+</head>
+<body>
+
+  <div class="gold-rule"></div>
+
+  <header class="site-header">
+    <div class="container header__inner">
+      <a class="brand" href="index.html">
+        <span class="brand__mark">QP</span>
+        <span class="brand__name">Qp Digital</span>
+      </a>
+      <nav class="nav" id="nav">
+        <a href="index.html#services">Services</a>
+        <a href="index.html#how-it-works">How It Works</a>
+        <a href="index.html#enquire">Enquire</a>
+        <a href="index.html#contact">Contact</a>
+        <a class="nav-secondary is-active" href="activate.html">Have a Code?</a>
+      </nav>
+      <a class="btn btn--primary btn--nav" href="index.html#enquire">Get a Quote</a>
+      <button class="nav-toggle" id="navToggle" aria-label="Toggle menu" aria-expanded="false">
+        <span></span><span></span><span></span>
+      </button>
+    </div>
+  </header>
+
+  <main>
+    <section class="activate-hero">
+      <div class="container activate-hero__inner">
+        <p class="eyebrow">Client Access</p>
+        <h1>Access Your Service<span class="cursor" aria-hidden="true"></span></h1>
+        <p class="hero__lead">
+          Enter the account number and activation code we sent you and we'll take you
+          straight to payment for the service you asked for.
+        </p>
+
+        <form class="enquiry-form activate-form" id="activateForm">
+          <div class="form-row">
+            <label for="accountNumber">Account Number</label>
+            <input type="text" id="accountNumber" name="accountNumber" placeholder="e.g. QP-2026-0158" required autocomplete="off" />
+          </div>
+
+          <div class="form-row">
+            <label for="activationCode">Activation Code</label>
+            <input type="text" id="activationCode" name="activationCode" placeholder="e.g. 7F3K-9QXR" required autocomplete="off" />
+          </div>
+
+          <button type="submit" class="btn btn--primary btn--lg">Access My Service →</button>
+        </form>
+
+        <div class="activate-result" id="activateResult" hidden></div>
+
+        <p class="activate-footnote">
+          Don't have an account yet? <a href="index.html#enquire">Enquire about a service →</a>
+        </p>
+      </div>
+    </section>
+  </main>
+
+  <!-- FOOTER / CONTACT -->
+  <footer class="site-footer" id="contact">
+    <div class="container footer__inner">
+      <div>
+        <div class="brand brand--footer">
+          <span class="brand__mark">QP</span>
+          <span class="brand__name">Qp Digital</span>
+        </div>
+        <p class="footer__tagline">Websites, CRM, SEO, branding, dashboards and automation — all under one roof. Open to any digital project.</p>
+      </div>
+      <div class="footer__contact">
+        <h4>Contact</h4>
+        <p>Email: <a href="mailto:hello@qpdigital.com">hello@qpdigital.com</a></p>
+        <p>Update the email in <code>script.js</code> and this footer with your own.</p>
+      </div>
+      <div class="footer__links">
+        <h4>Explore</h4>
+        <a href="index.html#services">Services</a>
+        <a href="index.html#how-it-works">How It Works</a>
+        <a href="index.html#enquire">Enquire</a>
+        <a href="activate.html">Activate a Service</a>
+      </div>
+    </div>
+    <div class="container footer__bottom">
+      <p>&copy; <span id="year"></span> Qp Digital. All rights reserved.</p>
+    </div>
+  </footer>
+
+  <!-- script.js handles the mobile nav toggle + footer year; every
+       selector it uses is null-guarded, so it's safe to reuse here even
+       though this page doesn't have an enquiry form or [data-reveal]
+       elements. -->
+  <script src="script.js"></script>
+  <script src="accounts-data.js"></script>
+  <script src="activate.js"></script>
+</body>
+</html>

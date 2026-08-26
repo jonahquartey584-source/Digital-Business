@@ -26,6 +26,7 @@
         <a href="#how-it-works">How It Works</a>
         <a href="#enquire">Enquire</a>
         <a href="#contact">Contact</a>
+        <a class="nav-secondary" href="activate.html">Have a Code?</a>
       </nav>
       <a class="btn btn--primary btn--nav" href="#enquire">Get a Quote</a>
       <button class="nav-toggle" id="navToggle" aria-label="Toggle menu" aria-expanded="false">
@@ -40,7 +41,7 @@
     <section class="hero">
       <div class="container hero__inner">
         <p class="eyebrow">Digital Infrastructure For Growing Businesses</p>
-        <h1>Everything your business needs online — built, managed, and automated in one place.</h1>
+        <h1>Everything your business needs online — built, managed, and automated in one place.<span class="cursor" aria-hidden="true"></span></h1>
         <p class="hero__lead">
           Websites, CRM, SEO, booking systems, branding and reporting dashboards —
           engineered by one specialist and kept running so no lead slips through the cracks.
@@ -215,25 +216,30 @@
             <h3>An account number and an activation code</h3>
             <p>After you enquire and we agree a price, we set up an account for you and send a unique activation code by email or text. Pay against your code and the service is switched on — you don't need to chase us to go live.</p>
           </div>
-          <div class="access-card">
-            <div class="access-card__top">
-              <span class="access-card__chip" aria-hidden="true"></span>
-              <span class="access-card__brand mono">QP DIGITAL</span>
+          <div class="access-explainer__card">
+            <div class="terminal-window">
+              <div class="terminal-window__bar">
+                <span class="terminal-window__dot"></span>
+                <span class="terminal-window__dot"></span>
+                <span class="terminal-window__dot"></span>
+                <span class="terminal-window__filename mono">account.json</span>
+              </div>
+              <div class="terminal-body mono">
+                <p class="code-line">{</p>
+                <p class="code-line code-line--indent"><span class="code-key">"account"</span><span class="code-punct">: </span><span class="code-string">"QP-2026-0158"</span><span class="code-punct">,</span></p>
+                <p class="code-line code-line--indent"><span class="code-key">"code"</span><span class="code-punct">: </span><span class="code-string">"7F3K-9QXR"</span><span class="code-punct">,</span></p>
+                <p class="code-line code-line--indent"><span class="code-key">"service"</span><span class="code-punct">: </span><span class="code-string">"Website — Standard Plan"</span><span class="code-punct">,</span></p>
+                <p class="code-line code-line--indent"><span class="code-key">"status"</span><span class="code-punct">: </span><span class="code-string">"pending_payment"</span></p>
+                <p class="code-line">}<span class="cursor" aria-hidden="true"></span></p>
+              </div>
             </div>
-            <div class="access-card__field">
-              <span class="mono access-card__label">Account No.</span>
-              <span class="mono access-card__value">QP-2026-0158</span>
-            </div>
-            <div class="access-card__field">
-              <span class="mono access-card__label">Activation Code</span>
-              <span class="mono access-card__value">7F3K-9QXR</span>
-            </div>
-            <div class="access-card__bottom">
-              <span class="access-card__service">Website — Standard Plan</span>
-              <span class="access-card__status">Pending Payment</span>
-            </div>
-            <p class="access-card__caption mono">Example account card — illustrative only</p>
+            <p class="access-card__caption mono">// example record — illustrative only</p>
           </div>
+        </div>
+
+        <div class="activate-cta" data-reveal>
+          <p>Already got your account number and code?</p>
+          <a class="btn btn--ghost" href="activate.html">Activate Your Service →</a>
         </div>
 
         <p class="how__note">
@@ -336,6 +342,7 @@
         <a href="#services">Services</a>
         <a href="#how-it-works">How It Works</a>
         <a href="#enquire">Enquire</a>
+        <a href="activate.html">Activate a Service</a>
       </div>
     </div>
     <div class="container footer__bottom">
