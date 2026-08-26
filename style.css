@@ -24,6 +24,15 @@
   box-sizing: border-box;
 }
 
+/* Components below set their own `display` (flex/block/etc.) at the same
+   specificity as the browser's default [hidden] rule, which lets the
+   component's rule win the cascade and silently defeats `el.hidden = true`.
+   Force it back with !important so toggling `.hidden` always actually
+   hides the element, on any component. */
+[hidden] {
+  display: none !important;
+}
+
 html {
   scroll-behavior: smooth;
 }
@@ -903,6 +912,31 @@ input:focus, select:focus, textarea:focus {
   box-shadow: 0 0 0 3px rgba(var(--gold-rgb), 0.15);
 }
 
+input[type="file"] {
+  padding: 8px 10px;
+  color: var(--text-faint);
+  font-size: 0.85rem;
+}
+
+input[type="file"]::file-selector-button {
+  background: var(--surface-alt);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  padding: 8px 14px;
+  margin-right: 12px;
+  color: var(--text);
+  font-family: "IBM Plex Mono", monospace;
+  font-size: 0.78rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: border-color 0.2s ease, color 0.2s ease;
+}
+
+input[type="file"]::file-selector-button:hover {
+  border-color: var(--gold);
+  color: var(--gold-bright);
+}
+
 textarea {
   resize: vertical;
 }
@@ -1068,6 +1102,18 @@ textarea {
   font-family: "IBM Plex Mono", monospace;
   font-size: 0.9em;
   color: var(--text-dim);
+}
+
+.admin-image-thumb {
+  display: block;
+  margin-top: 12px;
+  max-width: 220px;
+  max-height: 140px;
+  width: auto;
+  height: auto;
+  border-radius: var(--radius);
+  border: 1px solid var(--border);
+  object-fit: cover;
 }
 
 .admin-actions {

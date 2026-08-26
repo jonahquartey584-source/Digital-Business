@@ -69,9 +69,17 @@
           </div>
 
           <div class="form-row">
-            <label for="adminPreviewImage">Preview image URL (optional)</label>
-            <input type="url" id="adminPreviewImage" name="adminPreviewImage" placeholder="https://.../screenshot.png" />
-            <p class="admin-hint">A screenshot or mockup of what they're getting — shown as a clickable preview on the redeem page (clicking it opens this same image URL). For a website, a screenshot of the draft site works well.</p>
+            <label for="adminPreviewImageFile">Preview image (optional)</label>
+            <input type="file" id="adminPreviewImageFile" name="adminPreviewImageFile" accept="image/png, image/jpeg, image/gif, image/webp" />
+            <p class="admin-hint">A screenshot or mockup of what they're getting — shown as a preview on the redeem page. Attach the file here (enter the admin password below first); it uploads straight away. For a website, a screenshot of the draft site works well.</p>
+            <p class="form-note" id="previewImageStatus"></p>
+            <img id="previewImageThumb" class="admin-image-thumb" alt="Uploaded preview" hidden />
+          </div>
+
+          <div class="form-row">
+            <label for="adminPreviewLink">Preview link (optional)</label>
+            <input type="url" id="adminPreviewLink" name="adminPreviewLink" placeholder="https://staging.client-site.com" />
+            <p class="admin-hint">Where clicking the preview image sends them — a staging link, a draft site, a Figma/Drive link, whatever's relevant. Leave blank to just open the attached image itself.</p>
           </div>
 
           <div class="form-row">

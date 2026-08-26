@@ -78,17 +78,22 @@ code:
    so it isn't publicly visible yet (see the deployment section below).
 3. Open `admin.html`, fill in the service/price/preview/payment link (and
    live URL, for a website client), click **Generate Account & Code**, then
-   **Save To Live Database**. Two optional fields shape what the client
+   **Save To Live Database**. A few optional fields shape what the client
    sees:
    - **Title** — used for the "Preview of …" heading on `activate.html`
      (e.g. "Sarah's Bakery Website"). Defaults to the service name if left
      blank.
-   - **Preview image URL** — a screenshot or mockup of what they're
+   - **Preview image** — attach a screenshot or mockup of what they're
      getting (for a website, a screenshot of the draft site works well).
-     If set, `activate.html` shows it as a clickable "Preview of …" frame
-     — clicking it opens the same image full-size in a new tab. If left
-     blank, that section is skipped entirely and the client just sees the
-     order summary below.
+     Choosing a file uploads it straight away via `api/upload_preview_image.php`
+     (needs the admin password entered first) and saves it into `/uploads`
+     on your host — no URL to paste. If set, `activate.html` shows it as a
+     "Preview of …" frame. If left blank, that section is skipped entirely
+     and the client just sees the order summary below.
+   - **Preview link** — optional. Where clicking the preview image sends
+     the client — a staging link, a draft site, a Figma/Drive link,
+     whatever's relevant. Leave it blank and clicking the image just opens
+     the attached image itself full-size.
 4. Send the client their account number and code — `admin.html` writes you
    a ready-to-send message for this.
 5. They go to `activate.html`, enter both, and see the preview (if you set
@@ -117,9 +122,9 @@ needed — plain PHP + PDO, and Stripe's webhook signature is verified by
 hand (`api/webhook.php`) rather than via their SDK.
 
 **How it works:** each client's row in a `clients` MySQL table holds their
-account number, code, service, price, a text preview, an optional preview
-*image* URL, payment link, optional live site URL, and a `status`
-(`pending_payment` or `active`). `activate.html`
+account number, code, service, price, a text preview, an optional uploaded
+preview *image*, an optional preview *link*, payment link, optional live
+site URL, and a `status` (`pending_payment` or `active`). `activate.html`
 calls `api/redeem.php` to look a client up — the account list itself never
 reaches the browser, unlike the `accounts-data.js` fallback. When Stripe
 confirms a payment, it calls `api/webhook.php`, which verifies the request
@@ -152,8 +157,12 @@ actually delivering the work is still on you.
    placeholder — you'll get the real value in step 6. `api/config.php` is
    gitignored — never commit it.
 4. **Upload everything.** Upload the whole site (all the `.html`/`.css`/`.js`
-   files plus the entire `api/` folder, `config.php` included) via FTP or
-   InfinityFree's file manager, to your domain's `htdocs` folder.
+   files plus the entire `api/` folder, `config.php` included, and the
+   `uploads/` folder) via FTP or InfinityFree's file manager, to your
+   domain's `htdocs` folder. `uploads/` is where attached preview images
+   land — it just needs to exist and be writable by PHP (InfinityFree's
+   default permissions are fine); its `.htaccess` stops anything uploaded
+   there from ever being run as a script.
 5. **Test the redeem flow without Stripe yet.** Visit `admin.html` on your
    live domain, generate a test client, and confirm **Save To Live
    Database** succeeds. Then confirm `activate.html` finds it. If
@@ -216,6 +225,10 @@ payment-triggered system, not just a cost saving:
 - **No custom cron/queues.** Activation here is a direct webhook → database
   update, not a queued job, so this doesn't apply — just flagging it as a
   constraint if you build on top of this later.
+- **Upload size limits.** `api/upload_preview_image.php` caps attached
+  preview images at 5MB, but your host's own `upload_max_filesize`/
+  `post_max_size` (set in InfinityFree's control panel, not in this repo)
+  can be lower — if an upload fails for no obvious reason, check those.
 
 If you outgrow these constraints, the same `api/` design (PHP + MySQL +
 manual Stripe signature verification) works unchanged on paid PHP hosting
@@ -288,12 +301,19 @@ using the `accounts-data.js` fallback described in
 - `api/redeem.php` — looks up an account+code, called by `activate.js`
 - `api/create_client.php` — admin-only endpoint that inserts a new client
   row, called by `admin.js`'s "Save To Live Database"
+- `api/upload_preview_image.php` — admin-only endpoint that saves an
+  attached preview image into `uploads/` and returns its URL, called the
+  moment you choose a file under "Preview image" in `admin.html`
 - `api/webhook.php` — Stripe webhook endpoint; verifies the signature by
   hand and flips a client's status to `active` on
   `checkout.session.completed`
 - `api/gate.php` — include this at the top of a website client's real
   `index.php` to hide it until their status is `active`
 - `api/.htaccess` — blocks direct web access to `api/config.php`
+- `uploads/` — where attached preview images are saved; its `.htaccess`
+  stops anything in there from being run as a script. The images
+  themselves are gitignored — only the folder and its `.htaccess` are
+  tracked
 - `style.css` — styling for all three pages
 - `script.js` — mobile nav toggle, footer year, enquiry form → email,
   scroll-reveal (shared by all pages; every selector it uses is

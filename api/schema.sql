@@ -10,6 +10,7 @@ CREATE TABLE IF NOT EXISTS clients (
   price VARCHAR(64) NOT NULL,
   preview TEXT,
   preview_image_url VARCHAR(500) NULL,
+  preview_link_url VARCHAR(500) NULL,
   payment_url VARCHAR(500) NOT NULL,
   live_url VARCHAR(500) NULL,
   status ENUM('pending_payment', 'active') NOT NULL DEFAULT 'pending_payment',
@@ -22,3 +23,4 @@ CREATE TABLE IF NOT EXISTS clients (
 -- whichever of these you're missing instead:
 -- ALTER TABLE clients ADD COLUMN preview_image_url VARCHAR(500) NULL AFTER preview;
 -- ALTER TABLE clients ADD COLUMN title VARCHAR(255) NULL AFTER activation_code;
+-- ALTER TABLE clients ADD COLUMN preview_link_url VARCHAR(500) NULL AFTER preview_image_url;

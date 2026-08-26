@@ -25,7 +25,7 @@ if ($account === '' || $code === '') {
 try {
     $pdo = get_db();
     $stmt = $pdo->prepare(
-        'SELECT account_number, title, service, price, preview, preview_image_url, payment_url, live_url, status
+        'SELECT account_number, title, service, price, preview, preview_image_url, preview_link_url, payment_url, live_url, status
          FROM clients
          WHERE account_number = :account AND activation_code = :code
          LIMIT 1'
@@ -51,6 +51,7 @@ echo json_encode([
     'price' => $client['price'],
     'preview' => $client['preview'],
     'previewImageUrl' => $client['preview_image_url'],
+    'previewLinkUrl' => $client['preview_link_url'],
     'paymentUrl' => $client['payment_url'],
     'liveUrl' => $client['live_url'],
     // 'pending_payment' or 'active' — activate.js shows a different result

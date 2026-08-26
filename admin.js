@@ -52,6 +52,7 @@ function buildSnippetHtml(data) {
     line("price", data.price),
     line("preview", data.preview),
     nullableLine("previewImageUrl", data.previewImageUrl),
+    nullableLine("previewLinkUrl", data.previewLinkUrl),
     line("paymentUrl", data.paymentUrl),
     nullableLine("liveUrl", data.liveUrl, false),
     `<p class="code-line">},<span class="cursor" aria-hidden="true"></span></p>`,
@@ -68,6 +69,7 @@ function buildSnippetText(data) {
     `  price: "${escapeJsString(data.price)}",`,
     `  preview: "${escapeJsString(data.preview || "")}",`,
     `  previewImageUrl: ${data.previewImageUrl ? `"${escapeJsString(data.previewImageUrl)}"` : "null"},`,
+    `  previewLinkUrl: ${data.previewLinkUrl ? `"${escapeJsString(data.previewLinkUrl)}"` : "null"},`,
     `  paymentUrl: "${escapeJsString(data.paymentUrl)}",`,
     `  liveUrl: ${data.liveUrl ? `"${escapeJsString(data.liveUrl)}"` : "null"},`,
     "},",
@@ -95,15 +97,69 @@ const messageOutput = document.getElementById("messageOutput");
 const regenerateBtn = document.getElementById("regenerateBtn");
 const saveBtn = document.getElementById("saveBtn");
 const saveNote = document.getElementById("saveNote");
+const previewImageFile = document.getElementById("adminPreviewImageFile");
+const previewImageStatus = document.getElementById("previewImageStatus");
+const previewImageThumb = document.getElementById("previewImageThumb");
 
 let currentData = null;
+
+// Set once the file chosen under "Preview image" has finished uploading
+// (see the change listener below). render() reads this instead of a typed
+// URL — the client just attaches the file, nothing to paste.
+let uploadedPreviewImageUrl = null;
+
+if (previewImageFile) {
+  previewImageFile.addEventListener("change", async () => {
+    const file = previewImageFile.files[0];
+    if (!file) return;
+
+    const adminPassword = adminForm.adminPassword.value;
+    if (!adminPassword) {
+      previewImageStatus.textContent = "Enter the admin password below first, then choose the file again.";
+      previewImageStatus.style.color = "#ff8a8a";
+      previewImageFile.value = "";
+      return;
+    }
+
+    uploadedPreviewImageUrl = null;
+    previewImageThumb.hidden = true;
+    previewImageStatus.textContent = "Uploading…";
+    previewImageStatus.style.color = "";
+
+    const formData = new FormData();
+    formData.append("image", file);
+    formData.append("adminPassword", adminPassword);
+
+    try {
+      const response = await fetch("api/upload_preview_image.php", {
+        method: "POST",
+        body: formData,
+      });
+      const result = await response.json();
+
+      if (response.ok && result.status === "uploaded") {
+        uploadedPreviewImageUrl = result.url;
+        previewImageStatus.textContent = `Uploaded ✓ ${file.name}`;
+        previewImageStatus.style.color = "";
+        previewImageThumb.src = result.url;
+        previewImageThumb.hidden = false;
+      } else {
+        previewImageStatus.textContent = result.message || "Upload failed — check the admin password and try again.";
+        previewImageStatus.style.color = "#ff8a8a";
+      }
+    } catch (err) {
+      previewImageStatus.textContent = "Couldn't reach api/upload_preview_image.php — is the PHP backend deployed?";
+      previewImageStatus.style.color = "#ff8a8a";
+    }
+  });
+}
 
 function render() {
   const title = adminForm.adminTitle.value.trim();
   const service = adminForm.adminService.value.trim();
   const price = adminForm.adminPrice.value.trim();
   const preview = adminForm.adminPreview.value.trim();
-  const previewImageUrl = adminForm.adminPreviewImage.value.trim();
+  const previewLinkUrl = adminForm.adminPreviewLink.value.trim();
   const basePaymentUrl = adminForm.adminPaymentUrl.value.trim();
   const liveUrl = adminForm.adminLiveUrl.value.trim();
 
@@ -116,13 +172,29 @@ function render() {
     saveNote.style.color = "#ff8a8a";
     return;
   }
+  if (previewImageFile && previewImageFile.files[0] && !uploadedPreviewImageUrl) {
+    saveNote.textContent = "Still uploading the preview image — wait for \"Uploaded ✓\" first.";
+    saveNote.style.color = "#ff8a8a";
+    return;
+  }
   saveNote.style.color = "";
 
   const account = generateAccountNumber();
   const code = generateActivationCode();
   const paymentUrl = withClientReference(basePaymentUrl, account);
 
-  currentData = { account, code, title, service, price, preview, previewImageUrl, paymentUrl, liveUrl };
+  currentData = {
+    account,
+    code,
+    title,
+    service,
+    price,
+    preview,
+    previewImageUrl: uploadedPreviewImageUrl,
+    previewLinkUrl,
+    paymentUrl,
+    liveUrl,
+  };
 
   snippetOutput.innerHTML = buildSnippetHtml(currentData);
   messageOutput.value = buildMessageText(currentData);

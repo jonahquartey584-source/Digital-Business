@@ -1,0 +1,25 @@
+# Uploaded preview images live here. This folder must stay writable by
+# PHP (api/upload_preview_image.php saves into it) but must NEVER be
+# allowed to execute scripts — that's what stops an uploaded file (even
+# one that slipped past the extension/MIME checks) from being run as
+# code. Covers both older (2.2) and current (2.4+) Apache.
+<IfModule mod_authz_core.c>
+  <FilesMatch "\.(php|php\d*|phtml|phar|pl|py|cgi|sh|asp|aspx)$">
+    Require all denied
+  </FilesMatch>
+</IfModule>
+<IfModule !mod_authz_core.c>
+  <FilesMatch "\.(php|php\d*|phtml|phar|pl|py|cgi|sh|asp|aspx)$">
+    Order allow,deny
+    Deny from all
+  </FilesMatch>
+</IfModule>
+
+# Belt and braces on hosts that still hand PHP files in here to the PHP
+# engine regardless of the rules above.
+<IfModule mod_php.c>
+  php_flag engine off
+</IfModule>
+<IfModule mod_php7.c>
+  php_flag engine off
+</IfModule>

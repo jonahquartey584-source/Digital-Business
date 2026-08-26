@@ -1,3 +1,10 @@
 # Real credentials — copy api/config.example.php to api/config.php and
 # fill in your own values. Never commit config.php.
 api/config.php
+
+# Client preview images uploaded via admin.html (api/upload_preview_image.php).
+# Keep the folder itself (and its .htaccess) tracked, just not what gets
+# uploaded into it.
+uploads/*
+!uploads/.htaccess
+!uploads/.gitkeep
