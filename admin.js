@@ -15,7 +15,7 @@ const REDEEM_URL = "https://qp-digital.netlify.app/activate.html"; // update if 
 // (checked server-side, in api/config.php / the ADMIN_SECURITY_ANSWER
 // environment variable) — the question text itself just lives here.
 // Change it to something only you'd know the answer to.
-const SECURITY_QUESTION = "What was the name of your first pet?";
+const SECURITY_QUESTION = "What is your wife's nickname?";
 
 // Avoid ambiguous characters (0/O, 1/I/L) so codes are easy to read back
 // over phone/email without mixing them up.
