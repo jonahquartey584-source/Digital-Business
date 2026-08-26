@@ -8,6 +8,12 @@
 // never says which one was wrong — just "wrong email, password, or answer"
 // either way, so a wrong guess can't be used to narrow down which factor
 // failed. Netlify-hosted equivalent of api/admin_login.php.
+//
+// Note for whoever's debugging a stray "isn't configured yet" error even
+// after setting all four environment variables: Netlify Functions read
+// their environment at deploy time, not live — a var set via the API/UI
+// after the last deploy won't be visible until the next one. Trigger a
+// redeploy (or just push again) after changing any of these.
 
 import type { Config, Context } from "@netlify/functions";
 import { createSessionToken, json, safeEqual } from "./_shared.mts";
