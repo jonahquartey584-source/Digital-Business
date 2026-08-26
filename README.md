@@ -279,9 +279,10 @@ using the `accounts-data.js` fallback described in
 
 ## Customizing
 
-- **Business email**: update `BUSINESS_EMAIL` in `script.js` and the address
-  shown in the footer of `index.html` — this is where enquiry form
-  submissions are sent (via a `mailto:` link).
+- **Business email/phone**: update `BUSINESS_EMAIL` in `script.js` (where
+  enquiry form submissions are sent, via a `mailto:` link) and the
+  email/phone shown in the footer of every page — currently
+  `jonahquartey584@gmail.com` / `07544 856633`.
 - **Services**: edit the cards inside the `#services` section of
   `index.html`, and keep the `<select>` options in the enquiry form
   (`#service`) in sync.

@@ -1,6 +1,6 @@
 // ---- Configuration ----------------------------------------------------
 // Update this to the email address that should receive enquiries.
-const BUSINESS_EMAIL = "hello@qpdigital.com";
+const BUSINESS_EMAIL = "jonahquartey584@gmail.com";
 
 // ---- Mobile nav toggle --------------------------------------------------
 const navToggle = document.getElementById("navToggle");

@@ -471,6 +471,11 @@ section {
   margin-bottom: 0;
 }
 
+.section__lead a {
+  color: var(--gold-bright);
+  text-decoration: underline;
+}
+
 /* Services grid */
 .grid {
   display: grid;
