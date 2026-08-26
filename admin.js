@@ -101,7 +101,16 @@ function render() {
   const basePaymentUrl = adminForm.adminPaymentUrl.value.trim();
   const liveUrl = adminForm.adminLiveUrl.value.trim();
 
-  if (!service || !price || !basePaymentUrl) return;
+  // Belt-and-braces: the inputs are also marked `required`, but don't rely
+  // on that alone (e.g. a re-triggered submit via regenerateBtn skips
+  // native browser validation entirely) — always give visible feedback
+  // rather than silently doing nothing.
+  if (!service || !price || !basePaymentUrl) {
+    saveNote.textContent = "Fill in Service, Price and Payment link first.";
+    saveNote.style.color = "#ff8a8a";
+    return;
+  }
+  saveNote.style.color = "";
 
   const account = generateAccountNumber();
   const code = generateActivationCode();
