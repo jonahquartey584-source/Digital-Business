@@ -1,36 +1,26 @@
 // ---------------------------------------------------------------------
-// Client accounts
+// Client accounts — OFFLINE FALLBACK ONLY
 // ---------------------------------------------------------------------
-// One entry per client. Workflow:
-//   1. Client enquires and you agree a price.
-//   2. You set up their paid service (e.g. a Stripe Payment Link, or a
-//      private checkout page) that only they should use.
-//   3. Add an entry below with an account number + activation code, the
-//      service name, the price you quoted them, a short preview of
-//      what's included, and their payment link.
-//   4. Send the client their account number and code (email/text).
-//   5. They go to activate.html, enter both, and land on their payment
-//      link to pay and go live.
+// activate.js checks api/redeem.php first (a real PHP/MySQL backend —
+// see the api/ folder and the README's deployment section). This file
+// is only used as a fallback if that backend can't be reached, e.g.
+// while previewing the site on plain static hosting with no PHP.
+//
+// Because of that, entries here can never reflect real payment status —
+// activate.js always treats a match here as "pending_payment". Use
+// admin.html's "Save to Database" button to create real, live client
+// accounts instead of adding them here by hand.
 //
 // IMPORTANT — this is NOT real access control.
 // This file ships as plain text to every visitor's browser. Anyone who
 // opens devtools or views page source can read every account number,
-// code, and payment link listed here — the "only they can access" part
-// only holds up because the codes aren't shared publicly, not because
-// they're actually protected. That's an acceptable trade-off for a
-// small number of short-lived, low-stakes codes, but don't rely on it
-// once you're issuing many at once, reusing codes, or handling
-// higher-value payments. For real per-client access control, this
-// lookup needs to move server-side — a small database plus a
-// serverless function (e.g. a Netlify/Vercel function or similar) that
-// checks the code and returns the payment link, so the full list is
-// never sent to the browser. See the README for more.
+// code, and payment link listed here.
 // ---------------------------------------------------------------------
 
 const CLIENT_ACCOUNTS = [
-  // Example entry — matches the sample "account card" shown on the
-  // homepage's "How It Works" section. Replace or remove it once you
-  // add real clients.
+  // Example entry — matches the sample "account record" shown on the
+  // homepage's "How It Works" section. Replace or remove it once you're
+  // running on the real backend.
   {
     account: "QP-2026-0158",
     code: "7F3K-9QXR",
@@ -39,9 +29,10 @@ const CLIENT_ACCOUNTS = [
     preview:
       "A 5-page mobile-friendly business website with an enquiry form, hosted and ready to customize once payment is confirmed.",
     paymentUrl: "https://buy.stripe.com/replace-with-real-payment-link",
+    liveUrl: null,
   },
 
-  // Add more clients here, e.g.:
+  // Add more here, e.g.:
   // {
   //   account: "QP-2026-0159",
   //   code: "A1B2-C3D4",
@@ -49,5 +40,6 @@ const CLIENT_ACCOUNTS = [
   //   price: "£150/month",
   //   preview: "Ongoing keyword tracking, on-page fixes, and a monthly report.",
   //   paymentUrl: "https://buy.stripe.com/...",
+  //   liveUrl: null,
   // },
 ];

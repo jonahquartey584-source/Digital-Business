@@ -1,80 +1,142 @@
-// Looks up the account number + activation code the visitor enters
-// against CLIENT_ACCOUNTS (see accounts-data.js) and, on a match, shows
-// a preview of the service they asked for, the price they were quoted,
-// and a "Pay & Activate" button linking to that client's payment URL.
+// Looks up the account number + activation code the visitor enters.
+//
+// Primary path: POST to api/redeem.php, a PHP/MySQL backend (see the
+// api/ folder and the README's "Going live with real payment automation"
+// section) that also reflects whether Stripe has already confirmed
+// payment for that account.
+//
+// Fallback: if api/redeem.php can't be reached (e.g. you're previewing
+// this on plain static hosting with no PHP, or haven't deployed the
+// backend yet), fall back to the static CLIENT_ACCOUNTS list in
+// accounts-data.js so the page still works for a demo/manual workflow —
+// just without live payment status.
 
 function normalizeCode(value) {
   return value.trim().toUpperCase().replace(/\s+/g, "");
+}
+
+async function lookupAccount(account, code) {
+  try {
+    const response = await fetch("api/redeem.php", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ account, code }),
+    });
+    if (!response.ok) throw new Error(`HTTP ${response.status}`);
+    return await response.json();
+  } catch (err) {
+    // Backend not reachable — fall back to the static demo list.
+    const accounts = typeof CLIENT_ACCOUNTS !== "undefined" ? CLIENT_ACCOUNTS : [];
+    const match = accounts.find(
+      (entry) => normalizeCode(entry.account) === account && normalizeCode(entry.code) === code
+    );
+    if (!match) return { status: "no_match" };
+    return {
+      status: "match_found",
+      account: match.account,
+      service: match.service,
+      price: match.price,
+      preview: match.preview,
+      paymentUrl: match.paymentUrl,
+      liveUrl: match.liveUrl || null,
+      activeStatus: "pending_payment",
+    };
+  }
+}
+
+function terminalWindow(lines) {
+  const body = lines
+    .map(([key, value, comma], i) => {
+      const indent = i === 0 ? "" : "code-line--indent";
+      return `<p class="code-line ${indent}"><span class="code-key">"${key}"</span><span class="code-punct">: </span><span class="code-string">"${value}"</span><span class="code-punct">${comma ? "," : ""}</span></p>`;
+    })
+    .join("");
+  return `
+    <div class="terminal-window">
+      <div class="terminal-window__bar">
+        <span class="terminal-window__dot"></span>
+        <span class="terminal-window__dot"></span>
+        <span class="terminal-window__dot"></span>
+        <span class="terminal-window__filename mono">response.json</span>
+      </div>
+      <div class="terminal-body mono">
+        <p class="code-line">{</p>
+        ${body}
+        <p class="code-line">}<span class="cursor" aria-hidden="true"></span></p>
+      </div>
+    </div>
+  `;
 }
 
 const activateForm = document.getElementById("activateForm");
 const activateResult = document.getElementById("activateResult");
 
 if (activateForm && activateResult) {
-  activateForm.addEventListener("submit", (event) => {
+  activateForm.addEventListener("submit", async (event) => {
     event.preventDefault();
 
-    const accountInput = normalizeCode(document.getElementById("accountNumber").value);
-    const codeInput = normalizeCode(document.getElementById("activationCode").value);
+    const account = normalizeCode(document.getElementById("accountNumber").value);
+    const code = normalizeCode(document.getElementById("activationCode").value);
 
-    const match = (typeof CLIENT_ACCOUNTS !== "undefined" ? CLIENT_ACCOUNTS : []).find(
-      (entry) => normalizeCode(entry.account) === accountInput && normalizeCode(entry.code) === codeInput
-    );
+    activateResult.className = "activate-result";
+    activateResult.innerHTML = `<p class="form-note">Checking your account…</p>`;
+    activateResult.hidden = false;
 
-    if (match) {
+    const result = await lookupAccount(account, code);
+
+    if (result.status === "match_found" && result.activeStatus === "active") {
       activateResult.className = "activate-result activate-result--success";
-      activateResult.innerHTML = `
-        <div class="terminal-window">
-          <div class="terminal-window__bar">
-            <span class="terminal-window__dot"></span>
-            <span class="terminal-window__dot"></span>
-            <span class="terminal-window__dot"></span>
-            <span class="terminal-window__filename mono">response.json</span>
-          </div>
-          <div class="terminal-body mono">
-            <p class="code-line">{</p>
-            <p class="code-line code-line--indent"><span class="code-key">"status"</span><span class="code-punct">: </span><span class="code-string">"match_found"</span><span class="code-punct">,</span></p>
-            <p class="code-line code-line--indent"><span class="code-key">"account"</span><span class="code-punct">: </span><span class="code-string">"${match.account}"</span><span class="code-punct">,</span></p>
-            <p class="code-line code-line--indent"><span class="code-key">"service"</span><span class="code-punct">: </span><span class="code-string">"${match.service}"</span><span class="code-punct">,</span></p>
-            <p class="code-line code-line--indent"><span class="code-key">"price"</span><span class="code-punct">: </span><span class="code-string">"${match.price}"</span></p>
-            <p class="code-line">}<span class="cursor" aria-hidden="true"></span></p>
-          </div>
+      activateResult.innerHTML =
+        terminalWindow([
+          ["status", "active", true],
+          ["account", result.account, true],
+          ["service", result.service, false],
+        ]) +
+        `
+        <div class="order-summary">
+          <p class="order-summary__label mono">Service Active</p>
+          <h3 class="order-summary__service">${result.service}</h3>
+          <p class="order-summary__preview">Payment confirmed — this service is live.</p>
+          ${
+            result.liveUrl
+              ? `<a class="btn btn--primary btn--lg" href="${result.liveUrl}" target="_blank" rel="noopener noreferrer">Visit Your Live Site →</a>`
+              : `<p class="order-summary__note">We'll be in touch if there's anything else needed to finish setting this up.</p>`
+          }
         </div>
+      `;
+    } else if (result.status === "match_found") {
+      activateResult.className = "activate-result activate-result--success";
+      activateResult.innerHTML =
+        terminalWindow([
+          ["status", "match_found", true],
+          ["account", result.account, true],
+          ["service", result.service, true],
+          ["price", result.price, false],
+        ]) +
+        `
         <div class="order-summary">
           <p class="order-summary__label mono">Order Summary</p>
-          <h3 class="order-summary__service">${match.service}</h3>
-          <p class="order-summary__preview">${match.preview || "Details of what's included will be confirmed with you directly."}</p>
+          <h3 class="order-summary__service">${result.service}</h3>
+          <p class="order-summary__preview">${result.preview || "Details of what's included will be confirmed with you directly."}</p>
           <div class="order-summary__price-row">
             <span class="order-summary__price-label mono">Total</span>
-            <span class="order-summary__price mono">${match.price}</span>
+            <span class="order-summary__price mono">${result.price}</span>
           </div>
-          <a class="btn btn--primary btn--lg" href="${match.paymentUrl}" target="_blank" rel="noopener noreferrer">Pay ${match.price} &amp; Activate →</a>
-          <p class="order-summary__note">Once your payment is confirmed, we'll activate this service for you.</p>
+          <a class="btn btn--primary btn--lg" href="${result.paymentUrl}" target="_blank" rel="noopener noreferrer">Pay ${result.price} &amp; Activate →</a>
+          <p class="order-summary__note">Once your payment is confirmed, this service is activated automatically.</p>
         </div>
       `;
     } else {
       activateResult.className = "activate-result activate-result--error";
-      activateResult.innerHTML = `
-        <div class="terminal-window">
-          <div class="terminal-window__bar">
-            <span class="terminal-window__dot"></span>
-            <span class="terminal-window__dot"></span>
-            <span class="terminal-window__dot"></span>
-            <span class="terminal-window__filename mono">response.json</span>
-          </div>
-          <div class="terminal-body mono">
-            <p class="code-line">{</p>
-            <p class="code-line code-line--indent"><span class="code-key">"status"</span><span class="code-punct">: </span><span class="code-string">"no_match"</span></p>
-            <p class="code-line">}<span class="cursor" aria-hidden="true"></span></p>
-          </div>
-        </div>
+      activateResult.innerHTML =
+        terminalWindow([["status", "no_match", false]]) +
+        `
         <div class="activate-result__message">
           <p>We couldn't find that account. Double-check the account number and code we sent you, or <a href="index.html#enquire">get in touch</a> if you think this is a mistake.</p>
         </div>
       `;
     }
 
-    activateResult.hidden = false;
     activateResult.scrollIntoView({ behavior: "smooth", block: "nearest" });
   });
 }

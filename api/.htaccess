@@ -1,0 +1,14 @@
+# Block direct web access to config.php (it holds real credentials).
+# Covers both older (2.2) and current (2.4+) Apache — InfinityFree's
+# exact version can vary.
+<IfModule mod_authz_core.c>
+  <Files "config.php">
+    Require all denied
+  </Files>
+</IfModule>
+<IfModule !mod_authz_core.c>
+  <Files "config.php">
+    Order allow,deny
+    Deny from all
+  </Files>
+</IfModule>

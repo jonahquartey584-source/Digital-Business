@@ -954,6 +954,91 @@ textarea {
   text-decoration: none;
 }
 
+.activate-footnote code {
+  background: var(--surface-alt);
+  padding: 1px 6px;
+  border-radius: 4px;
+  font-family: "IBM Plex Mono", monospace;
+  font-size: 0.85em;
+}
+
+/* Admin (New Client Setup) page */
+.admin-hint {
+  margin: 6px 0 0;
+  font-size: 0.8rem;
+  font-family: "IBM Plex Sans", sans-serif;
+  font-weight: 400;
+  text-transform: none;
+  letter-spacing: 0;
+  color: var(--text-faint);
+}
+
+.admin-hint code {
+  background: var(--surface-alt);
+  padding: 1px 6px;
+  border-radius: 4px;
+  font-family: "IBM Plex Mono", monospace;
+  font-size: 0.9em;
+  color: var(--text-dim);
+}
+
+.admin-actions {
+  margin-top: 4px;
+}
+
+.admin-output {
+  margin-top: 32px;
+  display: flex;
+  flex-direction: column;
+  gap: 28px;
+}
+
+.admin-output__block {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.admin-output__head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.admin-output__message {
+  width: 100%;
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  padding: 14px 16px;
+  color: var(--text);
+  font-family: "IBM Plex Mono", monospace;
+  font-size: 0.85rem;
+  line-height: 1.7;
+  resize: vertical;
+}
+
+#saveBlock {
+  padding: 22px 24px;
+  border: 1px solid var(--border);
+  border-left: 2px solid var(--gold);
+  border-radius: var(--radius);
+  background: var(--surface);
+  align-items: flex-start;
+}
+
+#saveBlock .btn {
+  width: 100%;
+}
+
+#saveNote {
+  margin: 12px 0 0;
+  font-family: "IBM Plex Mono", monospace;
+  font-size: 0.82rem;
+  color: var(--gold-bright);
+}
+
 /* Reveal-on-scroll (progressive enhancement, see script.js) */
 [data-reveal] {
   opacity: 0;
