@@ -1,6 +1,7 @@
 // Looks up the account number + activation code the visitor enters
 // against CLIENT_ACCOUNTS (see accounts-data.js) and, on a match, shows
-// a "Proceed to Payment" button linking to that client's payment URL.
+// a preview of the service they asked for, the price they were quoted,
+// and a "Pay & Activate" button linking to that client's payment URL.
 
 function normalizeCode(value) {
   return value.trim().toUpperCase().replace(/\s+/g, "");
@@ -34,13 +35,21 @@ if (activateForm && activateResult) {
             <p class="code-line">{</p>
             <p class="code-line code-line--indent"><span class="code-key">"status"</span><span class="code-punct">: </span><span class="code-string">"match_found"</span><span class="code-punct">,</span></p>
             <p class="code-line code-line--indent"><span class="code-key">"account"</span><span class="code-punct">: </span><span class="code-string">"${match.account}"</span><span class="code-punct">,</span></p>
-            <p class="code-line code-line--indent"><span class="code-key">"service"</span><span class="code-punct">: </span><span class="code-string">"${match.service}"</span></p>
+            <p class="code-line code-line--indent"><span class="code-key">"service"</span><span class="code-punct">: </span><span class="code-string">"${match.service}"</span><span class="code-punct">,</span></p>
+            <p class="code-line code-line--indent"><span class="code-key">"price"</span><span class="code-punct">: </span><span class="code-string">"${match.price}"</span></p>
             <p class="code-line">}<span class="cursor" aria-hidden="true"></span></p>
           </div>
         </div>
-        <div class="activate-result__message">
-          <p>Account verified. Continue to payment to activate this service.</p>
-          <a class="btn btn--primary btn--lg" href="${match.paymentUrl}" target="_blank" rel="noopener noreferrer">Proceed to Payment →</a>
+        <div class="order-summary">
+          <p class="order-summary__label mono">Order Summary</p>
+          <h3 class="order-summary__service">${match.service}</h3>
+          <p class="order-summary__preview">${match.preview || "Details of what's included will be confirmed with you directly."}</p>
+          <div class="order-summary__price-row">
+            <span class="order-summary__price-label mono">Total</span>
+            <span class="order-summary__price mono">${match.price}</span>
+          </div>
+          <a class="btn btn--primary btn--lg" href="${match.paymentUrl}" target="_blank" rel="noopener noreferrer">Pay ${match.price} &amp; Activate →</a>
+          <p class="order-summary__note">Once your payment is confirmed, we'll activate this service for you.</p>
         </div>
       `;
     } else {

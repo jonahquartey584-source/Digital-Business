@@ -849,10 +849,6 @@ textarea {
   background: var(--surface);
 }
 
-.activate-result--success .activate-result__message {
-  border-left: 2px solid var(--gold);
-}
-
 .activate-result--error .activate-result__message {
   border-left: 2px solid #a85d3f;
 }
@@ -864,6 +860,63 @@ textarea {
 
 .activate-result__message a {
   color: var(--gold-bright);
+}
+
+/* Order summary — service preview + price shown after a matched code */
+.order-summary {
+  padding: 26px 28px;
+  border-radius: var(--radius);
+  border: 1px solid var(--border);
+  border-left: 2px solid var(--gold);
+  background: var(--surface);
+}
+
+.order-summary__label {
+  font-size: 0.7rem;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--gold);
+  margin: 0 0 10px;
+}
+
+.order-summary__service {
+  font-size: 1.25rem;
+  margin-bottom: 10px;
+}
+
+.order-summary__preview {
+  color: var(--text-dim);
+  margin-bottom: 22px;
+}
+
+.order-summary__price-row {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  padding: 16px 0;
+  border-top: 1px solid var(--border-soft);
+  border-bottom: 1px solid var(--border-soft);
+  margin-bottom: 22px;
+}
+
+.order-summary__price-label {
+  font-size: 0.76rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--text-faint);
+}
+
+.order-summary__price {
+  font-size: 1.6rem;
+  font-weight: 600;
+  color: var(--gold-bright);
+  font-variant-numeric: tabular-nums;
+}
+
+.order-summary__note {
+  margin: 16px 0 0;
+  font-size: 0.86rem;
+  color: var(--text-faint);
 }
 
 .activate-footnote {

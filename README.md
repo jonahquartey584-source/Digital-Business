@@ -31,9 +31,10 @@ It's two pages: a one-page marketing site (`index.html`) and a client
 - **Footer / Contact** — contact details and quick links
 - **Activate a Service** (`activate.html`) — a client enters the account
   number and activation code you gave them; if it matches an entry in
-  `accounts-data.js`, they see the matched service and a "Proceed to
-  Payment" button linking straight to the payment link you set up for
-  them (see [Activating clients](#activating-clients) below)
+  `accounts-data.js`, they see an order summary (the service, a short
+  preview of what's included, and the price you quoted them) and a
+  "Pay & Activate" button linking straight to the payment link you set up
+  for them (see [Activating clients](#activating-clients) below)
 
 ## Design
 
@@ -61,13 +62,24 @@ code:
      account: "QP-2026-0159",
      code: "A1B2-C3D4",
      service: "SEO — Monthly Package",
+     price: "£150/month",
+     preview: "Ongoing keyword tracking, on-page fixes, and a monthly report.",
      paymentUrl: "https://buy.stripe.com/...",
    }
    ```
 4. Send the client their account number and code (email/text).
-5. They go to `activate.html`, enter both, and — if it matches — see the
-   service name and a "Proceed to Payment" button linking to `paymentUrl`.
-   A non-matching account/code shows a "no match" message instead.
+5. They go to `activate.html`, enter both, and — if it matches — see an
+   order summary built from `service`, `preview` and `price` (exactly what
+   they agreed to and what it costs), and a "Pay & Activate" button linking
+   to `paymentUrl`. A non-matching account/code shows a "no match" message
+   instead.
+6. Payment itself happens on `paymentUrl` (e.g. Stripe), outside this site.
+   "Activate" here means handing them the payment link for the exact thing
+   you quoted — actually switching the service on (publishing their site,
+   turning on the subscription, etc.) once payment lands is still on you to
+   do and confirm, unless/until `paymentUrl` points at something that
+   activates itself (e.g. a Stripe Payment Link tied to automatic
+   provisioning).
 
 **This is not real access control.** `accounts-data.js` ships as plain text
 to every visitor's browser — anyone who opens devtools or views page source
