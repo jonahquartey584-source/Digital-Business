@@ -2,6 +2,11 @@
 # fill in your own values. Never commit config.php.
 api/config.php
 
+# Netlify Functions backend (netlify/functions/) — local dev cache and
+# installed dependencies. Netlify installs these itself at deploy time.
+.netlify/
+node_modules/
+
 # Client preview images uploaded via admin.html (api/upload_preview_image.php).
 # Keep the folder itself (and its .htaccess) tracked, just not what gets
 # uploaded into it.

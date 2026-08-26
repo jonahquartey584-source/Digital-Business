@@ -1,0 +1,6 @@
+# Netlify config for the Functions backend under netlify/functions/ — see
+# the "Going live on Netlify" section in README.md. The site itself is
+# plain static HTML/CSS/JS with no build step, so there's no [build] block.
+
+[functions]
+  directory = "netlify/functions"

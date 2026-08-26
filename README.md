@@ -4,12 +4,21 @@ A website for Qp Digital, a digital services business — websites, CRM,
 SEO, booking systems, branding, reporting dashboards and automation.
 Three pages: a one-page marketing site (`index.html`), a client "redeem
 your service" page (`activate.html`), and an internal, unlinked "generate
-a new client's account + code" tool (`admin.html`) — plus a small PHP/MySQL
-backend under `api/` (see [Going live: automatic activation](#going-live-automatic-activation-on-payment))
-that makes payment genuinely trigger activation, built for PHP shared
-hosting (e.g. InfinityFree). Everything works without the backend too — it
-falls back to a static, manually-maintained list — just without live
-payment status.
+a new client's account + code" tool (`admin.html`) — plus a real backend
+that makes payment genuinely trigger activation. It ships as **two
+interchangeable backends that speak the exact same request/response
+shapes**, so `admin.html`/`activate.html` don't need to know or care which
+one is actually live:
+
+- **Netlify Functions + Blobs** (`netlify/functions/`) — this is what's
+  actually deployed at [qp-digital.netlify.app](https://qp-digital.netlify.app).
+  See [Going live on Netlify](#going-live-on-netlify).
+- **PHP + MySQL** (`api/`) — for PHP shared hosting (e.g. InfinityFree)
+  instead of Netlify. See
+  [Going live: automatic activation on payment](#going-live-automatic-activation-on-payment).
+
+Everything works with neither backend deployed too — it falls back to a
+static, manually-maintained list — just without live payment status.
 
 ## Sections
 
@@ -116,18 +125,88 @@ code:
    see a "Service Active" panel instead, with a link straight to their live
    site if you gave one.
 
-This whole flow needs the `api/` backend deployed (see next section). Until
-then, `admin.html`'s **Save To Live Database** button will fail (with a
-message telling you so) and fall back to the same experience as before:
+This whole flow needs one of the two backends deployed (see the next two
+sections) — on `qp-digital.netlify.app` that's already the case. Without
+either one, `admin.html`'s **Save To Live Database** button will fail (with
+a message telling you so) and fall back to the same experience as before:
 copy the generated snippet into `accounts-data.js` and redeploy — the client
 can still redeem their code and see the payment link, just without live
 status or automatic activation.
 
+## Going live on Netlify
+
+This is the backend actually deployed at
+[qp-digital.netlify.app](https://qp-digital.netlify.app) — Netlify
+Functions in place of PHP, [Netlify Blobs](https://docs.netlify.com/blobs/overview/)
+in place of MySQL, otherwise mechanically the same as the InfinityFree path
+below: a client record with an account number, code, service, price,
+preview, payment link, optional live URL, and a `status`
+(`pending_payment`/`active`) that a Stripe webhook flips the moment payment
+lands.
+
+Every function in `netlify/functions/` is deliberately routed (via its
+`config.path`) at the exact same URL its `api/*.php` counterpart uses —
+`create-client.mts` answers at `/api/create_client.php`, `redeem.mts` at
+`/api/redeem.php`, and so on. `admin.js`/`activate.js` never had to change
+at all; they just call `api/create_client.php` / `api/redeem.php` like
+always, and whichever backend is actually deployed answers. Uploaded
+preview images/files go into a `uploads` Blobs store instead of an
+`uploads/` folder, served back at the same `uploads/<filename>` URL by
+`uploads.mts`.
+
+### Deployment steps
+
+1. **Set environment variables.** In the Netlify UI → **Site configuration
+   → Environment variables**, add:
+   - `ADMIN_PASSWORD` — required to use `admin.html`'s **Save To Live
+     Database** and both upload buttons.
+   - `STRIPE_WEBHOOK_SECRET` — leave as a placeholder for now; you'll get
+     the real value in step 3.
+2. **Deploy.** Push this repo to Netlify (connect the Git repo, or deploy
+   the folder directly) — `netlify.toml` already points it at
+   `netlify/functions/`, and Netlify installs `package.json`'s
+   `@netlify/blobs` dependency itself, so there's nothing else to
+   configure. Test it: open `admin.html` on your live site, generate a
+   test client, confirm **Save To Live Database** succeeds, then confirm
+   `activate.html` finds it.
+3. **Connect Stripe.** In the Stripe Dashboard → Developers → Webhooks, add
+   an endpoint at `https://your-site.netlify.app/api/webhook.php`,
+   subscribed to `checkout.session.completed`. Stripe shows you a signing
+   secret (`whsec_...`) — put that in the `STRIPE_WEBHOOK_SECRET`
+   environment variable from step 1 and redeploy (or just trigger a
+   redeploy from the Netlify UI — no code change needed).
+4. **Set up each client's payment link so Stripe knows who paid.** Same as
+   the InfinityFree path — use a Stripe **Payment Link** for the service
+   (one per service tier is enough), and always use the link `admin.html`
+   generates (with `?client_reference_id=...` already appended), not the
+   bare one from Stripe.
+5. **`REDEEM_URL` in `admin.js`** is already set to
+   `https://qp-digital.netlify.app/activate.html` — update it if you move
+   to a different domain.
+
+Website clients (a single "coming soon → live" switch via `api/gate.php`)
+are the one part of the InfinityFree path that assumes PHP rendering the
+client's actual site — that doesn't carry over to a Netlify-hosted client
+site as-is. If you need that for a client hosted on Netlify, it needs its
+own equivalent (e.g. a small Netlify Function checking the same client's
+`status` before serving their site, or an Edge Function). Everything else
+in this section — account/code redemption, payment status, previews,
+uploads — works exactly as described.
+
+### Local testing
+
+`netlify dev` (from the [Netlify CLI](https://docs.netlify.com/cli/get-started/))
+runs the whole site, including `netlify/functions/`, with Blobs emulated
+locally — no separate database or PHP server needed. Set `ADMIN_PASSWORD`
+(and, if testing the webhook, `STRIPE_WEBHOOK_SECRET`) in a local `.env`
+file or via `netlify env:set`.
+
 ## Going live: automatic activation on payment
 
-This is what makes "pay → your website goes live instantly" actually true,
-built for **InfinityFree** (or any PHP + MySQL shared host) since that's
-where this site is meant to run. No Node.js, no Composer/shell access
+This is the alternative backend — same "pay → your website goes live
+instantly" mechanism as [Going live on Netlify](#going-live-on-netlify)
+above, built instead for **InfinityFree** (or any PHP + MySQL shared host)
+for if you ever move off Netlify. No Node.js, no Composer/shell access
 needed — plain PHP + PDO, and Stripe's webhook signature is verified by
 hand (`api/webhook.php`) rather than via their SDK.
 
@@ -200,8 +279,9 @@ actually delivering the work is still on you.
    ```
    Until their `status` is `active`, visitors see a "coming soon" page
    instead of their real site — the moment the webhook fires, it's live.
-9. **Update `REDEEM_URL`** at the top of `admin.js` to your real domain, so
-   the message `admin.html` writes for you links to the right place.
+9. **Update `REDEEM_URL`** at the top of `admin.js` to your real domain
+   (it currently points at `qp-digital.netlify.app`), so the message
+   `admin.html` writes for you links to the right place.
 
 ### Local testing
 
@@ -254,13 +334,13 @@ too — nothing here is InfinityFree-specific except the setup steps.
 
 ### Not real access control (the `accounts-data.js` fallback only)
 
-This caveat applies only when the `api/` backend isn't deployed and
+This caveat applies only when neither backend is deployed and
 `activate.html` is using `accounts-data.js` instead. That file ships as
 plain text to every visitor's browser — anyone who opens devtools or views
 page source can read every account number, code, and payment link on the
-list. Once `api/redeem.php` is live, this no longer applies: the account
-list stays server-side and the browser only ever learns about the one
-account/code pair it asked about.
+list. Once either `api/redeem.php` (PHP) or `redeem.mts` (Netlify) is live,
+this no longer applies: the account list stays server-side and the browser
+only ever learns about the one account/code pair it asked about.
 
 ## Running it
 
@@ -272,10 +352,11 @@ python3 -m http.server 8000
 ```
 
 `admin.html`'s "Save To Live Database" and `activate.html`'s live payment
-status need the `api/` backend, which needs PHP — see
-[Local testing](#local-testing) above. Without it, both pages still work
-using the `accounts-data.js` fallback described in
-[Activating clients](#activating-clients).
+status need one of the two backends running — either `netlify dev` (see
+[Going live on Netlify](#going-live-on-netlify)) or PHP (see
+[Local testing](#local-testing) under the InfinityFree section). Without
+either one, both pages still work using the `accounts-data.js` fallback
+described in [Activating clients](#activating-clients).
 
 ## Customizing
 
@@ -290,12 +371,15 @@ using the `accounts-data.js` fallback described in
   `:root` (`--gold`, `--bronze`, `--bg`, etc.) — swap these for your brand
   colors.
 - **Account numbers / activation codes / payments**: see
-  [Activating clients](#activating-clients) and
+  [Activating clients](#activating-clients),
+  [Going live on Netlify](#going-live-on-netlify), and
   [Going live: automatic activation on payment](#going-live-automatic-activation-on-payment)
   above.
-- **Admin password / DB credentials / Stripe webhook secret**: all in
-  `api/config.php` (copy from `api/config.example.php` — gitignored, never
-  commit real values).
+- **Admin password / Stripe webhook secret**: on Netlify, these are the
+  `ADMIN_PASSWORD` / `STRIPE_WEBHOOK_SECRET` environment variables (Site
+  configuration → Environment variables). On PHP/InfinityFree, they (plus
+  DB credentials) live in `api/config.php` (copy from
+  `api/config.example.php` — gitignored, never commit real values).
 
 ## Files
 
@@ -342,6 +426,25 @@ using the `accounts-data.js` fallback described in
 - `api/gate.php` — include this at the top of a website client's real
   `index.php` to hide it until their status is `active`
 - `api/.htaccess` — blocks direct web access to `api/config.php`
+- `netlify.toml` — points Netlify at `netlify/functions/`; no `[build]`
+  step needed since the site itself is plain static files
+- `package.json` — the one dependency (`@netlify/blobs`) the Functions
+  backend needs; Netlify installs it automatically on deploy
+- `netlify/functions/_shared.mts` — helpers shared by every function below
+  (constant-time password/signature comparison, JSON response helper, the
+  client record type) — not a route itself (leading `_` excludes it)
+- `netlify/functions/create-client.mts` — Netlify equivalent of
+  `api/create_client.php`, routed at the same `/api/create_client.php`
+  path so `admin.js` doesn't need to change
+- `netlify/functions/redeem.mts` — Netlify equivalent of `api/redeem.php`,
+  routed at `/api/redeem.php`
+- `netlify/functions/webhook.mts` — Netlify equivalent of `api/webhook.php`,
+  routed at `/api/webhook.php`
+- `netlify/functions/upload-preview-image.mts` / `upload-preview-file.mts`
+  — Netlify equivalents of the two PHP upload endpoints, saving into a
+  Blobs store instead of `uploads/`
+- `netlify/functions/uploads.mts` — serves files saved by the two upload
+  functions back at `uploads/<filename>`, matching the PHP version's URLs
 - `uploads/` — where attached preview images are saved; its `.htaccess`
   stops anything in there from being run as a script. The images
   themselves are gitignored — only the folder and its `.htaccess` are

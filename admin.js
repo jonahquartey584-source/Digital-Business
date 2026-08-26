@@ -5,7 +5,7 @@
 // you a snippet to paste into accounts-data.js as a fallback.
 
 const BUSINESS_NAME = "Qp Digital";
-const REDEEM_URL = "https://yourdomain.com/activate.html"; // update to your real domain once deployed
+const REDEEM_URL = "https://qp-digital.netlify.app/activate.html"; // update if you move to a different domain
 
 // Avoid ambiguous characters (0/O, 1/I/L) so codes are easy to read back
 // over phone/email without mixing them up.

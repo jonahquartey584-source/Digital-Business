@@ -1,0 +1,12 @@
+{
+  "name": "qp-digital-netlify-functions",
+  "private": true,
+  "type": "module",
+  "description": "Dependencies for the Netlify Functions backend under netlify/functions/ — the site itself has no build step.",
+  "dependencies": {
+    "@netlify/blobs": "^8"
+  },
+  "devDependencies": {
+    "@netlify/functions": "^2"
+  }
+}
