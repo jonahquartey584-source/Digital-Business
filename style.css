@@ -8,14 +8,15 @@
   --text: #f4eee2;
   --text-dim: #a89a83;
   --text-faint: #6f6455;
-  --gold: #d4af37;
-  --gold-bright: #f2d488;
-  --bronze: #9c6b2e;
+  --gold: #b8874b;
+  --gold-rgb: 184, 135, 75;
+  --gold-bright: #e0bd83;
+  --bronze: #7c4a24;
   --accent-text: #0c0b09;
   --gold-gradient: linear-gradient(135deg, var(--gold-bright), var(--gold) 48%, var(--bronze) 100%);
   --radius: 8px;
   --shadow: 0 24px 60px -24px rgba(0, 0, 0, 0.75);
-  --shadow-gold: 0 12px 32px -14px rgba(212, 175, 55, 0.45);
+  --shadow-gold: 0 12px 32px -14px rgba(var(--gold-rgb), 0.45);
   --max: 1160px;
 }
 
@@ -117,7 +118,7 @@ p {
 }
 
 .btn--primary:hover {
-  box-shadow: 0 16px 40px -14px rgba(212, 175, 55, 0.6);
+  box-shadow: 0 16px 40px -14px rgba(var(--gold-rgb), 0.6);
 }
 
 .btn--ghost {
@@ -256,19 +257,19 @@ p {
   background:
     repeating-linear-gradient(
       90deg,
-      rgba(212, 175, 55, 0.05) 0,
-      rgba(212, 175, 55, 0.05) 1px,
+      rgba(var(--gold-rgb), 0.05) 0,
+      rgba(var(--gold-rgb), 0.05) 1px,
       transparent 1px,
       transparent 64px
     ),
     repeating-linear-gradient(
       0deg,
-      rgba(212, 175, 55, 0.05) 0,
-      rgba(212, 175, 55, 0.05) 1px,
+      rgba(var(--gold-rgb), 0.05) 0,
+      rgba(var(--gold-rgb), 0.05) 1px,
       transparent 1px,
       transparent 64px
     ),
-    radial-gradient(circle at 82% 12%, rgba(212, 175, 55, 0.14), transparent 45%);
+    radial-gradient(circle at 82% 12%, rgba(var(--gold-rgb), 0.14), transparent 45%);
   mask-image: linear-gradient(to bottom, black, transparent 96%);
 }
 
@@ -487,7 +488,7 @@ section {
   font-family: "IBM Plex Mono", monospace;
   font-size: 4.4rem;
   font-weight: 600;
-  color: rgba(212, 175, 55, 0.1);
+  color: rgba(var(--gold-rgb), 0.1);
   line-height: 1;
   pointer-events: none;
 }
@@ -620,9 +621,9 @@ section {
   letter-spacing: 0.08em;
   padding: 5px 10px;
   border-radius: 20px;
-  background: rgba(212, 175, 55, 0.12);
+  background: rgba(var(--gold-rgb), 0.12);
   color: var(--gold-bright);
-  border: 1px solid rgba(212, 175, 55, 0.35);
+  border: 1px solid rgba(var(--gold-rgb), 0.35);
   white-space: nowrap;
 }
 
@@ -735,7 +736,7 @@ input, select, textarea {
 input:focus, select:focus, textarea:focus {
   outline: none;
   border-color: var(--gold);
-  box-shadow: 0 0 0 3px rgba(212, 175, 55, 0.15);
+  box-shadow: 0 0 0 3px rgba(var(--gold-rgb), 0.15);
 }
 
 textarea {
