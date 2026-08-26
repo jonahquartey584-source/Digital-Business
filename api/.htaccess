@@ -12,3 +12,15 @@
     Deny from all
   </Files>
 </IfModule>
+
+# Many Apache/PHP setups strip the Authorization header before PHP ever
+# sees it. admin_auth.php needs it (the admin session token travels as
+# "Authorization: Bearer <token>"), so forward it explicitly.
+<IfModule mod_rewrite.c>
+  RewriteEngine On
+  RewriteCond %{HTTP:Authorization} ^(.+)$
+  RewriteRule .* - [E=HTTP_AUTHORIZATION:%1]
+</IfModule>
+<IfModule mod_setenvif.c>
+  SetEnvIf Authorization "(.*)" HTTP_AUTHORIZATION=$1
+</IfModule>

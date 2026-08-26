@@ -1,8 +1,8 @@
 <?php
 // Shared logic for the admin-only upload endpoints (api/upload_preview_image.php,
-// api/upload_preview_file.php). Both require the admin password, save the
-// uploaded file into /uploads under a random filename, and return
-// { status, url } as JSON.
+// api/upload_preview_file.php). Both require a valid admin session (see
+// admin_auth.php), save the uploaded file into /uploads under a random
+// filename, and return { status, url } as JSON.
 //
 // $resolveExtension is called with (finfo-detected MIME type, original
 // filename) and must return either a safe lowercase extension string to
@@ -18,11 +18,11 @@ function handle_admin_upload(callable $resolveExtension, int $maxBytes): void
         exit;
     }
 
-    require_once __DIR__ . '/config.php';
+    require_once __DIR__ . '/admin_auth.php';
 
-    if (!hash_equals(ADMIN_PASSWORD, (string) ($_POST['adminPassword'] ?? ''))) {
+    if (!require_admin_session()) {
         http_response_code(401);
-        echo json_encode(['status' => 'error', 'message' => 'Wrong admin password']);
+        echo json_encode(['status' => 'error', 'message' => 'Not logged in — log into admin.html again']);
         exit;
     }
 

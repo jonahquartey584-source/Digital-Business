@@ -3,9 +3,19 @@
 // appended so the Stripe webhook can identify them), and either saves the
 // client straight to the live database (api/create_client.php) or gives
 // you a snippet to paste into accounts-data.js as a fallback.
+//
+// Gated behind a login (email + password + a personal security-question
+// answer, checked by api/admin_login.php) rather than a single shared
+// password entered per action — see wireLogin() below.
 
 const BUSINESS_NAME = "Qp Digital";
 const REDEEM_URL = "https://qp-digital.netlify.app/activate.html"; // update if you move to a different domain
+
+// Shown as the label on the login form. Only the *answer* is a secret
+// (checked server-side, in api/config.php / the ADMIN_SECURITY_ANSWER
+// environment variable) — the question text itself just lives here.
+// Change it to something only you'd know the answer to.
+const SECURITY_QUESTION = "What was the name of your first pet?";
 
 // Avoid ambiguous characters (0/O, 1/I/L) so codes are easy to read back
 // over phone/email without mixing them up.
@@ -90,6 +100,142 @@ function buildMessageText({ account, code, service, price }) {
   ].join("\n");
 }
 
+// --- Login / session ------------------------------------------------------
+//
+// sessionStorage (not localStorage) on purpose: this is an admin tool, so
+// the login doesn't outlive the browser tab. The token itself also expires
+// server-side after 12 hours regardless (see api/admin_login.php).
+
+const SESSION_STORAGE_KEY = "qpAdminSession";
+
+const loginSection = document.getElementById("loginSection");
+const adminToolSection = document.getElementById("adminToolSection");
+const loginForm = document.getElementById("loginForm");
+const loginBtn = document.getElementById("loginBtn");
+const loginNote = document.getElementById("loginNote");
+const loginSecurityQuestionLabel = document.getElementById("loginSecurityQuestionLabel");
+const loggedInEmail = document.getElementById("loggedInEmail");
+const logoutBtn = document.getElementById("logoutBtn");
+
+if (loginSecurityQuestionLabel) {
+  loginSecurityQuestionLabel.textContent = SECURITY_QUESTION;
+}
+
+function getSession() {
+  try {
+    const raw = sessionStorage.getItem(SESSION_STORAGE_KEY);
+    return raw ? JSON.parse(raw) : null;
+  } catch (err) {
+    return null;
+  }
+}
+
+function saveSession(token, email) {
+  sessionStorage.setItem(SESSION_STORAGE_KEY, JSON.stringify({ token, email }));
+}
+
+function clearSession() {
+  sessionStorage.removeItem(SESSION_STORAGE_KEY);
+}
+
+// Decodes the token's own `exp` claim so the UI can proactively show the
+// login screen again — this is just for a smooth UI, not what actually
+// enforces expiry (the backend re-verifies the signature and exp on every
+// request regardless).
+function isTokenExpired(token) {
+  try {
+    const [payload] = token.split(".");
+    const { exp } = JSON.parse(atob(payload.replace(/-/g, "+").replace(/_/g, "/")));
+    return typeof exp !== "number" || exp * 1000 <= Date.now();
+  } catch (err) {
+    return true;
+  }
+}
+
+function showLoginScreen(message) {
+  if (loginSection) loginSection.hidden = false;
+  if (adminToolSection) adminToolSection.hidden = true;
+  if (loginNote) {
+    loginNote.textContent = message || "";
+    loginNote.style.color = message ? "#ff8a8a" : "";
+  }
+  if (loginForm) loginForm.reset();
+}
+
+function showAdminTool(email) {
+  if (loginSection) loginSection.hidden = true;
+  if (adminToolSection) adminToolSection.hidden = false;
+  if (loggedInEmail) loggedInEmail.textContent = email;
+}
+
+// Called by every authenticated fetch below when the server says the
+// session is invalid/expired, so the UI falls back to the login screen
+// instead of silently failing.
+function handleSessionRejected() {
+  clearSession();
+  showLoginScreen("Your session expired — log in again.");
+}
+
+function currentAuthHeader() {
+  const session = getSession();
+  return session ? { Authorization: `Bearer ${session.token}` } : {};
+}
+
+(function restoreSession() {
+  const session = getSession();
+  if (session && !isTokenExpired(session.token)) {
+    showAdminTool(session.email);
+  } else {
+    clearSession();
+    showLoginScreen();
+  }
+})();
+
+if (loginForm) {
+  loginForm.addEventListener("submit", async (event) => {
+    event.preventDefault();
+
+    const email = loginForm.loginEmail.value.trim();
+    const password = loginForm.loginPassword.value;
+    const securityAnswer = loginForm.loginSecurityAnswer.value;
+
+    loginBtn.disabled = true;
+    loginNote.textContent = "Logging in…";
+    loginNote.style.color = "";
+
+    try {
+      const response = await fetch("api/admin_login.php", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email, password, securityAnswer }),
+      });
+      const result = await response.json();
+
+      if (response.ok && result.status === "ok") {
+        saveSession(result.token, email);
+        showAdminTool(email);
+      } else {
+        loginNote.textContent = result.message || "Wrong email, password, or answer.";
+        loginNote.style.color = "#ff8a8a";
+      }
+    } catch (err) {
+      loginNote.textContent = "Couldn't reach api/admin_login.php — is the backend deployed?";
+      loginNote.style.color = "#ff8a8a";
+    } finally {
+      loginBtn.disabled = false;
+    }
+  });
+}
+
+if (logoutBtn) {
+  logoutBtn.addEventListener("click", () => {
+    clearSession();
+    showLoginScreen();
+  });
+}
+
+// --- New client setup tool -------------------------------------------------
+
 const adminForm = document.getElementById("adminForm");
 const adminOutput = document.getElementById("adminOutput");
 const snippetOutput = document.getElementById("snippetOutput");
@@ -111,9 +257,9 @@ let currentData = null;
 let uploadedPreviewImageUrl = null;
 let uploadedPreviewFileUrl = null;
 
-// Shared upload flow for both file inputs: requires the admin password,
-// POSTs the file to `endpoint`, and calls `onUploaded(url, file)` once it's
-// saved server-side. `statusEl` shows progress/errors inline.
+// Shared upload flow for both file inputs: sends the logged-in session
+// token, POSTs the file to `endpoint`, and calls `onUploaded(url, file)`
+// once it's saved server-side. `statusEl` shows progress/errors inline.
 function wireFileUpload(fileInput, statusEl, endpoint, onUploaded) {
   if (!fileInput) return;
 
@@ -121,36 +267,35 @@ function wireFileUpload(fileInput, statusEl, endpoint, onUploaded) {
     const file = fileInput.files[0];
     if (!file) return;
 
-    const adminPassword = adminForm.adminPassword.value;
-    if (!adminPassword) {
-      statusEl.textContent = "Enter the admin password below first, then choose the file again.";
-      statusEl.style.color = "#ff8a8a";
-      fileInput.value = "";
-      return;
-    }
-
     onUploaded(null); // clear any previous upload while this one's in flight
     statusEl.textContent = "Uploading…";
     statusEl.style.color = "";
 
     const formData = new FormData();
     formData.append("file", file);
-    formData.append("adminPassword", adminPassword);
 
     try {
-      const response = await fetch(endpoint, { method: "POST", body: formData });
+      const response = await fetch(endpoint, {
+        method: "POST",
+        headers: currentAuthHeader(),
+        body: formData,
+      });
       const result = await response.json();
 
       if (response.ok && result.status === "uploaded") {
         statusEl.textContent = `Uploaded ✓ ${file.name}`;
         statusEl.style.color = "";
         onUploaded(result.url, file);
+      } else if (response.status === 401) {
+        statusEl.textContent = "";
+        fileInput.value = "";
+        handleSessionRejected();
       } else {
-        statusEl.textContent = result.message || "Upload failed — check the admin password and try again.";
+        statusEl.textContent = result.message || "Upload failed — try again.";
         statusEl.style.color = "#ff8a8a";
       }
     } catch (err) {
-      statusEl.textContent = `Couldn't reach ${endpoint} — is the PHP backend deployed?`;
+      statusEl.textContent = `Couldn't reach ${endpoint} — is the backend deployed?`;
       statusEl.style.color = "#ff8a8a";
     }
   });
@@ -235,13 +380,6 @@ if (saveBtn) {
   saveBtn.addEventListener("click", async () => {
     if (!currentData) return;
 
-    const adminPassword = adminForm.adminPassword.value;
-    if (!adminPassword) {
-      saveNote.textContent = "Enter the admin password above first.";
-      saveNote.style.color = "#ff8a8a";
-      return;
-    }
-
     saveBtn.disabled = true;
     saveNote.textContent = "Saving…";
     saveNote.style.color = "";
@@ -249,20 +387,23 @@ if (saveBtn) {
     try {
       const response = await fetch("api/create_client.php", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ ...currentData, adminPassword }),
+        headers: { "Content-Type": "application/json", ...currentAuthHeader() },
+        body: JSON.stringify(currentData),
       });
       const result = await response.json();
 
       if (response.ok && result.status === "created") {
         saveNote.textContent = `Saved — ${result.account} is live and ready to redeem.`;
         saveNote.style.color = "";
+      } else if (response.status === 401) {
+        saveNote.textContent = "";
+        handleSessionRejected();
       } else {
-        saveNote.textContent = result.message || "Couldn't save — check the admin password and try again.";
+        saveNote.textContent = result.message || "Couldn't save — try again.";
         saveNote.style.color = "#ff8a8a";
       }
     } catch (err) {
-      saveNote.textContent = "Couldn't reach api/create_client.php — is the PHP backend deployed? Use the snippet below instead for now.";
+      saveNote.textContent = "Couldn't reach api/create_client.php — is the backend deployed? Use the snippet below instead for now.";
       saveNote.style.color = "#ff8a8a";
     } finally {
       saveBtn.disabled = false;

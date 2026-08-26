@@ -102,10 +102,11 @@ code:
    - **Preview image** — attach a screenshot or mockup of what they're
      getting (for a website, a screenshot of the draft site works well).
      Choosing a file uploads it straight away via `api/upload_preview_image.php`
-     (needs the admin password entered first) and saves it into `/uploads`
-     on your host — no URL to paste. If set, `activate.html` shows it as a
-     "Preview of …" frame. If left blank, that section is skipped entirely
-     and the client just sees the order summary below.
+     (you'll need to be logged in — see [Admin login](#admin-login) below)
+     and saves it into `/uploads` on your host — no URL to paste. If set,
+     `activate.html` shows it as a "Preview of …" frame. If left blank, that
+     section is skipped entirely and the client just sees the order summary
+     below.
    - **Preview file** — optional. Where clicking the preview image sends
      the client. Attach anything — most usefully an **HTML prototype** of
      their site (it opens live, right in their browser, exactly like the
@@ -133,6 +134,38 @@ copy the generated snippet into `accounts-data.js` and redeploy — the client
 can still redeem their code and see the payment link, just without live
 status or automatic activation.
 
+## Admin login
+
+`admin.html` is gated behind a login — email + password + the answer to a
+personal security question — rather than a single shared password typed
+into every action. Log in once and it stays logged in (in that browser tab)
+for 12 hours; **Save To Live Database** and both upload buttons then just
+work, no further prompts.
+
+Set all four of these (same names on both backends — Netlify environment
+variables, or the matching `define(...)` in `api/config.php` for
+PHP/InfinityFree):
+
+- `ADMIN_EMAIL` — anything you like, doesn't need to be a real inbox.
+- `ADMIN_PASSWORD`
+- `ADMIN_SECURITY_ANSWER` — matched case-insensitively (`Rex`, `rex`, and
+  `  REX  ` all count as the same answer).
+- `ADMIN_SESSION_SECRET` — not something you type in; just a long random
+  string that needs to exist and stay secret (e.g.
+  `php -r "echo bin2hex(random_bytes(32));"`). It's what signs the login
+  session — nothing else uses it.
+
+The security *question* itself (the label shown on the login form, e.g.
+"What was the name of your first pet?") isn't an environment variable — set
+it once in `admin.js`, in the `SECURITY_QUESTION` constant near the top.
+
+Mechanically: logging in gets you a signed, 12-hour token (no server-side
+session store — the token carries its own expiry and is verified by
+recomputing its signature). `admin.html` holds onto it and sends it as
+`Authorization: Bearer <token>` on every create-client/upload call; those
+endpoints check the token instead of a password. If it expires (or you
+click **Log out**), you're back at the login screen.
+
 ## Going live on Netlify
 
 This is the backend actually deployed at
@@ -158,8 +191,9 @@ preview images/files go into a `uploads` Blobs store instead of an
 
 1. **Set environment variables.** In the Netlify UI → **Site configuration
    → Environment variables**, add:
-   - `ADMIN_PASSWORD` — required to use `admin.html`'s **Save To Live
-     Database** and both upload buttons.
+   - `ADMIN_EMAIL`, `ADMIN_PASSWORD`, `ADMIN_SECURITY_ANSWER`,
+     `ADMIN_SESSION_SECRET` — required to log into `admin.html` at all
+     (see [Admin login](#admin-login) above).
    - `STRIPE_WEBHOOK_SECRET` — leave as a placeholder for now; you'll get
      the real value in step 3.
 2. **Deploy.** Push this repo to Netlify (connect the Git repo, or deploy
@@ -197,9 +231,10 @@ uploads — works exactly as described.
 
 `netlify dev` (from the [Netlify CLI](https://docs.netlify.com/cli/get-started/))
 runs the whole site, including `netlify/functions/`, with Blobs emulated
-locally — no separate database or PHP server needed. Set `ADMIN_PASSWORD`
-(and, if testing the webhook, `STRIPE_WEBHOOK_SECRET`) in a local `.env`
-file or via `netlify env:set`.
+locally — no separate database or PHP server needed. Set `ADMIN_EMAIL`,
+`ADMIN_PASSWORD`, `ADMIN_SECURITY_ANSWER`, `ADMIN_SESSION_SECRET` (and, if
+testing the webhook, `STRIPE_WEBHOOK_SECRET`) in a local `.env` file or via
+`netlify env:set`.
 
 ## Going live: automatic activation on payment
 
@@ -241,10 +276,11 @@ actually delivering the work is still on you.
    panel), select your database, and run `api/schema.sql` (Import tab, or
    paste it into the SQL tab).
 3. **Configure the backend.** Copy `api/config.example.php` to
-   `api/config.php` and fill in the database credentials from step 1, a
-   real `ADMIN_PASSWORD`, and (for now) leave `STRIPE_WEBHOOK_SECRET` as a
-   placeholder — you'll get the real value in step 6. `api/config.php` is
-   gitignored — never commit it.
+   `api/config.php` and fill in the database credentials from step 1, real
+   values for `ADMIN_EMAIL`/`ADMIN_PASSWORD`/`ADMIN_SECURITY_ANSWER`/
+   `ADMIN_SESSION_SECRET` (see [Admin login](#admin-login) above), and (for
+   now) leave `STRIPE_WEBHOOK_SECRET` as a placeholder — you'll get the real
+   value in step 6. `api/config.php` is gitignored — never commit it.
 4. **Upload everything.** Upload the whole site (all the `.html`/`.css`/`.js`
    files plus the entire `api/` folder, `config.php` included, and the
    `uploads/` folder) via FTP or InfinityFree's file manager, to your
@@ -324,9 +360,9 @@ payment-triggered system, not just a cost saving:
   including `.html`, so you can attach a real prototype the client opens
   live. It still blocks anything that could run as *server-side* code
   (`.php` and friends — see `api/upload_preview_file.php`'s comment for the
-  full list), and both upload endpoints require the admin password, the
-  same trust boundary as FTP/file-manager access to your host already
-  gives you.
+  full list), and both upload endpoints require a valid admin login (see
+  [Admin login](#admin-login) above), the same trust boundary as
+  FTP/file-manager access to your host already gives you.
 
 If you outgrow these constraints, the same `api/` design (PHP + MySQL +
 manual Stripe signature verification) works unchanged on paid PHP hosting
@@ -375,10 +411,12 @@ described in [Activating clients](#activating-clients).
   [Going live on Netlify](#going-live-on-netlify), and
   [Going live: automatic activation on payment](#going-live-automatic-activation-on-payment)
   above.
-- **Admin password / Stripe webhook secret**: on Netlify, these are the
-  `ADMIN_PASSWORD` / `STRIPE_WEBHOOK_SECRET` environment variables (Site
-  configuration → Environment variables). On PHP/InfinityFree, they (plus
-  DB credentials) live in `api/config.php` (copy from
+- **Admin login / Stripe webhook secret**: on Netlify, these are the
+  `ADMIN_EMAIL` / `ADMIN_PASSWORD` / `ADMIN_SECURITY_ANSWER` /
+  `ADMIN_SESSION_SECRET` / `STRIPE_WEBHOOK_SECRET` environment variables
+  (Site configuration → Environment variables) — see
+  [Admin login](#admin-login) above. On PHP/InfinityFree, they (plus DB
+  credentials) live in `api/config.php` (copy from
   `api/config.example.php` — gitignored, never commit real values).
 
 ## Files
@@ -403,7 +441,7 @@ described in [Activating clients](#activating-clients).
 - `activate.js` — calls `api/redeem.php` (falling back to
   `accounts-data.js`) and renders the match/no-match/active result
 - `api/config.example.php` — template for `api/config.php` (DB
-  credentials, admin password, Stripe webhook secret) — copy it, fill it
+  credentials, admin login, Stripe webhook secret) — copy it, fill it
   in, never commit the copy
 - `api/schema.sql` — the `clients` table definition; import this into your
   MySQL database once
@@ -411,7 +449,11 @@ described in [Activating clients](#activating-clients).
 - `api/redeem.php` — looks up an account+code, called by `activate.js`
 - `api/create_client.php` — admin-only endpoint that inserts a new client
   row, called by `admin.js`'s "Save To Live Database"
-- `api/upload_helpers.php` — shared upload logic (admin password check,
+- `api/admin_auth.php` — shared session-token logic (create/verify) used by
+  `api/admin_login.php` and every admin-only action endpoint
+- `api/admin_login.php` — checks email + password + security answer,
+  returns a session token; called by admin.html's login form
+- `api/upload_helpers.php` — shared upload logic (admin session check,
   size cap, save into `uploads/`) used by both upload endpoints below
 - `api/upload_preview_image.php` — admin-only endpoint that saves an
   attached preview image into `uploads/` and returns its URL, called the
@@ -431,8 +473,11 @@ described in [Activating clients](#activating-clients).
 - `package.json` — the one dependency (`@netlify/blobs`) the Functions
   backend needs; Netlify installs it automatically on deploy
 - `netlify/functions/_shared.mts` — helpers shared by every function below
-  (constant-time password/signature comparison, JSON response helper, the
-  client record type) — not a route itself (leading `_` excludes it)
+  (constant-time comparison, JSON response helper, the client record type,
+  admin session-token create/verify) — not a route itself (leading `_`
+  excludes it)
+- `netlify/functions/admin-login.mts` — Netlify equivalent of
+  `api/admin_login.php`, routed at `/api/admin_login.php`
 - `netlify/functions/create-client.mts` — Netlify equivalent of
   `api/create_client.php`, routed at the same `/api/create_client.php`
   path so `admin.js` doesn't need to change

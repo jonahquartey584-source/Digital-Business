@@ -12,7 +12,7 @@
 import type { Config, Context } from "@netlify/functions";
 import { getStore } from "@netlify/blobs";
 import { randomBytes } from "node:crypto";
-import { json, safeEqual } from "./_shared.mts";
+import { json, requireAdminSession } from "./_shared.mts";
 
 // The real image type is sniffed from the file's magic bytes, not its
 // filename or the browser-supplied MIME header — both are easy to fake.
@@ -51,17 +51,15 @@ export default async (req: Request, context: Context) => {
     return json(405, { status: "error", message: "Method not allowed" });
   }
 
-  const adminPassword = Netlify.env.get("ADMIN_PASSWORD") ?? "";
+  if (!requireAdminSession(req)) {
+    return json(401, { status: "error", message: "Not logged in — log into admin.html again" });
+  }
 
   let formData: FormData;
   try {
     formData = await req.formData();
   } catch {
     return json(400, { status: "error", message: "Invalid upload" });
-  }
-
-  if (!adminPassword || !safeEqual(adminPassword, String(formData.get("adminPassword") ?? ""))) {
-    return json(401, { status: "error", message: "Wrong admin password" });
   }
 
   const file = formData.get("file");

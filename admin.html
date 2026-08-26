@@ -39,12 +39,43 @@
       <div class="container activate-hero__inner">
         <p class="eyebrow">Internal Tool — Not Linked From The Site</p>
         <h1>New Client Setup<span class="cursor" aria-hidden="true"></span></h1>
-        <p class="hero__lead">
-          Fill this in for a client whose service is ready. Generates an account number
-          and activation code, then saves the client straight to the live database — or,
-          if you haven't deployed the backend yet, gives you a snippet to paste into
-          <code>accounts-data.js</code> instead.
-        </p>
+
+        <div id="loginSection">
+          <p class="hero__lead">Log in to use this tool.</p>
+          <form class="enquiry-form activate-form" id="loginForm">
+            <div class="form-row">
+              <label for="loginEmail">Email</label>
+              <input type="email" id="loginEmail" name="loginEmail" autocomplete="username" required />
+            </div>
+
+            <div class="form-row">
+              <label for="loginPassword">Password</label>
+              <input type="password" id="loginPassword" name="loginPassword" autocomplete="current-password" required />
+            </div>
+
+            <div class="form-row">
+              <label id="loginSecurityQuestionLabel" for="loginSecurityAnswer">Security question</label>
+              <input type="text" id="loginSecurityAnswer" name="loginSecurityAnswer" autocomplete="off" required />
+            </div>
+
+            <div class="admin-actions">
+              <button type="submit" class="btn btn--primary btn--lg" id="loginBtn">Log In →</button>
+            </div>
+            <p class="form-note" id="loginNote"></p>
+          </form>
+        </div>
+
+        <div id="adminToolSection" hidden>
+          <p class="hero__lead">
+            Fill this in for a client whose service is ready. Generates an account number
+            and activation code, then saves the client straight to the live database — or,
+            if you haven't deployed the backend yet, gives you a snippet to paste into
+            <code>accounts-data.js</code> instead.
+          </p>
+          <p class="activate-footnote" style="margin-top:0;">
+            Logged in as <strong id="loggedInEmail"></strong> —
+            <button type="button" class="btn btn--ghost" id="logoutBtn">Log out</button>
+          </p>
 
         <form class="enquiry-form activate-form" id="adminForm">
           <div class="form-row">
@@ -71,7 +102,7 @@
           <div class="form-row">
             <label for="adminPreviewImageFile">Preview image (optional)</label>
             <input type="file" id="adminPreviewImageFile" name="adminPreviewImageFile" accept="image/png, image/jpeg, image/gif, image/webp" />
-            <p class="admin-hint">A screenshot or mockup of what they're getting — shown as a preview on the redeem page. Attach the file here (enter the admin password below first); it uploads straight away. For a website, a screenshot of the draft site works well.</p>
+            <p class="admin-hint">A screenshot or mockup of what they're getting — shown as a preview on the redeem page. Attach the file here and it uploads straight away. For a website, a screenshot of the draft site works well.</p>
             <p class="form-note" id="previewImageStatus"></p>
             <img id="previewImageThumb" class="admin-image-thumb" alt="Uploaded preview" hidden />
           </div>
@@ -93,11 +124,6 @@
             <label for="adminLiveUrl">Live site URL (optional)</label>
             <input type="url" id="adminLiveUrl" name="adminLiveUrl" placeholder="https://client-domain.com" />
             <p class="admin-hint">Only for website clients whose domain you already know. Shown to them once their service is active.</p>
-          </div>
-
-          <div class="form-row">
-            <label for="adminPassword">Admin password</label>
-            <input type="password" id="adminPassword" name="adminPassword" placeholder="Required to save to the live database" autocomplete="current-password" />
           </div>
 
           <div class="admin-actions">
@@ -146,6 +172,7 @@
           whole flow, including a simulated payment, without touching the real database?
           Use the <a href="pipeline-tester.html">Pipeline Tester</a>.
         </p>
+        </div>
       </div>
     </section>
   </main>

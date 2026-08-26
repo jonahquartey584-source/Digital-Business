@@ -19,9 +19,19 @@ define('DB_PASS', 'your-database-password');
 // ---------------------------------------------------------------------
 // Admin
 // ---------------------------------------------------------------------
-// Required to create new client accounts via admin.html / api/create_client.php.
-// Change this to a real password before you rely on this.
+// admin.html logs in with all three of these before it'll let you create
+// new client accounts or upload previews — see api/admin_login.php. Change
+// every one of these to real values before you rely on this.
+define('ADMIN_EMAIL', 'you@example.com');
 define('ADMIN_PASSWORD', 'change-me');
+// The question itself is set in admin.html/admin.js (SECURITY_QUESTION) —
+// only the answer needs to live here, and it's matched case-insensitively.
+define('ADMIN_SECURITY_ANSWER', 'change-me');
+// A long random string used only to sign session tokens — not something
+// you type in, just something that needs to exist and stay secret. Any
+// random 32+ character string works, e.g. generate one with
+// `php -r "echo bin2hex(random_bytes(32));"`.
+define('ADMIN_SESSION_SECRET', 'change-me-to-a-long-random-string');
 
 // ---------------------------------------------------------------------
 // Stripe

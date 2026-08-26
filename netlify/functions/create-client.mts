@@ -9,19 +9,18 @@
 
 import type { Config, Context } from "@netlify/functions";
 import { getStore } from "@netlify/blobs";
-import { json, safeEqual, type ClientRecord } from "./_shared.mts";
+import { json, requireAdminSession, type ClientRecord } from "./_shared.mts";
 
 export default async (req: Request, context: Context) => {
   if (req.method !== "POST") {
     return json(405, { status: "error", message: "Method not allowed" });
   }
 
-  const input = await req.json().catch(() => ({}) as Record<string, unknown>);
-
-  const adminPassword = Netlify.env.get("ADMIN_PASSWORD") ?? "";
-  if (!adminPassword || !safeEqual(adminPassword, String(input.adminPassword ?? ""))) {
-    return json(401, { status: "error", message: "Wrong admin password" });
+  if (!requireAdminSession(req)) {
+    return json(401, { status: "error", message: "Not logged in — log into admin.html again" });
   }
+
+  const input = await req.json().catch(() => ({}) as Record<string, unknown>);
 
   const account = String(input.account ?? "").trim().toUpperCase();
   const code = String(input.code ?? "").trim().toUpperCase();

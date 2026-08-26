@@ -15,14 +15,14 @@
 // code on a traditional host — the extensions below, mirroring the PHP
 // version's list (irrelevant to how Netlify Functions execute, but kept
 // for parity and because uploads.mts serves these back verbatim). Both
-// upload endpoints are gated behind ADMIN_PASSWORD, the same trust
-// boundary as direct access to this site's Netlify project already gives
-// an admin.
+// upload endpoints require a valid admin session (see admin-login.mts),
+// the same trust boundary as direct access to this site's Netlify project
+// already gives an admin.
 
 import type { Config, Context } from "@netlify/functions";
 import { getStore } from "@netlify/blobs";
 import { randomBytes } from "node:crypto";
-import { json, safeEqual } from "./_shared.mts";
+import { json, requireAdminSession } from "./_shared.mts";
 
 const BLOCKED_EXTENSIONS = new Set([
   "php", "php3", "php4", "php5", "php7", "php8", "phtml", "phar", "pht",
@@ -54,17 +54,15 @@ export default async (req: Request, context: Context) => {
     return json(405, { status: "error", message: "Method not allowed" });
   }
 
-  const adminPassword = Netlify.env.get("ADMIN_PASSWORD") ?? "";
+  if (!requireAdminSession(req)) {
+    return json(401, { status: "error", message: "Not logged in — log into admin.html again" });
+  }
 
   let formData: FormData;
   try {
     formData = await req.formData();
   } catch {
     return json(400, { status: "error", message: "Invalid upload" });
-  }
-
-  if (!adminPassword || !safeEqual(adminPassword, String(formData.get("adminPassword") ?? ""))) {
-    return json(401, { status: "error", message: "Wrong admin password" });
   }
 
   const file = formData.get("file");

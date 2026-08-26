@@ -1,9 +1,12 @@
 <?php
 // Admin-only endpoint: creates a new client row (account number, code,
 // service, price, preview text/image, payment link). Called from
-// admin.html's "Save to Database" button. Requires the admin password.
+// admin.html's "Save to Database" button. Requires a valid admin session
+// (see admin_login.php / admin_auth.php) — admin.html gets one by logging
+// in with the email/password/security answer first.
 
 require_once __DIR__ . '/db.php';
+require_once __DIR__ . '/admin_auth.php';
 
 header('Content-Type: application/json');
 
@@ -13,13 +16,13 @@ if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
     exit;
 }
 
-$input = json_decode(file_get_contents('php://input'), true) ?? [];
-
-if (!hash_equals(ADMIN_PASSWORD, (string) ($input['adminPassword'] ?? ''))) {
+if (!require_admin_session()) {
     http_response_code(401);
-    echo json_encode(['status' => 'error', 'message' => 'Wrong admin password']);
+    echo json_encode(['status' => 'error', 'message' => 'Not logged in — log into admin.html again']);
     exit;
 }
+
+$input = json_decode(file_get_contents('php://input'), true) ?? [];
 
 $account = strtoupper(trim((string) ($input['account'] ?? '')));
 $code = strtoupper(trim((string) ($input['code'] ?? '')));
