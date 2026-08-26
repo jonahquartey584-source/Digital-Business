@@ -63,6 +63,12 @@
           </div>
 
           <div class="form-row">
+            <label for="adminPreviewImage">Preview image URL (optional)</label>
+            <input type="url" id="adminPreviewImage" name="adminPreviewImage" placeholder="https://.../screenshot.png" />
+            <p class="admin-hint">A screenshot or mockup of what they're getting. For a website, a screenshot of the draft site works well. Shown to the client instead of the raw JSON preview on the redeem page — leave blank to keep the JSON view.</p>
+          </div>
+
+          <div class="form-row">
             <label for="adminPaymentUrl">Payment link</label>
             <input type="url" id="adminPaymentUrl" name="adminPaymentUrl" placeholder="https://buy.stripe.com/..." required />
             <p class="admin-hint">Their account number is appended automatically as <code>?client_reference_id=...</code> — this is how the Stripe webhook knows whose payment just landed. Leave the base link as-is (no query string of your own).</p>

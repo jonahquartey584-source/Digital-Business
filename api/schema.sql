@@ -8,9 +8,15 @@ CREATE TABLE IF NOT EXISTS clients (
   service VARCHAR(255) NOT NULL,
   price VARCHAR(64) NOT NULL,
   preview TEXT,
+  preview_image_url VARCHAR(500) NULL,
   payment_url VARCHAR(500) NOT NULL,
   live_url VARCHAR(500) NULL,
   status ENUM('pending_payment', 'active') NOT NULL DEFAULT 'pending_payment',
   created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
   activated_at DATETIME NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+-- Already ran this once against an older version of this file (before
+-- preview_image_url existed)? CREATE TABLE IF NOT EXISTS above is a no-op
+-- on an existing table, so run this once instead to add the new column:
+-- ALTER TABLE clients ADD COLUMN preview_image_url VARCHAR(500) NULL AFTER preview;

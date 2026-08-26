@@ -28,6 +28,7 @@ const CLIENT_ACCOUNTS = [
     price: "£450",
     preview:
       "A 5-page mobile-friendly business website with an enquiry form, hosted and ready to customize once payment is confirmed.",
+    previewImageUrl: null,
     paymentUrl: "https://buy.stripe.com/replace-with-real-payment-link",
     liveUrl: null,
   },
@@ -39,6 +40,7 @@ const CLIENT_ACCOUNTS = [
   //   service: "SEO — Monthly Package",
   //   price: "£150/month",
   //   preview: "Ongoing keyword tracking, on-page fixes, and a monthly report.",
+  //   previewImageUrl: null, // e.g. a screenshot/mockup URL — shown instead of the JSON block
   //   paymentUrl: "https://buy.stripe.com/...",
   //   liveUrl: null,
   // },

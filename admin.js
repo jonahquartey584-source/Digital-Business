@@ -50,6 +50,7 @@ function buildSnippetHtml(data) {
     line("service", data.service),
     line("price", data.price),
     line("preview", data.preview),
+    nullableLine("previewImageUrl", data.previewImageUrl),
     line("paymentUrl", data.paymentUrl),
     nullableLine("liveUrl", data.liveUrl, false),
     `<p class="code-line">},<span class="cursor" aria-hidden="true"></span></p>`,
@@ -64,6 +65,7 @@ function buildSnippetText(data) {
     `  service: "${escapeJsString(data.service)}",`,
     `  price: "${escapeJsString(data.price)}",`,
     `  preview: "${escapeJsString(data.preview || "")}",`,
+    `  previewImageUrl: ${data.previewImageUrl ? `"${escapeJsString(data.previewImageUrl)}"` : "null"},`,
     `  paymentUrl: "${escapeJsString(data.paymentUrl)}",`,
     `  liveUrl: ${data.liveUrl ? `"${escapeJsString(data.liveUrl)}"` : "null"},`,
     "},",
@@ -98,6 +100,7 @@ function render() {
   const service = adminForm.adminService.value.trim();
   const price = adminForm.adminPrice.value.trim();
   const preview = adminForm.adminPreview.value.trim();
+  const previewImageUrl = adminForm.adminPreviewImage.value.trim();
   const basePaymentUrl = adminForm.adminPaymentUrl.value.trim();
   const liveUrl = adminForm.adminLiveUrl.value.trim();
 
@@ -116,7 +119,7 @@ function render() {
   const code = generateActivationCode();
   const paymentUrl = withClientReference(basePaymentUrl, account);
 
-  currentData = { account, code, service, price, preview, paymentUrl, liveUrl };
+  currentData = { account, code, service, price, preview, previewImageUrl, paymentUrl, liveUrl };
 
   snippetOutput.innerHTML = buildSnippetHtml(currentData);
   messageOutput.value = buildMessageText(currentData);

@@ -37,6 +37,7 @@ async function lookupAccount(account, code) {
       service: match.service,
       price: match.price,
       preview: match.preview,
+      previewImageUrl: match.previewImageUrl || null,
       paymentUrl: match.paymentUrl,
       liveUrl: match.liveUrl || null,
       activeStatus: "pending_payment",
@@ -68,6 +69,35 @@ function terminalWindow(lines) {
   `;
 }
 
+// Shows an actual visual preview of the service (e.g. a website screenshot)
+// when one was set on the client's account, in place of the raw JSON
+// terminal block. Falls back to terminalWindow() (via the caller) when no
+// image was provided — there's nothing to visually preview otherwise.
+function previewFrame(result) {
+  if (!result.previewImageUrl) return null;
+
+  let urlLabel = result.service || "Preview";
+  if (result.liveUrl) {
+    try {
+      urlLabel = new URL(result.liveUrl).hostname;
+    } catch (err) {
+      urlLabel = result.liveUrl;
+    }
+  }
+
+  return `
+    <div class="preview-frame">
+      <div class="preview-frame__bar">
+        <span class="preview-frame__dot"></span>
+        <span class="preview-frame__dot"></span>
+        <span class="preview-frame__dot"></span>
+        <span class="preview-frame__url mono">${urlLabel}</span>
+      </div>
+      <img class="preview-frame__image" src="${result.previewImageUrl}" alt="Preview of ${result.service}" loading="lazy" />
+    </div>
+  `;
+}
+
 const activateForm = document.getElementById("activateForm");
 const activateResult = document.getElementById("activateResult");
 
@@ -87,11 +117,12 @@ if (activateForm && activateResult) {
     if (result.status === "match_found" && result.activeStatus === "active") {
       activateResult.className = "activate-result activate-result--success";
       activateResult.innerHTML =
-        terminalWindow([
-          ["status", "active", true],
-          ["account", result.account, true],
-          ["service", result.service, false],
-        ]) +
+        (previewFrame(result) ||
+          terminalWindow([
+            ["status", "active", true],
+            ["account", result.account, true],
+            ["service", result.service, false],
+          ])) +
         `
         <div class="order-summary">
           <p class="order-summary__label mono">Service Active</p>
@@ -107,12 +138,13 @@ if (activateForm && activateResult) {
     } else if (result.status === "match_found") {
       activateResult.className = "activate-result activate-result--success";
       activateResult.innerHTML =
-        terminalWindow([
-          ["status", "match_found", true],
-          ["account", result.account, true],
-          ["service", result.service, true],
-          ["price", result.price, false],
-        ]) +
+        (previewFrame(result) ||
+          terminalWindow([
+            ["status", "match_found", true],
+            ["account", result.account, true],
+            ["service", result.service, true],
+            ["price", result.price, false],
+          ])) +
         `
         <div class="order-summary">
           <p class="order-summary__label mono">Order Summary</p>

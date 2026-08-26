@@ -78,12 +78,17 @@ code:
    so it isn't publicly visible yet (see the deployment section below).
 3. Open `admin.html`, fill in the service/price/preview/payment link (and
    live URL, for a website client), click **Generate Account & Code**, then
-   **Save To Live Database**.
+   **Save To Live Database**. Optionally add a **preview image URL** — a
+   screenshot or mockup of what they're getting (for a website, a
+   screenshot of the draft site works well). If you set one, the client
+   sees that image on `activate.html` instead of the raw JSON preview; if
+   you leave it blank, they see the JSON block instead.
 4. Send the client their account number and code — `admin.html` writes you
    a ready-to-send message for this.
 5. They go to `activate.html`, enter both, and see an order summary built
-   from the service, preview and price you set — exactly what they agreed
-   to — with a "Pay & Activate" button linking to their payment link.
+   from the service, preview (image or JSON) and price you set — exactly
+   what they agreed to — with a "Pay & Activate" button linking to their
+   payment link.
 6. The moment Stripe confirms their payment, a webhook flips their account
    to active automatically — no manual step. If they check `activate.html`
    again (or their account was already active when they first checked), they
@@ -106,8 +111,9 @@ needed — plain PHP + PDO, and Stripe's webhook signature is verified by
 hand (`api/webhook.php`) rather than via their SDK.
 
 **How it works:** each client's row in a `clients` MySQL table holds their
-account number, code, service, price, preview, payment link, optional live
-site URL, and a `status` (`pending_payment` or `active`). `activate.html`
+account number, code, service, price, a text preview, an optional preview
+*image* URL, payment link, optional live site URL, and a `status`
+(`pending_payment` or `active`). `activate.html`
 calls `api/redeem.php` to look a client up — the account list itself never
 reaches the browser, unlike the `accounts-data.js` fallback. When Stripe
 confirms a payment, it calls `api/webhook.php`, which verifies the request

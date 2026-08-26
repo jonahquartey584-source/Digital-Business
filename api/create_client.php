@@ -1,7 +1,7 @@
 <?php
 // Admin-only endpoint: creates a new client row (account number, code,
-// service, price, preview, payment link). Called from admin.html's
-// "Save to Database" button. Requires the admin password.
+// service, price, preview text/image, payment link). Called from
+// admin.html's "Save to Database" button. Requires the admin password.
 
 require_once __DIR__ . '/db.php';
 
@@ -26,6 +26,7 @@ $code = strtoupper(trim((string) ($input['code'] ?? '')));
 $service = trim((string) ($input['service'] ?? ''));
 $price = trim((string) ($input['price'] ?? ''));
 $preview = trim((string) ($input['preview'] ?? ''));
+$previewImageUrl = trim((string) ($input['previewImageUrl'] ?? ''));
 $paymentUrl = trim((string) ($input['paymentUrl'] ?? ''));
 $liveUrl = trim((string) ($input['liveUrl'] ?? ''));
 
@@ -38,8 +39,8 @@ if ($account === '' || $code === '' || $service === '' || $price === '' || $paym
 try {
     $pdo = get_db();
     $stmt = $pdo->prepare(
-        "INSERT INTO clients (account_number, activation_code, service, price, preview, payment_url, live_url, status)
-         VALUES (:account, :code, :service, :price, :preview, :payment_url, :live_url, 'pending_payment')"
+        "INSERT INTO clients (account_number, activation_code, service, price, preview, preview_image_url, payment_url, live_url, status)
+         VALUES (:account, :code, :service, :price, :preview, :preview_image_url, :payment_url, :live_url, 'pending_payment')"
     );
     $stmt->execute([
         'account' => $account,
@@ -47,6 +48,7 @@ try {
         'service' => $service,
         'price' => $price,
         'preview' => $preview,
+        'preview_image_url' => $previewImageUrl !== '' ? $previewImageUrl : null,
         'payment_url' => $paymentUrl,
         'live_url' => $liveUrl !== '' ? $liveUrl : null,
     ]);
