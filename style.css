@@ -230,19 +230,55 @@ p {
   width: 100%;
 }
 
-.nav-secondary {
+.nav a.nav-secondary {
   margin-left: auto;
-  padding-bottom: 4px;
-  border-bottom: 1px dashed var(--border);
+  padding: 7px 14px;
+  border: 1px solid var(--border);
+  border-radius: 999px;
 }
 
-.nav-secondary.is-active,
-.nav-secondary.is-active::after {
-  color: var(--gold-bright);
+.nav-secondary::after {
+  display: none;
 }
 
+.nav-secondary:hover,
 .nav-secondary.is-active {
+  color: var(--gold-bright);
   border-color: var(--gold);
+}
+
+/* "Already a client?" banner — top of the homepage, above the hero */
+.client-bar {
+  background: var(--surface-alt);
+  border-bottom: 1px solid var(--border-soft);
+}
+
+.client-bar__inner {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  flex-wrap: wrap;
+  padding: 11px 24px;
+  font-family: "IBM Plex Mono", monospace;
+  font-size: 0.8rem;
+  text-align: center;
+}
+
+.client-bar__inner span {
+  color: var(--text-dim);
+}
+
+.client-bar__inner a {
+  color: var(--gold-bright);
+  text-decoration: none;
+  font-weight: 600;
+  border-bottom: 1px solid var(--gold);
+  padding-bottom: 1px;
+}
+
+.client-bar__inner a:hover {
+  color: var(--gold);
 }
 
 .nav-toggle {
