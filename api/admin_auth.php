@@ -10,7 +10,8 @@
 // server-side session store needed, so a plain stateless PHP script can
 // verify one without a database round-trip.
 
-const SESSION_TTL_SECONDS = 12 * 60 * 60; // 12 hours
+const SESSION_TTL_SECONDS = 12 * 60 * 60; // 12 hours — default, no "remember me"
+const REMEMBERED_SESSION_TTL_SECONDS = 30 * 24 * 60 * 60; // 30 days — "remember me" checked
 
 function base64url_encode(string $data): string
 {
@@ -22,9 +23,9 @@ function base64url_decode(string $data): string
     return (string) base64_decode(strtr($data, '-_', '+/'));
 }
 
-function create_session_token(string $secret): string
+function create_session_token(string $secret, int $ttlSeconds = SESSION_TTL_SECONDS): string
 {
-    $payload = base64url_encode(json_encode(['exp' => time() + SESSION_TTL_SECONDS]));
+    $payload = base64url_encode(json_encode(['exp' => time() + $ttlSeconds]));
     $signature = hash_hmac('sha256', $payload, $secret);
     return $payload . '.' . $signature;
 }

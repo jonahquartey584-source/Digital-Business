@@ -32,10 +32,11 @@ export function json(status: number, body: unknown): Response {
 // store needed, so it works statelessly across separate function
 // invocations. Mirrors api/admin_auth.php on the PHP side.
 
-const SESSION_TTL_SECONDS = 12 * 60 * 60; // 12 hours
+export const SESSION_TTL_SECONDS = 12 * 60 * 60; // 12 hours — default, no "remember me"
+export const REMEMBERED_SESSION_TTL_SECONDS = 30 * 24 * 60 * 60; // 30 days — "remember me" checked
 
-export function createSessionToken(secret: string): string {
-  const payload = Buffer.from(JSON.stringify({ exp: Math.floor(Date.now() / 1000) + SESSION_TTL_SECONDS })).toString(
+export function createSessionToken(secret: string, ttlSeconds: number = SESSION_TTL_SECONDS): string {
+  const payload = Buffer.from(JSON.stringify({ exp: Math.floor(Date.now() / 1000) + ttlSeconds })).toString(
     "base64url"
   );
   const signature = createHmac("sha256", secret).update(payload).digest("hex");

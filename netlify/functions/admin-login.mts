@@ -16,7 +16,7 @@
 // redeploy (or just push again) after changing any of these.
 
 import type { Config, Context } from "@netlify/functions";
-import { createSessionToken, json, safeEqual } from "./_shared.mts";
+import { createSessionToken, json, REMEMBERED_SESSION_TTL_SECONDS, safeEqual, SESSION_TTL_SECONDS } from "./_shared.mts";
 
 function normalize(value: string): string {
   return value.trim().toLowerCase();
@@ -49,7 +49,8 @@ export default async (req: Request, context: Context) => {
     return json(401, { status: "error", message: "Wrong email, password, or answer" });
   }
 
-  return json(200, { status: "ok", token: createSessionToken(sessionSecret) });
+  const ttlSeconds = input.remember ? REMEMBERED_SESSION_TTL_SECONDS : SESSION_TTL_SECONDS;
+  return json(200, { status: "ok", token: createSessionToken(sessionSecret, ttlSeconds) });
 };
 
 export const config: Config = {

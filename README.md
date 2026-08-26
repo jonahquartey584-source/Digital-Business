@@ -138,9 +138,19 @@ status or automatic activation.
 
 `admin.html` is gated behind a login — email + password + the answer to a
 personal security question — rather than a single shared password typed
-into every action. Log in once and it stays logged in (in that browser tab)
-for 12 hours; **Save To Live Database** and both upload buttons then just
-work, no further prompts.
+into every action. Log in once and **Save To Live Database** and both
+upload buttons just work after that, no further prompts, for as long as the
+session lasts:
+
+- Left unchecked, **Remember me** logs you in for 12 hours, and the login
+  doesn't survive closing the browser tab (kept in `sessionStorage`).
+- Checked, it logs you in for 30 days and survives closing the browser
+  entirely (kept in `localStorage` instead) — for your own device, not a
+  shared/public one.
+
+Either way, **Log out** ends it immediately, and logging in again always
+starts a fresh session on whatever this login screen's checkbox is set to
+at the time.
 
 Set all four of these (same names on both backends — Netlify environment
 variables, or the matching `define(...)` in `api/config.php` for
@@ -159,9 +169,10 @@ The security *question* itself (the label shown on the login form, e.g.
 "What was the name of your first pet?") isn't an environment variable — set
 it once in `admin.js`, in the `SECURITY_QUESTION` constant near the top.
 
-Mechanically: logging in gets you a signed, 12-hour token (no server-side
-session store — the token carries its own expiry and is verified by
-recomputing its signature). `admin.html` holds onto it and sends it as
+Mechanically: logging in gets you a signed token — 12 hours or 30 days
+depending on **Remember me** — with no server-side session store (the
+token carries its own expiry and is verified by recomputing its
+signature). `admin.html` holds onto it and sends it as
 `Authorization: Bearer <token>` on every create-client/upload call; those
 endpoints check the token instead of a password. If it expires (or you
 click **Log out**), you're back at the login screen.

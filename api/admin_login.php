@@ -52,4 +52,5 @@ if (!$emailOk || !$passwordOk || !$answerOk) {
     exit;
 }
 
-echo json_encode(['status' => 'ok', 'token' => create_session_token(ADMIN_SESSION_SECRET)]);
+$ttlSeconds = !empty($input['remember']) ? REMEMBERED_SESSION_TTL_SECONDS : SESSION_TTL_SECONDS;
+echo json_encode(['status' => 'ok', 'token' => create_session_token(ADMIN_SESSION_SECRET, $ttlSeconds)]);

@@ -102,9 +102,10 @@ function buildMessageText({ account, code, service, price }) {
 
 // --- Login / session ------------------------------------------------------
 //
-// sessionStorage (not localStorage) on purpose: this is an admin tool, so
-// the login doesn't outlive the browser tab. The token itself also expires
-// server-side after 12 hours regardless (see api/admin_login.php).
+// Plain login: sessionStorage, so it doesn't outlive the browser tab (the
+// token also expires server-side after 12 hours regardless). "Remember me"
+// checked: localStorage instead, paired with a 30-day token from
+// api/admin_login.php, so it survives closing the browser entirely.
 
 const SESSION_STORAGE_KEY = "qpAdminSession";
 
@@ -123,19 +124,39 @@ if (loginSecurityQuestionLabel) {
 
 function getSession() {
   try {
-    const raw = sessionStorage.getItem(SESSION_STORAGE_KEY);
+    const raw = localStorage.getItem(SESSION_STORAGE_KEY) || sessionStorage.getItem(SESSION_STORAGE_KEY);
     return raw ? JSON.parse(raw) : null;
   } catch (err) {
     return null;
   }
 }
 
-function saveSession(token, email) {
-  sessionStorage.setItem(SESSION_STORAGE_KEY, JSON.stringify({ token, email }));
+function saveSession(token, email, remember) {
+  const value = JSON.stringify({ token, email });
+  try {
+    // Only one copy at a time — otherwise logging out of a "remembered"
+    // session but leaving a stale sessionStorage copy (or vice versa) could
+    // resurrect it on the next page load.
+    if (remember) {
+      localStorage.setItem(SESSION_STORAGE_KEY, value);
+      sessionStorage.removeItem(SESSION_STORAGE_KEY);
+    } else {
+      sessionStorage.setItem(SESSION_STORAGE_KEY, value);
+      localStorage.removeItem(SESSION_STORAGE_KEY);
+    }
+  } catch (err) {
+    // Storage blocked (e.g. private browsing) — the session just won't
+    // persist across a reload; the tool still works for the current page.
+  }
 }
 
 function clearSession() {
-  sessionStorage.removeItem(SESSION_STORAGE_KEY);
+  try {
+    sessionStorage.removeItem(SESSION_STORAGE_KEY);
+    localStorage.removeItem(SESSION_STORAGE_KEY);
+  } catch (err) {
+    // Storage blocked — nothing to clear.
+  }
 }
 
 // Decodes the token's own `exp` claim so the UI can proactively show the
@@ -198,6 +219,7 @@ if (loginForm) {
     const email = loginForm.loginEmail.value.trim();
     const password = loginForm.loginPassword.value;
     const securityAnswer = loginForm.loginSecurityAnswer.value;
+    const remember = loginForm.loginRemember.checked;
 
     loginBtn.disabled = true;
     loginNote.textContent = "Logging in…";
@@ -207,12 +229,12 @@ if (loginForm) {
       const response = await fetch("api/admin_login.php", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email, password, securityAnswer }),
+        body: JSON.stringify({ email, password, securityAnswer, remember }),
       });
       const result = await response.json();
 
       if (response.ok && result.status === "ok") {
-        saveSession(result.token, email);
+        saveSession(result.token, email, remember);
         showAdminTool(email);
       } else {
         loginNote.textContent = result.message || "Wrong email, password, or answer.";
