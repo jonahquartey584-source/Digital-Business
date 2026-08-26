@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Pipeline Tester — Qp Digital</title>
+  <meta name="description" content="Internal tool: click through the client activation pipeline without touching live data or real payments." />
+  <meta name="robots" content="noindex, nofollow" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=Sora:wght@600;700;800&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@500;600&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="style.css" />
+  <noscript><style>[data-reveal] { opacity: 1 !important; transform: none !important; }</style></noscript>
+</head>
+<body>
+
+  <div class="gold-rule"></div>
+
+  <header class="site-header">
+    <div class="container header__inner">
+      <a class="brand" href="index.html">
+        <span class="brand__name">Qp Digital</span>
+      </a>
+      <nav class="nav" id="nav">
+        <a href="index.html#services">Services</a>
+        <a href="index.html#how-it-works">How It Works</a>
+        <a href="index.html#enquire">Enquire</a>
+        <a href="index.html#contact">Contact</a>
+        <a class="nav-secondary" href="activate.html">Redeem Service</a>
+      </nav>
+      <button class="nav-toggle" id="navToggle" aria-label="Toggle menu" aria-expanded="false">
+        <span></span><span></span><span></span>
+      </button>
+    </div>
+  </header>
+
+  <main>
+    <section class="activate-hero">
+      <div class="container activate-hero__inner">
+        <p class="eyebrow">Internal Tool — Not Linked From The Site</p>
+        <h1>Pipeline Tester<span class="cursor" aria-hidden="true"></span></h1>
+        <p class="hero__lead">
+          Click through the exact same flow as <a href="admin.html">New Client Setup</a> and
+          <a href="activate.html">Redeem Your Service</a>, entirely in this browser. Test clients
+          live only in this page's <code>localStorage</code> — never in the real database — and a
+          "Simulate Payment" button stands in for a real Stripe webhook. Refresh with dev tools
+          open or clear this site's data and every test client here is gone; nothing you do here
+          touches a real client, <code>api/create_client.php</code>, or <code>api/redeem.php</code>.
+        </p>
+
+        <div class="tabs">
+          <button type="button" class="tab is-active" data-tab="setup">1. New Client Setup</button>
+          <button type="button" class="tab" data-tab="redeem">2. Redeem Service</button>
+        </div>
+
+        <!-- SETUP VIEW -->
+        <section class="view" id="view-setup">
+          <form class="enquiry-form activate-form" id="ptSetupForm">
+            <div class="form-row">
+              <label for="ptTitle">Title (optional)</label>
+              <input type="text" id="ptTitle" placeholder="e.g. Sarah's Bakery Website" />
+              <p class="admin-hint">Used for the "Preview of …" heading. Defaults to the service name if left blank.</p>
+            </div>
+
+            <div class="form-row">
+              <label for="ptService">Service</label>
+              <input type="text" id="ptService" placeholder="e.g. Website — Standard Plan" value="Website — Standard Plan" />
+            </div>
+
+            <div class="form-row">
+              <label for="ptPrice">Price</label>
+              <input type="text" id="ptPrice" placeholder="e.g. £450" value="£450" />
+            </div>
+
+            <div class="form-row">
+              <label for="ptPreview">Preview / what's included</label>
+              <textarea id="ptPreview" rows="3" placeholder="A short, client-facing description of what they're getting">A 5-page mobile-friendly business website with an enquiry form.</textarea>
+            </div>
+
+            <div class="form-row">
+              <label for="ptPreviewImageFile">Preview image (optional)</label>
+              <input type="file" id="ptPreviewImageFile" accept="image/png, image/jpeg, image/gif, image/webp" />
+              <p class="admin-hint">A screenshot or mockup — attached here just like in <code>admin.html</code>, except it's read straight into the browser rather than uploaded anywhere (no admin password needed for that reason).</p>
+              <p class="form-note" id="ptPreviewImageStatus"></p>
+              <img id="ptPreviewImageThumb" class="admin-image-thumb" alt="Attached preview" hidden />
+            </div>
+
+            <div class="form-row">
+              <label for="ptPreviewFile">Preview file (optional)</label>
+              <input type="file" id="ptPreviewFile" />
+              <p class="admin-hint">Where clicking the preview image sends them — attach anything, e.g. an HTML prototype. Leave blank to just open the attached image itself.</p>
+              <p class="form-note" id="ptPreviewFileStatus"></p>
+            </div>
+
+            <div class="form-row">
+              <label for="ptPaymentUrl">Payment link (simulated)</label>
+              <input type="url" id="ptPaymentUrl" placeholder="https://buy.stripe.com/..." value="https://buy.stripe.com/test-link" />
+              <p class="admin-hint">Their account number is appended automatically, exactly like the real payment link — this one's never actually opened for a real payment.</p>
+            </div>
+
+            <div class="form-row">
+              <label for="ptLiveUrl">Live site URL (optional)</label>
+              <input type="url" id="ptLiveUrl" placeholder="https://client-domain.com" />
+            </div>
+
+            <div class="admin-actions">
+              <button type="submit" class="btn btn--primary btn--lg" id="ptGenerateBtn">Generate &amp; Save Test Client →</button>
+              <p class="form-note" id="ptSetupError"></p>
+            </div>
+          </form>
+
+          <div class="admin-output" id="ptOutput" hidden>
+            <div class="admin-output__block">
+              <p class="section__tag" style="margin:0;">// Just Created</p>
+              <div class="terminal-window">
+                <div class="terminal-window__bar">
+                  <span class="terminal-window__dot"></span>
+                  <span class="terminal-window__dot"></span>
+                  <span class="terminal-window__dot"></span>
+                  <span class="terminal-window__filename mono">new_client.json</span>
+                </div>
+                <div class="terminal-body mono" id="ptOutputBody"></div>
+              </div>
+              <p class="admin-hint">Copy the account number + code above (or use the list below) to test redeeming it in the <strong>Redeem Service</strong> tab.</p>
+            </div>
+          </div>
+
+          <h3 style="margin-top:32px;">Test Clients In This Browser</h3>
+          <div class="client-list" id="ptClientList"></div>
+        </section>
+
+        <!-- REDEEM VIEW -->
+        <section class="view" id="view-redeem" hidden>
+          <form class="enquiry-form activate-form" id="ptRedeemForm">
+            <div class="form-row">
+              <label for="ptAccountNumber">Account Number</label>
+              <input type="text" id="ptAccountNumber" placeholder="e.g. QP-2026-0158" autocomplete="off" />
+            </div>
+
+            <div class="form-row">
+              <label for="ptActivationCode">Activation Code</label>
+              <input type="text" id="ptActivationCode" placeholder="e.g. 7F3K-9QXR" autocomplete="off" />
+            </div>
+
+            <div class="admin-actions">
+              <button type="submit" class="btn btn--primary btn--lg">Redeem My Service →</button>
+              <p class="form-note" id="ptRedeemError"></p>
+            </div>
+          </form>
+
+          <div class="activate-result" id="ptRedeemResult" hidden></div>
+        </section>
+      </div>
+    </section>
+  </main>
+
+  <footer class="site-footer" id="contact">
+    <div class="container footer__inner">
+      <div>
+        <div class="brand brand--footer">
+          <span class="brand__name">Qp Digital</span>
+        </div>
+        <p class="footer__tagline">Websites, CRM, SEO, branding, dashboards and automation — all under one roof. Open to any digital project.</p>
+      </div>
+      <div class="footer__contact">
+        <h4>Contact</h4>
+        <p>Email: <a href="mailto:hello@qpdigital.com">hello@qpdigital.com</a></p>
+      </div>
+      <div class="footer__links">
+        <h4>Explore</h4>
+        <a href="index.html#services">Services</a>
+        <a href="index.html#how-it-works">How It Works</a>
+        <a href="activate.html">Redeem a Service</a>
+      </div>
+    </div>
+    <div class="container footer__bottom">
+      <p>&copy; <span id="year"></span> Qp Digital. All rights reserved.</p>
+    </div>
+  </footer>
+
+  <script src="script.js"></script>
+  <script src="pipeline-tester.js"></script>
+</body>
+</html>

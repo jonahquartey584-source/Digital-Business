@@ -1173,6 +1173,127 @@ textarea {
   color: var(--gold-bright);
 }
 
+/* Pipeline Tester page — mirrors admin.html + activate.html entirely in
+   localStorage, so it needs its own tab switcher and test-client list on
+   top of the components those pages already define above. */
+.tabs {
+  display: flex;
+  gap: 10px;
+  margin: 28px 0 32px;
+}
+
+.tab {
+  font-family: "IBM Plex Mono", monospace;
+  font-size: 0.8rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  padding: 9px 18px;
+  border-radius: 999px;
+  border: 1px solid var(--border);
+  background: transparent;
+  color: var(--text-dim);
+  cursor: pointer;
+  transition: border-color 0.2s ease, color 0.2s ease, background 0.2s ease;
+}
+
+.tab:hover {
+  border-color: var(--gold);
+  color: var(--gold-bright);
+}
+
+.tab.is-active {
+  border-color: var(--gold);
+  color: var(--gold-bright);
+  background: var(--surface);
+}
+
+.client-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-top: 16px;
+}
+
+.client-row {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 14px 16px;
+  border: 1px solid var(--border-soft);
+  border-radius: var(--radius);
+  background: var(--bg-alt);
+  flex-wrap: wrap;
+}
+
+.client-row__info {
+  flex: 1;
+  min-width: 200px;
+}
+
+.client-row__account {
+  font-family: "IBM Plex Mono", monospace;
+  font-size: 0.85rem;
+  color: var(--gold-bright);
+}
+
+.client-row__service {
+  font-size: 0.85rem;
+  color: var(--text-dim);
+}
+
+.client-row__code {
+  font-family: "IBM Plex Mono", monospace;
+  font-size: 0.78rem;
+  color: var(--text-faint);
+}
+
+.client-row__actions {
+  display: flex;
+  gap: 8px;
+}
+
+.status-pill {
+  font-family: "IBM Plex Mono", monospace;
+  font-size: 0.66rem;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  padding: 4px 10px;
+  border-radius: 20px;
+  white-space: nowrap;
+}
+
+.status-pill--pending {
+  background: rgba(var(--gold-rgb), 0.12);
+  color: var(--gold-bright);
+  border: 1px solid rgba(var(--gold-rgb), 0.35);
+}
+
+.status-pill--active {
+  background: rgba(100, 180, 130, 0.12);
+  color: #7dd6a0;
+  border: 1px solid rgba(100, 180, 130, 0.35);
+}
+
+.empty-note {
+  color: var(--text-faint);
+  font-size: 0.88rem;
+}
+
+.btn--sm {
+  padding: 7px 14px;
+  font-size: 0.72rem;
+}
+
+.btn--danger {
+  border-color: #6b3324;
+  color: #d08a6f;
+}
+
+.btn--danger:hover {
+  border-color: #a85d3f;
+  color: #e8ab8f;
+}
+
 /* Reveal-on-scroll (progressive enhancement, see script.js) */
 [data-reveal] {
   opacity: 0;

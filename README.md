@@ -51,6 +51,12 @@ payment status.
   database or get a fallback `accounts-data.js` snippet, plus a message to
   send them (see
   [Generating a client's account + code](#generating-a-clients-account--code))
+- **Pipeline Tester** (`pipeline-tester.html`) — another internal, unlinked
+  tool: the exact same setup → redeem → payment flow as `admin.html` and
+  `activate.html`, but entirely in your browser's `localStorage`, with a
+  "Simulate Payment" button standing in for a real Stripe webhook. Nothing
+  you do there touches the real database — use it to try out changes or
+  show someone the flow without risking a real client record.
 
 ## Design
 
@@ -298,6 +304,13 @@ using the `accounts-data.js` fallback described in
 - `admin.js` — the random account/code generator, payment-link builder
   (appends `?client_reference_id=...`), and the save/snippet/message logic
   behind `admin.html`
+- `pipeline-tester.html` — internal, unlinked tool: the same setup → redeem
+  → payment flow, entirely in your browser (no real backend involved)
+- `pipeline-tester.js` — self-contained account/code generation, file
+  attachment, and redeem-result rendering behind `pipeline-tester.html`;
+  deliberately a separate copy of similar logic in `admin.js`/`activate.js`
+  rather than reusing them, so this page can never call the real API
+  endpoints
 - `accounts-data.js` — offline fallback list `activate.js` uses only when
   `api/redeem.php` can't be reached (see
   [Activating clients](#activating-clients))
