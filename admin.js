@@ -45,6 +45,7 @@ function buildSnippetHtml(data) {
 
   return [
     `<p class="code-line">{</p>`,
+    nullableLine("title", data.title),
     line("account", data.account),
     line("code", data.code),
     line("service", data.service),
@@ -60,6 +61,7 @@ function buildSnippetHtml(data) {
 function buildSnippetText(data) {
   return [
     "{",
+    `  title: ${data.title ? `"${escapeJsString(data.title)}"` : "null"},`,
     `  account: "${escapeJsString(data.account)}",`,
     `  code: "${escapeJsString(data.code)}",`,
     `  service: "${escapeJsString(data.service)}",`,
@@ -97,6 +99,7 @@ const saveNote = document.getElementById("saveNote");
 let currentData = null;
 
 function render() {
+  const title = adminForm.adminTitle.value.trim();
   const service = adminForm.adminService.value.trim();
   const price = adminForm.adminPrice.value.trim();
   const preview = adminForm.adminPreview.value.trim();
@@ -119,7 +122,7 @@ function render() {
   const code = generateActivationCode();
   const paymentUrl = withClientReference(basePaymentUrl, account);
 
-  currentData = { account, code, service, price, preview, previewImageUrl, paymentUrl, liveUrl };
+  currentData = { account, code, title, service, price, preview, previewImageUrl, paymentUrl, liveUrl };
 
   snippetOutput.innerHTML = buildSnippetHtml(currentData);
   messageOutput.value = buildMessageText(currentData);

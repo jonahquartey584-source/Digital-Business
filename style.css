@@ -684,15 +684,30 @@ section {
 /* Preview frame — an actual visual preview (e.g. a website screenshot),
    shown instead of the terminal-window JSON block when a client account
    has a previewImageUrl set. Same "chrome" language as .terminal-window,
-   styled as a browser instead of a code editor. */
+   styled as a browser instead of a code editor. The whole thing is a
+   link (.preview-frame-link) to the same image, so clicking it opens
+   the full preview. */
+.preview-frame-link {
+  display: block;
+  text-decoration: none;
+  color: inherit;
+  margin-bottom: 20px;
+}
+
 .preview-frame {
   position: relative;
   border: 1px solid var(--border);
   border-radius: 10px;
   overflow: hidden;
   box-shadow: var(--shadow);
-  margin-bottom: 20px;
   background: var(--surface);
+  transition: border-color 0.2s ease, box-shadow 0.2s ease, transform 0.2s ease;
+}
+
+.preview-frame-link:hover .preview-frame {
+  border-color: var(--gold);
+  box-shadow: var(--shadow-gold);
+  transform: translateY(-2px);
 }
 
 .preview-frame__bar {
@@ -740,6 +755,18 @@ section {
   object-fit: cover;
   object-position: top;
   background: var(--bg);
+}
+
+.preview-frame__cta {
+  padding: 10px 16px;
+  text-align: center;
+  font-size: 0.74rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--gold-bright);
+  background: var(--surface-alt);
+  border-top: 1px solid var(--border-soft);
 }
 
 .code-line {

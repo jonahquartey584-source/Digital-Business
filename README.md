@@ -78,17 +78,23 @@ code:
    so it isn't publicly visible yet (see the deployment section below).
 3. Open `admin.html`, fill in the service/price/preview/payment link (and
    live URL, for a website client), click **Generate Account & Code**, then
-   **Save To Live Database**. Optionally add a **preview image URL** — a
-   screenshot or mockup of what they're getting (for a website, a
-   screenshot of the draft site works well). If you set one, the client
-   sees that image on `activate.html` instead of the raw JSON preview; if
-   you leave it blank, they see the JSON block instead.
+   **Save To Live Database**. Two optional fields shape what the client
+   sees:
+   - **Title** — used for the "Preview of …" heading on `activate.html`
+     (e.g. "Sarah's Bakery Website"). Defaults to the service name if left
+     blank.
+   - **Preview image URL** — a screenshot or mockup of what they're
+     getting (for a website, a screenshot of the draft site works well).
+     If set, `activate.html` shows it as a clickable "Preview of …" frame
+     — clicking it opens the same image full-size in a new tab. If left
+     blank, that section is skipped entirely and the client just sees the
+     order summary below.
 4. Send the client their account number and code — `admin.html` writes you
    a ready-to-send message for this.
-5. They go to `activate.html`, enter both, and see an order summary built
-   from the service, preview (image or JSON) and price you set — exactly
-   what they agreed to — with a "Pay & Activate" button linking to their
-   payment link.
+5. They go to `activate.html`, enter both, and see the preview (if you set
+   one) plus an order summary built from the service, preview text and
+   price you set — exactly what they agreed to — with a "Pay & Activate"
+   button linking to their payment link.
 6. The moment Stripe confirms their payment, a webhook flips their account
    to active automatically — no manual step. If they check `activate.html`
    again (or their account was already active when they first checked), they

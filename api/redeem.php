@@ -25,7 +25,7 @@ if ($account === '' || $code === '') {
 try {
     $pdo = get_db();
     $stmt = $pdo->prepare(
-        'SELECT account_number, service, price, preview, preview_image_url, payment_url, live_url, status
+        'SELECT account_number, title, service, price, preview, preview_image_url, payment_url, live_url, status
          FROM clients
          WHERE account_number = :account AND activation_code = :code
          LIMIT 1'
@@ -46,6 +46,7 @@ if (!$client) {
 echo json_encode([
     'status' => 'match_found',
     'account' => $client['account_number'],
+    'title' => $client['title'],
     'service' => $client['service'],
     'price' => $client['price'],
     'preview' => $client['preview'],

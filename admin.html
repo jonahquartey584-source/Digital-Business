@@ -48,6 +48,12 @@
 
         <form class="enquiry-form activate-form" id="adminForm">
           <div class="form-row">
+            <label for="adminTitle">Title (optional)</label>
+            <input type="text" id="adminTitle" name="adminTitle" placeholder="e.g. Sarah's Bakery Website" />
+            <p class="admin-hint">Used for the "Preview of …" heading the client sees. Leave blank to just use the service name below.</p>
+          </div>
+
+          <div class="form-row">
             <label for="adminService">Service</label>
             <input type="text" id="adminService" name="adminService" placeholder="e.g. Website — Standard Plan" required />
           </div>
@@ -65,7 +71,7 @@
           <div class="form-row">
             <label for="adminPreviewImage">Preview image URL (optional)</label>
             <input type="url" id="adminPreviewImage" name="adminPreviewImage" placeholder="https://.../screenshot.png" />
-            <p class="admin-hint">A screenshot or mockup of what they're getting. For a website, a screenshot of the draft site works well. Shown to the client instead of the raw JSON preview on the redeem page — leave blank to keep the JSON view.</p>
+            <p class="admin-hint">A screenshot or mockup of what they're getting — shown as a clickable preview on the redeem page (clicking it opens this same image URL). For a website, a screenshot of the draft site works well.</p>
           </div>
 
           <div class="form-row">

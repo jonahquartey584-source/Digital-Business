@@ -5,6 +5,7 @@ CREATE TABLE IF NOT EXISTS clients (
   id INT AUTO_INCREMENT PRIMARY KEY,
   account_number VARCHAR(32) NOT NULL UNIQUE,
   activation_code VARCHAR(32) NOT NULL,
+  title VARCHAR(255) NULL,
   service VARCHAR(255) NOT NULL,
   price VARCHAR(64) NOT NULL,
   preview TEXT,
@@ -16,7 +17,8 @@ CREATE TABLE IF NOT EXISTS clients (
   activated_at DATETIME NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
--- Already ran this once against an older version of this file (before
--- preview_image_url existed)? CREATE TABLE IF NOT EXISTS above is a no-op
--- on an existing table, so run this once instead to add the new column:
+-- Already ran this once against an older version of this file? CREATE
+-- TABLE IF NOT EXISTS above is a no-op on an existing table, so run
+-- whichever of these you're missing instead:
 -- ALTER TABLE clients ADD COLUMN preview_image_url VARCHAR(500) NULL AFTER preview;
+-- ALTER TABLE clients ADD COLUMN title VARCHAR(255) NULL AFTER activation_code;

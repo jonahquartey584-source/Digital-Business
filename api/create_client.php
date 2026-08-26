@@ -23,6 +23,7 @@ if (!hash_equals(ADMIN_PASSWORD, (string) ($input['adminPassword'] ?? ''))) {
 
 $account = strtoupper(trim((string) ($input['account'] ?? '')));
 $code = strtoupper(trim((string) ($input['code'] ?? '')));
+$title = trim((string) ($input['title'] ?? ''));
 $service = trim((string) ($input['service'] ?? ''));
 $price = trim((string) ($input['price'] ?? ''));
 $preview = trim((string) ($input['preview'] ?? ''));
@@ -39,12 +40,13 @@ if ($account === '' || $code === '' || $service === '' || $price === '' || $paym
 try {
     $pdo = get_db();
     $stmt = $pdo->prepare(
-        "INSERT INTO clients (account_number, activation_code, service, price, preview, preview_image_url, payment_url, live_url, status)
-         VALUES (:account, :code, :service, :price, :preview, :preview_image_url, :payment_url, :live_url, 'pending_payment')"
+        "INSERT INTO clients (account_number, activation_code, title, service, price, preview, preview_image_url, payment_url, live_url, status)
+         VALUES (:account, :code, :title, :service, :price, :preview, :preview_image_url, :payment_url, :live_url, 'pending_payment')"
     );
     $stmt->execute([
         'account' => $account,
         'code' => $code,
+        'title' => $title !== '' ? $title : null,
         'service' => $service,
         'price' => $price,
         'preview' => $preview,

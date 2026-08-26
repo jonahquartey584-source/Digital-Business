@@ -34,6 +34,7 @@ async function lookupAccount(account, code) {
     return {
       status: "match_found",
       account: match.account,
+      title: match.title || null,
       service: match.service,
       price: match.price,
       preview: match.preview,
@@ -69,10 +70,11 @@ function terminalWindow(lines) {
   `;
 }
 
-// Shows an actual visual preview of the service (e.g. a website screenshot)
-// when one was set on the client's account, in place of the raw JSON
-// terminal block. Falls back to terminalWindow() (via the caller) when no
-// image was provided — there's nothing to visually preview otherwise.
+// A clickable visual preview of the service (e.g. a website screenshot),
+// shown in place of the raw JSON. The whole frame is a link to the same
+// previewImageUrl, so clicking it opens the full image. Returns null when
+// no image was set on the client's account — the caller decides what
+// (if anything) to show instead.
 function previewFrame(result) {
   if (!result.previewImageUrl) return null;
 
@@ -86,15 +88,18 @@ function previewFrame(result) {
   }
 
   return `
-    <div class="preview-frame">
-      <div class="preview-frame__bar">
-        <span class="preview-frame__dot"></span>
-        <span class="preview-frame__dot"></span>
-        <span class="preview-frame__dot"></span>
-        <span class="preview-frame__url mono">${urlLabel}</span>
+    <a class="preview-frame-link" href="${result.previewImageUrl}" target="_blank" rel="noopener noreferrer">
+      <div class="preview-frame">
+        <div class="preview-frame__bar">
+          <span class="preview-frame__dot"></span>
+          <span class="preview-frame__dot"></span>
+          <span class="preview-frame__dot"></span>
+          <span class="preview-frame__url mono">${urlLabel}</span>
+        </div>
+        <img class="preview-frame__image" src="${result.previewImageUrl}" alt="Preview of ${result.title || result.service}" loading="lazy" />
+        <div class="preview-frame__cta mono">View Full Preview →</div>
       </div>
-      <img class="preview-frame__image" src="${result.previewImageUrl}" alt="Preview of ${result.service}" loading="lazy" />
-    </div>
+    </a>
   `;
 }
 
@@ -113,16 +118,12 @@ if (activateForm && activateResult) {
     activateResult.hidden = false;
 
     const result = await lookupAccount(account, code);
+    const displayTitle = result.title || result.service;
 
     if (result.status === "match_found" && result.activeStatus === "active") {
       activateResult.className = "activate-result activate-result--success";
       activateResult.innerHTML =
-        (previewFrame(result) ||
-          terminalWindow([
-            ["status", "active", true],
-            ["account", result.account, true],
-            ["service", result.service, false],
-          ])) +
+        (previewFrame(result) || "") +
         `
         <div class="order-summary">
           <p class="order-summary__label mono">Service Active</p>
@@ -137,17 +138,14 @@ if (activateForm && activateResult) {
       `;
     } else if (result.status === "match_found") {
       activateResult.className = "activate-result activate-result--success";
+      const preview = previewFrame(result);
       activateResult.innerHTML =
-        (previewFrame(result) ||
-          terminalWindow([
-            ["status", "match_found", true],
-            ["account", result.account, true],
-            ["service", result.service, true],
-            ["price", result.price, false],
-          ])) +
+        // Only show the "Preview of …" heading when there's an actual
+        // image to show under it — with no image, the order summary
+        // below already covers the service, so there's nothing to add.
+        (preview ? `<p class="order-summary__label mono" style="margin-bottom:14px;">Preview of ${displayTitle}</p>${preview}` : "") +
         `
         <div class="order-summary">
-          <p class="order-summary__label mono">Order Summary</p>
           <h3 class="order-summary__service">${result.service}</h3>
           <p class="order-summary__preview">${result.preview || "Details of what's included will be confirmed with you directly."}</p>
           <div class="order-summary__price-row">
