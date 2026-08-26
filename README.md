@@ -1,35 +1,60 @@
-# Random Artist Generator
+# Digital Specialist
 
-A simple client-side web app that picks a random artist from a curated pool
-of 100 of the most popular music artists of all time — including Michael
-Jackson.
+A static, one-page website for a digital services business — websites, CRM,
+SEO, booking systems, branding, reporting dashboards and automation, all
+offered by a single specialist/agency.
 
-## Features
+## Sections
 
-- 🎲 One-click random artist generator with a genre tag for each pick
-- 🔁 "Don't repeat until all 100 shown" mode, so you cycle through the whole
-  list before anyone repeats (can be turned off for pure random draws)
-- 🔗 Quick search link to look the artist up
-- 📜 "View full list" modal to browse all 100 names
+- **Hero** — headline pitch and quick calls to action
+- **Services** — all services on offer, laid out as a card grid:
+  - Websites
+  - CRM
+  - Website Management
+  - SEO
+  - Booking System
+  - Logo, branding, flyers &amp; business cards
+  - Online menus, price lists &amp; brochures
+  - Reporting dashboards (leads, calls, bookings, sales)
+  - Automation systems
+  - Automated follow-ups (missed calls, quotes, reviews)
+  - Chatbots / live chat
+- **How It Works** — the enquiry → quote (negotiable) → activation code →
+  pay → service goes live flow
+- **Enquire** — a form visitors fill in to request a service; submitting it
+  opens a pre-filled email to the business
+- **Footer / Contact** — contact details and quick links
 
 ## Running it
 
-This is a static site with no build step or dependencies. Just open
-`index.html` in a browser, or serve the folder locally:
+Static site, no build step or dependencies. Open `index.html` directly, or
+serve the folder locally:
 
 ```bash
 python3 -m http.server 8000
 # then visit http://localhost:8000
 ```
 
+## Customizing
+
+- **Business email**: update `BUSINESS_EMAIL` in `script.js` and the address
+  shown in the footer of `index.html` — this is where enquiry form
+  submissions are sent (via a `mailto:` link).
+- **Services**: edit the cards inside the `#services` section of
+  `index.html`, and keep the `<select>` options in the enquiry form
+  (`#service`) in sync.
+- **Colors/branding**: the palette lives at the top of `style.css` under
+  `:root` (`--accent`, `--accent-2`, etc.) — swap these for your brand
+  colors.
+- **Activation codes / payments**: the "How It Works" section describes the
+  intended flow (enquire → quote → activation code → pay → live), but the
+  code/payment/activation backend itself isn't built yet — the form
+  currently just emails you the enquiry. Wiring up real payments and
+  automatic activation needs a backend (e.g. Stripe for payment + an API
+  or serverless function to generate/redeem codes).
+
 ## Files
 
-- `index.html` — page markup
+- `index.html` — page markup (all sections)
 - `style.css` — styling
-- `artists.js` — the data set of 100 artists (`name` + `genre`)
-- `script.js` — generator logic (random pick, no-repeat pool, list modal)
-
-## Customizing the artist list
-
-Edit `artists.js` and add/remove `{ name: "...", genre: "..." }` entries.
-The app automatically adapts to however many artists are in the array.
+- `script.js` — mobile nav toggle, footer year, enquiry form → email

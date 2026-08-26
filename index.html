@@ -3,47 +3,262 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Random Artist Generator</title>
+  <title>Digital Specialist — Websites, CRM, SEO &amp; Automation for Local Businesses</title>
+  <meta name="description" content="One digital specialist for everything your business needs online: websites, CRM, SEO, booking systems, branding, dashboards and automation." />
   <link rel="stylesheet" href="style.css" />
 </head>
 <body>
-  <main class="app">
-    <header class="app__header">
-      <h1>🎤 Random Artist Generator</h1>
-      <p class="app__subtitle">Pulls from a pool of 100 of the most popular music artists ever — including the King of Pop himself.</p>
-    </header>
 
-    <section class="card" id="card">
-      <div class="card__badge" id="badge">Ready</div>
-      <h2 class="card__name" id="artistName">Press the button to begin</h2>
-      <p class="card__genre" id="artistGenre">&nbsp;</p>
-      <a class="card__link" id="artistLink" href="#" target="_blank" rel="noopener noreferrer">Search this artist ↗</a>
+  <header class="site-header" id="top">
+    <div class="container header__inner">
+      <a class="brand" href="#top">
+        <span class="brand__mark">DS</span>
+        <span class="brand__name">Digital Specialist</span>
+      </a>
+      <nav class="nav" id="nav">
+        <a href="#services">Services</a>
+        <a href="#how-it-works">How It Works</a>
+        <a href="#enquire">Enquire</a>
+        <a href="#contact">Contact</a>
+      </nav>
+      <a class="btn btn--primary btn--nav" href="#enquire">Get a Quote</a>
+      <button class="nav-toggle" id="navToggle" aria-label="Toggle menu" aria-expanded="false">
+        <span></span><span></span><span></span>
+      </button>
+    </div>
+  </header>
+
+  <main>
+
+    <!-- HERO -->
+    <section class="hero">
+      <div class="container hero__inner">
+        <p class="eyebrow">Digital services for growing businesses</p>
+        <h1>Everything your business needs online — built, managed, and automated in one place.</h1>
+        <p class="hero__lead">
+          Websites, CRM, SEO, booking systems, branding and reporting dashboards —
+          delivered by one digital specialist and kept running so leads don't slip through the cracks.
+        </p>
+        <div class="hero__cta">
+          <a class="btn btn--primary btn--lg" href="#enquire">Enquire About a Service</a>
+          <a class="btn btn--ghost btn--lg" href="#services">See What's Included</a>
+        </div>
+        <ul class="hero__stats">
+          <li><strong>11+</strong><span>services on offer</span></li>
+          <li><strong>1</strong><span>point of contact</span></li>
+          <li><strong>Fast</strong><span>activation once approved</span></li>
+        </ul>
+      </div>
     </section>
 
-    <div class="controls">
-      <button class="btn btn--primary" id="generateBtn">🎲 Generate Random Artist</button>
-      <label class="toggle">
-        <input type="checkbox" id="noRepeatToggle" checked />
-        Don't repeat until all 100 shown
-      </label>
-    </div>
+    <!-- SERVICES -->
+    <section class="services" id="services">
+      <div class="container">
+        <h2 class="section__title">Services</h2>
+        <p class="section__lead">Pick one service or bundle several — everything is built to work together.</p>
 
-    <p class="progress" id="progress"></p>
+        <div class="grid grid--services">
 
-    <footer class="app__footer">
-      <p>100/100 artists loaded. <button class="link-btn" id="viewAllBtn">View full list</button></p>
-    </footer>
+          <article class="service-card">
+            <div class="service-card__icon" aria-hidden="true">🌐</div>
+            <h3>Websites</h3>
+            <p>Custom-built, mobile-friendly websites designed to turn visitors into customers.</p>
+          </article>
 
-    <dialog id="listDialog">
-      <div class="dialog__header">
-        <h2>All 100 Artists</h2>
-        <button class="btn btn--ghost" id="closeListBtn">Close</button>
+          <article class="service-card">
+            <div class="service-card__icon" aria-hidden="true">📇</div>
+            <h3>CRM</h3>
+            <p>A simple system to track every lead, customer and conversation in one place.</p>
+          </article>
+
+          <article class="service-card">
+            <div class="service-card__icon" aria-hidden="true">🛠️</div>
+            <h3>Website Management</h3>
+            <p>Ongoing updates, hosting, security and fixes so your site never falls behind.</p>
+          </article>
+
+          <article class="service-card">
+            <div class="service-card__icon" aria-hidden="true">🔍</div>
+            <h3>SEO</h3>
+            <p>Get found on Google with search optimisation built for local businesses.</p>
+          </article>
+
+          <article class="service-card">
+            <div class="service-card__icon" aria-hidden="true">📅</div>
+            <h3>Booking System</h3>
+            <p>Let customers book appointments or services online, any time of day.</p>
+          </article>
+
+          <article class="service-card">
+            <div class="service-card__icon" aria-hidden="true">🎨</div>
+            <h3>Branding &amp; Print</h3>
+            <p>Logos, brand identity, flyers and business cards that make you look the part.</p>
+          </article>
+
+          <article class="service-card">
+            <div class="service-card__icon" aria-hidden="true">📋</div>
+            <h3>Menus, Price Lists &amp; Brochures</h3>
+            <p>Clean, easy-to-update online menus, price lists and brochures for customers.</p>
+          </article>
+
+          <article class="service-card">
+            <div class="service-card__icon" aria-hidden="true">📊</div>
+            <h3>Reporting Dashboards</h3>
+            <p>See leads, calls, bookings and sales at a glance — no digging through spreadsheets.</p>
+          </article>
+
+          <article class="service-card">
+            <div class="service-card__icon" aria-hidden="true">⚙️</div>
+            <h3>Automation Systems</h3>
+            <p>Repetitive admin handled automatically, so nothing depends on someone remembering.</p>
+          </article>
+
+          <article class="service-card">
+            <div class="service-card__icon" aria-hidden="true">📞</div>
+            <h3>Automated Follow-Ups</h3>
+            <p>Missed calls, quotes and review requests followed up automatically — no lead left cold.</p>
+          </article>
+
+          <article class="service-card">
+            <div class="service-card__icon" aria-hidden="true">💬</div>
+            <h3>Chatbots &amp; Live Chat</h3>
+            <p>A chatbot or live chat on your website to answer questions and capture leads 24/7.</p>
+          </article>
+
+        </div>
       </div>
-      <ol class="artist-list" id="artistList"></ol>
-    </dialog>
+    </section>
+
+    <!-- HOW IT WORKS -->
+    <section class="how" id="how-it-works">
+      <div class="container">
+        <h2 class="section__title">How It Works</h2>
+        <p class="section__lead">A simple path from enquiry to a live, working service.</p>
+
+        <ol class="steps">
+          <li class="step">
+            <div class="step__num">1</div>
+            <h3>Enquire</h3>
+            <p>Tell us which service(s) you're after using the enquiry form below.</p>
+          </li>
+          <li class="step">
+            <div class="step__num">2</div>
+            <h3>Get a Quote</h3>
+            <p>We come back with a price. There's room to negotiate, especially on your first service.</p>
+          </li>
+          <li class="step">
+            <div class="step__num">3</div>
+            <h3>Receive Your Code</h3>
+            <p>Once agreed, you're issued a unique code tied to your service (e.g. your website).</p>
+          </li>
+          <li class="step">
+            <div class="step__num">4</div>
+            <h3>Pay &amp; Activate</h3>
+            <p>Pay against your code and the service is switched on for you — no extra back-and-forth.</p>
+          </li>
+        </ol>
+
+        <p class="how__note">
+          💡 <strong>Negotiable pricing:</strong> pricing is flexible, particularly while we're building
+          up client relationships — let us know your budget when you enquire.
+        </p>
+      </div>
+    </section>
+
+    <!-- ENQUIRY FORM -->
+    <section class="enquire" id="enquire">
+      <div class="container">
+        <h2 class="section__title">Enquire About a Service</h2>
+        <p class="section__lead">
+          Fill this in and it'll open a pre-filled email to send us — we'll reply with a quote and next steps.
+        </p>
+
+        <form class="enquiry-form" id="enquiryForm">
+          <div class="form-row">
+            <label for="name">Name</label>
+            <input type="text" id="name" name="name" required autocomplete="name" />
+          </div>
+
+          <div class="form-row">
+            <label for="business">Business Name</label>
+            <input type="text" id="business" name="business" autocomplete="organization" />
+          </div>
+
+          <div class="form-row form-row--split">
+            <div>
+              <label for="email">Email</label>
+              <input type="email" id="email" name="email" required autocomplete="email" />
+            </div>
+            <div>
+              <label for="phone">Phone</label>
+              <input type="tel" id="phone" name="phone" autocomplete="tel" />
+            </div>
+          </div>
+
+          <div class="form-row">
+            <label for="service">Service you're interested in</label>
+            <select id="service" name="service" required>
+              <option value="" disabled selected>Select a service…</option>
+              <option>Websites</option>
+              <option>CRM</option>
+              <option>Website Management</option>
+              <option>SEO</option>
+              <option>Booking System</option>
+              <option>Logo, Branding, Flyers &amp; Business Cards</option>
+              <option>Online Menus, Price Lists &amp; Brochures</option>
+              <option>Reporting Dashboards</option>
+              <option>Automation Systems</option>
+              <option>Automated Follow-Ups</option>
+              <option>Chatbots / Live Chat</option>
+              <option>Not sure yet — advise me</option>
+            </select>
+          </div>
+
+          <div class="form-row">
+            <label for="details">Tell us a bit about what you need</label>
+            <textarea id="details" name="details" rows="4" placeholder="e.g. I run a barber shop and need a website with online booking"></textarea>
+          </div>
+
+          <div class="form-row form-row--checkbox">
+            <input type="checkbox" id="negotiate" name="negotiate" />
+            <label for="negotiate">I'd like to discuss/negotiate pricing</label>
+          </div>
+
+          <button type="submit" class="btn btn--primary btn--lg">Send Enquiry</button>
+          <p class="form-note" id="formNote"></p>
+        </form>
+      </div>
+    </section>
+
   </main>
 
-  <script src="artists.js"></script>
+  <!-- FOOTER / CONTACT -->
+  <footer class="site-footer" id="contact">
+    <div class="container footer__inner">
+      <div>
+        <div class="brand brand--footer">
+          <span class="brand__mark">DS</span>
+          <span class="brand__name">Digital Specialist</span>
+        </div>
+        <p class="footer__tagline">Websites, CRM, SEO, branding, dashboards and automation — all under one roof.</p>
+      </div>
+      <div class="footer__contact">
+        <h4>Contact</h4>
+        <p>Email: <a href="mailto:hello@yourdigitalspecialist.com">hello@yourdigitalspecialist.com</a></p>
+        <p>Update the email in <code>script.js</code> and this footer with your own.</p>
+      </div>
+      <div class="footer__links">
+        <h4>Explore</h4>
+        <a href="#services">Services</a>
+        <a href="#how-it-works">How It Works</a>
+        <a href="#enquire">Enquire</a>
+      </div>
+    </div>
+    <div class="container footer__bottom">
+      <p>&copy; <span id="year"></span> Digital Specialist. All rights reserved.</p>
+    </div>
+  </footer>
+
   <script src="script.js"></script>
 </body>
 </html>

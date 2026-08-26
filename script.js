@@ -1,94 +1,84 @@
-(function () {
-  const artistNameEl = document.getElementById("artistName");
-  const artistGenreEl = document.getElementById("artistGenre");
-  const artistLinkEl = document.getElementById("artistLink");
-  const badgeEl = document.getElementById("badge");
-  const generateBtn = document.getElementById("generateBtn");
-  const noRepeatToggle = document.getElementById("noRepeatToggle");
-  const progressEl = document.getElementById("progress");
-  const viewAllBtn = document.getElementById("viewAllBtn");
-  const closeListBtn = document.getElementById("closeListBtn");
-  const listDialog = document.getElementById("listDialog");
-  const artistListEl = document.getElementById("artistList");
-  const cardEl = document.getElementById("card");
+// ---- Configuration ----------------------------------------------------
+// Update this to the email address that should receive enquiries.
+const BUSINESS_EMAIL = "hello@yourdigitalspecialist.com";
 
-  let remainingIndexes = [];
-  let lastIndex = null;
+// ---- Mobile nav toggle --------------------------------------------------
+const navToggle = document.getElementById("navToggle");
+const nav = document.getElementById("nav");
 
-  function resetPool() {
-    remainingIndexes = ARTISTS.map((_, i) => i);
-  }
+if (navToggle && nav) {
+  navToggle.addEventListener("click", () => {
+    const isOpen = nav.classList.toggle("is-open");
+    navToggle.setAttribute("aria-expanded", String(isOpen));
+  });
 
-  function updateProgress() {
-    if (!noRepeatToggle.checked) {
-      progressEl.textContent = "";
+  // Close the menu after tapping a link (mobile)
+  nav.querySelectorAll("a").forEach((link) => {
+    link.addEventListener("click", () => {
+      nav.classList.remove("is-open");
+      navToggle.setAttribute("aria-expanded", "false");
+    });
+  });
+}
+
+// ---- Footer year ---------------------------------------------------------
+const yearEl = document.getElementById("year");
+if (yearEl) {
+  yearEl.textContent = new Date().getFullYear();
+}
+
+// ---- Enquiry form --------------------------------------------------------
+// No backend is wired up yet, so submitting the form builds a pre-filled
+// email (via a mailto: link) addressed to BUSINESS_EMAIL and opens the
+// visitor's email client. Swap this out for a real form handler
+// (e.g. Netlify Forms, Formspree, or your own API) when you're ready.
+const enquiryForm = document.getElementById("enquiryForm");
+const formNote = document.getElementById("formNote");
+
+if (enquiryForm) {
+  enquiryForm.addEventListener("submit", (event) => {
+    event.preventDefault();
+
+    const data = new FormData(enquiryForm);
+    const name = (data.get("name") || "").toString().trim();
+    const business = (data.get("business") || "").toString().trim();
+    const email = (data.get("email") || "").toString().trim();
+    const phone = (data.get("phone") || "").toString().trim();
+    const service = (data.get("service") || "").toString().trim();
+    const details = (data.get("details") || "").toString().trim();
+    const negotiate = data.get("negotiate") ? "Yes" : "No";
+
+    if (!name || !email || !service) {
+      if (formNote) {
+        formNote.textContent = "Please fill in your name, email and choose a service.";
+        formNote.style.color = "#ff8a8a";
+      }
       return;
     }
-    const shown = ARTISTS.length - remainingIndexes.length;
-    progressEl.textContent = `${shown} / ${ARTISTS.length} artists shown this round`;
-  }
 
-  function pickIndex() {
-    if (noRepeatToggle.checked) {
-      if (remainingIndexes.length === 0) resetPool();
-      const pick = Math.floor(Math.random() * remainingIndexes.length);
-      const [index] = remainingIndexes.splice(pick, 1);
-      return index;
-    }
-    let index;
-    do {
-      index = Math.floor(Math.random() * ARTISTS.length);
-    } while (ARTISTS.length > 1 && index === lastIndex);
-    return index;
-  }
+    const subject = `Enquiry: ${service}`;
+    const bodyLines = [
+      `Name: ${name}`,
+      business ? `Business: ${business}` : null,
+      `Email: ${email}`,
+      phone ? `Phone: ${phone}` : null,
+      `Service: ${service}`,
+      `Open to negotiating price: ${negotiate}`,
+      "",
+      "Details:",
+      details || "(none provided)",
+    ].filter(Boolean);
 
-  function generate() {
-    const index = pickIndex();
-    lastIndex = index;
-    const artist = ARTISTS[index];
+    const mailtoUrl =
+      `mailto:${BUSINESS_EMAIL}` +
+      `?subject=${encodeURIComponent(subject)}` +
+      `&body=${encodeURIComponent(bodyLines.join("\n"))}`;
 
-    cardEl.classList.remove("card--pop");
-    void cardEl.offsetWidth; // restart animation
-    cardEl.classList.add("card--pop");
+    window.location.href = mailtoUrl;
 
-    badgeEl.textContent = `#${index + 1} of ${ARTISTS.length}`;
-    artistNameEl.textContent = artist.name;
-    artistGenreEl.textContent = artist.genre;
-    artistLinkEl.href = `https://www.google.com/search?q=${encodeURIComponent(artist.name + " musician")}`;
-
-    updateProgress();
-  }
-
-  function renderList() {
-    artistListEl.innerHTML = "";
-    ARTISTS.forEach((artist) => {
-      const li = document.createElement("li");
-      li.textContent = `${artist.name} — ${artist.genre}`;
-      artistListEl.appendChild(li);
-    });
-  }
-
-  generateBtn.addEventListener("click", generate);
-
-  noRepeatToggle.addEventListener("change", () => {
-    resetPool();
-    updateProgress();
-  });
-
-  viewAllBtn.addEventListener("click", () => {
-    renderList();
-    if (typeof listDialog.showModal === "function") {
-      listDialog.showModal();
-    } else {
-      listDialog.setAttribute("open", "");
+    if (formNote) {
+      formNote.textContent = "Opening your email client to send this enquiry…";
+      formNote.style.color = "";
     }
   });
-
-  closeListBtn.addEventListener("click", () => listDialog.close());
-  listDialog.addEventListener("click", (e) => {
-    if (e.target === listDialog) listDialog.close();
-  });
-
-  resetPool();
-  updateProgress();
-})();
+}
