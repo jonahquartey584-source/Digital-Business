@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>New Client Setup — Qp Digital</title>
+  <meta name="description" content="Internal tool: generate an account number and activation code for a new client." />
+  <meta name="robots" content="noindex, nofollow" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=Sora:wght@600;700;800&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@500;600&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="style.css" />
+  <noscript><style>[data-reveal] { opacity: 1 !important; transform: none !important; }</style></noscript>
+</head>
+<body>
+
+  <div class="gold-rule"></div>
+
+  <header class="site-header">
+    <div class="container header__inner">
+      <a class="brand" href="index.html">
+        <span class="brand__name">Qp Digital</span>
+      </a>
+      <nav class="nav" id="nav">
+        <a href="index.html#services">Services</a>
+        <a href="index.html#how-it-works">How It Works</a>
+        <a href="index.html#enquire">Enquire</a>
+        <a href="index.html#contact">Contact</a>
+        <a class="nav-secondary" href="activate.html">Redeem Service</a>
+      </nav>
+      <button class="nav-toggle" id="navToggle" aria-label="Toggle menu" aria-expanded="false">
+        <span></span><span></span><span></span>
+      </button>
+    </div>
+  </header>
+
+  <main>
+    <section class="activate-hero">
+      <div class="container activate-hero__inner">
+        <p class="eyebrow">Internal Tool — Not Linked From The Site</p>
+        <h1>New Client Setup<span class="cursor" aria-hidden="true"></span></h1>
+        <p class="hero__lead">
+          Fill this in for a client whose service is ready, generate them an account
+          number and activation code, then paste the snippet into
+          <code>accounts-data.js</code> and send them the message below.
+        </p>
+
+        <form class="enquiry-form activate-form" id="adminForm">
+          <div class="form-row">
+            <label for="adminService">Service</label>
+            <input type="text" id="adminService" name="adminService" placeholder="e.g. Website — Standard Plan" required />
+          </div>
+
+          <div class="form-row">
+            <label for="adminPrice">Price</label>
+            <input type="text" id="adminPrice" name="adminPrice" placeholder="e.g. £450 or £150/month" required />
+          </div>
+
+          <div class="form-row">
+            <label for="adminPreview">Preview / what's included</label>
+            <textarea id="adminPreview" name="adminPreview" rows="3" placeholder="A short, client-facing description of what they're getting"></textarea>
+          </div>
+
+          <div class="form-row">
+            <label for="adminPaymentUrl">Payment link</label>
+            <input type="url" id="adminPaymentUrl" name="adminPaymentUrl" placeholder="https://buy.stripe.com/..." required />
+          </div>
+
+          <button type="submit" class="btn btn--primary btn--lg">Generate Account &amp; Code →</button>
+        </form>
+
+        <div class="admin-output" id="adminOutput" hidden>
+
+          <div class="admin-output__block">
+            <div class="admin-output__head">
+              <p class="section__tag" style="margin:0;">// Paste Into accounts-data.js</p>
+              <button type="button" class="btn btn--ghost btn--copy" data-copy-target="snippetText">Copy</button>
+            </div>
+            <div class="terminal-window">
+              <div class="terminal-window__bar">
+                <span class="terminal-window__dot"></span>
+                <span class="terminal-window__dot"></span>
+                <span class="terminal-window__dot"></span>
+                <span class="terminal-window__filename mono">accounts-data.js</span>
+              </div>
+              <div class="terminal-body mono" id="snippetOutput"></div>
+            </div>
+          </div>
+
+          <div class="admin-output__block">
+            <div class="admin-output__head">
+              <p class="section__tag" style="margin:0;">// Message To Send The Client</p>
+              <button type="button" class="btn btn--ghost btn--copy" data-copy-target="messageText">Copy</button>
+            </div>
+            <textarea class="admin-output__message" id="messageOutput" readonly rows="7"></textarea>
+          </div>
+
+          <button type="button" class="btn btn--ghost" id="regenerateBtn">Regenerate Account &amp; Code</button>
+        </div>
+
+        <p class="activate-footnote">
+          Codes are generated in your browser only — nothing here is saved or sent anywhere
+          until you paste it into <code>accounts-data.js</code> yourself.
+        </p>
+      </div>
+    </section>
+  </main>
+
+  <footer class="site-footer" id="contact">
+    <div class="container footer__inner">
+      <div>
+        <div class="brand brand--footer">
+          <span class="brand__name">Qp Digital</span>
+        </div>
+        <p class="footer__tagline">Websites, CRM, SEO, branding, dashboards and automation — all under one roof. Open to any digital project.</p>
+      </div>
+      <div class="footer__contact">
+        <h4>Contact</h4>
+        <p>Email: <a href="mailto:hello@qpdigital.com">hello@qpdigital.com</a></p>
+      </div>
+      <div class="footer__links">
+        <h4>Explore</h4>
+        <a href="index.html#services">Services</a>
+        <a href="index.html#how-it-works">How It Works</a>
+        <a href="activate.html">Redeem a Service</a>
+      </div>
+    </div>
+    <div class="container footer__bottom">
+      <p>&copy; <span id="year"></span> Qp Digital. All rights reserved.</p>
+    </div>
+  </footer>
+
+  <script src="script.js"></script>
+  <script src="admin.js"></script>
+</body>
+</html>
