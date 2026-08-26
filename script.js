@@ -21,6 +21,32 @@ if (navToggle && nav) {
   });
 }
 
+// ---- Reveal-on-scroll ------------------------------------------------
+// Progressive enhancement: elements marked [data-reveal] fade/slide in as
+// they enter the viewport. Skipped entirely if the visitor prefers
+// reduced motion, or if IntersectionObserver isn't available.
+const prefersReducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+const revealTargets = document.querySelectorAll("[data-reveal]");
+
+if (revealTargets.length && !prefersReducedMotion && "IntersectionObserver" in window) {
+  const revealObserver = new IntersectionObserver(
+    (entries) => {
+      entries.forEach((entry) => {
+        if (entry.isIntersecting) {
+          entry.target.classList.add("is-visible");
+          revealObserver.unobserve(entry.target);
+        }
+      });
+    },
+    { threshold: 0.15, rootMargin: "0px 0px -40px 0px" }
+  );
+
+  revealTargets.forEach((el) => revealObserver.observe(el));
+} else {
+  // No animation support (or motion is disabled) — just show everything.
+  revealTargets.forEach((el) => el.classList.add("is-visible"));
+}
+
 // ---- Footer year ---------------------------------------------------------
 const yearEl = document.getElementById("year");
 if (yearEl) {
