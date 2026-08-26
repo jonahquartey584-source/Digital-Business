@@ -1,8 +1,8 @@
-# Digital Specialist
+# Qp Digital
 
-A static, one-page website for a digital services business — websites, CRM,
-SEO, booking systems, branding, reporting dashboards and automation, all
-offered by a single specialist/agency.
+A static, one-page website for Qp Digital, a digital services business —
+websites, CRM, SEO, booking systems, branding, reporting dashboards and
+automation.
 
 ## Sections
 
