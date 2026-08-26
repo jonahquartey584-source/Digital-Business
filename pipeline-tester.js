@@ -259,33 +259,9 @@ if (ptClientListEl) {
 }
 
 // ---- Redeem ----
-// Same terminalWindow()/previewFrame() rendering as activate.js, kept as a
-// local copy (this page is meant to be fully self-contained and never
-// calls the real api/redeem.php).
-function ptTerminalWindow(lines) {
-  const body = lines
-    .map(([key, value, comma], i) => {
-      const indent = i === 0 ? "" : "code-line--indent";
-      return `<p class="code-line ${indent}"><span class="code-key">"${key}"</span><span class="code-punct">: </span><span class="code-string">"${value}"</span><span class="code-punct">${comma ? "," : ""}</span></p>`;
-    })
-    .join("");
-  return `
-    <div class="terminal-window">
-      <div class="terminal-window__bar">
-        <span class="terminal-window__dot"></span>
-        <span class="terminal-window__dot"></span>
-        <span class="terminal-window__dot"></span>
-        <span class="terminal-window__filename mono">response.json</span>
-      </div>
-      <div class="terminal-body mono">
-        <p class="code-line">{</p>
-        ${body}
-        <p class="code-line">}<span class="cursor" aria-hidden="true"></span></p>
-      </div>
-    </div>
-  `;
-}
-
+// Same previewFrame() rendering as activate.js, kept as a local copy (this
+// page is meant to be fully self-contained and never calls the real
+// api/redeem.php).
 function ptPreviewFrame(result) {
   if (!result.previewImageUrl) return null;
 
@@ -343,9 +319,7 @@ if (ptRedeemForm && ptRedeemResult) {
 
     if (!result) {
       ptRedeemResult.className = "activate-result activate-result--error";
-      ptRedeemResult.innerHTML =
-        ptTerminalWindow([["status", "no_match", false]]) +
-        `
+      ptRedeemResult.innerHTML = `
         <div class="activate-result__message">
           <p>No test client matches that account + code. Double-check what you generated in Step 1, or go generate one there.</p>
         </div>

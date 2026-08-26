@@ -30,8 +30,9 @@ payment status.
     project, not just what's listed
 - **How It Works** — the enquiry → quote (negotiable) → account number &amp;
   activation code → pay → service goes live flow, including an example
-  "account record" shown as a terminal/JSON block, and a CTA into the
-  activate page
+  "account record" shown as a plain, human-readable card (deliberately
+  not code/JSON-styled — that's reserved for internal tooling, not
+  anything a client sees), and a CTA into the activate page
 - **Enquire** — a form visitors fill in to request a service (name,
   business name, business address, email, phone, service, details);
   submitting it opens a pre-filled email to the business

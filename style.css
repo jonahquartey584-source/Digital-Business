@@ -800,6 +800,89 @@ section {
   color: var(--text-faint);
 }
 
+/* Account card — a plain, human-readable stand-in for the terminal-window
+   component used on this section only: this is marketing copy shown to
+   any visitor, not a real system response, so it deliberately doesn't
+   look like code (no braces/quotes) even though it shares the same
+   browser-chrome visual language. */
+.account-card {
+  position: relative;
+  background: linear-gradient(155deg, #1c170f, #0e0c09 75%);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  overflow: hidden;
+  box-shadow: var(--shadow);
+  max-width: 400px;
+  justify-self: center;
+}
+
+.account-card__bar {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  padding: 12px 16px;
+  border-bottom: 1px solid var(--border-soft);
+}
+
+.account-card__dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--gold);
+}
+
+.account-card__dot:nth-child(1) {
+  opacity: 0.9;
+}
+
+.account-card__dot:nth-child(2) {
+  opacity: 0.6;
+}
+
+.account-card__dot:nth-child(3) {
+  opacity: 0.35;
+}
+
+.account-card__label {
+  margin-left: auto;
+  font-size: 0.68rem;
+  color: var(--text-faint);
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+
+.account-card__body {
+  padding: 20px 22px 22px;
+}
+
+.account-card__row {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 10px 0;
+  border-bottom: 1px solid var(--border-soft);
+}
+
+.account-card__row:last-child {
+  border-bottom: none;
+  padding-bottom: 0;
+}
+
+.account-card__key {
+  font-family: "IBM Plex Mono", monospace;
+  font-size: 0.72rem;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--text-faint);
+}
+
+.account-card__value {
+  font-size: 0.92rem;
+  color: var(--gold-bright);
+  text-align: right;
+}
+
 .access-card__caption {
   width: 100%;
   margin-top: 14px;

@@ -223,21 +223,30 @@
             <p>After you enquire and we agree a price, we set up an account for you and send a unique activation code by email or text. Enter it on the Activate page and you'll see exactly what you're paying for and the price we agreed, before you pay — the service switches on right after.</p>
           </div>
           <div class="access-explainer__card">
-            <div class="terminal-window">
-              <div class="terminal-window__bar">
-                <span class="terminal-window__dot"></span>
-                <span class="terminal-window__dot"></span>
-                <span class="terminal-window__dot"></span>
-                <span class="terminal-window__filename mono">account.json</span>
+            <div class="account-card">
+              <div class="account-card__bar">
+                <span class="account-card__dot"></span>
+                <span class="account-card__dot"></span>
+                <span class="account-card__dot"></span>
+                <span class="account-card__label mono">Your Account</span>
               </div>
-              <div class="terminal-body mono">
-                <p class="code-line">{</p>
-                <p class="code-line code-line--indent"><span class="code-key">"account"</span><span class="code-punct">: </span><span class="code-string">"QP-2026-0158"</span><span class="code-punct">,</span></p>
-                <p class="code-line code-line--indent"><span class="code-key">"code"</span><span class="code-punct">: </span><span class="code-string">"7F3K-9QXR"</span><span class="code-punct">,</span></p>
-                <p class="code-line code-line--indent"><span class="code-key">"service"</span><span class="code-punct">: </span><span class="code-string">"Website — Standard Plan"</span><span class="code-punct">,</span></p>
-                <p class="code-line code-line--indent"><span class="code-key">"price"</span><span class="code-punct">: </span><span class="code-string">"£450"</span><span class="code-punct">,</span></p>
-                <p class="code-line code-line--indent"><span class="code-key">"status"</span><span class="code-punct">: </span><span class="code-string">"pending_payment"</span></p>
-                <p class="code-line">}<span class="cursor" aria-hidden="true"></span></p>
+              <div class="account-card__body">
+                <div class="account-card__row">
+                  <span class="account-card__key">Account Number</span>
+                  <span class="account-card__value mono">QP-2026-0158</span>
+                </div>
+                <div class="account-card__row">
+                  <span class="account-card__key">Activation Code</span>
+                  <span class="account-card__value mono">7F3K-9QXR</span>
+                </div>
+                <div class="account-card__row">
+                  <span class="account-card__key">Service</span>
+                  <span class="account-card__value">Website — Standard Plan</span>
+                </div>
+                <div class="account-card__row">
+                  <span class="account-card__key">Price</span>
+                  <span class="account-card__value">£450</span>
+                </div>
               </div>
             </div>
             <p class="access-card__caption mono">// example record — illustrative only</p>

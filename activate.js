@@ -47,30 +47,6 @@ async function lookupAccount(account, code) {
   }
 }
 
-function terminalWindow(lines) {
-  const body = lines
-    .map(([key, value, comma], i) => {
-      const indent = i === 0 ? "" : "code-line--indent";
-      return `<p class="code-line ${indent}"><span class="code-key">"${key}"</span><span class="code-punct">: </span><span class="code-string">"${value}"</span><span class="code-punct">${comma ? "," : ""}</span></p>`;
-    })
-    .join("");
-  return `
-    <div class="terminal-window">
-      <div class="terminal-window__bar">
-        <span class="terminal-window__dot"></span>
-        <span class="terminal-window__dot"></span>
-        <span class="terminal-window__dot"></span>
-        <span class="terminal-window__filename mono">response.json</span>
-      </div>
-      <div class="terminal-body mono">
-        <p class="code-line">{</p>
-        ${body}
-        <p class="code-line">}<span class="cursor" aria-hidden="true"></span></p>
-      </div>
-    </div>
-  `;
-}
-
 // A clickable visual preview of the service (e.g. a website screenshot),
 // shown in place of the raw JSON. The frame links to previewFileUrl when
 // the client attached one (an HTML prototype, a PDF proposal, whatever's
@@ -162,9 +138,7 @@ if (activateForm && activateResult) {
       `;
     } else {
       activateResult.className = "activate-result activate-result--error";
-      activateResult.innerHTML =
-        terminalWindow([["status", "no_match", false]]) +
-        `
+      activateResult.innerHTML = `
         <div class="activate-result__message">
           <p>We couldn't find that account. Double-check the account number and code we sent you, or <a href="index.html#enquire">get in touch</a> if you think this is a mistake.</p>
         </div>
