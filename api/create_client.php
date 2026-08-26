@@ -28,7 +28,7 @@ $service = trim((string) ($input['service'] ?? ''));
 $price = trim((string) ($input['price'] ?? ''));
 $preview = trim((string) ($input['preview'] ?? ''));
 $previewImageUrl = trim((string) ($input['previewImageUrl'] ?? ''));
-$previewLinkUrl = trim((string) ($input['previewLinkUrl'] ?? ''));
+$previewFileUrl = trim((string) ($input['previewFileUrl'] ?? ''));
 $paymentUrl = trim((string) ($input['paymentUrl'] ?? ''));
 $liveUrl = trim((string) ($input['liveUrl'] ?? ''));
 
@@ -41,8 +41,8 @@ if ($account === '' || $code === '' || $service === '' || $price === '' || $paym
 try {
     $pdo = get_db();
     $stmt = $pdo->prepare(
-        "INSERT INTO clients (account_number, activation_code, title, service, price, preview, preview_image_url, preview_link_url, payment_url, live_url, status)
-         VALUES (:account, :code, :title, :service, :price, :preview, :preview_image_url, :preview_link_url, :payment_url, :live_url, 'pending_payment')"
+        "INSERT INTO clients (account_number, activation_code, title, service, price, preview, preview_image_url, preview_file_url, payment_url, live_url, status)
+         VALUES (:account, :code, :title, :service, :price, :preview, :preview_image_url, :preview_file_url, :payment_url, :live_url, 'pending_payment')"
     );
     $stmt->execute([
         'account' => $account,
@@ -52,7 +52,7 @@ try {
         'price' => $price,
         'preview' => $preview,
         'preview_image_url' => $previewImageUrl !== '' ? $previewImageUrl : null,
-        'preview_link_url' => $previewLinkUrl !== '' ? $previewLinkUrl : null,
+        'preview_file_url' => $previewFileUrl !== '' ? $previewFileUrl : null,
         'payment_url' => $paymentUrl,
         'live_url' => $liveUrl !== '' ? $liveUrl : null,
     ]);

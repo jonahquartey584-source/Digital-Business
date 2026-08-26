@@ -30,7 +30,7 @@ const CLIENT_ACCOUNTS = [
     preview:
       "A 5-page mobile-friendly business website with an enquiry form, hosted and ready to customize once payment is confirmed.",
     previewImageUrl: null, // set this to show a clickable preview image instead of the JSON block
-    previewLinkUrl: null, // where clicking the preview image sends them — defaults to previewImageUrl itself
+    previewFileUrl: null, // where clicking the preview image sends them (e.g. an HTML prototype) — defaults to previewImageUrl itself
     paymentUrl: "https://buy.stripe.com/replace-with-real-payment-link",
     liveUrl: null,
   },
@@ -44,7 +44,7 @@ const CLIENT_ACCOUNTS = [
   //   price: "£150/month",
   //   preview: "Ongoing keyword tracking, on-page fixes, and a monthly report.",
   //   previewImageUrl: null,
-  //   previewLinkUrl: null,
+  //   previewFileUrl: null,
   //   paymentUrl: "https://buy.stripe.com/...",
   //   liveUrl: null,
   // },

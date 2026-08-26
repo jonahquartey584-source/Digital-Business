@@ -90,9 +90,12 @@ code:
      on your host — no URL to paste. If set, `activate.html` shows it as a
      "Preview of …" frame. If left blank, that section is skipped entirely
      and the client just sees the order summary below.
-   - **Preview link** — optional. Where clicking the preview image sends
-     the client — a staging link, a draft site, a Figma/Drive link,
-     whatever's relevant. Leave it blank and clicking the image just opens
+   - **Preview file** — optional. Where clicking the preview image sends
+     the client. Attach anything — most usefully an **HTML prototype** of
+     their site (it opens live, right in their browser, exactly like the
+     real thing), but also a PDF proposal, a design export, whatever's
+     relevant. Uploads via `api/upload_preview_file.php` the same way the
+     preview image does. Leave it blank and clicking the image just opens
      the attached image itself full-size.
 4. Send the client their account number and code — `admin.html` writes you
    a ready-to-send message for this.
@@ -226,9 +229,17 @@ payment-triggered system, not just a cost saving:
   update, not a queued job, so this doesn't apply — just flagging it as a
   constraint if you build on top of this later.
 - **Upload size limits.** `api/upload_preview_image.php` caps attached
-  preview images at 5MB, but your host's own `upload_max_filesize`/
-  `post_max_size` (set in InfinityFree's control panel, not in this repo)
-  can be lower — if an upload fails for no obvious reason, check those.
+  preview images at 5MB and `api/upload_preview_file.php` caps the preview
+  file at 15MB, but your host's own `upload_max_filesize`/`post_max_size`
+  (set in InfinityFree's control panel, not in this repo) can be lower —
+  if an upload fails for no obvious reason, check those.
+- **The preview file endpoint accepts almost any file type on purpose** —
+  including `.html`, so you can attach a real prototype the client opens
+  live. It still blocks anything that could run as *server-side* code
+  (`.php` and friends — see `api/upload_preview_file.php`'s comment for the
+  full list), and both upload endpoints require the admin password, the
+  same trust boundary as FTP/file-manager access to your host already
+  gives you.
 
 If you outgrow these constraints, the same `api/` design (PHP + MySQL +
 manual Stripe signature verification) works unchanged on paid PHP hosting
@@ -301,9 +312,15 @@ using the `accounts-data.js` fallback described in
 - `api/redeem.php` — looks up an account+code, called by `activate.js`
 - `api/create_client.php` — admin-only endpoint that inserts a new client
   row, called by `admin.js`'s "Save To Live Database"
+- `api/upload_helpers.php` — shared upload logic (admin password check,
+  size cap, save into `uploads/`) used by both upload endpoints below
 - `api/upload_preview_image.php` — admin-only endpoint that saves an
   attached preview image into `uploads/` and returns its URL, called the
   moment you choose a file under "Preview image" in `admin.html`
+- `api/upload_preview_file.php` — admin-only endpoint that saves an
+  attached preview file (HTML prototype, PDF, etc. — almost any type is
+  allowed) into `uploads/` and returns its URL, called the moment you
+  choose a file under "Preview file" in `admin.html`
 - `api/webhook.php` — Stripe webhook endpoint; verifies the signature by
   hand and flips a client's status to `active` on
   `checkout.session.completed`

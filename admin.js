@@ -52,7 +52,7 @@ function buildSnippetHtml(data) {
     line("price", data.price),
     line("preview", data.preview),
     nullableLine("previewImageUrl", data.previewImageUrl),
-    nullableLine("previewLinkUrl", data.previewLinkUrl),
+    nullableLine("previewFileUrl", data.previewFileUrl),
     line("paymentUrl", data.paymentUrl),
     nullableLine("liveUrl", data.liveUrl, false),
     `<p class="code-line">},<span class="cursor" aria-hidden="true"></span></p>`,
@@ -69,7 +69,7 @@ function buildSnippetText(data) {
     `  price: "${escapeJsString(data.price)}",`,
     `  preview: "${escapeJsString(data.preview || "")}",`,
     `  previewImageUrl: ${data.previewImageUrl ? `"${escapeJsString(data.previewImageUrl)}"` : "null"},`,
-    `  previewLinkUrl: ${data.previewLinkUrl ? `"${escapeJsString(data.previewLinkUrl)}"` : "null"},`,
+    `  previewFileUrl: ${data.previewFileUrl ? `"${escapeJsString(data.previewFileUrl)}"` : "null"},`,
     `  paymentUrl: "${escapeJsString(data.paymentUrl)}",`,
     `  liveUrl: ${data.liveUrl ? `"${escapeJsString(data.liveUrl)}"` : "null"},`,
     "},",
@@ -100,66 +100,77 @@ const saveNote = document.getElementById("saveNote");
 const previewImageFile = document.getElementById("adminPreviewImageFile");
 const previewImageStatus = document.getElementById("previewImageStatus");
 const previewImageThumb = document.getElementById("previewImageThumb");
+const previewFile = document.getElementById("adminPreviewFile");
+const previewFileStatus = document.getElementById("previewFileStatus");
 
 let currentData = null;
 
-// Set once the file chosen under "Preview image" has finished uploading
-// (see the change listener below). render() reads this instead of a typed
-// URL — the client just attaches the file, nothing to paste.
+// Set once their respective file input finishes uploading (see
+// wireFileUpload below). render() reads these instead of typed URLs — the
+// client just attaches files, nothing to paste.
 let uploadedPreviewImageUrl = null;
+let uploadedPreviewFileUrl = null;
 
-if (previewImageFile) {
-  previewImageFile.addEventListener("change", async () => {
-    const file = previewImageFile.files[0];
+// Shared upload flow for both file inputs: requires the admin password,
+// POSTs the file to `endpoint`, and calls `onUploaded(url, file)` once it's
+// saved server-side. `statusEl` shows progress/errors inline.
+function wireFileUpload(fileInput, statusEl, endpoint, onUploaded) {
+  if (!fileInput) return;
+
+  fileInput.addEventListener("change", async () => {
+    const file = fileInput.files[0];
     if (!file) return;
 
     const adminPassword = adminForm.adminPassword.value;
     if (!adminPassword) {
-      previewImageStatus.textContent = "Enter the admin password below first, then choose the file again.";
-      previewImageStatus.style.color = "#ff8a8a";
-      previewImageFile.value = "";
+      statusEl.textContent = "Enter the admin password below first, then choose the file again.";
+      statusEl.style.color = "#ff8a8a";
+      fileInput.value = "";
       return;
     }
 
-    uploadedPreviewImageUrl = null;
-    previewImageThumb.hidden = true;
-    previewImageStatus.textContent = "Uploading…";
-    previewImageStatus.style.color = "";
+    onUploaded(null); // clear any previous upload while this one's in flight
+    statusEl.textContent = "Uploading…";
+    statusEl.style.color = "";
 
     const formData = new FormData();
-    formData.append("image", file);
+    formData.append("file", file);
     formData.append("adminPassword", adminPassword);
 
     try {
-      const response = await fetch("api/upload_preview_image.php", {
-        method: "POST",
-        body: formData,
-      });
+      const response = await fetch(endpoint, { method: "POST", body: formData });
       const result = await response.json();
 
       if (response.ok && result.status === "uploaded") {
-        uploadedPreviewImageUrl = result.url;
-        previewImageStatus.textContent = `Uploaded ✓ ${file.name}`;
-        previewImageStatus.style.color = "";
-        previewImageThumb.src = result.url;
-        previewImageThumb.hidden = false;
+        statusEl.textContent = `Uploaded ✓ ${file.name}`;
+        statusEl.style.color = "";
+        onUploaded(result.url, file);
       } else {
-        previewImageStatus.textContent = result.message || "Upload failed — check the admin password and try again.";
-        previewImageStatus.style.color = "#ff8a8a";
+        statusEl.textContent = result.message || "Upload failed — check the admin password and try again.";
+        statusEl.style.color = "#ff8a8a";
       }
     } catch (err) {
-      previewImageStatus.textContent = "Couldn't reach api/upload_preview_image.php — is the PHP backend deployed?";
-      previewImageStatus.style.color = "#ff8a8a";
+      statusEl.textContent = `Couldn't reach ${endpoint} — is the PHP backend deployed?`;
+      statusEl.style.color = "#ff8a8a";
     }
   });
 }
+
+wireFileUpload(previewImageFile, previewImageStatus, "api/upload_preview_image.php", (url) => {
+  uploadedPreviewImageUrl = url;
+  previewImageThumb.hidden = !url;
+  if (url) previewImageThumb.src = url;
+});
+
+wireFileUpload(previewFile, previewFileStatus, "api/upload_preview_file.php", (url) => {
+  uploadedPreviewFileUrl = url;
+});
 
 function render() {
   const title = adminForm.adminTitle.value.trim();
   const service = adminForm.adminService.value.trim();
   const price = adminForm.adminPrice.value.trim();
   const preview = adminForm.adminPreview.value.trim();
-  const previewLinkUrl = adminForm.adminPreviewLink.value.trim();
   const basePaymentUrl = adminForm.adminPaymentUrl.value.trim();
   const liveUrl = adminForm.adminLiveUrl.value.trim();
 
@@ -177,6 +188,11 @@ function render() {
     saveNote.style.color = "#ff8a8a";
     return;
   }
+  if (previewFile && previewFile.files[0] && !uploadedPreviewFileUrl) {
+    saveNote.textContent = "Still uploading the preview file — wait for \"Uploaded ✓\" first.";
+    saveNote.style.color = "#ff8a8a";
+    return;
+  }
   saveNote.style.color = "";
 
   const account = generateAccountNumber();
@@ -191,7 +207,7 @@ function render() {
     price,
     preview,
     previewImageUrl: uploadedPreviewImageUrl,
-    previewLinkUrl,
+    previewFileUrl: uploadedPreviewFileUrl,
     paymentUrl,
     liveUrl,
   };

@@ -39,7 +39,7 @@ async function lookupAccount(account, code) {
       price: match.price,
       preview: match.preview,
       previewImageUrl: match.previewImageUrl || null,
-      previewLinkUrl: match.previewLinkUrl || null,
+      previewFileUrl: match.previewFileUrl || null,
       paymentUrl: match.paymentUrl,
       liveUrl: match.liveUrl || null,
       activeStatus: "pending_payment",
@@ -72,15 +72,15 @@ function terminalWindow(lines) {
 }
 
 // A clickable visual preview of the service (e.g. a website screenshot),
-// shown in place of the raw JSON. The frame links to previewLinkUrl when
-// the client set one (a staging link, draft site, Figma/Drive link, etc.)
-// — otherwise it just opens the attached image itself. Returns null when
-// no image was set on the client's account — the caller decides what
-// (if anything) to show instead.
+// shown in place of the raw JSON. The frame links to previewFileUrl when
+// the client attached one (an HTML prototype, a PDF proposal, whatever's
+// relevant) — otherwise it just opens the attached image itself. Returns
+// null when no image was set on the client's account — the caller decides
+// what (if anything) to show instead.
 function previewFrame(result) {
   if (!result.previewImageUrl) return null;
 
-  const linkUrl = result.previewLinkUrl || result.previewImageUrl;
+  const linkUrl = result.previewFileUrl || result.previewImageUrl;
 
   let urlLabel = result.service || "Preview";
   if (result.liveUrl) {
