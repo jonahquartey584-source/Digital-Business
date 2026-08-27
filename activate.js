@@ -102,6 +102,19 @@ if (activateForm && activateResult) {
 
     if (result.status === "match_found" && result.activeStatus === "active") {
       activateResult.className = "activate-result activate-result--success";
+      // A website client gets a live-site link, a deliverable-file client
+      // (e.g. a finished logo) gets a download button — either, both, or
+      // (for a service with nothing to hand over, like ongoing SEO)
+      // neither, in which case it just says so.
+      const actions = [
+        result.liveUrl
+          ? `<a class="btn btn--primary btn--lg" href="${result.liveUrl}" target="_blank" rel="noopener noreferrer">Visit Your Live Site →</a>`
+          : "",
+        result.deliverableFileUrl
+          ? `<a class="btn btn--primary btn--lg" href="${result.deliverableFileUrl}" target="_blank" rel="noopener noreferrer" download>Download Your Files →</a>`
+          : "",
+      ].filter(Boolean);
+
       activateResult.innerHTML =
         (previewFrame(result) || "") +
         `
@@ -110,8 +123,8 @@ if (activateForm && activateResult) {
           <h3 class="order-summary__service">${result.service}</h3>
           <p class="order-summary__preview">Payment confirmed — this service is live.</p>
           ${
-            result.liveUrl
-              ? `<a class="btn btn--primary btn--lg" href="${result.liveUrl}" target="_blank" rel="noopener noreferrer">Visit Your Live Site →</a>`
+            actions.length
+              ? actions.join("")
               : `<p class="order-summary__note">We'll be in touch if there's anything else needed to finish setting this up.</p>`
           }
         </div>

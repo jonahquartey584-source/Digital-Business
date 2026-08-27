@@ -124,6 +124,13 @@
           </div>
 
           <div class="form-row">
+            <label for="adminDeliverableFile">Deliverable file (optional)</label>
+            <input type="file" id="adminDeliverableFile" name="adminDeliverableFile" />
+            <p class="admin-hint">The actual finished thing — a logo, a design export, whatever they're paying for that isn't a website. Attach it here and it uploads straight away, but stays hidden until they've paid: once their status flips to active, <strong>Download Your&nbsp;…</strong> appears on their redeem page with a link straight to this file. Leave blank for services with nothing to download (a website, ongoing SEO, etc.).</p>
+            <p class="form-note" id="deliverableFileStatus"></p>
+          </div>
+
+          <div class="form-row">
             <label for="adminPaymentUrl">Payment link</label>
             <input type="url" id="adminPaymentUrl" name="adminPaymentUrl" placeholder="https://buy.stripe.com/..." required />
             <p class="admin-hint">Their account number is appended automatically as <code>?client_reference_id=...</code> — this is how the Stripe webhook knows whose payment just landed. Leave the base link as-is (no query string of your own).</p>

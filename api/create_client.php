@@ -1,9 +1,10 @@
 <?php
 // Admin-only endpoint: creates a new client row (account number, code,
-// service, price, preview text/image, payment link). Called from
-// admin.html's "Save to Database" button. Requires a valid admin session
-// (see admin_login.php / admin_auth.php) — admin.html gets one by logging
-// in with the email/password/security answer first.
+// service, price, preview text/image, an optional final deliverable file,
+// payment link). Called from admin.html's "Save to Database" button.
+// Requires a valid admin session (see admin_login.php / admin_auth.php) —
+// admin.html gets one by logging in with the email/password/security
+// answer first.
 
 require_once __DIR__ . '/db.php';
 require_once __DIR__ . '/admin_auth.php';
@@ -32,6 +33,7 @@ $price = trim((string) ($input['price'] ?? ''));
 $preview = trim((string) ($input['preview'] ?? ''));
 $previewImageUrl = trim((string) ($input['previewImageUrl'] ?? ''));
 $previewFileUrl = trim((string) ($input['previewFileUrl'] ?? ''));
+$deliverableFileUrl = trim((string) ($input['deliverableFileUrl'] ?? ''));
 $paymentUrl = trim((string) ($input['paymentUrl'] ?? ''));
 $liveUrl = trim((string) ($input['liveUrl'] ?? ''));
 
@@ -44,8 +46,8 @@ if ($account === '' || $code === '' || $service === '' || $price === '' || $paym
 try {
     $pdo = get_db();
     $stmt = $pdo->prepare(
-        "INSERT INTO clients (account_number, activation_code, title, service, price, preview, preview_image_url, preview_file_url, payment_url, live_url, status)
-         VALUES (:account, :code, :title, :service, :price, :preview, :preview_image_url, :preview_file_url, :payment_url, :live_url, 'pending_payment')"
+        "INSERT INTO clients (account_number, activation_code, title, service, price, preview, preview_image_url, preview_file_url, deliverable_file_url, payment_url, live_url, status)
+         VALUES (:account, :code, :title, :service, :price, :preview, :preview_image_url, :preview_file_url, :deliverable_file_url, :payment_url, :live_url, 'pending_payment')"
     );
     $stmt->execute([
         'account' => $account,
@@ -56,6 +58,7 @@ try {
         'preview' => $preview,
         'preview_image_url' => $previewImageUrl !== '' ? $previewImageUrl : null,
         'preview_file_url' => $previewFileUrl !== '' ? $previewFileUrl : null,
+        'deliverable_file_url' => $deliverableFileUrl !== '' ? $deliverableFileUrl : null,
         'payment_url' => $paymentUrl,
         'live_url' => $liveUrl !== '' ? $liveUrl : null,
     ]);

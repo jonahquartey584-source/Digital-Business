@@ -37,6 +37,12 @@ export default async (req: Request, context: Context) => {
     preview: client.preview,
     previewImageUrl: client.previewImageUrl,
     previewFileUrl: client.previewFileUrl,
+    // Only ever sent once payment is confirmed — never leaked to a client
+    // who hasn't paid yet, even though it's stored from creation. This is
+    // the actual "download it on the spot" file (e.g. their finished
+    // logo), separate from previewFileUrl (fine to show pre-payment as a
+    // preview/mockup).
+    deliverableFileUrl: client.status === "active" ? client.deliverableFileUrl : null,
     paymentUrl: client.paymentUrl,
     liveUrl: client.liveUrl,
     // 'pending_payment' or 'active' — activate.js shows a different result

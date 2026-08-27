@@ -63,6 +63,7 @@ function buildSnippetHtml(data) {
     line("preview", data.preview),
     nullableLine("previewImageUrl", data.previewImageUrl),
     nullableLine("previewFileUrl", data.previewFileUrl),
+    nullableLine("deliverableFileUrl", data.deliverableFileUrl),
     line("paymentUrl", data.paymentUrl),
     nullableLine("liveUrl", data.liveUrl, false),
     `<p class="code-line">},<span class="cursor" aria-hidden="true"></span></p>`,
@@ -80,6 +81,7 @@ function buildSnippetText(data) {
     `  preview: "${escapeJsString(data.preview || "")}",`,
     `  previewImageUrl: ${data.previewImageUrl ? `"${escapeJsString(data.previewImageUrl)}"` : "null"},`,
     `  previewFileUrl: ${data.previewFileUrl ? `"${escapeJsString(data.previewFileUrl)}"` : "null"},`,
+    `  deliverableFileUrl: ${data.deliverableFileUrl ? `"${escapeJsString(data.deliverableFileUrl)}"` : "null"},`,
     `  paymentUrl: "${escapeJsString(data.paymentUrl)}",`,
     `  liveUrl: ${data.liveUrl ? `"${escapeJsString(data.liveUrl)}"` : "null"},`,
     "},",
@@ -270,6 +272,8 @@ const previewImageStatus = document.getElementById("previewImageStatus");
 const previewImageThumb = document.getElementById("previewImageThumb");
 const previewFile = document.getElementById("adminPreviewFile");
 const previewFileStatus = document.getElementById("previewFileStatus");
+const deliverableFile = document.getElementById("adminDeliverableFile");
+const deliverableFileStatus = document.getElementById("deliverableFileStatus");
 
 let currentData = null;
 
@@ -278,6 +282,7 @@ let currentData = null;
 // client just attaches files, nothing to paste.
 let uploadedPreviewImageUrl = null;
 let uploadedPreviewFileUrl = null;
+let uploadedDeliverableFileUrl = null;
 
 // Shared upload flow for both file inputs: sends the logged-in session
 // token, POSTs the file to `endpoint`, and calls `onUploaded(url, file)`
@@ -333,6 +338,15 @@ wireFileUpload(previewFile, previewFileStatus, "api/upload_preview_file.php", (u
   uploadedPreviewFileUrl = url;
 });
 
+// Same upload endpoint as the preview file above (it already accepts any
+// file type and just returns { status, url }) — this is a second, separate
+// file, kept in its own field (deliverableFileUrl) so it can be withheld
+// from the client until they've actually paid. See api/redeem.php /
+// redeem.mts, which only ever return it once status is "active".
+wireFileUpload(deliverableFile, deliverableFileStatus, "api/upload_preview_file.php", (url) => {
+  uploadedDeliverableFileUrl = url;
+});
+
 function render() {
   const title = adminForm.adminTitle.value.trim();
   const service = adminForm.adminService.value.trim();
@@ -360,6 +374,11 @@ function render() {
     saveNote.style.color = "#ff8a8a";
     return;
   }
+  if (deliverableFile && deliverableFile.files[0] && !uploadedDeliverableFileUrl) {
+    saveNote.textContent = "Still uploading the deliverable file — wait for \"Uploaded ✓\" first.";
+    saveNote.style.color = "#ff8a8a";
+    return;
+  }
   saveNote.style.color = "";
 
   const account = generateAccountNumber();
@@ -375,6 +394,7 @@ function render() {
     preview,
     previewImageUrl: uploadedPreviewImageUrl,
     previewFileUrl: uploadedPreviewFileUrl,
+    deliverableFileUrl: uploadedDeliverableFileUrl,
     paymentUrl,
     liveUrl,
   };

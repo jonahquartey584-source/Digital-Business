@@ -25,7 +25,7 @@ if ($account === '' || $code === '') {
 try {
     $pdo = get_db();
     $stmt = $pdo->prepare(
-        'SELECT account_number, title, service, price, preview, preview_image_url, preview_file_url, payment_url, live_url, status
+        'SELECT account_number, title, service, price, preview, preview_image_url, preview_file_url, deliverable_file_url, payment_url, live_url, status
          FROM clients
          WHERE account_number = :account AND activation_code = :code
          LIMIT 1'
@@ -52,6 +52,12 @@ echo json_encode([
     'preview' => $client['preview'],
     'previewImageUrl' => $client['preview_image_url'],
     'previewFileUrl' => $client['preview_file_url'],
+    // Only ever sent once payment is confirmed — never leaked to a client
+    // who hasn't paid yet, even though the URL is already stored. This is
+    // the actual "download it on the spot" file (e.g. their finished
+    // logo), separate from previewFileUrl (which is fine to show before
+    // payment as a preview/mockup).
+    'deliverableFileUrl' => $client['status'] === 'active' ? $client['deliverable_file_url'] : null,
     'paymentUrl' => $client['payment_url'],
     'liveUrl' => $client['live_url'],
     // 'pending_payment' or 'active' — activate.js shows a different result

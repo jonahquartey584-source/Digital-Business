@@ -80,6 +80,10 @@ export interface ClientRecord {
   preview: string;
   previewImageUrl: string | null;
   previewFileUrl: string | null;
+  // The actual final deliverable (e.g. a finished logo) — only ever sent
+  // to the client by redeem.mts once status is "active", never before,
+  // even though it's stored from the moment the client is created.
+  deliverableFileUrl: string | null;
   paymentUrl: string;
   liveUrl: string | null;
   status: "pending_payment" | "active";

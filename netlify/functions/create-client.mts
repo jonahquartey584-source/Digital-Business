@@ -30,6 +30,7 @@ export default async (req: Request, context: Context) => {
   const preview = String(input.preview ?? "").trim();
   const previewImageUrl = String(input.previewImageUrl ?? "").trim();
   const previewFileUrl = String(input.previewFileUrl ?? "").trim();
+  const deliverableFileUrl = String(input.deliverableFileUrl ?? "").trim();
   const paymentUrl = String(input.paymentUrl ?? "").trim();
   const liveUrl = String(input.liveUrl ?? "").trim();
 
@@ -59,6 +60,7 @@ export default async (req: Request, context: Context) => {
     preview,
     previewImageUrl: previewImageUrl || null,
     previewFileUrl: previewFileUrl || null,
+    deliverableFileUrl: deliverableFileUrl || null,
     paymentUrl,
     liveUrl: liveUrl || null,
     status: "pending_payment",

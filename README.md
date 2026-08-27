@@ -114,6 +114,16 @@ code:
      relevant. Uploads via `api/upload_preview_file.php` the same way the
      preview image does. Leave it blank and clicking the image just opens
      the attached image itself full-size.
+   - **Deliverable file** — optional. The actual finished thing for a
+     non-website service — a logo, a design export, whatever they're
+     paying for that isn't a website. Uploads the same way as the two
+     fields above, but is handled completely differently: it's stored from
+     the moment you save the client, but `api/redeem.php`/`redeem.mts`
+     withhold it from every response until that client's status is
+     `active` — so there's no way to fetch it before paying, even by
+     reading the raw network response. The instant it does flip to active,
+     `activate.html` shows a **Download Your Files →** button linking
+     straight to it.
 4. Send the client their account number and code — `admin.html` writes you
    a ready-to-send message for this.
 5. They go to `activate.html`, enter both, and see the preview (if you set
@@ -123,8 +133,10 @@ code:
 6. The moment Stripe confirms their payment, a webhook flips their account
    to active automatically — no manual step. If they check `activate.html`
    again (or their account was already active when they first checked), they
-   see a "Service Active" panel instead, with a link straight to their live
-   site if you gave one.
+   see a "Service Active" panel instead: a **Visit Your Live Site** link if
+   you gave one, a **Download Your Files** button if you attached a
+   deliverable file, both if you gave both, or just a note that you'll be
+   in touch if neither applies (e.g. an ongoing service like SEO).
 
 This whole flow needs one of the two backends deployed (see the next two
 sections) — on `qp-digital.netlify.app` that's already the case. Without
@@ -270,12 +282,18 @@ website client, `api/gate.php` (included at the top of their site's real
 placeholder. That's the whole mechanism: no separate "publish" step, no
 polling, nothing else to trigger.
 
-**One honest limit:** this genuinely automatic path — a single check that
-flips a whole site from hidden to live — really only fits the **website**
-service. For SEO, CRM setup, branding, chatbots, etc. there's no equivalent
-single switch; `status` still flips to `active` instantly (so you always
-know the moment payment lands, without checking Stripe or your inbox), but
-actually delivering the work is still on you.
+**One honest limit:** the single-switch "hidden → live" mechanism itself
+(`api/gate.php`) only fits the **website** service — there's no equivalent
+for SEO, CRM setup, branding, etc., since those don't have one file whose
+visibility can just be toggled. For anything with an actual file to hand
+over (a logo, a design export), attaching it as the **deliverable file**
+covers that gap — `status` flipping to `active` is what reveals the
+download button, so the client can self-serve it the moment they pay,
+without you doing anything. What's still on you either way: the client
+finding out — nothing emails or texts them to say it's ready, they have to
+go back to `activate.html` themselves. And for a service with no website
+and no file (ongoing SEO, a CRM setup call), delivering the actual work is
+still manual regardless.
 
 ### Deployment steps
 
