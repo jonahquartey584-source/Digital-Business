@@ -1,0 +1,8 @@
+User-agent: *
+Allow: /
+Disallow: /admin.html
+Disallow: /pipeline-tester.html
+Disallow: /api/
+Disallow: /uploads/
+
+Sitemap: https://qp-digital.netlify.app/sitemap.xml

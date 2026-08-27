@@ -430,6 +430,30 @@ described in [Activating clients](#activating-clients).
   credentials) live in `api/config.php` (copy from
   `api/config.example.php` — gitignored, never commit real values).
 
+## SEO
+
+`index.html` and `activate.html` (the two public pages) carry a canonical
+URL, Open Graph/Twitter card tags (so links posted in Slack/iMessage/Twitter
+show a proper title, description and image), and `index.html` also has
+`ProfessionalService` JSON-LD structured data (name, description, email,
+phone). `admin.html` and `pipeline-tester.html` stay `noindex, nofollow` —
+they're internal tools, not meant to be found or shared.
+
+- `robots.txt` — allows crawling everything except `admin.html`,
+  `pipeline-tester.html`, `api/`, and `uploads/`; points crawlers at
+  `sitemap.xml`.
+- `sitemap.xml` — lists the two public pages.
+- `favicon.svg` — the browser-tab icon (a gold-gradient "Q" monogram,
+  matching the site's palette), with `favicon-32.png` and
+  `apple-touch-icon.png` as raster fallbacks for browsers/devices that
+  don't support SVG favicons.
+- `og-image.png` — the 1200×630 image shown when a link to the site is
+  shared; referenced by the Open Graph/Twitter tags above.
+
+All of the above hardcode `https://qp-digital.netlify.app` — update every
+occurrence (`grep -rn qp-digital.netlify.app`) if you move to a different
+domain.
+
 ## Files
 
 - `index.html` — homepage markup (all marketing sections)
