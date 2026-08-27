@@ -562,7 +562,7 @@ p {
 }
 
 .hero__rotator-progress span.is-animating {
-  animation: hero-rotator-progress 3s linear;
+  animation: hero-rotator-progress 5s linear;
 }
 
 @keyframes hero-rotator-progress {

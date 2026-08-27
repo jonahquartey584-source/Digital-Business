@@ -85,7 +85,7 @@ const heroRotatorText = document.getElementById("heroRotatorText");
 const heroRotatorProgressBar = document.getElementById("heroRotatorProgressBar");
 
 if (heroRotatorBody && heroRotatorHeadline && heroRotatorText) {
-  const HERO_ROTATE_MS = 3000;
+  const HERO_ROTATE_MS = 5000;
   const HERO_ROTATE_FADE_MS = 250; // keep in sync with the CSS transition on .hero__rotator-headline etc.
   let heroRotatorIndex = 0;
 
