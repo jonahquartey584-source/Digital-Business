@@ -78,7 +78,10 @@ export function requireAdminSession(req: Request): boolean {
 // RESEND_API_KEY environment variable; without it this is a no-op that
 // reports failure so callers can decide how to degrade (enquiry.mts still
 // tells the visitor their enquiry was submitted either way — email is a
-// nice-to-have on top of that, not the only record of it).
+// nice-to-have on top of that, not the only record of it). Netlify
+// Functions read their environment at deploy time, not live — set or
+// change this and trigger a redeploy (or just push again) before it takes
+// effect.
 //
 // The sender address is Resend's own shared onboarding domain — it works
 // without owning/verifying a domain, which this site doesn't have yet
