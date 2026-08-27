@@ -42,6 +42,7 @@ export default async (req: Request, context: Context) => {
   const deliverableFileUrl = String(input.deliverableFileUrl ?? "").trim();
   const paymentUrl = String(input.paymentUrl ?? "").trim();
   const liveUrl = String(input.liveUrl ?? "").trim();
+  const clientEmail = String(input.clientEmail ?? "").trim();
   const status: ClientRecord["status"] = input.status === "active" ? "active" : "pending_payment";
 
   if (!code || !service || !price || !paymentUrl) {
@@ -60,6 +61,7 @@ export default async (req: Request, context: Context) => {
     deliverableFileUrl: deliverableFileUrl || null,
     paymentUrl,
     liveUrl: liveUrl || null,
+    clientEmail: clientEmail || null,
     status,
     // Newly flipped to active by hand -> stamp it now. Already active ->
     // keep the original timestamp. Set back to pending -> clear it.

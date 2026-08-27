@@ -14,6 +14,7 @@ CREATE TABLE IF NOT EXISTS clients (
   deliverable_file_url VARCHAR(500) NULL,
   payment_url VARCHAR(500) NOT NULL,
   live_url VARCHAR(500) NULL,
+  client_email VARCHAR(255) NULL,
   status ENUM('pending_payment', 'active') NOT NULL DEFAULT 'pending_payment',
   created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
   activated_at DATETIME NULL
@@ -27,3 +28,4 @@ CREATE TABLE IF NOT EXISTS clients (
 -- ALTER TABLE clients ADD COLUMN preview_file_url VARCHAR(500) NULL AFTER preview_image_url;
 -- Renamed from preview_link_url? RENAME COLUMN clients.preview_link_url TO preview_file_url;
 -- ALTER TABLE clients ADD COLUMN deliverable_file_url VARCHAR(500) NULL AFTER preview_file_url;
+-- ALTER TABLE clients ADD COLUMN client_email VARCHAR(255) NULL AFTER live_url;

@@ -40,6 +40,7 @@ $previewFileUrl = trim((string) ($input['previewFileUrl'] ?? ''));
 $deliverableFileUrl = trim((string) ($input['deliverableFileUrl'] ?? ''));
 $paymentUrl = trim((string) ($input['paymentUrl'] ?? ''));
 $liveUrl = trim((string) ($input['liveUrl'] ?? ''));
+$clientEmail = trim((string) ($input['clientEmail'] ?? ''));
 $status = ($input['status'] ?? '') === 'active' ? 'active' : 'pending_payment';
 
 if ($code === '' || $service === '' || $price === '' || $paymentUrl === '') {
@@ -81,6 +82,7 @@ try {
             deliverable_file_url = :deliverable_file_url,
             payment_url = :payment_url,
             live_url = :live_url,
+            client_email = :client_email,
             status = :status,
             activated_at = :activated_at
          WHERE account_number = :account'
@@ -96,6 +98,7 @@ try {
         'deliverable_file_url' => $deliverableFileUrl !== '' ? $deliverableFileUrl : null,
         'payment_url' => $paymentUrl,
         'live_url' => $liveUrl !== '' ? $liveUrl : null,
+        'client_email' => $clientEmail !== '' ? $clientEmail : null,
         'status' => $status,
         'activated_at' => $activatedAt,
         'account' => $account,

@@ -133,28 +133,64 @@ if (yearEl) {
 }
 
 // ---- Enquiry form --------------------------------------------------------
-// No backend is wired up yet, so submitting the form builds a pre-filled
-// email (via a mailto: link) addressed to BUSINESS_EMAIL and opens the
-// visitor's email client. Swap this out for a real form handler
-// (e.g. Netlify Forms, Formspree, or your own API) when you're ready.
+// Primary path: POST to api/enquiry.php, which sends the visitor an
+// automatic confirmation email (and the business a notification) — see
+// api/enquiry.php / netlify/functions/enquiry.mts.
+//
+// Fallback: if that can't be reached, or responds but couldn't actually
+// send email (e.g. RESEND_API_KEY isn't configured yet), fall back to
+// building a pre-filled email (via a mailto: link) addressed to
+// BUSINESS_EMAIL and opening the visitor's own email client — the same
+// behavior this form had before the backend existed, so an enquiry is
+// never silently lost.
 const enquiryForm = document.getElementById("enquiryForm");
 const formNote = document.getElementById("formNote");
 
+function openEnquiryMailtoFallback({ name, business, address, email, phone, service, details, negotiate }) {
+  const subject = `Enquiry: ${service}`;
+  const bodyLines = [
+    `Name: ${name}`,
+    business ? `Business: ${business}` : null,
+    address ? `Address: ${address}` : null,
+    `Email: ${email}`,
+    phone ? `Phone: ${phone}` : null,
+    `Service: ${service}`,
+    `Open to negotiating price: ${negotiate ? "Yes" : "No"}`,
+    "",
+    "Details:",
+    details || "(none provided)",
+  ].filter(Boolean);
+
+  const mailtoUrl =
+    `mailto:${BUSINESS_EMAIL}` +
+    `?subject=${encodeURIComponent(subject)}` +
+    `&body=${encodeURIComponent(bodyLines.join("\n"))}`;
+
+  window.location.href = mailtoUrl;
+
+  if (formNote) {
+    formNote.textContent = "Opening your email client to send this enquiry…";
+    formNote.style.color = "";
+  }
+}
+
 if (enquiryForm) {
-  enquiryForm.addEventListener("submit", (event) => {
+  enquiryForm.addEventListener("submit", async (event) => {
     event.preventDefault();
 
     const data = new FormData(enquiryForm);
-    const name = (data.get("name") || "").toString().trim();
-    const business = (data.get("business") || "").toString().trim();
-    const address = (data.get("address") || "").toString().trim();
-    const email = (data.get("email") || "").toString().trim();
-    const phone = (data.get("phone") || "").toString().trim();
-    const service = (data.get("service") || "").toString().trim();
-    const details = (data.get("details") || "").toString().trim();
-    const negotiate = data.get("negotiate") ? "Yes" : "No";
+    const enquiry = {
+      name: (data.get("name") || "").toString().trim(),
+      business: (data.get("business") || "").toString().trim(),
+      address: (data.get("address") || "").toString().trim(),
+      email: (data.get("email") || "").toString().trim(),
+      phone: (data.get("phone") || "").toString().trim(),
+      service: (data.get("service") || "").toString().trim(),
+      details: (data.get("details") || "").toString().trim(),
+      negotiate: Boolean(data.get("negotiate")),
+    };
 
-    if (!name || !email || !service) {
+    if (!enquiry.name || !enquiry.email || !enquiry.service) {
       if (formNote) {
         formNote.textContent = "Please fill in your name, email and choose a service.";
         formNote.style.color = "#ff8a8a";
@@ -162,30 +198,38 @@ if (enquiryForm) {
       return;
     }
 
-    const subject = `Enquiry: ${service}`;
-    const bodyLines = [
-      `Name: ${name}`,
-      business ? `Business: ${business}` : null,
-      address ? `Address: ${address}` : null,
-      `Email: ${email}`,
-      phone ? `Phone: ${phone}` : null,
-      `Service: ${service}`,
-      `Open to negotiating price: ${negotiate}`,
-      "",
-      "Details:",
-      details || "(none provided)",
-    ].filter(Boolean);
-
-    const mailtoUrl =
-      `mailto:${BUSINESS_EMAIL}` +
-      `?subject=${encodeURIComponent(subject)}` +
-      `&body=${encodeURIComponent(bodyLines.join("\n"))}`;
-
-    window.location.href = mailtoUrl;
-
+    const submitBtn = enquiryForm.querySelector('button[type="submit"]');
+    if (submitBtn) submitBtn.disabled = true;
     if (formNote) {
-      formNote.textContent = "Opening your email client to send this enquiry…";
+      formNote.textContent = "Sending…";
       formNote.style.color = "";
+    }
+
+    try {
+      const response = await fetch("api/enquiry.php", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(enquiry),
+      });
+      const result = await response.json();
+
+      if (response.ok && result.status === "ok" && result.emailSent) {
+        if (formNote) {
+          formNote.textContent = `Thanks — we've sent a confirmation to ${enquiry.email}. Our team will respond as quickly as possible.`;
+          formNote.style.color = "";
+        }
+        enquiryForm.reset();
+      } else {
+        // Reached the backend, but it couldn't actually send email (most
+        // likely RESEND_API_KEY isn't set up yet) — fall back rather than
+        // leave the visitor thinking nothing happened.
+        openEnquiryMailtoFallback(enquiry);
+      }
+    } catch (err) {
+      // Backend not reachable at all.
+      openEnquiryMailtoFallback(enquiry);
+    } finally {
+      if (submitBtn) submitBtn.disabled = false;
     }
   });
 }

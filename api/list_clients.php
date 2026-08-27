@@ -22,7 +22,7 @@ if (!require_admin_session()) {
 try {
     $pdo = get_db();
     $stmt = $pdo->query(
-        'SELECT account_number, activation_code, title, service, price, preview, preview_image_url, preview_file_url, deliverable_file_url, payment_url, live_url, status, created_at, activated_at
+        'SELECT account_number, activation_code, title, service, price, preview, preview_image_url, preview_file_url, deliverable_file_url, payment_url, live_url, client_email, status, created_at, activated_at
          FROM clients
          ORDER BY created_at DESC'
     );
@@ -46,6 +46,7 @@ $clients = array_map(function ($row) {
         'deliverableFileUrl' => $row['deliverable_file_url'],
         'paymentUrl' => $row['payment_url'],
         'liveUrl' => $row['live_url'],
+        'clientEmail' => $row['client_email'],
         'status' => $row['status'],
         'createdAt' => $row['created_at'],
         'activatedAt' => $row['activated_at'],

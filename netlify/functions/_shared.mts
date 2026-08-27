@@ -71,6 +71,54 @@ export function requireAdminSession(req: Request): boolean {
   return verifySessionToken(token, secret);
 }
 
+// --- Transactional email ---------------------------------------------------
+//
+// Sends via Resend's HTTP API (https://resend.com) — chosen because it
+// needs nothing beyond an API key (no SMTP setup, no SDK). Requires the
+// RESEND_API_KEY environment variable; without it this is a no-op that
+// reports failure so callers can decide how to degrade (enquiry.mts still
+// tells the visitor their enquiry was submitted either way — email is a
+// nice-to-have on top of that, not the only record of it).
+//
+// The sender address is Resend's own shared onboarding domain — it works
+// without owning/verifying a domain, which this site doesn't have yet
+// (only a netlify.app subdomain, which can't be verified as a sender).
+// Swap FROM_EMAIL for an address on your own verified domain once you have
+// one — deliverability is meaningfully better than a shared domain.
+const FROM_EMAIL = "Qp Digital <onboarding@resend.dev>";
+
+export async function sendEmail(options: {
+  to: string;
+  subject: string;
+  html: string;
+  text: string;
+  replyTo?: string;
+}): Promise<boolean> {
+  const apiKey = Netlify.env.get("RESEND_API_KEY") ?? "";
+  if (!apiKey) return false;
+
+  try {
+    const response = await fetch("https://api.resend.com/emails", {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${apiKey}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        from: FROM_EMAIL,
+        to: [options.to],
+        subject: options.subject,
+        html: options.html,
+        text: options.text,
+        ...(options.replyTo ? { reply_to: options.replyTo } : {}),
+      }),
+    });
+    return response.ok;
+  } catch {
+    return false;
+  }
+}
+
 export interface ClientRecord {
   account: string;
   code: string;
@@ -86,6 +134,10 @@ export interface ClientRecord {
   deliverableFileUrl: string | null;
   paymentUrl: string;
   liveUrl: string | null;
+  // Not required, not shown to the client anywhere — only used as the
+  // destination for send-client-email.mts's "email them their account +
+  // code" button in admin.html.
+  clientEmail: string | null;
   status: "pending_payment" | "active";
   createdAt: string;
   activatedAt: string | null;

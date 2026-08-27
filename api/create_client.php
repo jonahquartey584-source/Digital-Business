@@ -36,6 +36,7 @@ $previewFileUrl = trim((string) ($input['previewFileUrl'] ?? ''));
 $deliverableFileUrl = trim((string) ($input['deliverableFileUrl'] ?? ''));
 $paymentUrl = trim((string) ($input['paymentUrl'] ?? ''));
 $liveUrl = trim((string) ($input['liveUrl'] ?? ''));
+$clientEmail = trim((string) ($input['clientEmail'] ?? ''));
 
 if ($account === '' || $code === '' || $service === '' || $price === '' || $paymentUrl === '') {
     http_response_code(400);
@@ -46,8 +47,8 @@ if ($account === '' || $code === '' || $service === '' || $price === '' || $paym
 try {
     $pdo = get_db();
     $stmt = $pdo->prepare(
-        "INSERT INTO clients (account_number, activation_code, title, service, price, preview, preview_image_url, preview_file_url, deliverable_file_url, payment_url, live_url, status)
-         VALUES (:account, :code, :title, :service, :price, :preview, :preview_image_url, :preview_file_url, :deliverable_file_url, :payment_url, :live_url, 'pending_payment')"
+        "INSERT INTO clients (account_number, activation_code, title, service, price, preview, preview_image_url, preview_file_url, deliverable_file_url, payment_url, live_url, client_email, status)
+         VALUES (:account, :code, :title, :service, :price, :preview, :preview_image_url, :preview_file_url, :deliverable_file_url, :payment_url, :live_url, :client_email, 'pending_payment')"
     );
     $stmt->execute([
         'account' => $account,
@@ -61,6 +62,7 @@ try {
         'deliverable_file_url' => $deliverableFileUrl !== '' ? $deliverableFileUrl : null,
         'payment_url' => $paymentUrl,
         'live_url' => $liveUrl !== '' ? $liveUrl : null,
+        'client_email' => $clientEmail !== '' ? $clientEmail : null,
     ]);
 } catch (PDOException $e) {
     // Most likely cause: account_number already exists (UNIQUE constraint).

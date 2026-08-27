@@ -33,6 +33,7 @@ export default async (req: Request, context: Context) => {
   const deliverableFileUrl = String(input.deliverableFileUrl ?? "").trim();
   const paymentUrl = String(input.paymentUrl ?? "").trim();
   const liveUrl = String(input.liveUrl ?? "").trim();
+  const clientEmail = String(input.clientEmail ?? "").trim();
 
   if (!account || !code || !service || !price || !paymentUrl) {
     return json(400, { status: "error", message: "Missing required fields" });
@@ -63,6 +64,7 @@ export default async (req: Request, context: Context) => {
     deliverableFileUrl: deliverableFileUrl || null,
     paymentUrl,
     liveUrl: liveUrl || null,
+    clientEmail: clientEmail || null,
     status: "pending_payment",
     createdAt: new Date().toISOString(),
     activatedAt: null,

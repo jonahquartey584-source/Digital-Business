@@ -142,6 +142,12 @@
             <p class="admin-hint">Only for website clients whose domain you already know. Shown to them once their service is active.</p>
           </div>
 
+          <div class="form-row">
+            <label for="adminClientEmail">Client email (optional)</label>
+            <input type="email" id="adminClientEmail" name="adminClientEmail" placeholder="client@example.com" />
+            <p class="admin-hint">Not shown to the client anywhere — just so you can email them their account number, code and the redeem link straight from here after saving, instead of copy-pasting the message below yourself.</p>
+          </div>
+
           <div class="admin-actions">
             <button type="submit" class="btn btn--primary btn--lg" id="generateBtn">Generate Account &amp; Code →</button>
           </div>
@@ -152,6 +158,8 @@
           <div class="admin-output__block" id="saveBlock">
             <button type="button" class="btn btn--primary btn--lg" id="saveBtn">Save To Live Database →</button>
             <p class="form-note" id="saveNote"></p>
+            <button type="button" class="btn btn--ghost" id="emailClientBtn" hidden>Email Account &amp; Code to Client →</button>
+            <p class="form-note" id="emailClientNote"></p>
           </div>
 
           <div class="admin-output__block">
@@ -256,6 +264,12 @@
             </div>
 
             <div class="form-row">
+              <label for="editClientEmail">Client email (optional)</label>
+              <input type="email" id="editClientEmail" name="editClientEmail" placeholder="client@example.com" />
+              <p class="admin-hint">Not shown to the client anywhere — just so you can email them their account number, code and the redeem link.</p>
+            </div>
+
+            <div class="form-row">
               <label for="editStatus">Status</label>
               <select id="editStatus" name="editStatus">
                 <option value="pending_payment">Pending Payment</option>
@@ -266,6 +280,7 @@
 
             <div class="admin-actions">
               <button type="submit" class="btn btn--primary btn--lg" id="saveEditBtn">Save Changes →</button>
+              <button type="button" class="btn btn--ghost" id="editEmailClientBtn" hidden>Email Account &amp; Code to Client →</button>
             </div>
             <p class="form-note" id="editClientNote"></p>
           </form>

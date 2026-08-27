@@ -38,3 +38,13 @@ define('ADMIN_SESSION_SECRET', 'change-me-to-a-long-random-string');
 // ---------------------------------------------------------------------
 // Dashboard → Developers → Webhooks → your endpoint → Signing secret.
 define('STRIPE_WEBHOOK_SECRET', 'whsec_...');
+
+// ---------------------------------------------------------------------
+// Email (transactional — enquiry confirmations, client account emails)
+// ---------------------------------------------------------------------
+// From resend.com (free tier) → API Keys. Powers api/enquiry.php (the
+// visitor confirmation + business notification when someone submits the
+// homepage enquiry form) and api/send_client_email.php (admin.html's
+// "Email Account & Code to Client" button). Leave blank and both just
+// silently fall back to their non-email behavior (see each file's comment).
+define('RESEND_API_KEY', '');

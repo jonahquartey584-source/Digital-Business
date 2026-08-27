@@ -124,8 +124,13 @@ code:
      reading the raw network response. The instant it does flip to active,
      `activate.html` shows a **Download Your Files →** button linking
      straight to it.
-4. Send the client their account number and code — `admin.html` writes you
-   a ready-to-send message for this.
+   - **Client email** — optional. Not shown to the client or anyone else —
+     it only exists so you can click **Email Account & Code to Client →**
+     (appears right after saving) instead of sending the message below
+     yourself. See [Email](#email).
+4. Send the client their account number and code — either the **Email
+   Account & Code to Client** button above, or `admin.html` also writes
+   you a ready-to-send message to copy-paste yourself.
 5. They go to `activate.html`, enter both, and see the preview (if you set
    one) plus an order summary built from the service, preview text and
    price you set — exactly what they agreed to — with a "Pay & Activate"
@@ -161,10 +166,13 @@ key — renaming it would mean creating a new client, not editing this one):
 title, service, price, preview text, the three attached files (choosing a
 new one replaces it; leaving it blank keeps whatever's already there —
 there's no separate "remove" action yet), the payment link, the live site
-URL, and **status**. Status normally only flips automatically via the
-Stripe webhook — changing it by hand here is for the exception (a client
-who paid you some other way, or a mistake you need to correct), not the
-everyday path.
+URL, the client's email, and **status**. Status normally only flips
+automatically via the Stripe webhook — changing it by hand here is for the
+exception (a client who paid you some other way, or a mistake you need to
+correct), not the everyday path. Adding or changing the client's email
+here also surfaces the same **Email Account & Code to Client →** button
+the generator has — useful for a client you didn't have an email for at
+first.
 
 ## Admin login
 
@@ -208,6 +216,45 @@ signature). `admin.html` holds onto it and sends it as
 `Authorization: Bearer <token>` on every create-client/upload call; those
 endpoints check the token instead of a password. If it expires (or you
 click **Log out**), you're back at the login screen.
+
+## Email
+
+Two things send real email, both via [Resend](https://resend.com)'s HTTP
+API (a free-tier account + one API key — no SMTP setup, no SDK). Set
+`RESEND_API_KEY` (same names on both backends — a Netlify environment
+variable, or `define('RESEND_API_KEY', ...)` in `api/config.php` for
+PHP/InfinityFree) to turn both on; leave it unset and both degrade
+gracefully rather than error (see each one below).
+
+The sender address for both is Resend's own shared `onboarding@resend.dev`
+— it works without owning or verifying a domain, which this site doesn't
+have (only a `netlify.app` subdomain, which can't be verified as a
+sender). If you get a real domain later, verify it in Resend and swap
+`FROM_EMAIL` (`netlify/functions/_shared.mts`) / `EMAIL_FROM_ADDRESS`
+(`api/email.php`) for an address on it — deliverability is meaningfully
+better than a shared domain.
+
+**Enquiry confirmations.** Submitting the homepage's enquiry form POSTs to
+`api/enquiry.php` / `enquiry.mts`, which emails the visitor an automatic
+"we've received your enquiry, our team will respond as quickly as
+possible" confirmation, and (best-effort — its failure doesn't affect what
+the visitor sees) notifies your own inbox (`ADMIN_EMAIL`) with the
+enquiry's details, reply-to set to the visitor so you can just hit reply.
+If `RESEND_API_KEY` isn't set, or the backend isn't deployed at all, the
+form falls back to exactly what it did before either existed: building a
+pre-filled email (a `mailto:` link) addressed to `BUSINESS_EMAIL`
+(`script.js`) and opening the visitor's own email client — so an enquiry
+is never silently lost, just less automatic.
+
+**Emailing a client their account + code.** Add their address in the
+optional **Client email** field in `admin.html` (when creating them, or
+later via **Existing Clients** → **Edit**) and an **Email Account & Code
+to Client →** button appears — click it and `api/send_client_email.php` /
+`send-client-email.mts` sends them the exact same content as the
+"Message To Send The Client" box (account number, activation code, the
+redeem link), by email instead of copy-paste. The client's email address
+itself is never shown to the client or anyone else — it only exists to
+address this one email.
 
 ## Going live on Netlify
 
@@ -545,6 +592,14 @@ domain.
   `checkout.session.completed`
 - `api/gate.php` — include this at the top of a website client's real
   `index.php` to hide it until their status is `active`
+- `api/email.php` — shared transactional-email helper (sends via Resend's
+  HTTP API using cURL) used by both endpoints below — see [Email](#email)
+- `api/enquiry.php` — public endpoint behind the homepage's enquiry form;
+  emails the visitor a confirmation and (best-effort) notifies
+  `ADMIN_EMAIL`
+- `api/send_client_email.php` — admin-only endpoint that emails a client
+  their account number, code and the redeem link, called by admin.html's
+  "Email Account & Code to Client"
 - `api/.htaccess` — blocks direct web access to `api/config.php`
 - `netlify.toml` — points Netlify at `netlify/functions/`; no `[build]`
   step needed since the site itself is plain static files
@@ -567,6 +622,10 @@ domain.
   `api/update_client.php`, routed at `/api/update_client.php`
 - `netlify/functions/webhook.mts` — Netlify equivalent of `api/webhook.php`,
   routed at `/api/webhook.php`
+- `netlify/functions/enquiry.mts` — Netlify equivalent of `api/enquiry.php`,
+  routed at `/api/enquiry.php` (public — no admin session needed)
+- `netlify/functions/send-client-email.mts` — Netlify equivalent of
+  `api/send_client_email.php`, routed at `/api/send_client_email.php`
 - `netlify/functions/upload-preview-image.mts` / `upload-preview-file.mts`
   — Netlify equivalents of the two PHP upload endpoints, saving into a
   Blobs store instead of `uploads/`
@@ -577,7 +636,8 @@ domain.
   themselves are gitignored — only the folder and its `.htaccess` are
   tracked
 - `style.css` — styling for all three pages
-- `script.js` — mobile nav toggle, footer year, enquiry form → email,
-  scroll-reveal (shared by all pages; every selector it uses is
-  null-guarded, so it's safe to load on a page missing some of those
-  elements)
+- `script.js` — mobile nav toggle, footer year, hero rotator, scroll-reveal,
+  and the enquiry form (posts to `api/enquiry.php`, falling back to a
+  `mailto:` link if that can't be reached) — shared by all pages; every
+  selector it uses is null-guarded, so it's safe to load on a page missing
+  some of those elements

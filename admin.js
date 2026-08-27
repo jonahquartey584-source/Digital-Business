@@ -280,6 +280,8 @@ const previewFile = document.getElementById("adminPreviewFile");
 const previewFileStatus = document.getElementById("previewFileStatus");
 const deliverableFile = document.getElementById("adminDeliverableFile");
 const deliverableFileStatus = document.getElementById("deliverableFileStatus");
+const emailClientBtn = document.getElementById("emailClientBtn");
+const emailClientNote = document.getElementById("emailClientNote");
 
 let currentData = null;
 
@@ -360,6 +362,7 @@ function render() {
   const preview = adminForm.adminPreview.value.trim();
   const basePaymentUrl = adminForm.adminPaymentUrl.value.trim();
   const liveUrl = adminForm.adminLiveUrl.value.trim();
+  const clientEmail = adminForm.adminClientEmail.value.trim();
 
   // Belt-and-braces: the inputs are also marked `required`, but don't rely
   // on that alone (e.g. a re-triggered submit via regenerateBtn skips
@@ -403,11 +406,14 @@ function render() {
     deliverableFileUrl: uploadedDeliverableFileUrl,
     paymentUrl,
     liveUrl,
+    clientEmail,
   };
 
   snippetOutput.innerHTML = buildSnippetHtml(currentData);
   messageOutput.value = buildMessageText(currentData);
   saveNote.textContent = "";
+  if (emailClientBtn) emailClientBtn.hidden = true;
+  if (emailClientNote) emailClientNote.textContent = "";
 
   adminOutput.hidden = false;
   adminOutput.scrollIntoView({ behavior: "smooth", block: "nearest" });
@@ -443,6 +449,8 @@ if (saveBtn) {
       if (response.ok && result.status === "created") {
         saveNote.textContent = `Saved — ${result.account} is live and ready to redeem.`;
         saveNote.style.color = "";
+        if (emailClientBtn) emailClientBtn.hidden = !currentData.clientEmail;
+        if (emailClientNote) emailClientNote.textContent = "";
       } else if (response.status === 401) {
         saveNote.textContent = "";
         handleSessionRejected();
@@ -456,6 +464,53 @@ if (saveBtn) {
     } finally {
       saveBtn.disabled = false;
     }
+  });
+}
+
+// Shared by both "Email Account & Code to Client" buttons (the one here,
+// right after saving a new client, and the one in the Existing Clients
+// edit panel) — posts to api/send_client_email.php, which looks the
+// client up server-side and sends them the same content as the "Message
+// To Send The Client" box above, by email instead of copy-paste.
+async function sendClientEmail(account, button, noteEl) {
+  button.disabled = true;
+  noteEl.textContent = "Sending…";
+  noteEl.style.color = "";
+
+  try {
+    const response = await fetch("api/send_client_email.php", {
+      method: "POST",
+      headers: { "Content-Type": "application/json", ...currentAuthHeader() },
+      body: JSON.stringify({ account }),
+    });
+
+    if (response.status === 401) {
+      noteEl.textContent = "";
+      handleSessionRejected();
+      return;
+    }
+
+    const result = await response.json();
+
+    if (response.ok && result.status === "ok") {
+      noteEl.textContent = "Email sent.";
+      noteEl.style.color = "";
+    } else {
+      noteEl.textContent = result.message || "Couldn't send — try again.";
+      noteEl.style.color = "#ff8a8a";
+    }
+  } catch (err) {
+    noteEl.textContent = "Couldn't reach api/send_client_email.php — is the backend deployed?";
+    noteEl.style.color = "#ff8a8a";
+  } finally {
+    button.disabled = false;
+  }
+}
+
+if (emailClientBtn) {
+  emailClientBtn.addEventListener("click", () => {
+    if (!currentData) return;
+    sendClientEmail(currentData.account, emailClientBtn, emailClientNote);
   });
 }
 
@@ -492,6 +547,7 @@ const editClientForm = document.getElementById("editClientForm");
 const editClientNote = document.getElementById("editClientNote");
 const cancelEditBtn = document.getElementById("cancelEditBtn");
 const saveEditBtn = document.getElementById("saveEditBtn");
+const editEmailClientBtn = document.getElementById("editEmailClientBtn");
 const editPreviewImageFile = document.getElementById("editPreviewImageFile");
 const editPreviewFile = document.getElementById("editPreviewFile");
 const editDeliverableFile = document.getElementById("editDeliverableFile");
@@ -606,6 +662,7 @@ function openEditPanel(account) {
   editClientForm.editPreview.value = client.preview || "";
   editClientForm.editPaymentUrl.value = stripClientReference(client.paymentUrl || "");
   editClientForm.editLiveUrl.value = client.liveUrl || "";
+  editClientForm.editClientEmail.value = client.clientEmail || "";
   editClientForm.editStatus.value = client.status || "pending_payment";
 
   document.getElementById("editPreviewImageCurrent").textContent = client.previewImageUrl ? `Current: ${client.previewImageUrl}` : "None set.";
@@ -618,6 +675,7 @@ function openEditPanel(account) {
   editPreviewFile.value = "";
   editDeliverableFile.value = "";
 
+  if (editEmailClientBtn) editEmailClientBtn.hidden = !client.clientEmail;
   editClientNote.textContent = "";
   editClientPanel.hidden = false;
   editClientPanel.scrollIntoView({ behavior: "smooth", block: "nearest" });
@@ -671,6 +729,7 @@ if (editClientForm) {
       deliverableFileUrl: editUploadedDeliverableFileUrl ?? client.deliverableFileUrl ?? "",
       paymentUrl: withClientReference(basePaymentUrl, editingAccount),
       liveUrl: editClientForm.editLiveUrl.value.trim(),
+      clientEmail: editClientForm.editClientEmail.value.trim(),
       status: editClientForm.editStatus.value,
     };
 
@@ -710,4 +769,11 @@ if (editClientForm) {
 
 if (refreshClientsBtn) {
   refreshClientsBtn.addEventListener("click", loadClients);
+}
+
+if (editEmailClientBtn) {
+  editEmailClientBtn.addEventListener("click", () => {
+    if (!editingAccount) return;
+    sendClientEmail(editingAccount, editEmailClientBtn, editClientNote);
+  });
 }
