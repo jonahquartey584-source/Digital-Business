@@ -564,6 +564,10 @@ domain.
   [Activating clients](#activating-clients))
 - `activate.js` — calls `api/redeem.php` (falling back to
   `accounts-data.js`) and renders the match/no-match/active result
+- `terms.html` — Terms & Conditions, linked from every page's footer and
+  from the enquiry form and "Pay & Activate" button
+- `privacy.html` — Privacy Policy, linked from every page's footer and
+  from the enquiry form and "Pay & Activate" button
 - `api/config.example.php` — template for `api/config.php` (DB
   credentials, admin login, Stripe webhook secret) — copy it, fill it
   in, never commit the copy

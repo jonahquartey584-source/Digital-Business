@@ -147,6 +147,7 @@ if (activateForm && activateResult) {
           </div>
           <a class="btn btn--primary btn--lg" href="${result.paymentUrl}" target="_blank" rel="noopener noreferrer">Pay ${result.price} &amp; Activate →</a>
           <p class="order-summary__note">Once your payment is confirmed, this service is activated automatically.</p>
+          <p class="form-consent">By paying, you agree to our <a href="terms.html">Terms &amp; Conditions</a> and <a href="privacy.html">Privacy Policy</a>.</p>
         </div>
       `;
     } else {
