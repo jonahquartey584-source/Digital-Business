@@ -47,6 +47,85 @@ if (revealTargets.length && !prefersReducedMotion && "IntersectionObserver" in w
   revealTargets.forEach((el) => el.classList.add("is-visible"));
 }
 
+// ---- Hero rotator ----------------------------------------------------
+// The box beside the hero copy that cycles through "why you need this"
+// reasons every few seconds. Content lives here so there's one place to
+// edit it — index.html just has the empty slots this fills in.
+const HERO_ROTATOR_ITEMS = [
+  {
+    headline: "You're invisible until you're found.",
+    text: "Most people check online before they ever pick up the phone.",
+  },
+  {
+    headline: "A missed call is a lost customer.",
+    text: "They don't leave a voicemail — they just call the next name on the list.",
+  },
+  {
+    headline: "Cold leads don't wait.",
+    text: "Whoever replies first usually wins the job, not whoever's cheapest.",
+  },
+  {
+    headline: "You can't fix what you can't see.",
+    text: "No dashboard means guessing which leads and bookings are actually converting.",
+  },
+  {
+    headline: "Manual admin is a hidden cost.",
+    text: "Every hour spent chasing bookings by hand is an hour not spent on paid work.",
+  },
+  {
+    headline: "If Google can't find you, neither can they.",
+    text: "Great service doesn't matter if you don't show up in local search.",
+  },
+];
+
+const heroRotatorBody = document.getElementById("heroRotatorBody");
+const heroRotatorIndexEl = document.getElementById("heroRotatorIndex");
+const heroRotatorHeadline = document.getElementById("heroRotatorHeadline");
+const heroRotatorText = document.getElementById("heroRotatorText");
+const heroRotatorProgressBar = document.getElementById("heroRotatorProgressBar");
+
+if (heroRotatorBody && heroRotatorHeadline && heroRotatorText) {
+  const HERO_ROTATE_MS = 3000;
+  const HERO_ROTATE_FADE_MS = 250; // keep in sync with the CSS transition on .hero__rotator-headline etc.
+  let heroRotatorIndex = 0;
+
+  function renderHeroRotatorItem(index) {
+    const item = HERO_ROTATOR_ITEMS[index];
+    if (heroRotatorIndexEl) {
+      heroRotatorIndexEl.textContent = String(index + 1).padStart(2, "0");
+    }
+    heroRotatorHeadline.textContent = item.headline;
+    heroRotatorText.textContent = item.text;
+  }
+
+  function restartHeroRotatorProgress() {
+    if (!heroRotatorProgressBar) return;
+    heroRotatorProgressBar.classList.remove("is-animating");
+    void heroRotatorProgressBar.offsetWidth; // force reflow so the animation restarts from 0
+    heroRotatorProgressBar.classList.add("is-animating");
+  }
+
+  renderHeroRotatorItem(heroRotatorIndex);
+
+  if (prefersReducedMotion) {
+    // Static: show the first reason only, no auto-advancing and no
+    // animated bar — avoids surprising motion for visitors who've asked
+    // not to see it.
+    if (heroRotatorProgressBar) heroRotatorProgressBar.style.width = "100%";
+  } else {
+    restartHeroRotatorProgress();
+    setInterval(() => {
+      heroRotatorBody.classList.add("is-fading");
+      setTimeout(() => {
+        heroRotatorIndex = (heroRotatorIndex + 1) % HERO_ROTATOR_ITEMS.length;
+        renderHeroRotatorItem(heroRotatorIndex);
+        heroRotatorBody.classList.remove("is-fading");
+        restartHeroRotatorProgress();
+      }, HERO_ROTATE_FADE_MS);
+    }, HERO_ROTATE_MS);
+  }
+}
+
 // ---- Footer year ---------------------------------------------------------
 const yearEl = document.getElementById("year");
 if (yearEl) {

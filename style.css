@@ -331,7 +331,10 @@ p {
 
 .hero__inner {
   position: relative;
-  max-width: 800px;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(280px, 360px);
+  gap: 56px;
+  align-items: center;
 }
 
 .eyebrow {
@@ -436,6 +439,139 @@ p {
   font-size: 0.76rem;
   text-transform: uppercase;
   letter-spacing: 0.05em;
+}
+
+/* Hero rotator — the medium-sized box beside the hero copy that cycles
+   through "why you need this" reasons every few seconds. Same terminal
+   "chrome" language as .terminal-window (gold-gradient border, dot bar)
+   so it reads as part of the same design system, not a bolted-on widget. */
+.hero__rotator {
+  position: relative;
+  background: linear-gradient(155deg, #1c170f, #0e0c09 75%);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  overflow: hidden;
+  box-shadow: var(--shadow);
+}
+
+.hero__rotator::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: 10px;
+  padding: 1px;
+  background: var(--gold-gradient);
+  opacity: 0.35;
+  -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+  pointer-events: none;
+}
+
+.hero__rotator-bar {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  padding: 12px 16px;
+  border-bottom: 1px solid var(--border-soft);
+}
+
+.hero__rotator-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--gold);
+}
+
+.hero__rotator-dot:nth-child(1) {
+  opacity: 0.9;
+}
+
+.hero__rotator-dot:nth-child(2) {
+  opacity: 0.6;
+}
+
+.hero__rotator-dot:nth-child(3) {
+  opacity: 0.35;
+}
+
+.hero__rotator-label {
+  margin-left: auto;
+  font-size: 0.68rem;
+  color: var(--text-faint);
+  letter-spacing: 0.05em;
+}
+
+.hero__rotator-body {
+  position: relative;
+  padding: 26px 24px 24px;
+  min-height: 176px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.hero__rotator-eyebrow {
+  font-size: 0.72rem;
+  letter-spacing: 0.08em;
+  color: var(--gold);
+  margin-bottom: 12px;
+}
+
+.hero__rotator-headline {
+  font-family: "Sora", sans-serif;
+  font-size: 1.2rem;
+  font-weight: 700;
+  color: var(--gold-bright);
+  margin: 0 0 10px;
+  line-height: 1.35;
+}
+
+.hero__rotator-text {
+  font-size: 0.92rem;
+  color: var(--text-dim);
+  line-height: 1.6;
+  margin: 0;
+}
+
+.hero__rotator-eyebrow,
+.hero__rotator-headline,
+.hero__rotator-text {
+  transition: opacity 0.25s ease;
+}
+
+.hero__rotator-body.is-fading .hero__rotator-eyebrow,
+.hero__rotator-body.is-fading .hero__rotator-headline,
+.hero__rotator-body.is-fading .hero__rotator-text {
+  opacity: 0;
+}
+
+.hero__rotator-progress {
+  position: relative;
+  height: 2px;
+  background: var(--border-soft);
+  overflow: hidden;
+}
+
+.hero__rotator-progress span {
+  display: block;
+  height: 100%;
+  width: 0%;
+  background: var(--gold-gradient);
+}
+
+.hero__rotator-progress span.is-animating {
+  animation: hero-rotator-progress 3s linear;
+}
+
+@keyframes hero-rotator-progress {
+  from {
+    width: 0%;
+  }
+  to {
+    width: 100%;
+  }
 }
 
 /* Sections */
@@ -1474,6 +1610,14 @@ textarea {
 @media (max-width: 860px) {
   .footer__inner {
     grid-template-columns: 1fr;
+  }
+
+  .hero__inner {
+    grid-template-columns: 1fr;
+  }
+
+  .hero__rotator {
+    max-width: 480px;
   }
 
   .hero__stats {
