@@ -188,6 +188,88 @@
           whole flow, including a simulated payment, without touching the real database?
           Use the <a href="pipeline-tester.html">Pipeline Tester</a>.
         </p>
+
+        <div class="admin-output__head" style="margin-top:56px;">
+          <h3 style="margin:0;">Existing Clients</h3>
+          <button type="button" class="btn btn--ghost btn--sm" id="refreshClientsBtn">Refresh</button>
+        </div>
+        <p class="form-note" id="clientsListNote"></p>
+        <div class="client-list" id="clientsListContainer"></div>
+
+        <div class="admin-output__block" id="editClientPanel" hidden style="margin-top:32px;">
+          <div class="admin-output__head">
+            <p class="section__tag" style="margin:0;">// Editing <span id="editClientAccount"></span></p>
+            <button type="button" class="btn btn--ghost btn--sm" id="cancelEditBtn">Cancel</button>
+          </div>
+
+          <form class="enquiry-form activate-form" id="editClientForm">
+            <div class="form-row">
+              <label for="editTitle">Title (optional)</label>
+              <input type="text" id="editTitle" name="editTitle" />
+            </div>
+
+            <div class="form-row">
+              <label for="editService">Service</label>
+              <input type="text" id="editService" name="editService" required />
+            </div>
+
+            <div class="form-row">
+              <label for="editPrice">Price</label>
+              <input type="text" id="editPrice" name="editPrice" required />
+            </div>
+
+            <div class="form-row">
+              <label for="editPreview">Preview / what's included</label>
+              <textarea id="editPreview" name="editPreview" rows="3"></textarea>
+            </div>
+
+            <div class="form-row">
+              <label for="editPreviewImageFile">Replace preview image (optional)</label>
+              <input type="file" id="editPreviewImageFile" name="editPreviewImageFile" accept="image/png, image/jpeg, image/gif, image/webp" />
+              <p class="admin-hint">Leave blank to keep the current one. <span id="editPreviewImageCurrent"></span></p>
+              <p class="form-note" id="editPreviewImageStatus"></p>
+            </div>
+
+            <div class="form-row">
+              <label for="editPreviewFile">Replace preview file (optional)</label>
+              <input type="file" id="editPreviewFile" name="editPreviewFile" />
+              <p class="admin-hint">Leave blank to keep the current one. <span id="editPreviewFileCurrent"></span></p>
+              <p class="form-note" id="editPreviewFileStatus"></p>
+            </div>
+
+            <div class="form-row">
+              <label for="editDeliverableFile">Replace deliverable file (optional)</label>
+              <input type="file" id="editDeliverableFile" name="editDeliverableFile" />
+              <p class="admin-hint">Leave blank to keep the current one. <span id="editDeliverableFileCurrent"></span></p>
+              <p class="form-note" id="editDeliverableFileStatus"></p>
+            </div>
+
+            <div class="form-row">
+              <label for="editPaymentUrl">Payment link</label>
+              <input type="url" id="editPaymentUrl" name="editPaymentUrl" required />
+              <p class="admin-hint">The base link — <code>?client_reference_id=...</code> is reapplied automatically on save.</p>
+            </div>
+
+            <div class="form-row">
+              <label for="editLiveUrl">Live site URL (optional)</label>
+              <input type="url" id="editLiveUrl" name="editLiveUrl" />
+            </div>
+
+            <div class="form-row">
+              <label for="editStatus">Status</label>
+              <select id="editStatus" name="editStatus">
+                <option value="pending_payment">Pending Payment</option>
+                <option value="active">Active</option>
+              </select>
+              <p class="admin-hint">Normally flips automatically when Stripe confirms payment — change this by hand only to override it (e.g. they paid another way).</p>
+            </div>
+
+            <div class="admin-actions">
+              <button type="submit" class="btn btn--primary btn--lg" id="saveEditBtn">Save Changes →</button>
+            </div>
+            <p class="form-note" id="editClientNote"></p>
+          </form>
+        </div>
         </div>
       </div>
     </section>

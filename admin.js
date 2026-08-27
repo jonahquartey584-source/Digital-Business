@@ -189,6 +189,12 @@ function showAdminTool(email) {
   if (loginSection) loginSection.hidden = true;
   if (adminToolSection) adminToolSection.hidden = false;
   if (loggedInEmail) loggedInEmail.textContent = email;
+  // Deferred: this can run during the top-of-file restoreSession() call,
+  // before the "Existing clients" section further down has declared its
+  // own consts (loadClients itself is hoisted, but the elements it reads
+  // aren't initialized yet at that point) — a macrotask guarantees the
+  // rest of the script has finished running first.
+  setTimeout(loadClients, 0);
 }
 
 // Called by every authenticated fetch below when the server says the
@@ -474,3 +480,234 @@ document.querySelectorAll("[data-copy-target]").forEach((button) => {
     }
   });
 });
+
+// --- Existing clients: list + edit -----------------------------------------
+
+const clientsListContainer = document.getElementById("clientsListContainer");
+const clientsListNote = document.getElementById("clientsListNote");
+const refreshClientsBtn = document.getElementById("refreshClientsBtn");
+const editClientPanel = document.getElementById("editClientPanel");
+const editClientAccountLabel = document.getElementById("editClientAccount");
+const editClientForm = document.getElementById("editClientForm");
+const editClientNote = document.getElementById("editClientNote");
+const cancelEditBtn = document.getElementById("cancelEditBtn");
+const saveEditBtn = document.getElementById("saveEditBtn");
+const editPreviewImageFile = document.getElementById("editPreviewImageFile");
+const editPreviewFile = document.getElementById("editPreviewFile");
+const editDeliverableFile = document.getElementById("editDeliverableFile");
+
+// The full list from the last successful load, kept around so opening the
+// edit panel doesn't need a fresh fetch.
+let clientsCache = [];
+let editingAccount = null;
+
+// Set by the edit panel's own file uploads (see wireFileUpload calls
+// below). null means "no replacement chosen — keep whatever's already
+// stored", not "clear it".
+let editUploadedPreviewImageUrl = null;
+let editUploadedPreviewFileUrl = null;
+let editUploadedDeliverableFileUrl = null;
+
+function escapeHtml(value) {
+  return String(value ?? "").replace(/[&<>"']/g, (ch) => (
+    { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[ch]
+  ));
+}
+
+// admin.js appends ?client_reference_id=... when a client is created (see
+// withClientReference above); the edit form shows the plain base link
+// instead, and this same helper reapplies the parameter on save — so
+// editing never accidentally duplicates or drops it.
+function stripClientReference(paymentUrl) {
+  try {
+    const url = new URL(paymentUrl, window.location.href);
+    url.searchParams.delete("client_reference_id");
+    return url.toString();
+  } catch (err) {
+    return paymentUrl;
+  }
+}
+
+async function loadClients() {
+  if (!clientsListContainer) return;
+
+  clientsListNote.textContent = "Loading…";
+  clientsListNote.style.color = "";
+
+  try {
+    const response = await fetch("api/list_clients.php", { headers: currentAuthHeader() });
+
+    if (response.status === 401) {
+      clientsListNote.textContent = "";
+      handleSessionRejected();
+      return;
+    }
+
+    const result = await response.json();
+
+    if (!response.ok || result.status !== "ok") {
+      clientsListNote.textContent = result.message || "Couldn't load clients.";
+      clientsListNote.style.color = "#ff8a8a";
+      clientsListContainer.innerHTML = "";
+      return;
+    }
+
+    clientsCache = result.clients;
+    clientsListNote.textContent = "";
+    renderClientsList();
+  } catch (err) {
+    clientsListNote.textContent = "Couldn't reach api/list_clients.php — is the backend deployed?";
+    clientsListNote.style.color = "#ff8a8a";
+  }
+}
+
+function renderClientsList() {
+  if (!clientsCache.length) {
+    clientsListContainer.innerHTML = `<p class="empty-note">No clients yet — generate one above.</p>`;
+    return;
+  }
+
+  clientsListContainer.innerHTML = clientsCache
+    .map(
+      (client) => `
+      <div class="client-row">
+        <div class="client-row__info">
+          <div class="client-row__account mono">${escapeHtml(client.account)}</div>
+          <div class="client-row__service">${escapeHtml(client.title || client.service)} — ${escapeHtml(client.price)}</div>
+          <div class="client-row__code mono">Code: ${escapeHtml(client.code)}</div>
+        </div>
+        <span class="status-pill status-pill--${client.status === "active" ? "active" : "pending"}">${client.status === "active" ? "Active" : "Pending Payment"}</span>
+        <div class="client-row__actions">
+          <button type="button" class="btn btn--ghost btn--sm" data-edit-account="${escapeHtml(client.account)}">Edit</button>
+        </div>
+      </div>
+    `
+    )
+    .join("");
+
+  clientsListContainer.querySelectorAll("[data-edit-account]").forEach((button) => {
+    button.addEventListener("click", () => openEditPanel(button.getAttribute("data-edit-account")));
+  });
+}
+
+function openEditPanel(account) {
+  const client = clientsCache.find((c) => c.account === account);
+  if (!client || !editClientForm) return;
+
+  editingAccount = account;
+  editUploadedPreviewImageUrl = null;
+  editUploadedPreviewFileUrl = null;
+  editUploadedDeliverableFileUrl = null;
+
+  editClientAccountLabel.textContent = account;
+  editClientForm.editTitle.value = client.title || "";
+  editClientForm.editService.value = client.service || "";
+  editClientForm.editPrice.value = client.price || "";
+  editClientForm.editPreview.value = client.preview || "";
+  editClientForm.editPaymentUrl.value = stripClientReference(client.paymentUrl || "");
+  editClientForm.editLiveUrl.value = client.liveUrl || "";
+  editClientForm.editStatus.value = client.status || "pending_payment";
+
+  document.getElementById("editPreviewImageCurrent").textContent = client.previewImageUrl ? `Current: ${client.previewImageUrl}` : "None set.";
+  document.getElementById("editPreviewFileCurrent").textContent = client.previewFileUrl ? `Current: ${client.previewFileUrl}` : "None set.";
+  document.getElementById("editDeliverableFileCurrent").textContent = client.deliverableFileUrl ? `Current: ${client.deliverableFileUrl}` : "None set.";
+  document.getElementById("editPreviewImageStatus").textContent = "";
+  document.getElementById("editPreviewFileStatus").textContent = "";
+  document.getElementById("editDeliverableFileStatus").textContent = "";
+  editPreviewImageFile.value = "";
+  editPreviewFile.value = "";
+  editDeliverableFile.value = "";
+
+  editClientNote.textContent = "";
+  editClientPanel.hidden = false;
+  editClientPanel.scrollIntoView({ behavior: "smooth", block: "nearest" });
+}
+
+wireFileUpload(editPreviewImageFile, document.getElementById("editPreviewImageStatus"), "api/upload_preview_image.php", (url) => {
+  editUploadedPreviewImageUrl = url;
+});
+wireFileUpload(editPreviewFile, document.getElementById("editPreviewFileStatus"), "api/upload_preview_file.php", (url) => {
+  editUploadedPreviewFileUrl = url;
+});
+wireFileUpload(editDeliverableFile, document.getElementById("editDeliverableFileStatus"), "api/upload_preview_file.php", (url) => {
+  editUploadedDeliverableFileUrl = url;
+});
+
+if (cancelEditBtn) {
+  cancelEditBtn.addEventListener("click", () => {
+    editClientPanel.hidden = true;
+    editingAccount = null;
+  });
+}
+
+if (editClientForm) {
+  editClientForm.addEventListener("submit", async (event) => {
+    event.preventDefault();
+    if (!editingAccount) return;
+
+    const client = clientsCache.find((c) => c.account === editingAccount);
+    if (!client) return;
+
+    const basePaymentUrl = editClientForm.editPaymentUrl.value.trim();
+    if (!editClientForm.editService.value.trim() || !editClientForm.editPrice.value.trim() || !basePaymentUrl) {
+      editClientNote.textContent = "Fill in Service, Price and Payment link first.";
+      editClientNote.style.color = "#ff8a8a";
+      return;
+    }
+
+    saveEditBtn.disabled = true;
+    editClientNote.textContent = "Saving…";
+    editClientNote.style.color = "";
+
+    const payload = {
+      account: editingAccount,
+      code: client.code,
+      title: editClientForm.editTitle.value.trim(),
+      service: editClientForm.editService.value.trim(),
+      price: editClientForm.editPrice.value.trim(),
+      preview: editClientForm.editPreview.value.trim(),
+      previewImageUrl: editUploadedPreviewImageUrl ?? client.previewImageUrl ?? "",
+      previewFileUrl: editUploadedPreviewFileUrl ?? client.previewFileUrl ?? "",
+      deliverableFileUrl: editUploadedDeliverableFileUrl ?? client.deliverableFileUrl ?? "",
+      paymentUrl: withClientReference(basePaymentUrl, editingAccount),
+      liveUrl: editClientForm.editLiveUrl.value.trim(),
+      status: editClientForm.editStatus.value,
+    };
+
+    try {
+      const response = await fetch("api/update_client.php", {
+        method: "POST",
+        headers: { "Content-Type": "application/json", ...currentAuthHeader() },
+        body: JSON.stringify(payload),
+      });
+
+      if (response.status === 401) {
+        editClientNote.textContent = "";
+        handleSessionRejected();
+        return;
+      }
+
+      const result = await response.json();
+
+      if (response.ok && result.status === "updated") {
+        editClientNote.textContent = "Saved.";
+        editClientNote.style.color = "";
+        editClientPanel.hidden = true;
+        editingAccount = null;
+        await loadClients();
+      } else {
+        editClientNote.textContent = result.message || "Couldn't save — try again.";
+        editClientNote.style.color = "#ff8a8a";
+      }
+    } catch (err) {
+      editClientNote.textContent = "Couldn't reach api/update_client.php — is the backend deployed?";
+      editClientNote.style.color = "#ff8a8a";
+    } finally {
+      saveEditBtn.disabled = false;
+    }
+  });
+}
+
+if (refreshClientsBtn) {
+  refreshClientsBtn.addEventListener("click", loadClients);
+}

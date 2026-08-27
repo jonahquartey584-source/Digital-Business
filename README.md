@@ -146,6 +146,26 @@ copy the generated snippet into `accounts-data.js` and redeploy — the client
 can still redeem their code and see the payment link, just without live
 status or automatic activation.
 
+### Viewing and editing existing clients
+
+Below the generator, `admin.html` also lists every client already saved —
+account number, service, price, and a status pill — pulled live from
+`api/list_clients.php`/`list-clients.mts` the moment you log in (and again
+whenever you click **Refresh**). Click **Edit** on any row to open a form
+pre-filled with everything about that client, change whatever's wrong, and
+click **Save Changes** to write it back via `api/update_client.php`/
+`update-client.mts`.
+
+Everything is editable except the account number itself (it's the lookup
+key — renaming it would mean creating a new client, not editing this one):
+title, service, price, preview text, the three attached files (choosing a
+new one replaces it; leaving it blank keeps whatever's already there —
+there's no separate "remove" action yet), the payment link, the live site
+URL, and **status**. Status normally only flips automatically via the
+Stripe webhook — changing it by hand here is for the exception (a client
+who paid you some other way, or a mistake you need to correct), not the
+everyday path.
+
 ## Admin login
 
 `admin.html` is gated behind a login — email + password + the answer to a
@@ -502,6 +522,11 @@ domain.
 - `api/redeem.php` — looks up an account+code, called by `activate.js`
 - `api/create_client.php` — admin-only endpoint that inserts a new client
   row, called by `admin.js`'s "Save To Live Database"
+- `api/list_clients.php` — admin-only endpoint that returns every client
+  row, called by `admin.html`'s "Existing Clients" list
+- `api/update_client.php` — admin-only endpoint that updates an existing
+  client row in place, called by the "Existing Clients" edit panel's "Save
+  Changes"
 - `api/admin_auth.php` — shared session-token logic (create/verify) used by
   `api/admin_login.php` and every admin-only action endpoint
 - `api/admin_login.php` — checks email + password + security answer,
@@ -536,6 +561,10 @@ domain.
   path so `admin.js` doesn't need to change
 - `netlify/functions/redeem.mts` — Netlify equivalent of `api/redeem.php`,
   routed at `/api/redeem.php`
+- `netlify/functions/list-clients.mts` — Netlify equivalent of
+  `api/list_clients.php`, routed at `/api/list_clients.php`
+- `netlify/functions/update-client.mts` — Netlify equivalent of
+  `api/update_client.php`, routed at `/api/update_client.php`
 - `netlify/functions/webhook.mts` — Netlify equivalent of `api/webhook.php`,
   routed at `/api/webhook.php`
 - `netlify/functions/upload-preview-image.mts` / `upload-preview-file.mts`
