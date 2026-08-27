@@ -156,10 +156,14 @@ status or automatic activation.
 Below the generator, `admin.html` also lists every client already saved —
 account number, service, price, and a status pill — pulled live from
 `api/list_clients.php`/`list-clients.mts` the moment you log in (and again
-whenever you click **Refresh**). Click **Edit** on any row to open a form
-pre-filled with everything about that client, change whatever's wrong, and
-click **Save Changes** to write it back via `api/update_client.php`/
-`update-client.mts`.
+whenever you click **Refresh**). The search box above the list filters it
+instantly (client-side, against what's already loaded — no extra request)
+by account number or client email. Click **Edit** on any row to open a
+form pre-filled with everything about that client, change whatever's
+wrong, and click **Save Changes** to write it back via
+`api/update_client.php`/`update-client.mts` — or click **Delete** to
+permanently remove them via `api/delete_client.php`/`delete-client.mts`
+(asks you to confirm first; there's no undo).
 
 Everything is editable except the account number itself (it's the lookup
 key — renaming it would mean creating a new client, not editing this one):
@@ -574,6 +578,8 @@ domain.
 - `api/update_client.php` — admin-only endpoint that updates an existing
   client row in place, called by the "Existing Clients" edit panel's "Save
   Changes"
+- `api/delete_client.php` — admin-only endpoint that permanently deletes a
+  client row, called by "Existing Clients"' "Delete"
 - `api/admin_auth.php` — shared session-token logic (create/verify) used by
   `api/admin_login.php` and every admin-only action endpoint
 - `api/admin_login.php` — checks email + password + security answer,
@@ -620,6 +626,8 @@ domain.
   `api/list_clients.php`, routed at `/api/list_clients.php`
 - `netlify/functions/update-client.mts` — Netlify equivalent of
   `api/update_client.php`, routed at `/api/update_client.php`
+- `netlify/functions/delete-client.mts` — Netlify equivalent of
+  `api/delete_client.php`, routed at `/api/delete_client.php`
 - `netlify/functions/webhook.mts` — Netlify equivalent of `api/webhook.php`,
   routed at `/api/webhook.php`
 - `netlify/functions/enquiry.mts` — Netlify equivalent of `api/enquiry.php`,

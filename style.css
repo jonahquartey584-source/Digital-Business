@@ -1440,6 +1440,11 @@ textarea {
   margin-top: 16px;
 }
 
+.clients-search {
+  width: 100%;
+  margin-top: 16px;
+}
+
 .client-row {
   display: flex;
   align-items: center;

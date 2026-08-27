@@ -541,6 +541,7 @@ document.querySelectorAll("[data-copy-target]").forEach((button) => {
 const clientsListContainer = document.getElementById("clientsListContainer");
 const clientsListNote = document.getElementById("clientsListNote");
 const refreshClientsBtn = document.getElementById("refreshClientsBtn");
+const clientsSearchInput = document.getElementById("clientsSearchInput");
 const editClientPanel = document.getElementById("editClientPanel");
 const editClientAccountLabel = document.getElementById("editClientAccount");
 const editClientForm = document.getElementById("editClientForm");
@@ -617,13 +618,32 @@ async function loadClients() {
   }
 }
 
+// Purely client-side, against the last loaded clientsCache — no need to
+// hit the server again just to filter what's already in hand.
+function getFilteredClients() {
+  const query = (clientsSearchInput?.value || "").trim().toLowerCase();
+  if (!query) return clientsCache;
+  return clientsCache.filter(
+    (client) =>
+      (client.account || "").toLowerCase().includes(query) ||
+      (client.clientEmail || "").toLowerCase().includes(query)
+  );
+}
+
 function renderClientsList() {
   if (!clientsCache.length) {
     clientsListContainer.innerHTML = `<p class="empty-note">No clients yet — generate one above.</p>`;
     return;
   }
 
-  clientsListContainer.innerHTML = clientsCache
+  const filtered = getFilteredClients();
+
+  if (!filtered.length) {
+    clientsListContainer.innerHTML = `<p class="empty-note">No clients match that search.</p>`;
+    return;
+  }
+
+  clientsListContainer.innerHTML = filtered
     .map(
       (client) => `
       <div class="client-row">
@@ -635,6 +655,7 @@ function renderClientsList() {
         <span class="status-pill status-pill--${client.status === "active" ? "active" : "pending"}">${client.status === "active" ? "Active" : "Pending Payment"}</span>
         <div class="client-row__actions">
           <button type="button" class="btn btn--ghost btn--sm" data-edit-account="${escapeHtml(client.account)}">Edit</button>
+          <button type="button" class="btn btn--danger btn--sm" data-delete-account="${escapeHtml(client.account)}">Delete</button>
         </div>
       </div>
     `
@@ -644,6 +665,56 @@ function renderClientsList() {
   clientsListContainer.querySelectorAll("[data-edit-account]").forEach((button) => {
     button.addEventListener("click", () => openEditPanel(button.getAttribute("data-edit-account")));
   });
+  clientsListContainer.querySelectorAll("[data-delete-account]").forEach((button) => {
+    button.addEventListener("click", () => deleteClient(button.getAttribute("data-delete-account")));
+  });
+}
+
+if (clientsSearchInput) {
+  clientsSearchInput.addEventListener("input", () => {
+    if (clientsCache.length) renderClientsList();
+  });
+}
+
+// Permanent and irreversible — confirm before ever calling the endpoint.
+async function deleteClient(account) {
+  if (!window.confirm(`Permanently delete ${account}? This can't be undone.`)) {
+    return;
+  }
+
+  clientsListNote.textContent = "Deleting…";
+  clientsListNote.style.color = "";
+
+  try {
+    const response = await fetch("api/delete_client.php", {
+      method: "POST",
+      headers: { "Content-Type": "application/json", ...currentAuthHeader() },
+      body: JSON.stringify({ account }),
+    });
+
+    if (response.status === 401) {
+      clientsListNote.textContent = "";
+      handleSessionRejected();
+      return;
+    }
+
+    const result = await response.json();
+
+    if (response.ok && result.status === "deleted") {
+      clientsListNote.textContent = "";
+      if (editingAccount === account) {
+        editClientPanel.hidden = true;
+        editingAccount = null;
+      }
+      await loadClients();
+    } else {
+      clientsListNote.textContent = result.message || "Couldn't delete — try again.";
+      clientsListNote.style.color = "#ff8a8a";
+    }
+  } catch (err) {
+    clientsListNote.textContent = "Couldn't reach api/delete_client.php — is the backend deployed?";
+    clientsListNote.style.color = "#ff8a8a";
+  }
 }
 
 function openEditPanel(account) {
