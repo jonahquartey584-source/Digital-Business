@@ -1478,6 +1478,12 @@ textarea {
   color: var(--text-faint);
 }
 
+.client-row__email {
+  font-family: "IBM Plex Mono", monospace;
+  font-size: 0.78rem;
+  color: var(--gold-bright);
+}
+
 .client-row__actions {
   display: flex;
   gap: 8px;

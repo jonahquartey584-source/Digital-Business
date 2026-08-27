@@ -651,6 +651,11 @@ function renderClientsList() {
           <div class="client-row__account mono">${escapeHtml(client.account)}</div>
           <div class="client-row__service">${escapeHtml(client.title || client.service)} — ${escapeHtml(client.price)}</div>
           <div class="client-row__code mono">Code: ${escapeHtml(client.code)}</div>
+          ${
+            client.status === "active" && client.clientEmail
+              ? `<div class="client-row__email mono">${escapeHtml(client.clientEmail)}</div>`
+              : ""
+          }
         </div>
         <span class="status-pill status-pill--${client.status === "active" ? "active" : "pending"}">${client.status === "active" ? "Active" : "Pending Payment"}</span>
         <div class="client-row__actions">
