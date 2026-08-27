@@ -30,7 +30,7 @@ static, manually-maintained list — just without live payment status.
   - SEO
   - Booking System
   - Logo, branding, flyers &amp; business cards
-  - Online menus, price lists &amp; brochures
+  - Social media &amp; content
   - Reporting dashboards (leads, calls, bookings, sales)
   - Automation systems
   - Automated follow-ups (missed calls, quotes, reviews)
