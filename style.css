@@ -1781,10 +1781,14 @@ textarea {
 .ai-help-launcher svg{width:31px!important;height:31px!important}
 .theme-toggle{display:inline-flex;align-items:center;gap:7px;border:1px solid var(--border);border-radius:999px;background:var(--surface);color:var(--text-dim);padding:8px 11px;cursor:pointer;font:600 10px "IBM Plex Mono",monospace;text-transform:uppercase;letter-spacing:.05em}
 .theme-toggle svg{width:15px;height:15px}.theme-toggle__moon{display:none}.theme-toggle:hover{border-color:var(--gold);color:var(--gold-bright)}
-html[data-theme="light"]{--bg:#f7f3ea;--bg-alt:#eee8dc;--surface:#fcfaf5;--surface-alt:#f1eadc;--border:#dfcfaa;--border-soft:#eee3ca;--text:#171717;--text-dim:#5f6265;--text-faint:#85898d;--beige:#222;--gold:#b88732;--gold-rgb:184,135,50;--gold-bright:#d7ad58;--bronze:#8d5e16;--accent-text:#fff;--shadow:0 24px 60px -24px rgba(30,30,30,.22);--shadow-gold:0 12px 32px -14px rgba(var(--gold-rgb),.28)}
+html[data-theme="light"]{--bg:#f7f3ea;--bg-alt:#eee8dc;--surface:#fcfaf5;--surface-alt:#f1eadc;--border:#dfcfaa;--border-soft:#eee3ca;--text:#30291f;--text-dim:#6b6255;--text-faint:#8e8373;--beige:#3a3023;--gold:#b88732;--gold-rgb:184,135,50;--gold-bright:#d7ad58;--bronze:#8d5e16;--accent-text:#fff;--shadow:0 24px 60px -24px rgba(70,52,24,.2);--shadow-gold:0 12px 32px -14px rgba(var(--gold-rgb),.28)}
 html[data-theme="light"] .site-header{background:rgba(247,243,234,.95)}
 html[data-theme="light"] .hero{background:radial-gradient(circle at 78% 42%,rgba(184,135,50,.14),transparent 34%),#f7f3ea}
 html[data-theme="light"] .hero::before,html[data-theme="light"] .hero::after{opacity:.38}
+html[data-theme="light"] .hero__rotator,html[data-theme="light"] .terminal-window,html[data-theme="light"] .account-card{background:linear-gradient(155deg,#fcfaf5,#eee5d3 75%)}
+html[data-theme="light"] .preview-frame__bar{background:linear-gradient(155deg,#fcfaf5,#eee5d3 75%)}
+html[data-theme="light"] .hero__rotator-bar,html[data-theme="light"] .terminal-window__bar,html[data-theme="light"] .account-card__bar{background:rgba(218,190,133,.14)}
+html[data-theme="light"] .hero__rotator::before,html[data-theme="light"] .terminal-window::before,html[data-theme="light"] .account-card::before{-webkit-mask:linear-gradient(#fff 0 0) content-box,linear-gradient(#fff 0 0);mask:linear-gradient(#fff 0 0) content-box,linear-gradient(#fff 0 0)}
 html[data-theme="light"] .service-card,html[data-theme="light"] .process-card,html[data-theme="light"] .why-card,html[data-theme="light"] .admin-output__block{box-shadow:0 10px 32px rgba(30,25,15,.06)}
 html[data-theme="light"] .ai-help-panel{background:rgba(252,250,245,.985)}
 html[data-theme="light"] .ai-help-composer{background:#fcfaf5}
