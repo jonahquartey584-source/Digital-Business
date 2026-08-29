@@ -342,7 +342,7 @@ p {
 /* Live digital-network backdrop: slow, restrained movement that suggests
    connected systems and automation without competing with the page copy. */
 .hero__ambient{position:absolute;inset:0;z-index:1;pointer-events:none;overflow:hidden;opacity:.96}
-.hero__ambient::before{content:"";position:absolute;inset:-15%;background:linear-gradient(115deg,transparent 22%,rgba(var(--gold-rgb),.09) 39%,rgba(var(--gold-rgb),.26) 49%,rgba(var(--gold-rgb),.09) 59%,transparent 76%);transform:translateX(-45%);animation:ambientSweep 15s ease-in-out infinite}
+.hero__ambient::before{content:"";position:absolute;inset:-15%;background:linear-gradient(115deg,transparent 18%,rgba(var(--gold-rgb),.025) 34%,rgba(var(--gold-rgb),.075) 49%,rgba(var(--gold-rgb),.025) 64%,transparent 82%);transform:translateX(-45%);animation:ambientSweep 24s ease-in-out infinite}
 .hero__ambient::after{content:"";position:absolute;width:34vw;height:34vw;min-width:280px;min-height:280px;right:-9%;top:8%;border:1px solid rgba(var(--gold-rgb),.28);border-radius:50%;box-shadow:0 0 0 52px rgba(var(--gold-rgb),.05),0 0 0 104px rgba(var(--gold-rgb),.032);animation:ambientOrbit 26s linear infinite}
 .hero__ambient span{position:absolute;width:9px;height:9px;border-radius:50%;background:var(--gold-bright);box-shadow:0 0 0 6px rgba(var(--gold-rgb),.14),0 0 28px rgba(var(--gold-rgb),.62);animation:ambientNode 6s ease-in-out infinite}
 .hero__ambient span::after{content:"";position:absolute;left:9px;top:4px;width:clamp(90px,16vw,240px);height:1px;background:linear-gradient(90deg,rgba(var(--gold-rgb),.58),transparent);transform-origin:left center}
