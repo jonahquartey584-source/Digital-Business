@@ -859,6 +859,8 @@ if (editEmailClientBtn) {
 const agentRequestsContainer = document.getElementById("agentRequestsContainer");
 const agentRequestsNote = document.getElementById("agentRequestsNote");
 const refreshAgentRequestsBtn = document.getElementById("refreshAgentRequestsBtn");
+const agentRequestsSearchInput = document.getElementById("agentRequestsSearchInput");
+let agentRequestsCache = [];
 
 async function loadAgentRequests() {
   if (!agentRequestsContainer) return;
@@ -869,11 +871,30 @@ async function loadAgentRequests() {
     const result = await response.json();
     if (!response.ok) throw new Error(result.message || "Could not load requests");
     agentRequestsNote.textContent = "";
-    if (!result.requests.length) {
+    agentRequestsCache = result.requests;
+    renderAgentRequests();
+  } catch (error) {
+    agentRequestsNote.textContent = error.message || "Couldn’t load agent requests.";
+    agentRequestsNote.style.color = "#ff8a8a";
+  }
+}
+
+function renderAgentRequests() {
+    const query = (agentRequestsSearchInput?.value || "").trim().toLowerCase();
+    const requests = agentRequestsCache.filter((request) => {
+      if (!query) return true;
+      const transcriptText = Array.isArray(request.transcript)
+        ? request.transcript.map((message) => message.content || "").join(" ")
+        : "";
+      return [request.name, request.contact, request.message, transcriptText]
+        .some((value) => String(value || "").toLowerCase().includes(query));
+    });
+
+    if (!requests.length) {
       agentRequestsContainer.innerHTML = '<p class="empty-note">No agent requests yet.</p>';
       return;
     }
-    agentRequestsContainer.innerHTML = result.requests.map((request) => `
+    agentRequestsContainer.innerHTML = requests.map((request) => `
       <article class="agent-request">
         <div class="agent-request__head">
           <div><strong>${escapeHtml(request.name)}</strong><div class="mono">${escapeHtml(new Date(request.createdAt).toLocaleString())}</div></div>
@@ -888,16 +909,17 @@ async function loadAgentRequests() {
           <summary>View assistant conversation (${Array.isArray(request.transcript) ? request.transcript.length : 0} messages)</summary>
           <div class="agent-transcript__messages">
             ${Array.isArray(request.transcript) && request.transcript.length
-              ? request.transcript.map((message) => `<div class="agent-transcript__message agent-transcript__message--${message.role === "user" ? "user" : "assistant"}"><strong>${message.role === "user" ? "Prospect" : "Assistant"}:</strong> ${escapeHtml(message.content)}</div>`).join("")
+              ? request.transcript.map((message) => `<div class="agent-transcript__message agent-transcript__message--${message.role}"><strong>${message.role === "user" ? "Prospect" : message.role === "agent" ? "You" : "Assistant"}:</strong> ${escapeHtml(message.content)}</div>`).join("")
               : '<p class="empty-note">No conversation was captured for this request.</p>'}
           </div>
         </details>
+        <form class="agent-reply-form" data-agent-reply-key="${escapeHtml(request.key)}">
+          <input type="text" maxlength="1000" required placeholder="Reply to this prospect…" aria-label="Reply to ${escapeHtml(request.name)}">
+          <button class="btn btn--primary btn--sm" type="submit">Send Reply</button>
+        </form>
+        <p class="agent-chat-status" data-agent-status="${escapeHtml(request.key)}"></p>
         ${request.status === "contacted" ? "" : `<button class="btn btn--ghost btn--sm" data-request-key="${escapeHtml(request.key)}">Mark contacted</button>`}
       </article>`).join("");
-  } catch (error) {
-    agentRequestsNote.textContent = error.message || "Couldn’t load agent requests.";
-    agentRequestsNote.style.color = "#ff8a8a";
-  }
 }
 
 agentRequestsContainer?.addEventListener("click", async (event) => {
@@ -920,3 +942,31 @@ agentRequestsContainer?.addEventListener("click", async (event) => {
   }
 });
 refreshAgentRequestsBtn?.addEventListener("click", loadAgentRequests);
+agentRequestsSearchInput?.addEventListener("input", renderAgentRequests);
+
+agentRequestsContainer?.addEventListener("submit", async (event) => {
+  const form = event.target.closest("[data-agent-reply-key]");
+  if (!form) return;
+  event.preventDefault();
+  const input = form.querySelector("input");
+  const button = form.querySelector("button");
+  const status = agentRequestsContainer.querySelector(`[data-agent-status="${CSS.escape(form.dataset.agentReplyKey)}"]`);
+  const content = input.value.trim();
+  if (!content) return;
+  button.disabled = true;
+  if (status) status.textContent = "Sending…";
+  try {
+    const response = await fetch("/api/agent-requests", {
+      method: "PATCH",
+      headers: { ...currentAuthHeader(), "Content-Type": "application/json" },
+      body: JSON.stringify({ key: form.dataset.agentReplyKey, action: "reply", content }),
+    });
+    if (response.status === 401) return handleSessionRejected();
+    if (!response.ok) throw new Error("Could not send reply");
+    input.value = "";
+    await loadAgentRequests();
+  } catch {
+    button.disabled = false;
+    if (status) status.textContent = "Couldn’t send that reply.";
+  }
+});

@@ -272,6 +272,9 @@ if (enquiryForm) {
 
   const conversation = [];
   let pending = false;
+  let agentSession = null;
+  let agentSeenLength = 0;
+  let agentPollTimer = null;
 
   const setOpen = (open) => {
     panel.hidden = !open;
@@ -309,9 +312,81 @@ if (enquiryForm) {
     }
   };
 
+  const setAgentMode = () => {
+    input.placeholder = "Message the Qp Digital team…";
+    const title = panel.querySelector(".ai-help-title strong");
+    if (title) title.textContent = "Qp Digital Team";
+    const subtitle = panel.querySelector(".ai-help-title span");
+    if (subtitle) subtitle.textContent = "LIVE AGENT CHAT · CONNECTED";
+    document.querySelector(".ai-help-quick")?.setAttribute("hidden", "");
+  };
+
+  const saveAgentSession = () => {
+    try {
+      sessionStorage.setItem("qpAgentChat", JSON.stringify({ ...agentSession, seen: agentSeenLength }));
+    } catch (_) {}
+  };
+
+  const pollAgentChat = async () => {
+    if (!agentSession) return;
+    try {
+      const url = `/api/agent-requests?key=${encodeURIComponent(agentSession.key)}&token=${encodeURIComponent(agentSession.visitorToken)}`;
+      const response = await fetch(url);
+      if (!response.ok) throw new Error("Chat unavailable");
+      const result = await response.json();
+      const transcript = Array.isArray(result.transcript) ? result.transcript : [];
+      transcript.slice(agentSeenLength).forEach((message) => {
+        if (message.role === "agent") addMessage("agent", `Qp Digital team: ${message.content}`);
+      });
+      agentSeenLength = transcript.length;
+      saveAgentSession();
+    } catch {
+      // Retry quietly on the next interval.
+    }
+  };
+
+  const startAgentPolling = () => {
+    if (agentPollTimer) window.clearInterval(agentPollTimer);
+    setAgentMode();
+    pollAgentChat();
+    agentPollTimer = window.setInterval(pollAgentChat, 5000);
+  };
+
+  const sendAgentMessage = async (text) => {
+    if (!agentSession || pending) return;
+    pending = true;
+    input.value = "";
+    input.disabled = true;
+    form.querySelector("button").disabled = true;
+    addMessage("user", text);
+    try {
+      const response = await fetch("/api/agent-requests", {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ key: agentSession.key, visitorToken: agentSession.visitorToken, content: text }),
+      });
+      const result = await response.json().catch(() => ({}));
+      if (!response.ok) throw new Error("Message failed");
+      conversation.push({ role: "user", content: text });
+      agentSeenLength = Number(result.transcriptLength) || agentSeenLength + 1;
+      saveAgentSession();
+    } catch {
+      addMessage("assistant", "That message could not be sent. Please try again.");
+    } finally {
+      pending = false;
+      input.disabled = false;
+      form.querySelector("button").disabled = false;
+      input.focus();
+    }
+  };
+
   const sendQuestion = async (question) => {
     const text = question.trim();
     if (!text || pending) return;
+    if (agentSession) {
+      await sendAgentMessage(text);
+      return;
+    }
     if (/\b(speak|talk|contact|call)\b.*\b(agent|person|human|team|someone)\b|\b(agent|person|human)\b.*\b(speak|talk|contact|call)\b/i.test(text)) {
       addMessage("user", text);
       conversation.push({ role: "user", content: text });
@@ -379,15 +454,28 @@ if (enquiryForm) {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ name, contact, message, transcript: conversation.slice(-24) }),
       });
-      if (!response.ok) throw new Error("Request failed");
+      const result = await response.json().catch(() => ({}));
+      if (!response.ok || !result.key || !result.visitorToken) throw new Error("Request failed");
+      agentSession = { key: result.key, visitorToken: result.visitorToken };
+      agentSeenLength = Number(result.transcriptLength) || conversation.length;
+      saveAgentSession();
       handoffForm.reset();
       handoffForm.hidden = true;
       addMessage("assistant", "Your request has been sent to the Qp Digital team. They’ll use the contact details you provided to get back to you.");
+      startAgentPolling();
     } catch {
       handoffNote.textContent = "Couldn’t send that request. Please call 07544 856633 or email jonahquartey584@gmail.com.";
     } finally {
       submit.disabled = false;
     }
   });
+  try {
+    const savedAgentSession = JSON.parse(sessionStorage.getItem("qpAgentChat") || "null");
+    if (savedAgentSession?.key && savedAgentSession?.visitorToken) {
+      agentSession = { key: savedAgentSession.key, visitorToken: savedAgentSession.visitorToken };
+      agentSeenLength = Number(savedAgentSession.seen) || 0;
+      startAgentPolling();
+    }
+  } catch (_) {}
   document.addEventListener("keydown", (event) => { if (event.key === "Escape" && !panel.hidden) setOpen(false); });
 })();
