@@ -409,6 +409,11 @@ p {
   max-width: 620px;
 }
 
+.hero__lead strong {
+  color: var(--text);
+  font-weight: 750;
+}
+
 .hero__cta {
   display: flex;
   flex-wrap: wrap;
