@@ -1,23 +1,23 @@
 :root {
-  --bg: #f7f3ea;
-  --bg-alt: #eee8dc;
-  --surface: #fcfaf5;
-  --surface-alt: #f1eadc;
-  --border: #dfcfaa;
-  --border-soft: #eee3ca;
-  --text: #171717;
-  --text-dim: #5f6265;
-  --text-faint: #85898d;
-  --beige: #222222;
-  --gold: #b88732;
-  --gold-rgb: 184, 135, 50;
-  --gold-bright: #d7ad58;
-  --bronze: #8d5e16;
-  --accent-text: #ffffff;
+  --bg: #0c0b09;
+  --bg-alt: #131110;
+  --surface: #17140f;
+  --surface-alt: #1f1a13;
+  --border: #332a1c;
+  --border-soft: #241f16;
+  --text: #f4eee2;
+  --text-dim: #a89a83;
+  --text-faint: #6f6455;
+  --beige: #e9dcc3;
+  --gold: #b8874b;
+  --gold-rgb: 184, 135, 75;
+  --gold-bright: #e0bd83;
+  --bronze: #7c4a24;
+  --accent-text: #0c0b09;
   --gold-gradient: linear-gradient(135deg, var(--gold-bright), var(--gold) 48%, var(--bronze) 100%);
   --radius: 8px;
-  --shadow: 0 24px 60px -24px rgba(30, 30, 30, 0.22);
-  --shadow-gold: 0 12px 32px -14px rgba(var(--gold-rgb), 0.28);
+  --shadow: 0 24px 60px -24px rgba(0, 0, 0, 0.75);
+  --shadow-gold: 0 12px 32px -14px rgba(var(--gold-rgb), 0.45);
   --max: 1160px;
 }
 
@@ -1779,13 +1779,18 @@ textarea {
 
 .ai-help-launcher{background:var(--gold-gradient)!important;color:#fff!important;border:2px solid rgba(255,255,255,.9)!important;box-shadow:0 12px 34px rgba(104,70,12,.28),0 0 0 5px rgba(var(--gold-rgb),.12)!important}
 .ai-help-launcher svg{width:31px!important;height:31px!important}
-.site-header{background:rgba(247,243,234,.95)!important}
-.hero{background:radial-gradient(circle at 78% 42%,rgba(184,135,50,.14),transparent 34%),#f7f3ea!important}
-.hero::before,.hero::after{opacity:.38}
-.service-card,.process-card,.why-card,.admin-output__block{box-shadow:0 10px 32px rgba(30,25,15,.06)}
-.ai-help-panel{background:rgba(252,250,245,.985)}
-.ai-help-composer{background:#fcfaf5}
-.ai-help-message.ai,.ai-help-message--assistant{background:#f8f2e6}
+.theme-toggle{display:inline-flex;align-items:center;gap:7px;border:1px solid var(--border);border-radius:999px;background:var(--surface);color:var(--text-dim);padding:8px 11px;cursor:pointer;font:600 10px "IBM Plex Mono",monospace;text-transform:uppercase;letter-spacing:.05em}
+.theme-toggle svg{width:15px;height:15px}.theme-toggle__moon{display:none}.theme-toggle:hover{border-color:var(--gold);color:var(--gold-bright)}
+html[data-theme="light"]{--bg:#f7f3ea;--bg-alt:#eee8dc;--surface:#fcfaf5;--surface-alt:#f1eadc;--border:#dfcfaa;--border-soft:#eee3ca;--text:#171717;--text-dim:#5f6265;--text-faint:#85898d;--beige:#222;--gold:#b88732;--gold-rgb:184,135,50;--gold-bright:#d7ad58;--bronze:#8d5e16;--accent-text:#fff;--shadow:0 24px 60px -24px rgba(30,30,30,.22);--shadow-gold:0 12px 32px -14px rgba(var(--gold-rgb),.28)}
+html[data-theme="light"] .site-header{background:rgba(247,243,234,.95)}
+html[data-theme="light"] .hero{background:radial-gradient(circle at 78% 42%,rgba(184,135,50,.14),transparent 34%),#f7f3ea}
+html[data-theme="light"] .hero::before,html[data-theme="light"] .hero::after{opacity:.38}
+html[data-theme="light"] .service-card,html[data-theme="light"] .process-card,html[data-theme="light"] .why-card,html[data-theme="light"] .admin-output__block{box-shadow:0 10px 32px rgba(30,25,15,.06)}
+html[data-theme="light"] .ai-help-panel{background:rgba(252,250,245,.985)}
+html[data-theme="light"] .ai-help-composer{background:#fcfaf5}
+html[data-theme="light"] .ai-help-message.ai,html[data-theme="light"] .ai-help-message--assistant{background:#f8f2e6}
+html[data-theme="light"] .theme-toggle__sun{display:none}html[data-theme="light"] .theme-toggle__moon{display:block}
+@media(max-width:900px){.theme-toggle__label{display:none}.theme-toggle{padding:8px}}
 .ai-help-handoff{padding:14px;border-top:1px solid var(--border);display:grid;gap:9px;background:var(--surface)}
 .ai-help-handoff[hidden]{display:none}.ai-help-handoff strong{font:600 13px "Sora",sans-serif;color:var(--text)}
 .ai-help-handoff input,.ai-help-handoff textarea{width:100%;border:1px solid var(--border);border-radius:7px;background:var(--bg);color:var(--text);padding:10px;font:12px "Sora",sans-serif;resize:none}

@@ -2,6 +2,26 @@
 // Update this to the email address that should receive enquiries.
 const BUSINESS_EMAIL = "jonahquartey584@gmail.com";
 
+// ---- Light / dark theme -------------------------------------------------
+const themeToggle = document.getElementById("themeToggle");
+
+function syncThemeToggle() {
+  if (!themeToggle) return;
+  const isLight = document.documentElement.dataset.theme === "light";
+  themeToggle.setAttribute("aria-pressed", String(isLight));
+  themeToggle.setAttribute("aria-label", isLight ? "Switch to dark mode" : "Switch to light mode");
+  const label = themeToggle.querySelector(".theme-toggle__label");
+  if (label) label.textContent = isLight ? "Dark" : "Light";
+}
+
+syncThemeToggle();
+themeToggle?.addEventListener("click", () => {
+  const nextTheme = document.documentElement.dataset.theme === "light" ? "dark" : "light";
+  document.documentElement.dataset.theme = nextTheme;
+  try { localStorage.setItem("qpTheme", nextTheme); } catch (_) {}
+  syncThemeToggle();
+});
+
 // ---- Mobile nav toggle --------------------------------------------------
 const navToggle = document.getElementById("navToggle");
 const nav = document.getElementById("nav");
