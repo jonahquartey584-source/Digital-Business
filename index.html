@@ -434,6 +434,26 @@
     </div>
   </footer>
 
+
+  <!-- Qp Digital AI Help Centre -->
+  <button class="ai-help-launcher" id="aiHelpLauncher" aria-label="Open Qp Digital AI help centre" aria-expanded="false">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M21 15a4 4 0 0 1-4 4H8l-5 3 1.7-5A7 7 0 0 1 3 12V8a4 4 0 0 1 4-4h10a4 4 0 0 1 4 4z"/><path d="M8 10h.01M12 10h.01M16 10h.01"/></svg>
+  </button>
+  <aside class="ai-help-panel" id="aiHelpPanel" aria-label="Qp Digital AI help centre" aria-hidden="true">
+    <div class="ai-help-head"><div class="ai-help-mark">QP</div><div class="ai-help-title"><strong>Qp Digital Assistant</strong><span>AI HELP CENTRE · ONLINE</span></div><button class="ai-help-close" id="aiHelpClose" aria-label="Close help centre">×</button></div>
+    <div class="ai-help-messages" id="aiHelpMessages" aria-live="polite"><div class="ai-help-message ai">Hi — I’m the Qp Digital help assistant. I can explain our services, activation process and next steps. How can I help?</div></div>
+    <div class="ai-help-quick"><button data-ai-question="Which service do I need?">Which service?</button><button data-ai-question="How does activation work?">Activation help</button><button data-ai-handoff>Talk to a person</button></div>
+    <form class="ai-help-handoff" id="aiHelpHandoff" hidden>
+      <strong>Ask the Qp Digital team to contact you</strong>
+      <input id="aiHelpLeadName" maxlength="80" required placeholder="Your name" aria-label="Your name">
+      <input id="aiHelpLeadContact" maxlength="160" required placeholder="Email or phone number" aria-label="Email or phone number">
+      <textarea id="aiHelpLeadMessage" maxlength="800" rows="3" placeholder="What would you like help with?" aria-label="What you would like help with"></textarea>
+      <div class="ai-help-handoff__actions"><button type="button" data-ai-handoff-cancel>Cancel</button><button type="submit">Request an agent</button></div>
+      <p id="aiHelpHandoffNote" aria-live="polite"></p>
+    </form>
+    <form class="ai-help-composer" id="aiHelpForm"><input id="aiHelpInput" autocomplete="off" maxlength="800" placeholder="Message Qp Digital…" aria-label="Message Qp Digital assistant"><button type="submit" aria-label="Send message">↑</button></form>
+    <div class="ai-help-disclaimer">AI CAN MAKE MISTAKES · NEVER ENTER CODES OR PAYMENT DETAILS</div>
+  </aside>
   <script src="script.js"></script>
 </body>
 </html>

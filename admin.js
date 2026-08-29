@@ -194,7 +194,7 @@ function showAdminTool(email) {
   // own consts (loadClients itself is hoisted, but the elements it reads
   // aren't initialized yet at that point) — a macrotask guarantees the
   // rest of the script has finished running first.
-  setTimeout(loadClients, 0);
+  setTimeout(() => { loadClients(); loadAgentRequests(); }, 0);
 }
 
 // Called by every authenticated fetch below when the server says the
@@ -853,3 +853,62 @@ if (editEmailClientBtn) {
     sendClientEmail(editingAccount, editEmailClientBtn, editClientNote);
   });
 }
+
+
+// --- AI assistant agent requests -----------------------------------------
+const agentRequestsContainer = document.getElementById("agentRequestsContainer");
+const agentRequestsNote = document.getElementById("agentRequestsNote");
+const refreshAgentRequestsBtn = document.getElementById("refreshAgentRequestsBtn");
+
+async function loadAgentRequests() {
+  if (!agentRequestsContainer) return;
+  agentRequestsNote.textContent = "Loading…";
+  try {
+    const response = await fetch("/api/agent-requests", { headers: currentAuthHeader() });
+    if (response.status === 401) return handleSessionRejected();
+    const result = await response.json();
+    if (!response.ok) throw new Error(result.message || "Could not load requests");
+    agentRequestsNote.textContent = "";
+    if (!result.requests.length) {
+      agentRequestsContainer.innerHTML = '<p class="empty-note">No agent requests yet.</p>';
+      return;
+    }
+    agentRequestsContainer.innerHTML = result.requests.map((request) => `
+      <article class="agent-request">
+        <div class="agent-request__head">
+          <div><strong>${escapeHtml(request.name)}</strong><div class="mono">${escapeHtml(new Date(request.createdAt).toLocaleString())}</div></div>
+          <span class="status-badge">${request.status === "contacted" ? "Contacted" : "New"}</span>
+        </div>
+        <div class="agent-request__contact">
+          <a href="mailto:${escapeHtml(request.contact)}">${escapeHtml(request.contact)}</a>
+          <a href="tel:${escapeHtml(request.contact)}">Call</a>
+        </div>
+        <p class="agent-request__message">${escapeHtml(request.message || "No additional message.")}</p>
+        ${request.status === "contacted" ? "" : `<button class="btn btn--ghost btn--sm" data-request-key="${escapeHtml(request.key)}">Mark contacted</button>`}
+      </article>`).join("");
+  } catch (error) {
+    agentRequestsNote.textContent = error.message || "Couldn’t load agent requests.";
+    agentRequestsNote.style.color = "#ff8a8a";
+  }
+}
+
+agentRequestsContainer?.addEventListener("click", async (event) => {
+  const button = event.target.closest("[data-request-key]");
+  if (!button) return;
+  button.disabled = true;
+  try {
+    const response = await fetch("/api/agent-requests", {
+      method: "PATCH",
+      headers: { ...currentAuthHeader(), "Content-Type": "application/json" },
+      body: JSON.stringify({ key: button.dataset.requestKey }),
+    });
+    if (response.status === 401) return handleSessionRejected();
+    if (!response.ok) throw new Error("Could not update request");
+    await loadAgentRequests();
+  } catch {
+    button.disabled = false;
+    agentRequestsNote.textContent = "Couldn’t mark that request as contacted.";
+    agentRequestsNote.style.color = "#ff8a8a";
+  }
+});
+refreshAgentRequestsBtn?.addEventListener("click", loadAgentRequests);

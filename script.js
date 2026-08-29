@@ -233,3 +233,135 @@ if (enquiryForm) {
     }
   });
 }
+
+// ---- AI help centre ----------------------------------------------------
+(() => {
+  const launcher = document.getElementById("aiHelpLauncher");
+  const panel = document.getElementById("aiHelpPanel");
+  const closeButton = document.getElementById("aiHelpClose");
+  const form = document.getElementById("aiHelpForm");
+  const input = document.getElementById("aiHelpInput");
+  const messagesElement = document.getElementById("aiHelpMessages");
+  const quickQuestions = document.querySelectorAll("[data-ai-question]");
+  const handoffButton = document.querySelector("[data-ai-handoff]");
+  const handoffForm = document.getElementById("aiHelpHandoff");
+  const handoffCancel = document.querySelector("[data-ai-handoff-cancel]");
+  const handoffNote = document.getElementById("aiHelpHandoffNote");
+
+  if (!launcher || !panel || !closeButton || !form || !input || !messagesElement) return;
+
+  const conversation = [];
+  let pending = false;
+
+  const setOpen = (open) => {
+    panel.hidden = !open;
+    panel.classList.toggle("is-open", open);
+    panel.setAttribute("aria-hidden", String(!open));
+    launcher.setAttribute("aria-expanded", String(open));
+    if (open) window.setTimeout(() => input.focus(), 60);
+    else launcher.focus();
+  };
+
+  const addMessage = (role, content) => {
+    const message = document.createElement("div");
+    message.className = `ai-help-message ai-help-message--${role}`;
+    message.textContent = content;
+    messagesElement.appendChild(message);
+    messagesElement.scrollTop = messagesElement.scrollHeight;
+    return message;
+  };
+
+  const addTyping = () => {
+    const typing = document.createElement("div");
+    typing.className = "ai-help-message ai-help-message--assistant ai-help-typing";
+    typing.setAttribute("aria-label", "Assistant is typing");
+    for (let index = 0; index < 3; index += 1) typing.appendChild(document.createElement("span"));
+    messagesElement.appendChild(typing);
+    messagesElement.scrollTop = messagesElement.scrollHeight;
+    return typing;
+  };
+
+  const showHandoff = () => {
+    setOpen(true);
+    if (handoffForm) {
+      handoffForm.hidden = false;
+      document.getElementById("aiHelpLeadName")?.focus();
+    }
+  };
+
+  const sendQuestion = async (question) => {
+    const text = question.trim();
+    if (!text || pending) return;
+    if (/\b(speak|talk|contact|call)\b.*\b(agent|person|human|team|someone)\b|\b(agent|person|human)\b.*\b(speak|talk|contact|call)\b/i.test(text)) {
+      addMessage("user", text);
+      addMessage("assistant", "Of course — leave your name and an email address or phone number below, and the Qp Digital team can contact you.");
+      showHandoff();
+      return;
+    }
+
+    pending = true;
+    input.value = "";
+    input.disabled = true;
+    form.querySelector("button").disabled = true;
+    addMessage("user", text);
+    conversation.push({ role: "user", content: text });
+    const typing = addTyping();
+
+    try {
+      const response = await fetch("/api/ai-help", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ messages: conversation.slice(-8) }),
+      });
+      const data = await response.json().catch(() => ({}));
+      if (!response.ok || typeof data.reply !== "string") throw new Error("Assistant unavailable");
+      typing.remove();
+      addMessage("assistant", data.reply);
+      conversation.push({ role: "assistant", content: data.reply });
+      if (conversation.length > 8) conversation.splice(0, conversation.length - 8);
+    } catch {
+      typing.remove();
+      addMessage("assistant", "I’m temporarily unavailable. Please call 07544 856633 or email jonahquartey584@gmail.com and the Qp Digital team will help.");
+    } finally {
+      pending = false;
+      input.disabled = false;
+      form.querySelector("button").disabled = false;
+      input.focus();
+    }
+  };
+
+  launcher.addEventListener("click", () => setOpen(panel.hidden));
+  closeButton.addEventListener("click", () => setOpen(false));
+  form.addEventListener("submit", (event) => { event.preventDefault(); sendQuestion(input.value); });
+  quickQuestions.forEach((button) => button.addEventListener("click", () => { setOpen(true); sendQuestion(button.dataset.aiQuestion || button.textContent || ""); }));
+  handoffButton?.addEventListener("click", () => {
+    addMessage("assistant", "Leave your details below and a member of the Qp Digital team can contact you.");
+    showHandoff();
+  });
+  handoffCancel?.addEventListener("click", () => { if (handoffForm) handoffForm.hidden = true; input.focus(); });
+  handoffForm?.addEventListener("submit", async (event) => {
+    event.preventDefault();
+    const name = document.getElementById("aiHelpLeadName")?.value.trim() || "";
+    const contact = document.getElementById("aiHelpLeadContact")?.value.trim() || "";
+    const message = document.getElementById("aiHelpLeadMessage")?.value.trim() || "";
+    const submit = handoffForm.querySelector('button[type="submit"]');
+    submit.disabled = true;
+    handoffNote.textContent = "Sending your request…";
+    try {
+      const response = await fetch("/api/agent-requests", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ name, contact, message }),
+      });
+      if (!response.ok) throw new Error("Request failed");
+      handoffForm.reset();
+      handoffForm.hidden = true;
+      addMessage("assistant", "Your request has been sent to the Qp Digital team. They’ll use the contact details you provided to get back to you.");
+    } catch {
+      handoffNote.textContent = "Couldn’t send that request. Please call 07544 856633 or email jonahquartey584@gmail.com.";
+    } finally {
+      submit.disabled = false;
+    }
+  });
+  document.addEventListener("keydown", (event) => { if (event.key === "Escape" && !panel.hidden) setOpen(false); });
+})();

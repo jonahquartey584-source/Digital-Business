@@ -4,7 +4,8 @@
   "type": "module",
   "description": "Dependencies for the Netlify Functions backend under netlify/functions/ — the site itself has no build step.",
   "dependencies": {
-    "@netlify/blobs": "^8"
+    "@netlify/blobs": "^8",
+    "openai": "^4.0.0"
   },
   "devDependencies": {
     "@netlify/functions": "^2"
