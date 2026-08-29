@@ -153,46 +153,10 @@ if (yearEl) {
 }
 
 // ---- Enquiry form --------------------------------------------------------
-// Primary path: POST to api/enquiry.php, which sends the visitor an
-// automatic confirmation email (and the business a notification) — see
-// api/enquiry.php / netlify/functions/enquiry.mts.
-//
-// Fallback: if that can't be reached, or responds but couldn't actually
-// send email (e.g. RESEND_API_KEY isn't configured yet), fall back to
-// building a pre-filled email (via a mailto: link) addressed to
-// BUSINESS_EMAIL and opening the visitor's own email client — the same
-// behavior this form had before the backend existed, so an enquiry is
-// never silently lost.
+// POST directly to the Qp Digital backend. The enquiry is persisted in the
+// authenticated admin inbox before any optional email notifications run.
 const enquiryForm = document.getElementById("enquiryForm");
 const formNote = document.getElementById("formNote");
-
-function openEnquiryMailtoFallback({ name, business, address, email, phone, service, details, negotiate }) {
-  const subject = `Enquiry: ${service}`;
-  const bodyLines = [
-    `Name: ${name}`,
-    business ? `Business: ${business}` : null,
-    address ? `Address: ${address}` : null,
-    `Email: ${email}`,
-    phone ? `Phone: ${phone}` : null,
-    `Service: ${service}`,
-    `Open to negotiating price: ${negotiate ? "Yes" : "No"}`,
-    "",
-    "Details:",
-    details || "(none provided)",
-  ].filter(Boolean);
-
-  const mailtoUrl =
-    `mailto:${BUSINESS_EMAIL}` +
-    `?subject=${encodeURIComponent(subject)}` +
-    `&body=${encodeURIComponent(bodyLines.join("\n"))}`;
-
-  window.location.href = mailtoUrl;
-
-  if (formNote) {
-    formNote.textContent = "Opening your email client to send this enquiry…";
-    formNote.style.color = "";
-  }
-}
 
 if (enquiryForm) {
   enquiryForm.addEventListener("submit", async (event) => {
@@ -233,21 +197,20 @@ if (enquiryForm) {
       });
       const result = await response.json();
 
-      if (response.ok && result.status === "ok" && result.emailSent) {
+      if (response.ok && result.status === "ok" && result.saved) {
         if (formNote) {
-          formNote.textContent = `Thanks — we've sent a confirmation to ${enquiry.email}. Our team will respond as quickly as possible.`;
+          formNote.textContent = "Thanks — your enquiry has been sent directly to the Qp Digital team. We’ll respond as quickly as possible.";
           formNote.style.color = "";
         }
         enquiryForm.reset();
       } else {
-        // Reached the backend, but it couldn't actually send email (most
-        // likely RESEND_API_KEY isn't set up yet) — fall back rather than
-        // leave the visitor thinking nothing happened.
-        openEnquiryMailtoFallback(enquiry);
+        throw new Error(result.message || "Enquiry could not be sent");
       }
     } catch (err) {
-      // Backend not reachable at all.
-      openEnquiryMailtoFallback(enquiry);
+      if (formNote) {
+        formNote.textContent = "We couldn’t send your enquiry just now. Please try again in a moment.";
+        formNote.style.color = "#ff8a8a";
+      }
     } finally {
       if (submitBtn) submitBtn.disabled = false;
     }
@@ -390,7 +353,7 @@ if (enquiryForm) {
     if (/\b(speak|talk|contact|call)\b.*\b(agent|person|human|team|someone)\b|\b(agent|person|human)\b.*\b(speak|talk|contact|call)\b/i.test(text)) {
       addMessage("user", text);
       conversation.push({ role: "user", content: text });
-      const handoffReply = "Of course — leave your name and an email address or phone number below, and the Qp Digital team can contact you.";
+      const handoffReply = "Of course — leave your name and contact details below. A Qp Digital agent will join this chat and be with you soon.";
       addMessage("assistant", handoffReply);
       conversation.push({ role: "assistant", content: handoffReply });
       showHandoff();
@@ -434,7 +397,7 @@ if (enquiryForm) {
   form.addEventListener("submit", (event) => { event.preventDefault(); sendQuestion(input.value); });
   quickQuestions.forEach((button) => button.addEventListener("click", () => { setOpen(true); sendQuestion(button.dataset.aiQuestion || button.textContent || ""); }));
   handoffButton?.addEventListener("click", () => {
-    const handoffReply = "Leave your details below and a member of the Qp Digital team can contact you.";
+    const handoffReply = "Leave your details below. A Qp Digital agent will join this chat and be with you soon.";
     addMessage("assistant", handoffReply);
     conversation.push({ role: "assistant", content: handoffReply });
     showHandoff();
@@ -461,7 +424,7 @@ if (enquiryForm) {
       saveAgentSession();
       handoffForm.reset();
       handoffForm.hidden = true;
-      addMessage("assistant", "Your request has been sent to the Qp Digital team. They’ll use the contact details you provided to get back to you.");
+      addMessage("assistant", "Your request has been sent. A Qp Digital agent will join this chat and be with you soon — please keep this page open.");
       startAgentPolling();
     } catch {
       handoffNote.textContent = "Couldn’t send that request. Please call 07544 856633 or email jonahquartey584@gmail.com.";
