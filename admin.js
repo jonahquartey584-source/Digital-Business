@@ -884,6 +884,14 @@ async function loadAgentRequests() {
           <a href="tel:${escapeHtml(request.contact)}">Call</a>
         </div>
         <p class="agent-request__message">${escapeHtml(request.message || "No additional message.")}</p>
+        <details class="agent-transcript">
+          <summary>View assistant conversation (${Array.isArray(request.transcript) ? request.transcript.length : 0} messages)</summary>
+          <div class="agent-transcript__messages">
+            ${Array.isArray(request.transcript) && request.transcript.length
+              ? request.transcript.map((message) => `<div class="agent-transcript__message agent-transcript__message--${message.role === "user" ? "user" : "assistant"}"><strong>${message.role === "user" ? "Prospect" : "Assistant"}:</strong> ${escapeHtml(message.content)}</div>`).join("")
+              : '<p class="empty-note">No conversation was captured for this request.</p>'}
+          </div>
+        </details>
         ${request.status === "contacted" ? "" : `<button class="btn btn--ghost btn--sm" data-request-key="${escapeHtml(request.key)}">Mark contacted</button>`}
       </article>`).join("");
   } catch (error) {

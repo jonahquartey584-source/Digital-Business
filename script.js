@@ -314,7 +314,10 @@ if (enquiryForm) {
     if (!text || pending) return;
     if (/\b(speak|talk|contact|call)\b.*\b(agent|person|human|team|someone)\b|\b(agent|person|human)\b.*\b(speak|talk|contact|call)\b/i.test(text)) {
       addMessage("user", text);
-      addMessage("assistant", "Of course — leave your name and an email address or phone number below, and the Qp Digital team can contact you.");
+      conversation.push({ role: "user", content: text });
+      const handoffReply = "Of course — leave your name and an email address or phone number below, and the Qp Digital team can contact you.";
+      addMessage("assistant", handoffReply);
+      conversation.push({ role: "assistant", content: handoffReply });
       showHandoff();
       return;
     }
@@ -338,10 +341,11 @@ if (enquiryForm) {
       typing.remove();
       addMessage("assistant", data.reply);
       conversation.push({ role: "assistant", content: data.reply });
-      if (conversation.length > 8) conversation.splice(0, conversation.length - 8);
     } catch {
       typing.remove();
-      addMessage("assistant", "I’m temporarily unavailable. Please call 07544 856633 or email jonahquartey584@gmail.com and the Qp Digital team will help.");
+      const fallbackReply = "I’m temporarily unavailable. Please call 07544 856633 or email jonahquartey584@gmail.com and the Qp Digital team will help.";
+      addMessage("assistant", fallbackReply);
+      conversation.push({ role: "assistant", content: fallbackReply });
     } finally {
       pending = false;
       input.disabled = false;
@@ -355,7 +359,9 @@ if (enquiryForm) {
   form.addEventListener("submit", (event) => { event.preventDefault(); sendQuestion(input.value); });
   quickQuestions.forEach((button) => button.addEventListener("click", () => { setOpen(true); sendQuestion(button.dataset.aiQuestion || button.textContent || ""); }));
   handoffButton?.addEventListener("click", () => {
-    addMessage("assistant", "Leave your details below and a member of the Qp Digital team can contact you.");
+    const handoffReply = "Leave your details below and a member of the Qp Digital team can contact you.";
+    addMessage("assistant", handoffReply);
+    conversation.push({ role: "assistant", content: handoffReply });
     showHandoff();
   });
   handoffCancel?.addEventListener("click", () => { if (handoffForm) handoffForm.hidden = true; input.focus(); });
@@ -371,7 +377,7 @@ if (enquiryForm) {
       const response = await fetch("/api/agent-requests", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ name, contact, message }),
+        body: JSON.stringify({ name, contact, message, transcript: conversation.slice(-24) }),
       });
       if (!response.ok) throw new Error("Request failed");
       handoffForm.reset();

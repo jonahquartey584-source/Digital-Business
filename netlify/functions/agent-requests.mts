@@ -8,6 +8,7 @@ type AgentRequest = {
   name: string;
   contact: string;
   message: string;
+  transcript: Array<{ role: "user" | "assistant"; content: string }>;
   status: "new" | "contacted";
   createdAt: string;
   contactedAt?: string;
@@ -19,16 +20,27 @@ export default async (req: Request, _context: Context) => {
   if (req.method === "POST") {
     try {
       const raw = await req.text();
-      if (raw.length > 4_000) return json(413, { status: "error", message: "Request too large" });
+      if (raw.length > 30_000) return json(413, { status: "error", message: "Request too large" });
       const body = JSON.parse(raw) as Record<string, unknown>;
       const name = typeof body.name === "string" ? body.name.trim().slice(0, 80) : "";
       const contact = typeof body.contact === "string" ? body.contact.trim().slice(0, 160) : "";
       const message = typeof body.message === "string" ? body.message.trim().slice(0, 800) : "";
+      const transcript = Array.isArray(body.transcript)
+        ? body.transcript.slice(-24).filter(
+            (item): item is { role: "user" | "assistant"; content: string } =>
+              typeof item === "object" &&
+              item !== null &&
+              "role" in item &&
+              (item.role === "user" || item.role === "assistant") &&
+              "content" in item &&
+              typeof item.content === "string"
+          ).map((item) => ({ role: item.role, content: item.content.trim().slice(0, 1000) }))
+        : [];
       if (!name || !contact) return json(400, { status: "error", message: "Name and contact details are required" });
 
       const createdAt = new Date().toISOString();
       const key = `requests/${createdAt}-${randomUUID()}`;
-      const record: AgentRequest = { key, name, contact, message, status: "new", createdAt };
+      const record: AgentRequest = { key, name, contact, message, transcript, status: "new", createdAt };
       await store.setJSON(key, record);
       return json(201, { status: "created" });
     } catch {
