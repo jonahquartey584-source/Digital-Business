@@ -1011,6 +1011,15 @@ agentRequestsSearchInput?.addEventListener("input", renderAgentRequests);
 refreshEnquiriesBtn?.addEventListener("click", loadAgentRequests);
 enquiriesSearchInput?.addEventListener("input", renderEnquiries);
 
+// Keep live-agent conversations current while the admin dashboard is open.
+// This picks up messages sent after the original handoff without requiring
+// the administrator to press Refresh each time.
+window.setInterval(() => {
+  if (adminToolSection && !adminToolSection.hidden && currentAuthHeader().Authorization) {
+    loadAgentRequests();
+  }
+}, 5000);
+
 enquiriesContainer?.addEventListener("click", async (event) => {
   const button = event.target.closest("[data-enquiry-key]");
   if (!button) return;
