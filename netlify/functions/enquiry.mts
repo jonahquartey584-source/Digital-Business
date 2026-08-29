@@ -59,7 +59,7 @@ export default async (req: Request, _context: Context) => {
     source: "website-enquiry",
   });
 
-  const businessInboxEmail = Netlify.env.get("ADMIN_EMAIL") ?? "";
+  const businessInboxEmail = Netlify.env.get("ENQUIRY_NOTIFICATION_EMAIL") ?? "jonahquartey584@gmail.com";
   const summaryHtml = `
     <div style="font-family:sans-serif;color:#222;line-height:1.6;">
       <p>Hi ${escapeHtml(name)},</p>
@@ -94,4 +94,3 @@ export default async (req: Request, _context: Context) => {
 export const config: Config = {
   path: "/api/enquiry.php",
 };
-

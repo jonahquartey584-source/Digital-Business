@@ -860,6 +860,10 @@ const agentRequestsContainer = document.getElementById("agentRequestsContainer")
 const agentRequestsNote = document.getElementById("agentRequestsNote");
 const refreshAgentRequestsBtn = document.getElementById("refreshAgentRequestsBtn");
 const agentRequestsSearchInput = document.getElementById("agentRequestsSearchInput");
+const enquiriesContainer = document.getElementById("enquiriesContainer");
+const enquiriesNote = document.getElementById("enquiriesNote");
+const refreshEnquiriesBtn = document.getElementById("refreshEnquiriesBtn");
+const enquiriesSearchInput = document.getElementById("enquiriesSearchInput");
 let agentRequestsCache = [];
 
 async function loadAgentRequests() {
@@ -872,6 +876,7 @@ async function loadAgentRequests() {
     if (!response.ok) throw new Error(result.message || "Could not load requests");
     agentRequestsNote.textContent = "";
     agentRequestsCache = result.requests;
+    renderEnquiries();
     renderAgentRequests();
   } catch (error) {
     agentRequestsNote.textContent = error.message || "Couldn’t load agent requests.";
@@ -881,7 +886,7 @@ async function loadAgentRequests() {
 
 function renderAgentRequests() {
     const query = (agentRequestsSearchInput?.value || "").trim().toLowerCase();
-    const requests = agentRequestsCache.filter((request) => {
+    const requests = agentRequestsCache.filter((request) => request.source !== "website-enquiry").filter((request) => {
       if (!query) return true;
       const transcriptText = Array.isArray(request.transcript)
         ? request.transcript.map((message) => message.content || "").join(" ")
@@ -918,11 +923,71 @@ function renderAgentRequests() {
           <button class="btn btn--primary btn--sm" type="submit">Send Reply</button>
         </form>
         <p class="agent-chat-status" data-agent-status="${escapeHtml(request.key)}"></p>
-        ${request.status === "contacted" ? "" : `<button class="btn btn--ghost btn--sm" data-request-key="${escapeHtml(request.key)}">Mark contacted</button>`}
+        <div class="admin-actions">
+          ${request.status === "contacted" ? "" : `<button class="btn btn--ghost btn--sm" data-request-key="${escapeHtml(request.key)}">Mark contacted</button>`}
+          <button class="btn btn--ghost btn--sm" data-delete-request-key="${escapeHtml(request.key)}">Delete request</button>
+        </div>
       </article>`).join("");
 }
 
+function enquiryContactLinks(contact) {
+  const parts = String(contact || "").split("·").map((part) => part.trim()).filter(Boolean);
+  return parts.map((part) => {
+    const isEmail = part.includes("@");
+    const href = isEmail ? `mailto:${encodeURIComponent(part)}` : `tel:${part.replace(/[^+\d]/g, "")}`;
+    return `<a href="${href}">${escapeHtml(part)}</a>`;
+  }).join("");
+}
+
+function renderEnquiries() {
+  if (!enquiriesContainer) return;
+  const query = (enquiriesSearchInput?.value || "").trim().toLowerCase();
+  const enquiries = agentRequestsCache.filter((request) => request.source === "website-enquiry").filter((request) =>
+    !query || [request.name, request.contact, request.message]
+      .some((value) => String(value || "").toLowerCase().includes(query))
+  );
+
+  enquiriesNote.textContent = enquiries.length ? `${enquiries.length} enquir${enquiries.length === 1 ? "y" : "ies"}` : "";
+  if (!enquiries.length) {
+    enquiriesContainer.innerHTML = '<p class="empty-note">No website enquiries yet.</p>';
+    return;
+  }
+
+  enquiriesContainer.innerHTML = enquiries.map((request) => `
+    <article class="agent-request enquiry-card">
+      <div class="agent-request__head">
+        <div><strong>${escapeHtml(request.name)}</strong><div class="mono">${escapeHtml(new Date(request.createdAt).toLocaleString())}</div></div>
+        <span class="status-badge">${request.status === "contacted" ? "Contacted" : "New"}</span>
+      </div>
+      <div class="agent-request__contact">${enquiryContactLinks(request.contact)}</div>
+      <p class="agent-request__message">${escapeHtml(request.message || "No additional details.")}</p>
+      ${request.status === "contacted" ? "" : `<button class="btn btn--ghost btn--sm" data-enquiry-key="${escapeHtml(request.key)}">Mark contacted</button>`}
+    </article>`).join("");
+}
+
 agentRequestsContainer?.addEventListener("click", async (event) => {
+  const deleteButton = event.target.closest("[data-delete-request-key]");
+  if (deleteButton) {
+    const confirmed = window.confirm("Delete this AI request and its conversation? This cannot be undone.");
+    if (!confirmed) return;
+    deleteButton.disabled = true;
+    try {
+      const response = await fetch("/api/agent-requests", {
+        method: "DELETE",
+        headers: { ...currentAuthHeader(), "Content-Type": "application/json" },
+        body: JSON.stringify({ key: deleteButton.dataset.deleteRequestKey }),
+      });
+      if (response.status === 401) return handleSessionRejected();
+      if (!response.ok) throw new Error("Could not delete request");
+      await loadAgentRequests();
+    } catch {
+      deleteButton.disabled = false;
+      agentRequestsNote.textContent = "Couldn’t delete that request.";
+      agentRequestsNote.style.color = "#ff8a8a";
+    }
+    return;
+  }
+
   const button = event.target.closest("[data-request-key]");
   if (!button) return;
   button.disabled = true;
@@ -943,6 +1008,28 @@ agentRequestsContainer?.addEventListener("click", async (event) => {
 });
 refreshAgentRequestsBtn?.addEventListener("click", loadAgentRequests);
 agentRequestsSearchInput?.addEventListener("input", renderAgentRequests);
+refreshEnquiriesBtn?.addEventListener("click", loadAgentRequests);
+enquiriesSearchInput?.addEventListener("input", renderEnquiries);
+
+enquiriesContainer?.addEventListener("click", async (event) => {
+  const button = event.target.closest("[data-enquiry-key]");
+  if (!button) return;
+  button.disabled = true;
+  try {
+    const response = await fetch("/api/agent-requests", {
+      method: "PATCH",
+      headers: { ...currentAuthHeader(), "Content-Type": "application/json" },
+      body: JSON.stringify({ key: button.dataset.enquiryKey }),
+    });
+    if (response.status === 401) return handleSessionRejected();
+    if (!response.ok) throw new Error("Could not update enquiry");
+    await loadAgentRequests();
+  } catch {
+    button.disabled = false;
+    enquiriesNote.textContent = "Couldn’t update that enquiry.";
+    enquiriesNote.style.color = "#ff8a8a";
+  }
+});
 
 agentRequestsContainer?.addEventListener("submit", async (event) => {
   const form = event.target.closest("[data-agent-reply-key]");

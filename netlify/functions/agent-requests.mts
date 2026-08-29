@@ -158,6 +158,30 @@ export default async (req: Request, _context: Context) => {
     }
   }
 
+  if (req.method === "DELETE") {
+    if (!requireAdminSession(req)) {
+      return json(401, { status: "error", message: "Not logged in — log into admin.html again" });
+    }
+    try {
+      const raw = await req.text();
+      if (raw.length > 2_000) return json(413, { status: "error", message: "Request too large" });
+      const body = JSON.parse(raw) as Record<string, unknown>;
+      const key = typeof body.key === "string" && body.key.startsWith("requests/") ? body.key : "";
+      if (!key) return json(400, { status: "error", message: "Invalid request key" });
+
+      const record = await store.get(key, { type: "json" }) as (AgentRequest & { source?: string }) | null;
+      if (!record) return json(404, { status: "error", message: "Request not found" });
+      if (record.source === "website-enquiry") {
+        return json(400, { status: "error", message: "Website enquiries cannot be deleted here" });
+      }
+
+      await store.delete(key);
+      return json(200, { status: "deleted" });
+    } catch {
+      return json(400, { status: "error", message: "Invalid request" });
+    }
+  }
+
   return json(405, { status: "error", message: "Method not allowed" });
 };
 
