@@ -961,7 +961,10 @@ function renderEnquiries() {
       </div>
       <div class="agent-request__contact">${enquiryContactLinks(request.contact)}</div>
       <p class="agent-request__message">${escapeHtml(request.message || "No additional details.")}</p>
-      ${request.status === "contacted" ? "" : `<button class="btn btn--ghost btn--sm" data-enquiry-key="${escapeHtml(request.key)}">Mark contacted</button>`}
+      <div class="admin-actions">
+        ${request.status === "contacted" ? "" : `<button class="btn btn--ghost btn--sm" data-enquiry-key="${escapeHtml(request.key)}">Mark contacted</button>`}
+        <button class="btn btn--ghost btn--sm" data-delete-enquiry-key="${escapeHtml(request.key)}">Delete enquiry</button>
+      </div>
     </article>`).join("");
 }
 
@@ -1021,6 +1024,28 @@ window.setInterval(() => {
 }, 5000);
 
 enquiriesContainer?.addEventListener("click", async (event) => {
+  const deleteButton = event.target.closest("[data-delete-enquiry-key]");
+  if (deleteButton) {
+    const confirmed = window.confirm("Delete this website enquiry? This cannot be undone.");
+    if (!confirmed) return;
+    deleteButton.disabled = true;
+    try {
+      const response = await fetch("/api/agent-requests", {
+        method: "DELETE",
+        headers: { ...currentAuthHeader(), "Content-Type": "application/json" },
+        body: JSON.stringify({ key: deleteButton.dataset.deleteEnquiryKey }),
+      });
+      if (response.status === 401) return handleSessionRejected();
+      if (!response.ok) throw new Error("Could not delete enquiry");
+      await loadAgentRequests();
+    } catch {
+      deleteButton.disabled = false;
+      enquiriesNote.textContent = "Couldn’t delete that enquiry.";
+      enquiriesNote.style.color = "#ff8a8a";
+    }
+    return;
+  }
+
   const button = event.target.closest("[data-enquiry-key]");
   if (!button) return;
   button.disabled = true;

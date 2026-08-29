@@ -171,10 +171,6 @@ export default async (req: Request, _context: Context) => {
 
       const record = await store.get(key, { type: "json" }) as (AgentRequest & { source?: string }) | null;
       if (!record) return json(404, { status: "error", message: "Request not found" });
-      if (record.source === "website-enquiry") {
-        return json(400, { status: "error", message: "Website enquiries cannot be deleted here" });
-      }
-
       await store.delete(key);
       return json(200, { status: "deleted" });
     } catch {
