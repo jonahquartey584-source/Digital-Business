@@ -284,6 +284,20 @@ if (enquiryForm) {
     document.querySelector(".ai-help-quick")?.setAttribute("hidden", "");
   };
 
+  const resetAgentMode = () => {
+    agentSession = null;
+    agentSeenLength = 0;
+    if (agentPollTimer) window.clearInterval(agentPollTimer);
+    agentPollTimer = null;
+    try { sessionStorage.removeItem("qpAgentChat"); } catch (_) {}
+    input.placeholder = "Ask Qp Digital anything…";
+    const title = panel.querySelector(".ai-help-title strong");
+    if (title) title.textContent = "Qp Digital Assistant";
+    const subtitle = panel.querySelector(".ai-help-title span");
+    if (subtitle) subtitle.textContent = "AI HELP CENTRE · ONLINE";
+    document.querySelector(".ai-help-quick")?.removeAttribute("hidden");
+  };
+
   const saveAgentSession = () => {
     try {
       sessionStorage.setItem("qpAgentChat", JSON.stringify({ ...agentSession, seen: agentSeenLength }));
@@ -295,6 +309,10 @@ if (enquiryForm) {
     try {
       const url = `/api/agent-requests?key=${encodeURIComponent(agentSession.key)}&token=${encodeURIComponent(agentSession.visitorToken)}`;
       const response = await fetch(url);
+      if (response.status === 401 || response.status === 404) {
+        resetAgentMode();
+        return;
+      }
       if (!response.ok) throw new Error("Chat unavailable");
       const result = await response.json();
       const transcript = Array.isArray(result.transcript) ? result.transcript : [];
@@ -329,12 +347,33 @@ if (enquiryForm) {
         body: JSON.stringify({ key: agentSession.key, visitorToken: agentSession.visitorToken, content: text }),
       });
       const result = await response.json().catch(() => ({}));
+      if (response.status === 401 || response.status === 404) {
+        resetAgentMode();
+        conversation.push({ role: "user", content: text });
+        const typing = addTyping();
+        const assistantResponse = await fetch("/api/ai-help", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ messages: conversation.slice(-8) }),
+        });
+        const assistantData = await assistantResponse.json().catch(() => ({}));
+        typing.remove();
+        if (!assistantResponse.ok || typeof assistantData.reply !== "string") throw new Error("Assistant unavailable");
+        addMessage("assistant", assistantData.reply);
+        conversation.push({ role: "assistant", content: assistantData.reply });
+        return;
+      }
       if (!response.ok) throw new Error("Message failed");
       conversation.push({ role: "user", content: text });
       agentSeenLength = Number(result.transcriptLength) || agentSeenLength + 1;
       saveAgentSession();
     } catch {
-      addMessage("assistant", "That message could not be sent. Please try again.");
+      addMessage(
+        "assistant",
+        agentSession
+          ? "That message could not be sent. Please try again."
+          : "That previous agent chat has ended. I’ve reopened the Qp Digital help assistant — how can I help?"
+      );
     } finally {
       pending = false;
       input.disabled = false;
