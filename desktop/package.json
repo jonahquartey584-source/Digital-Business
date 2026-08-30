@@ -1,0 +1,51 @@
+{
+  "name": "qp-digital-crm-desktop",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Qp Digital CRM desktop application",
+  "main": "main.cjs",
+  "scripts": {
+    "dist": "electron-builder"
+  },
+  "devDependencies": {
+    "electron": "^38.0.0",
+    "electron-builder": "^26.0.12"
+  },
+  "build": {
+    "appId": "co.uk.qpdigital.crm",
+    "productName": "Qp Digital CRM",
+    "asar": true,
+    "files": [
+      "main.cjs",
+      "package.json"
+    ],
+    "directories": {
+      "output": "dist"
+    },
+    "mac": {
+      "target": [
+        {
+          "target": "dmg",
+          "arch": ["arm64", "x64"]
+        }
+      ],
+      "artifactName": "Qp-Digital-CRM-Mac-${arch}.${ext}",
+      "category": "public.app-category.business"
+    },
+    "win": {
+      "target": [
+        {
+          "target": "nsis",
+          "arch": ["x64"]
+        }
+      ],
+      "artifactName": "Qp-Digital-CRM-Windows-Setup.${ext}"
+    },
+    "nsis": {
+      "oneClick": false,
+      "allowToChangeInstallationDirectory": true,
+      "createDesktopShortcut": true,
+      "createStartMenuShortcut": true
+    }
+  }
+}
