@@ -155,27 +155,34 @@ The app is written to **degrade gracefully without Supabase configured**
 renders, sign-in just shows a clear "not set up yet" message instead of
 crashing. Safe to deploy before every credential above is wired up.
 
-## AI Reception — how a client connects their Twilio number
+## AI Reception — how numbers get provisioned
 
-Each CRM/AI Reception subscriber connects their **own** Twilio account —
-you (the platform operator) never see or hold their Twilio credentials in
-plaintext, and they're billed by Twilio directly for their own call usage.
+**The platform (you) holds one Twilio account and pays for every client's
+usage.** Clients never see or enter Twilio credentials — subscribing to AI
+Reception auto-provisions a number for them with zero setup on their end.
+This is a deliberate business-model choice (see `lib/voice/provisioning.ts`
+and `TWILIO_ACCOUNT_SID`/`TWILIO_AUTH_TOKEN` in `.env.example`), not the
+only valid one — the tradeoff is real and worth restating:
 
-**What a client does, once, in `/dashboard/voice`:**
+- **You carry the cost** of every client's calls/SMS on your own Twilio
+  bill. Nothing here caps it — set up
+  [Twilio usage alerts](https://console.twilio.com/us1/billing/manage-billing/usage-triggers)
+  and/or price it into the $49/mo before you have many clients on it.
+- **You carry the reputational/abuse liability** on those numbers, since
+  they're Subaccounts under your own Twilio account.
+- **Numbers are released automatically on cancellation**
+  (`app/api/stripe/webhook`'s `customer.subscription.deleted` handler calls
+  `releaseNumberForUser`) specifically because Twilio bills monthly number
+  rental regardless of usage — an orphaned number left behind after a
+  churned client is a real, silent cost leak if this weren't wired up.
 
-1. Subscribe to AI Reception (Billing page).
-2. [Buy a phone number](https://console.twilio.com/us1/develop/phone-numbers/manage/search)
-   in their own Twilio account if they don't already have one.
-3. Fill in their Twilio **Account SID**, **Auth Token**, and **phone
-   number**, plus what the AI should know about their business (services,
-   hours, pricing — free text) and, optionally, a real phone number to ring
-   first before the AI picks up.
-4. Save — the page then shows two webhook URLs, unique to that client
-   (`/api/twilio/voice/<their-token>` and `.../status`).
-5. In the [Twilio Console](https://console.twilio.com) → Phone Numbers →
-   their number → **Voice Configuration**: paste the first URL into **"A
-   call comes in"** and the second into **"Call status changes"**, both as
-   `HTTP POST`.
+**What a client does, once, in `/dashboard/voice`:** subscribe to AI
+Reception, pick a country (+ optional area code), click a number from the
+search results, and it's live — `lib/voice/provisioning.ts` creates a
+Twilio Subaccount for them behind the scenes, buys the number under it, and
+points its voice webhooks at this app automatically. They separately fill
+in what the AI should know about their business (services, hours, pricing)
+and, optionally, a real phone number to ring first before the AI picks up.
 
 That's it — calls to that number now go through the flow below.
 
@@ -210,10 +217,16 @@ That's it — calls to that number now go through the flow below.
   the call; a very long call is capped (`MAX_CALLER_TURNS` in
   `app/api/twilio/voice/[token]/gather/route.ts`) so a stuck conversation
   can't run indefinitely.
-- The Twilio Auth Token is encrypted at rest (`lib/crypto.ts`,
+- Each client's Subaccount Auth Token is encrypted at rest (`lib/crypto.ts`,
   AES-256-GCM) but decrypted server-side on every webhook call — normal
   for a webhook that must reconstruct Twilio's signature, but worth
   knowing if you're doing a security review.
+- One number per client, no self-serve number change beyond "release, then
+  provision a new one" (`releaseVoiceNumber` / the number picker in
+  `lib/voice/actions.ts`).
+- No built-in per-client usage/cost dashboard yet — Twilio's Subaccount
+  Usage Records API (queryable per `twilio_account_sid`) is the natural
+  place to build one if/when you need per-client cost visibility.
 
 ## Install as an app — no app store needed
 

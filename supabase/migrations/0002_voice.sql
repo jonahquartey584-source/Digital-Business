@@ -5,10 +5,13 @@ create table if not exists public.voice_settings (
   id uuid primary key default gen_random_uuid(),
   owner_id uuid not null unique references auth.users (id) on delete cascade,
 
-  -- Each client's own Twilio account (BYO Twilio — see README).
+  -- A Twilio Subaccount auto-created under the PLATFORM's own Twilio
+  -- account (lib/voice/provisioning.ts) — not a client-entered account.
+  -- Clients never see or enter Twilio credentials; usage bills to the
+  -- platform, not to them. See README's "AI Reception" section.
   twilio_account_sid text,
-  twilio_auth_token_enc text, -- AES-256-GCM ciphertext, see lib/crypto.ts. Never selected back to the client.
-  twilio_phone_number text,
+  twilio_auth_token_enc text, -- the Subaccount's own Auth Token, AES-256-GCM ciphertext (lib/crypto.ts). Never selected back to the client.
+  twilio_phone_number text, -- the number purchased for this client under their Subaccount
 
   -- If set, an incoming call rings this number first; the AI only picks up
   -- if it goes unanswered. If null, the AI answers every call directly.

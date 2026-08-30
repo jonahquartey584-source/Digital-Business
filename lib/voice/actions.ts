@@ -3,10 +3,18 @@
 import { randomBytes } from "crypto";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
-import { createClient } from "@/lib/supabase/server";
+import { createClient, createAdminClient } from "@/lib/supabase/server";
 import { isSupabaseConfigured } from "@/lib/supabase/config";
 import { hasActiveSubscription } from "@/lib/subscription";
-import { encryptSecret } from "@/lib/crypto";
+import { decryptSecret } from "@/lib/crypto";
+import {
+  provisionNumberForUser,
+  releaseNumberForUser,
+  searchAvailableNumbers,
+  type AvailableNumber,
+} from "@/lib/voice/provisioning";
+import type { VoiceSettings } from "@/lib/supabase/types";
+import twilio from "twilio";
 
 async function requireVoiceAccess() {
   if (!isSupabaseConfigured) redirect("/login");
@@ -27,44 +35,101 @@ function str(formData: FormData, key: string): string | null {
   return trimmed.length ? trimmed : null;
 }
 
+function siteUrl(): string {
+  const url = process.env.NEXT_PUBLIC_SITE_URL;
+  if (!url) {
+    throw new Error("NEXT_PUBLIC_SITE_URL must be set to provision a Twilio number.");
+  }
+  return url;
+}
+
+/** The business-info half of settings — everything that isn't Twilio provisioning. */
 export async function saveVoiceSettings(formData: FormData) {
   const { supabase, user } = await requireVoiceAccess();
 
-  const accountSid = str(formData, "twilio_account_sid");
-  const authToken = str(formData, "twilio_auth_token"); // blank = "leave unchanged"
-  const phoneNumber = str(formData, "twilio_phone_number");
-
-  const update: Record<string, unknown> = {
-    owner_id: user.id,
-    twilio_account_sid: accountSid,
-    twilio_phone_number: phoneNumber,
-    forwarding_number: str(formData, "forwarding_number"),
-    business_name: str(formData, "business_name"),
-    business_context: str(formData, "business_context"),
-    greeting: str(formData, "greeting"),
-    enabled: formData.get("enabled") === "on",
-  };
-
-  // Only overwrite the stored Auth Token if the user actually typed a new
-  // one — the form never shows the real value back, so a blank field means
-  // "unchanged," not "clear it."
-  if (authToken) {
-    update.twilio_auth_token_enc = encryptSecret(authToken);
-  }
-
-  await supabase.from("voice_settings").upsert(update, { onConflict: "owner_id" });
+  await supabase.from("voice_settings").upsert(
+    {
+      owner_id: user.id,
+      forwarding_number: str(formData, "forwarding_number"),
+      business_name: str(formData, "business_name"),
+      business_context: str(formData, "business_context"),
+      greeting: str(formData, "greeting"),
+      enabled: formData.get("enabled") === "on",
+    },
+    { onConflict: "owner_id" }
+  );
 
   revalidatePath("/dashboard/voice");
 }
 
+/** Called from the number picker (a client component) — searches the platform's Twilio account. */
+export async function searchVoiceNumbers(
+  countryCode: string,
+  areaCode: string
+): Promise<{ numbers: AvailableNumber[]; error: string | null }> {
+  await requireVoiceAccess();
+  try {
+    const numbers = await searchAvailableNumbers(countryCode, areaCode);
+    return { numbers, error: null };
+  } catch (err) {
+    return {
+      numbers: [],
+      error: err instanceof Error ? err.message : "Number search failed.",
+    };
+  }
+}
+
+/** Buys the chosen number and wires it up — fully automatic, no Twilio console steps for the client. */
+export async function provisionVoiceNumber(formData: FormData) {
+  const { user } = await requireVoiceAccess();
+  const phoneNumber = str(formData, "phone_number");
+  if (!phoneNumber) throw new Error("No phone number selected.");
+
+  await provisionNumberForUser(user.id, phoneNumber, siteUrl());
+  revalidatePath("/dashboard/voice");
+}
+
+/** Releases the client's number and closes their Twilio Subaccount so the platform stops paying for it. */
+export async function releaseVoiceNumber() {
+  const { user } = await requireVoiceAccess();
+  await releaseNumberForUser(user.id);
+  revalidatePath("/dashboard/voice");
+}
+
+/**
+ * Rotates the webhook routing token and re-points the client's live
+ * Twilio number at the new URLs, so the number keeps working — a token
+ * regenerated without this would leave the number calling a dead URL.
+ */
 export async function regenerateWebhookToken() {
-  const { supabase, user } = await requireVoiceAccess();
+  const { user } = await requireVoiceAccess();
+  const admin = createAdminClient();
+
+  const { data: settings } = await admin
+    .from("voice_settings")
+    .select("*")
+    .eq("owner_id", user.id)
+    .maybeSingle<VoiceSettings>();
+
+  if (!settings?.twilio_account_sid || !settings.twilio_auth_token_enc || !settings.twilio_phone_number) {
+    return; // nothing provisioned yet — nothing to rotate
+  }
 
   const token = randomBytes(24).toString("hex");
-  await supabase
-    .from("voice_settings")
-    .update({ webhook_token: token })
-    .eq("owner_id", user.id);
+  const origin = siteUrl();
 
+  const subClient = twilio(settings.twilio_account_sid, decryptSecret(settings.twilio_auth_token_enc));
+  const numbers = await subClient.incomingPhoneNumbers.list({
+    phoneNumber: settings.twilio_phone_number,
+    limit: 1,
+  });
+  if (numbers[0]) {
+    await subClient.incomingPhoneNumbers(numbers[0].sid).update({
+      voiceUrl: `${origin}/api/twilio/voice/${token}`,
+      statusCallback: `${origin}/api/twilio/voice/${token}/status`,
+    });
+  }
+
+  await admin.from("voice_settings").update({ webhook_token: token }).eq("owner_id", user.id);
   revalidatePath("/dashboard/voice");
 }

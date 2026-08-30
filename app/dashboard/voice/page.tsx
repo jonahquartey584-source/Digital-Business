@@ -1,6 +1,7 @@
 import { createClient } from "@/lib/supabase/server";
-import { saveVoiceSettings, regenerateWebhookToken } from "@/lib/voice/actions";
+import { saveVoiceSettings, releaseVoiceNumber, regenerateWebhookToken } from "@/lib/voice/actions";
 import { SubmitButton } from "@/components/submit-button";
+import { VoiceNumberPicker } from "@/components/voice-number-picker";
 import type { VoiceSettings } from "@/lib/supabase/types";
 
 export const dynamic = "force-dynamic";
@@ -12,120 +13,45 @@ export default async function VoiceSettingsPage() {
     .select("*")
     .maybeSingle<VoiceSettings>();
 
-  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL;
-  const voiceUrl = settings && siteUrl
-    ? `${siteUrl}/api/twilio/voice/${settings.webhook_token}`
-    : null;
-  const statusUrl = settings && siteUrl
-    ? `${siteUrl}/api/twilio/voice/${settings.webhook_token}/status`
-    : null;
+  const hasNumber = !!settings?.twilio_phone_number;
 
   return (
     <div className="space-y-6">
-      {voiceUrl && statusUrl ? (
+      {hasNumber ? (
         <div className="card p-6">
-          <h2 className="font-display text-lg font-bold text-cream">
-            Connect your Twilio number
-          </h2>
-          <p className="mt-1 text-sm text-cream-dim">
-            In the Twilio Console, open your phone number's configuration and
-            set these two webhooks:
-          </p>
-          <div className="mt-4 space-y-3">
+          <div className="flex flex-wrap items-center justify-between gap-4">
             <div>
-              <p className="label">A call comes in</p>
-              <code className="block break-all rounded-md border border-ink-border bg-ink px-3 py-2 text-xs text-gold-300">
-                {voiceUrl}
-              </code>
+              <h2 className="font-display text-lg font-bold text-cream">
+                Your AI Reception number
+              </h2>
+              <p className="mt-1 font-mono text-lg text-gold-300">
+                {settings!.twilio_phone_number}
+              </p>
+              <p className="mt-1 text-xs text-cream-dim">
+                Set up automatically — calls to this number are already
+                routed to your AI.
+              </p>
             </div>
-            <div>
-              <p className="label">Call status changes</p>
-              <code className="block break-all rounded-md border border-ink-border bg-ink px-3 py-2 text-xs text-gold-300">
-                {statusUrl}
-              </code>
+            <div className="flex gap-2">
+              <form action={regenerateWebhookToken}>
+                <button type="submit" className="btn-ghost text-xs">
+                  Rotate webhook (security)
+                </button>
+              </form>
+              <form action={releaseVoiceNumber}>
+                <button type="submit" className="btn-ghost text-xs text-red-400 hover:text-red-300">
+                  Release number
+                </button>
+              </form>
             </div>
           </div>
-          <p className="mt-3 text-xs text-cream-dim">
-            Both should be set to <strong>HTTP POST</strong>. See the README
-            for the full walkthrough.
-          </p>
-          <form action={regenerateWebhookToken} className="mt-4">
-            <button type="submit" className="btn-ghost text-xs">
-              Regenerate webhook URL (invalidates the one above)
-            </button>
-          </form>
         </div>
       ) : (
-        <div className="card p-6">
-          <p className="text-sm text-cream-dim">
-            Save your Twilio details below to get your webhook URLs.
-          </p>
-        </div>
+        <VoiceNumberPicker />
       )}
 
       <form action={saveVoiceSettings} className="card space-y-5 p-6">
-        <h2 className="font-display text-lg font-bold text-cream">Twilio account</h2>
-        <p className="text-sm text-cream-dim">
-          Your own Twilio account — you're billed by Twilio directly for
-          call/SMS usage on this number.
-        </p>
-
-        <div className="grid gap-4 sm:grid-cols-2">
-          <div>
-            <label className="label" htmlFor="twilio_account_sid">Account SID</label>
-            <input
-              className="input"
-              id="twilio_account_sid"
-              name="twilio_account_sid"
-              defaultValue={settings?.twilio_account_sid ?? ""}
-              placeholder="ACxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
-            />
-          </div>
-          <div>
-            <label className="label" htmlFor="twilio_auth_token">Auth Token</label>
-            <input
-              className="input"
-              id="twilio_auth_token"
-              name="twilio_auth_token"
-              type="password"
-              autoComplete="off"
-              placeholder={
-                settings?.twilio_auth_token_enc ? "•••••••••••••• (unchanged)" : "Your Twilio Auth Token"
-              }
-            />
-            <p className="mt-1 text-xs text-cream-dim">
-              Stored encrypted. Leave blank to keep the current one.
-            </p>
-          </div>
-          <div>
-            <label className="label" htmlFor="twilio_phone_number">Twilio phone number</label>
-            <input
-              className="input"
-              id="twilio_phone_number"
-              name="twilio_phone_number"
-              defaultValue={settings?.twilio_phone_number ?? ""}
-              placeholder="+15551234567"
-            />
-          </div>
-          <div>
-            <label className="label" htmlFor="forwarding_number">
-              Forward to first (optional)
-            </label>
-            <input
-              className="input"
-              id="forwarding_number"
-              name="forwarding_number"
-              defaultValue={settings?.forwarding_number ?? ""}
-              placeholder="+15557654321"
-            />
-            <p className="mt-1 text-xs text-cream-dim">
-              Leave blank to have the AI answer every call directly instead
-              of ringing a real phone first.
-            </p>
-          </div>
-        </div>
-
-        <h2 className="pt-2 font-display text-lg font-bold text-cream">
+        <h2 className="font-display text-lg font-bold text-cream">
           What the AI should know
         </h2>
 
@@ -141,16 +67,33 @@ export default async function VoiceSettingsPage() {
             />
           </div>
           <div>
-            <label className="label" htmlFor="greeting">Greeting (optional)</label>
+            <label className="label" htmlFor="forwarding_number">
+              Forward to first (optional)
+            </label>
             <input
               className="input"
-              id="greeting"
-              name="greeting"
-              defaultValue={settings?.greeting ?? ""}
-              placeholder="Hi, thanks for calling — how can I help?"
+              id="forwarding_number"
+              name="forwarding_number"
+              defaultValue={settings?.forwarding_number ?? ""}
+              placeholder="+15557654321"
             />
+            <p className="mt-1 text-xs text-cream-dim">
+              Leave blank to have the AI answer every call directly.
+            </p>
           </div>
         </div>
+
+        <div>
+          <label className="label" htmlFor="greeting">Greeting (optional)</label>
+          <input
+            className="input"
+            id="greeting"
+            name="greeting"
+            defaultValue={settings?.greeting ?? ""}
+            placeholder="Hi, thanks for calling — how can I help?"
+          />
+        </div>
+
         <div>
           <label className="label" htmlFor="business_context">
             Business info (services, hours, pricing — anything the AI should know)

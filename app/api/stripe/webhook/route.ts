@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import type Stripe from "stripe";
 import { getStripe, PRODUCTS, type ProductSlug } from "@/lib/stripe";
 import { createAdminClient } from "@/lib/supabase/server";
+import { releaseNumberForUser } from "@/lib/voice/provisioning";
 
 export const runtime = "nodejs";
 
@@ -55,6 +56,15 @@ async function upsertFromSubscription(
     },
     { onConflict: "user_id,product" }
   );
+
+  // Twilio bills monthly number rental whether or not the number is used,
+  // so a cancelled AI Reception subscription needs its number released
+  // immediately — not left running (and billing this platform) until
+  // someone notices. past_due is a payment grace period, not a real
+  // cancellation, so it's deliberately excluded here.
+  if (product === "voice" && subscription.status === "canceled") {
+    await releaseNumberForUser(userId);
+  }
 }
 
 export async function POST(request: Request) {
