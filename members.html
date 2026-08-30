@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Members Portal — Qp Digital</title>
+  <meta name="description" content="Sign in to the Qp Digital members portal to access your paid services and deliverables." />
+  <link rel="icon" href="favicon.svg" type="image/svg+xml" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=Sora:wght@600;700;800&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@500;600&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="style.css" />
+  <script>try{document.documentElement.dataset.theme=localStorage.getItem("qpTheme")==="light"?"light":"dark"}catch(_){document.documentElement.dataset.theme="dark"}</script>
+</head>
+<body>
+  <div class="gold-rule"></div>
+  <header class="site-header" id="top">
+    <div class="container header__inner">
+      <a class="brand" href="index.html"><span class="brand__name">Qp Digital</span></a>
+      <nav class="nav" id="nav">
+        <a href="index.html#services">Services</a>
+        <a href="index.html#how-it-works">How It Works</a>
+        <a href="index.html#enquire">Enquire</a>
+        <a href="index.html#contact">Contact</a>
+        <a class="nav-secondary" href="members.html" aria-current="page">Members Portal</a>
+      </nav>
+      <button class="theme-toggle" id="themeToggle" type="button" aria-label="Switch colour theme" aria-pressed="false"><span class="theme-toggle__label">Light</span></button>
+      <a class="btn btn--primary btn--nav" href="index.html#enquire">Get a Quote</a>
+      <button class="nav-toggle" id="navToggle" aria-label="Toggle menu" aria-expanded="false"><span></span><span></span><span></span></button>
+    </div>
+  </header>
+
+  <main class="members-page">
+    <section class="members-hero">
+      <div class="hero__ambient" aria-hidden="true"><span></span><span></span><span></span><span></span><i></i><i></i></div>
+      <div class="container members-shell">
+        <div class="members-intro">
+          <p class="eyebrow">Qp Digital Members</p>
+          <h1>Your services.<br />One secure portal.</h1>
+          <p>After your payment is confirmed, we email you a private 12-digit access code. Sign in to access every active service and deliverable connected to your email.</p>
+          <div class="members-trust"><span>01</span><p><strong>Pay securely</strong><br />Complete payment using the link supplied by Qp Digital.</p></div>
+          <div class="members-trust"><span>02</span><p><strong>Receive your code</strong><br />Your 12-digit code is emailed after payment confirmation.</p></div>
+          <div class="members-trust"><span>03</span><p><strong>Access your purchases</strong><br />See live services, files and account details in one place.</p></div>
+        </div>
+
+        <div class="members-panel" id="membersPanel">
+          <div class="members-panel__bar"><span></span><span></span><span></span><p>secure-member-access.log</p></div>
+          <div class="members-panel__body">
+            <p class="section__tag">// Member Login</p>
+            <h2>Access your purchases</h2>
+            <p class="members-panel__lead">Use the email address from your payment and the 12-digit code we sent you.</p>
+            <form id="memberLoginForm" class="member-login">
+              <label for="memberEmail">Email address</label>
+              <input id="memberEmail" name="email" type="email" autocomplete="email" required placeholder="you@business.co.uk" />
+              <label for="memberCode">12-digit access code</label>
+              <input id="memberCode" name="code" type="text" inputmode="numeric" autocomplete="one-time-code" maxlength="14" required placeholder="1234 5678 9012" />
+              <button class="btn btn--primary btn--lg" type="submit">Enter Members Portal →</button>
+              <p class="form-note" id="memberLoginNote" aria-live="polite"></p>
+            </form>
+            <div class="member-results" id="memberResults" hidden></div>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="site-footer"><div class="container footer__bottom"><p>&copy; <span id="year"></span> Qp Digital. All rights reserved.</p><p><a href="index.html">Return to website</a></p></div></footer>
+  <script src="members.js"></script>
+</body>
+</html>

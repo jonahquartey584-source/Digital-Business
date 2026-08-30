@@ -11,8 +11,16 @@
 
 import type { Config, Context } from "@netlify/functions";
 import { getStore } from "@netlify/blobs";
-import { createHmac } from "node:crypto";
-import { safeEqual, type ClientRecord } from "./_shared.mts";
+import { createHash, createHmac, randomInt } from "node:crypto";
+import { safeEqual, sendEmail, type ClientRecord } from "./_shared.mts";
+
+function createPortalCode(): string {
+  return Array.from({ length: 12 }, () => randomInt(0, 10)).join("");
+}
+
+function hashPortalCode(code: string): string {
+  return createHash("sha256").update(code).digest("hex");
+}
 
 function verifyStripeSignature(payload: string, sigHeader: string, secret: string): boolean {
   if (!sigHeader || !secret) return false;
@@ -60,9 +68,28 @@ export default async (req: Request, context: Context) => {
       const store = getStore({ name: "clients", consistency: "strong" });
       const client = await store.get(accountNumber, { type: "json" }) as ClientRecord | null;
       if (client) {
+        const customerEmail = String(event?.data?.object?.customer_details?.email ?? "").trim().toLowerCase();
+        const recipient = (client.clientEmail || customerEmail).trim().toLowerCase();
+        const portalCode = client.portalCodeHash ? null : createPortalCode();
+
         client.status = "active";
         client.activatedAt = new Date().toISOString();
+        if (!client.clientEmail && customerEmail) client.clientEmail = customerEmail;
+        if (portalCode) {
+          client.portalCodeHash = hashPortalCode(portalCode);
+          client.portalCodeIssuedAt = new Date().toISOString();
+        }
         await store.setJSON(accountNumber, client);
+
+        if (portalCode && recipient) {
+          const formattedCode = portalCode.replace(/(\d{4})(?=\d)/g, "$1 ");
+          await sendEmail({
+            to: recipient,
+            subject: "Your Qp Digital members portal access code",
+            text: `Payment received. Your 12-digit Qp Digital members portal code is ${formattedCode}. Sign in at https://qp-digital.netlify.app/members.html using this email address.`,
+            html: `<div style="font-family:Arial,sans-serif;max-width:620px;margin:auto;padding:32px;background:#0c0b09;color:#f7f0df;border:1px solid #9b6a23"><p style="color:#d3a34f;letter-spacing:.12em;text-transform:uppercase">Qp Digital Members Portal</p><h1 style="font-size:28px">Payment received.</h1><p>Your service is now available in your members portal.</p><p style="font-size:30px;font-weight:700;letter-spacing:.16em;color:#e0b35b">${formattedCode}</p><p>Use this email address and the 12-digit code to sign in.</p><p><a href="https://qp-digital.netlify.app/members.html" style="display:inline-block;padding:14px 20px;background:#c7923c;color:#0c0b09;text-decoration:none;font-weight:700">Open Members Portal</a></p></div>`,
+          });
+        }
       }
     }
   }

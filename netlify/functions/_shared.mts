@@ -144,4 +144,6 @@ export interface ClientRecord {
   status: "pending_payment" | "active";
   createdAt: string;
   activatedAt: string | null;
+  portalCodeHash?: string | null;
+  portalCodeIssuedAt?: string | null;
 }
