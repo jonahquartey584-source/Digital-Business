@@ -65,6 +65,7 @@ jobs:
       - name: Publish installers
         env:
           GH_TOKEN: ${{ github.token }}
+          GH_REPO: jonahquartey584-source/Digital-Business
         run: |
           gh release view desktop-v1.0.0 >/dev/null 2>&1 || gh release create desktop-v1.0.0 --target claude/qp-digital-saas-crm-3qsipn --title "Qp Digital CRM Desktop v1.0.0" --notes "Desktop installers for the Qp Digital CRM. These initial builds are unsigned and may show an operating-system security warning on first launch."
           gh release upload desktop-v1.0.0 installers/* --clobber
