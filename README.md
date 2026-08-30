@@ -22,7 +22,8 @@ app/
     page.tsx                overview / service tiles
     billing/                subscribe / manage subscription (Stripe)
     crm/                     CRM module — gated behind an active "crm" subscription
-      page.tsx               deal pipeline (kanban by stage)
+      page.tsx               dashboard: stat tiles, pipeline breakdown, recent activity
+      pipeline/               deal pipeline (kanban by stage)
       contacts/               contacts list + detail w/ activity log
       companies/              companies list
   api/stripe/

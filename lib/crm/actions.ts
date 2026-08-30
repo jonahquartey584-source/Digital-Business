@@ -40,12 +40,14 @@ export async function createCompany(formData: FormData) {
   });
 
   revalidatePath("/dashboard/crm/companies");
+  revalidatePath("/dashboard/crm");
 }
 
 export async function deleteCompany(id: string) {
   const { supabase } = await requireCrmAccess();
   await supabase.from("crm_companies").delete().eq("id", id);
   revalidatePath("/dashboard/crm/companies");
+  revalidatePath("/dashboard/crm");
 }
 
 // ---------- Contacts ----------
@@ -67,12 +69,14 @@ export async function createContact(formData: FormData) {
   });
 
   revalidatePath("/dashboard/crm/contacts");
+  revalidatePath("/dashboard/crm");
 }
 
 export async function deleteContact(id: string) {
   const { supabase } = await requireCrmAccess();
   await supabase.from("crm_contacts").delete().eq("id", id);
   revalidatePath("/dashboard/crm/contacts");
+  revalidatePath("/dashboard/crm");
 }
 
 export async function addActivity(formData: FormData) {
@@ -92,7 +96,8 @@ export async function addActivity(formData: FormData) {
   });
 
   if (contact_id) revalidatePath(`/dashboard/crm/contacts/${contact_id}`);
-  if (deal_id) revalidatePath(`/dashboard/crm/deals`);
+  if (deal_id) revalidatePath("/dashboard/crm/pipeline");
+  revalidatePath("/dashboard/crm");
 }
 
 // ---------- Deals ----------
@@ -115,17 +120,20 @@ export async function createDeal(formData: FormData) {
     notes: str(formData, "notes"),
   });
 
-  revalidatePath("/dashboard/crm/deals");
+  revalidatePath("/dashboard/crm/pipeline");
+  revalidatePath("/dashboard/crm");
 }
 
 export async function updateDealStage(id: string, stage: DealStage) {
   const { supabase } = await requireCrmAccess();
   await supabase.from("crm_deals").update({ stage }).eq("id", id);
-  revalidatePath("/dashboard/crm/deals");
+  revalidatePath("/dashboard/crm/pipeline");
+  revalidatePath("/dashboard/crm");
 }
 
 export async function deleteDeal(id: string) {
   const { supabase } = await requireCrmAccess();
   await supabase.from("crm_deals").delete().eq("id", id);
-  revalidatePath("/dashboard/crm/deals");
+  revalidatePath("/dashboard/crm/pipeline");
+  revalidatePath("/dashboard/crm");
 }
