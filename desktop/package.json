@@ -1,6 +1,6 @@
 {
   "name": "qp-digital-crm-desktop",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "private": true,
   "description": "Qp Digital CRM desktop application",
   "main": "main.cjs",
@@ -23,6 +23,7 @@
       "output": "dist"
     },
     "mac": {
+      "icon": "build/app.icns",
       "target": [
         {
           "target": "dmg",
@@ -33,6 +34,7 @@
       "category": "public.app-category.business"
     },
     "win": {
+      "icon": "build/app.ico",
       "target": [
         {
           "target": "nsis",
@@ -40,6 +42,26 @@
         }
       ],
       "artifactName": "Qp-Digital-CRM-Windows-Setup.${ext}"
+    },
+    "dmg": {
+      "background": "build/dmg-background.png",
+      "window": {
+        "width": 660,
+        "height": 440
+      },
+      "contents": [
+        {
+          "x": 180,
+          "y": 245,
+          "type": "file"
+        },
+        {
+          "x": 480,
+          "y": 245,
+          "type": "link",
+          "path": "/Applications"
+        }
+      ]
     },
     "nsis": {
       "oneClick": false,
