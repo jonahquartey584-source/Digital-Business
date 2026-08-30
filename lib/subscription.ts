@@ -1,4 +1,5 @@
 import { createClient } from "@/lib/supabase/server";
+import { isSupabaseConfigured } from "@/lib/supabase/config";
 import type { ProductSlug } from "@/lib/stripe";
 import type { Subscription } from "@/lib/supabase/types";
 
@@ -11,6 +12,8 @@ const ACTIVE_STATUSES = new Set(["trialing", "active"]);
 export async function hasActiveSubscription(
   product: ProductSlug
 ): Promise<boolean> {
+  if (!isSupabaseConfigured) return false;
+
   const supabase = await createClient();
   const {
     data: { user },
@@ -28,6 +31,8 @@ export async function hasActiveSubscription(
 }
 
 export async function getSubscriptions(): Promise<Subscription[]> {
+  if (!isSupabaseConfigured) return [];
+
   const supabase = await createClient();
   const {
     data: { user },

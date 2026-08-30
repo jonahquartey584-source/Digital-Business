@@ -2,13 +2,19 @@
 
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
+import { isSupabaseConfigured } from "@/lib/supabase/config";
 
 export type AuthFormState = { error: string | null; message?: string | null };
+
+const NOT_CONFIGURED_ERROR =
+  "Accounts aren't set up yet on this deployment — check back soon.";
 
 export async function signUpAction(
   _prevState: AuthFormState,
   formData: FormData
 ): Promise<AuthFormState> {
+  if (!isSupabaseConfigured) return { error: NOT_CONFIGURED_ERROR };
+
   const email = String(formData.get("email") ?? "").trim();
   const password = String(formData.get("password") ?? "");
   const fullName = String(formData.get("full_name") ?? "").trim();
@@ -52,6 +58,8 @@ export async function loginAction(
   _prevState: AuthFormState,
   formData: FormData
 ): Promise<AuthFormState> {
+  if (!isSupabaseConfigured) return { error: NOT_CONFIGURED_ERROR };
+
   const email = String(formData.get("email") ?? "").trim();
   const password = String(formData.get("password") ?? "");
 
@@ -71,7 +79,9 @@ export async function loginAction(
 }
 
 export async function signOutAction() {
-  const supabase = await createClient();
-  await supabase.auth.signOut();
+  if (isSupabaseConfigured) {
+    const supabase = await createClient();
+    await supabase.auth.signOut();
+  }
   redirect("/");
 }

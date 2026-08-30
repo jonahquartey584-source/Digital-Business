@@ -3,10 +3,12 @@
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
+import { isSupabaseConfigured } from "@/lib/supabase/config";
 import { hasActiveSubscription } from "@/lib/subscription";
 import type { DealStage } from "@/lib/supabase/types";
 
 async function requireCrmAccess() {
+  if (!isSupabaseConfigured) redirect("/login");
   const supabase = await createClient();
   const {
     data: { user },

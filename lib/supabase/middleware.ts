@@ -1,5 +1,6 @@
 import { createServerClient } from "@supabase/ssr";
 import { NextResponse, type NextRequest } from "next/server";
+import { isSupabaseConfigured } from "@/lib/supabase/config";
 
 /**
  * Refreshes the Supabase auth session on every request and returns both the
@@ -8,6 +9,12 @@ import { NextResponse, type NextRequest } from "next/server";
  */
 export async function updateSession(request: NextRequest) {
   let response = NextResponse.next({ request });
+
+  // Without real credentials there's nothing to check — skip the network
+  // call entirely rather than hitting a placeholder domain on every request.
+  if (!isSupabaseConfigured) {
+    return { response, user: null };
+  }
 
   const supabase = createServerClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,

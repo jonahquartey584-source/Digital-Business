@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
+import { isSupabaseConfigured } from "@/lib/supabase/config";
 import { DashboardNav } from "@/components/dashboard-nav";
 import { LogoWordmark } from "@/components/logo-wordmark";
 
@@ -11,6 +12,8 @@ export default async function DashboardLayout({
 }: {
   children: React.ReactNode;
 }) {
+  if (!isSupabaseConfigured) redirect("/login");
+
   const supabase = await createClient();
   const {
     data: { user },

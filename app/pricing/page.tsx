@@ -2,14 +2,14 @@ import Link from "next/link";
 import { MarketingNav } from "@/components/marketing-nav";
 import { PRODUCTS } from "@/lib/stripe";
 import { createClient } from "@/lib/supabase/server";
+import { isSupabaseConfigured } from "@/lib/supabase/config";
 
 export const dynamic = "force-dynamic";
 
 export default async function PricingPage() {
-  const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+  const user = isSupabaseConfigured
+    ? (await (await createClient()).auth.getUser()).data.user
+    : null;
 
   return (
     <>

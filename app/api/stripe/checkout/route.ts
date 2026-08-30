@@ -1,8 +1,13 @@
 import { NextResponse } from "next/server";
 import { getStripe, PRODUCTS, type ProductSlug } from "@/lib/stripe";
 import { createClient } from "@/lib/supabase/server";
+import { isSupabaseConfigured } from "@/lib/supabase/config";
 
 export async function POST(request: Request) {
+  if (!isSupabaseConfigured) {
+    return NextResponse.redirect(new URL("/login", request.url));
+  }
+
   const supabase = await createClient();
   const {
     data: { user },
