@@ -2,10 +2,12 @@
 
 A subscription SaaS for Qp Digital: users create a free account, then pay for
 individual services — starting with a full CRM (contacts, companies, deal
-pipeline, activity notes). The same app is wrapped with [Capacitor](https://capacitorjs.com)
-so it can be published to the Apple App Store and Google Play.
+pipeline, activity notes). It's installable straight from the browser as a
+PWA on iPhone and Android (no app store needed), and is also wrapped with
+[Capacitor](https://capacitorjs.com) so it can be published to the Apple App
+Store and Google Play later if you want that too.
 
-**Stack:** Next.js 14 (App Router) · TypeScript · Tailwind CSS · Supabase
+**Stack:** Next.js 16 (App Router) · TypeScript · Tailwind CSS · Supabase
 (Postgres + Auth) · Stripe Billing · Capacitor.
 
 ## How it's organized
@@ -34,6 +36,8 @@ lib/
   subscription.ts            hasActiveSubscription() gate used everywhere
 supabase/migrations/0001_init.sql   full DB schema + Row Level Security policies
 capacitor.config.ts          points the native app shell at your deployed site
+public/manifest.json, sw.js  PWA install manifest + service worker
+public/icons/                 generated app icons (see scripts/generate-icons.js)
 ```
 
 ### How the paywall works
@@ -116,6 +120,40 @@ resistance for Next.js:
    `NEXT_PUBLIC_SITE_URL` set to your real production URL.
 3. Point your Stripe webhook endpoint and Supabase's "Site URL" / redirect
    allow-list at that same production URL.
+
+## Install as an app — no app store needed
+
+The site is a fully installable PWA (Progressive Web App): once it's
+deployed, anyone can add it to their home screen and get a real app icon
+that opens full-screen, with no App Store or Play Store involved.
+
+- **iPhone/iPad (Safari):** open the site → tap the **Share** icon → **Add
+  to Home Screen**. This is the only realistic no-app-store path on iOS —
+  Apple doesn't allow general sideloading for end users (Ad Hoc distribution
+  caps out at 100 registered devices, and the Enterprise Program is
+  contractually for internal company use only, not customer distribution).
+- **Android/Samsung (Chrome):** open the site → tap **Install app** in the
+  banner this app shows itself (`components/pwa-install.tsx`), or use
+  Chrome's own install icon in the address bar.
+
+This works today, on the same code, without touching Capacitor or app
+stores — see `public/manifest.json` (icons, name, start URL),
+`public/sw.js` (the service worker that makes Chrome consider the site
+installable), and `components/pwa-install.tsx` (the install banner/button,
+plus iOS "Add to Home Screen" instructions since iOS has no install-prompt
+API).
+
+**Branding:** the app icon is currently a generated placeholder ("Qp" on a
+blue square). To use your real logo, replace `scripts/logo-source.svg` and
+`scripts/logo-maskable-source.svg`, then run `npm run icons` to regenerate
+everything in `public/icons/`.
+
+**Android APK, if you also want a directly-downloadable file:** the same
+Capacitor project below (`npm run cap:add` → open in Android Studio →
+Build → Generate Signed APK) produces an `.apk` you can host on your own
+site for direct download — still no Play Store required, just a file the
+user downloads and installs (Android will prompt them to allow "install
+from unknown sources" once).
 
 ## Mobile app (iOS / Android via Capacitor)
 

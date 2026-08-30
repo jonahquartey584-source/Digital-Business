@@ -9,6 +9,7 @@
     "start": "next start",
     "lint": "next lint",
     "typecheck": "tsc --noEmit",
+    "icons": "node scripts/generate-icons.js",
     "cap:add": "cap add ios && cap add android",
     "cap:sync": "cap sync",
     "cap:open:ios": "cap open ios",
@@ -32,6 +33,7 @@
     "@types/react-dom": "^19.2.5",
     "autoprefixer": "^10.4.20",
     "postcss": "^8.5.6",
+    "sharp": "^0.35.4",
     "tailwindcss": "^3.4.13",
     "typescript": "^5.7.2"
   }

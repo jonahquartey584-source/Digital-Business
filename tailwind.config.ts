@@ -21,6 +21,13 @@ const config: Config = {
           900: "#1f2f87",
           950: "#181d52",
         },
+        // Logo mark palette — black / dark gold / off-white.
+        logo: {
+          black: "#121212",
+          gold: "#C9A227",
+          "gold-dark": "#9C7A1B",
+          offwhite: "#F5F1E6",
+        },
       },
     },
   },

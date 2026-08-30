@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { LogoMark } from "@/components/logo-mark";
 
 export default function AuthLayout({
   children,
@@ -13,9 +14,7 @@ export default function AuthLayout({
             href="/"
             className="mx-auto flex w-fit items-center gap-2 font-semibold text-slate-900"
           >
-            <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-brand-600 text-white">
-              Qp
-            </span>
+            <LogoMark />
             Qp Digital
           </Link>
         </div>
