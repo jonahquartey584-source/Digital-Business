@@ -568,6 +568,12 @@ domain.
   from the enquiry form and "Pay & Activate" button
 - `privacy.html` — Privacy Policy, linked from every page's footer and
   from the enquiry form and "Pay & Activate" button
+- `card.html` — digital business card: a shareable contact page (name,
+  phone, email, website, a scannable QR code) with a "Save Contact"
+  button that downloads `qp-digital.vcf` — link or QR this directly for
+  networking, no need to touch the main site
+- `qp-digital.vcf` — the vCard file `card.html`'s "Save Contact" button
+  downloads; edit this directly if the contact details ever change
 - `api/config.example.php` — template for `api/config.php` (DB
   credentials, admin login, Stripe webhook secret) — copy it, fill it
   in, never commit the copy

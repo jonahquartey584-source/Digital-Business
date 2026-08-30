@@ -1683,6 +1683,157 @@ textarea {
   margin: 0 8px;
 }
 
+/* A shorter footer for standalone pages (e.g. card.html) that skip the
+   3-column .footer__inner grid — without this, .site-footer's 60px
+   top padding leaves a bare gap above the bottom bar. */
+.site-footer--minimal {
+  padding-top: 24px;
+}
+
+/* Digital business card (card.html) — a shareable contact page, styled
+   as an actual card rather than another marketing section. Reuses the
+   site's foil-edge "chrome" language (see .terminal-window) at business
+   card proportions. */
+.card-page {
+  padding: 72px 0 88px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 36px;
+}
+
+.biz-card {
+  position: relative;
+  width: 100%;
+  max-width: 480px;
+  background: linear-gradient(155deg, #1c170f, #0e0c09 75%);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  box-shadow: var(--shadow);
+  padding: 34px 32px;
+}
+
+html[data-theme="light"] .biz-card {
+  background: linear-gradient(155deg, #fcfaf5, #eee5d3 75%);
+}
+
+.biz-card::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: 16px;
+  padding: 1px;
+  background: var(--gold-gradient);
+  opacity: 0.5;
+  -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+  pointer-events: none;
+}
+
+.biz-card__top {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 20px;
+  margin-bottom: 26px;
+}
+
+.biz-card__brand {
+  font-family: "Playfair Display", Georgia, serif;
+  font-weight: 700;
+  font-size: 1.3rem;
+  color: var(--gold-bright);
+  margin: 0 0 4px;
+}
+
+.biz-card__tagline {
+  font-family: "IBM Plex Mono", monospace;
+  font-size: 0.7rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--text-faint);
+  margin: 0;
+}
+
+.biz-card__qr {
+  flex-shrink: 0;
+  width: 76px;
+  height: 76px;
+  background: #fdfbf6;
+  border-radius: 8px;
+  padding: 6px;
+  box-shadow: var(--shadow-gold);
+}
+
+.biz-card__qr svg {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+.biz-card__name {
+  font-family: "Sora", system-ui, sans-serif;
+  font-weight: 800;
+  font-size: 1.7rem;
+  color: var(--text);
+  margin: 0 0 4px;
+}
+
+.biz-card__role {
+  font-family: "IBM Plex Mono", monospace;
+  font-size: 0.8rem;
+  color: var(--gold-bright);
+  margin: 0 0 22px;
+}
+
+.biz-card__divider {
+  height: 1px;
+  background: linear-gradient(90deg, var(--border), transparent 85%);
+  margin-bottom: 20px;
+}
+
+.biz-card__contacts {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.biz-card__contact-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  color: var(--text-dim);
+  text-decoration: none;
+  font-size: 0.92rem;
+  transition: color 0.15s ease;
+}
+
+.biz-card__contact-row:hover {
+  color: var(--gold-bright);
+}
+
+.biz-card__contact-row svg {
+  flex-shrink: 0;
+  width: 18px;
+  height: 18px;
+  stroke: var(--gold-bright);
+}
+
+.card-actions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 12px;
+}
+
+.card-note {
+  color: var(--text-faint);
+  font-size: 0.82rem;
+  text-align: center;
+  max-width: 40ch;
+}
+
 /* Legal pages (terms.html, privacy.html) — plain prose, not the
    terminal/card language the rest of the site uses; legal text reads
    better as a simple column. */
