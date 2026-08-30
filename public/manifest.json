@@ -1,0 +1,10 @@
+{
+  "name": "Qp Digital",
+  "short_name": "Qp Digital",
+  "description": "Manage your CRM and other Qp Digital services.",
+  "start_url": "/dashboard",
+  "display": "standalone",
+  "background_color": "#f8fafc",
+  "theme_color": "#2547e9",
+  "icons": []
+}
