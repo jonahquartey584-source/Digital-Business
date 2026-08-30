@@ -28,6 +28,16 @@ export default function LoginPage() {
           <input className="input" id="password" name="password" type="password" autoComplete="current-password" required />
         </div>
 
+        <label className="flex items-center gap-2 text-sm text-cream-dim">
+          <input
+            type="checkbox"
+            name="remember"
+            defaultChecked
+            className="h-4 w-4 rounded border-ink-border bg-ink-soft"
+          />
+          Remember me
+        </label>
+
         {state.error && (
           <p className="rounded-lg border border-red-500/30 bg-red-500/10 px-3 py-2 text-sm text-red-400">{state.error}</p>
         )}

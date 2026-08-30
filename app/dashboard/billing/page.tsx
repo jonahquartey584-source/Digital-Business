@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { PRODUCTS, type ProductSlug } from "@/lib/stripe";
-import { getSubscriptions } from "@/lib/subscription";
+import { getSubscriptions, isCurrentUserAdmin } from "@/lib/subscription";
 import { hasProvisionedVoiceNumber } from "@/lib/voice/status";
 import type { Subscription } from "@/lib/supabase/types";
 
@@ -20,9 +20,11 @@ const STATUS_LABEL: Record<string, string> = {
 function ProductBillingCard({
   slug,
   subscription,
+  isAdmin,
 }: {
   slug: ProductSlug;
   subscription: Subscription | undefined;
+  isAdmin: boolean;
 }) {
   const product = PRODUCTS[slug];
   const active = subscription && ["active", "trialing"].includes(subscription.status);
@@ -43,7 +45,9 @@ function ProductBillingCard({
           )}
         </div>
 
-        {active ? (
+        {isAdmin ? (
+          <span className="badge-gold">Admin access</span>
+        ) : active ? (
           <form action="/api/stripe/portal" method="POST">
             <button type="submit" className="btn-secondary">
               Manage subscription
@@ -68,19 +72,20 @@ export default async function BillingPage({
   searchParams: Promise<{ upgrade?: string; success?: string }>;
 }) {
   const sp = await searchParams;
-  const [subscriptions, voiceProvisioned] = await Promise.all([
+  const [subscriptions, voiceProvisioned, isAdmin] = await Promise.all([
     getSubscriptions(),
     hasProvisionedVoiceNumber(),
+    isCurrentUserAdmin(),
   ]);
   const slugs = Object.keys(PRODUCTS) as ProductSlug[];
   const upgradeSlug = slugs.includes(sp.upgrade as ProductSlug)
     ? (sp.upgrade as ProductSlug)
     : null;
   const upgradeSub = upgradeSlug && subscriptions.find((s) => s.product === upgradeSlug);
-  const upgradeActive = upgradeSub && ["active", "trialing"].includes(upgradeSub.status);
+  const upgradeActive = isAdmin || (upgradeSub && ["active", "trialing"].includes(upgradeSub.status));
 
   const voiceSub = subscriptions.find((s) => s.product === "voice");
-  const voiceActive = voiceSub && ["active", "trialing"].includes(voiceSub.status);
+  const voiceActive = isAdmin || (voiceSub && ["active", "trialing"].includes(voiceSub.status));
   const voiceNeedsSetup = voiceActive && !voiceProvisioned;
 
   return (
@@ -90,6 +95,12 @@ export default async function BillingPage({
         Manage which Qp Digital services you&apos;re subscribed to.
       </p>
 
+      {isAdmin && (
+        <p className="mt-4 rounded-lg border border-gold-600/40 bg-gold-500/10 px-4 py-3 text-sm text-gold-300">
+          You&apos;re signed in with an admin account — every service is
+          unlocked regardless of subscription status.
+        </p>
+      )}
       {sp.success && (
         <p className="mt-4 rounded-lg border border-emerald-500/30 bg-emerald-500/10 px-4 py-3 text-sm text-emerald-400">
           Subscription updated. It may take a few seconds to appear below.
@@ -98,8 +109,8 @@ export default async function BillingPage({
       {voiceNeedsSetup && (
         <div className="mt-4 flex flex-wrap items-center justify-between gap-3 rounded-lg border border-gold-600/40 bg-gold-500/10 px-4 py-3">
           <p className="text-sm text-gold-300">
-            You&apos;re subscribed to AI Reception — connect a number to
-            start taking calls.
+            {isAdmin ? "AI Reception is unlocked" : "You're subscribed to AI Reception"}
+            {" — connect a number to start taking calls."}
           </p>
           <Link href="/dashboard/voice" className="btn-primary shrink-0 text-xs">
             Set up AI automation
@@ -119,6 +130,7 @@ export default async function BillingPage({
             key={slug}
             slug={slug}
             subscription={subscriptions.find((s) => s.product === slug)}
+            isAdmin={isAdmin}
           />
         ))}
       </div>

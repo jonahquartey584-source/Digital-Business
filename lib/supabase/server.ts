@@ -1,5 +1,6 @@
 import { createServerClient } from "@supabase/ssr";
 import { cookies } from "next/headers";
+import { REMEMBER_COOKIE } from "@/lib/supabase/remember";
 
 /**
  * Supabase client for use in Server Components, Server Actions, and Route
@@ -7,9 +8,17 @@ import { cookies } from "next/headers";
  *
  * `cookies()` is async as of Next.js 15+, so this is async too — every
  * caller must `await createClient()`.
+ *
+ * `persist` controls whether auth cookies get Supabase's normal multi-day
+ * expiry, or are stripped down to session-only (cleared when the browser
+ * closes). Defaults to whatever REMEMBER_COOKIE says, so once login sets
+ * that marker, every later call — including the middleware's own session
+ * refresh — keeps honoring it without having to pass `persist` around
+ * everywhere.
  */
-export async function createClient() {
+export async function createClient(opts: { persist?: boolean } = {}) {
   const cookieStore = await cookies();
+  const persist = opts.persist ?? cookieStore.get(REMEMBER_COOKIE)?.value !== "0";
 
   return createServerClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -22,7 +31,10 @@ export async function createClient() {
         setAll(cookiesToSet) {
           try {
             cookiesToSet.forEach(({ name, value, options }) =>
-              cookieStore.set(name, value, options)
+              cookieStore.set(name, value, {
+                ...options,
+                ...(persist ? null : { maxAge: undefined, expires: undefined }),
+              })
             );
           } catch {
             // Called from a Server Component with no request context to

@@ -1,7 +1,9 @@
 "use server";
 
+import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
+import { REMEMBER_COOKIE } from "@/lib/supabase/remember";
 import { isSupabaseConfigured } from "@/lib/supabase/config";
 
 export type AuthFormState = { error: string | null; message?: string | null };
@@ -62,12 +64,26 @@ export async function loginAction(
 
   const email = String(formData.get("email") ?? "").trim();
   const password = String(formData.get("password") ?? "");
+  const remember = formData.get("remember") === "on";
 
   if (!email || !password) {
     return { error: "Email and password are required." };
   }
 
-  const supabase = await createClient();
+  // Marker read by every later createClient() call (including the auth
+  // middleware's own session refresh) so "don't persist" sticks for the
+  // whole session, not just this response. "1"/absent = persist normally.
+  const cookieStore = await cookies();
+  if (remember) {
+    cookieStore.delete(REMEMBER_COOKIE);
+  } else {
+    cookieStore.set(REMEMBER_COOKIE, "0", { httpOnly: true, sameSite: "lax" });
+  }
+
+  // persist: false makes the auth cookies session-only (cleared when the
+  // browser closes) instead of Supabase's normal multi-day persistent
+  // cookies — that's the entire difference "Remember me" makes.
+  const supabase = await createClient({ persist: remember });
   const { error } = await supabase.auth.signInWithPassword({
     email,
     password,
