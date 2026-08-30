@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { PRODUCTS, type ProductSlug } from "@/lib/stripe";
 import { hasActiveSubscription } from "@/lib/subscription";
+import { hasProvisionedVoiceNumber } from "@/lib/voice/status";
 
 export const dynamic = "force-dynamic";
 
@@ -11,9 +12,10 @@ const SERVICE_HREF: Record<ProductSlug, string> = {
 
 export default async function DashboardOverviewPage() {
   const slugs = Object.keys(PRODUCTS) as ProductSlug[];
-  const activity = await Promise.all(
-    slugs.map((slug) => hasActiveSubscription(slug))
-  );
+  const [activity, voiceProvisioned] = await Promise.all([
+    Promise.all(slugs.map((slug) => hasActiveSubscription(slug))),
+    hasProvisionedVoiceNumber(),
+  ]);
 
   return (
     <div>
@@ -26,13 +28,19 @@ export default async function DashboardOverviewPage() {
         {slugs.map((slug, i) => {
           const product = PRODUCTS[slug];
           const active = activity[i];
+          // AI Reception needs one more step after paying — connecting a
+          // number — before there's anything to "open".
+          const needsSetup = slug === "voice" && active && !voiceProvisioned;
+
           return (
             <div key={slug} className="card p-6">
-              <div className="flex items-start justify-between">
+              <div className="flex items-start justify-between gap-2">
                 <h2 className="font-display text-lg font-bold text-cream">
                   {product.name}
                 </h2>
-                {active ? (
+                {needsSetup ? (
+                  <span className="badge-gold">Setup needed</span>
+                ) : active ? (
                   <span className="badge-success">Active</span>
                 ) : (
                   <span className="badge-neutral">Not subscribed</span>
@@ -43,7 +51,11 @@ export default async function DashboardOverviewPage() {
                 href={active ? SERVICE_HREF[slug] : `/dashboard/billing?upgrade=${slug}`}
                 className="btn-primary mt-6 w-full"
               >
-                {active ? `Open ${product.name}` : `Subscribe to ${product.name}`}
+                {needsSetup
+                  ? "Set up AI automation"
+                  : active
+                    ? `Open ${product.name}`
+                    : `Subscribe to ${product.name}`}
               </Link>
             </div>
           );

@@ -1,5 +1,7 @@
+import Link from "next/link";
 import { PRODUCTS, type ProductSlug } from "@/lib/stripe";
 import { getSubscriptions } from "@/lib/subscription";
+import { hasProvisionedVoiceNumber } from "@/lib/voice/status";
 import type { Subscription } from "@/lib/supabase/types";
 
 export const dynamic = "force-dynamic";
@@ -66,13 +68,20 @@ export default async function BillingPage({
   searchParams: Promise<{ upgrade?: string; success?: string }>;
 }) {
   const sp = await searchParams;
-  const subscriptions = await getSubscriptions();
+  const [subscriptions, voiceProvisioned] = await Promise.all([
+    getSubscriptions(),
+    hasProvisionedVoiceNumber(),
+  ]);
   const slugs = Object.keys(PRODUCTS) as ProductSlug[];
   const upgradeSlug = slugs.includes(sp.upgrade as ProductSlug)
     ? (sp.upgrade as ProductSlug)
     : null;
   const upgradeSub = upgradeSlug && subscriptions.find((s) => s.product === upgradeSlug);
   const upgradeActive = upgradeSub && ["active", "trialing"].includes(upgradeSub.status);
+
+  const voiceSub = subscriptions.find((s) => s.product === "voice");
+  const voiceActive = voiceSub && ["active", "trialing"].includes(voiceSub.status);
+  const voiceNeedsSetup = voiceActive && !voiceProvisioned;
 
   return (
     <div>
@@ -85,6 +94,17 @@ export default async function BillingPage({
         <p className="mt-4 rounded-lg border border-emerald-500/30 bg-emerald-500/10 px-4 py-3 text-sm text-emerald-400">
           Subscription updated. It may take a few seconds to appear below.
         </p>
+      )}
+      {voiceNeedsSetup && (
+        <div className="mt-4 flex flex-wrap items-center justify-between gap-3 rounded-lg border border-gold-600/40 bg-gold-500/10 px-4 py-3">
+          <p className="text-sm text-gold-300">
+            You&apos;re subscribed to AI Reception — connect a number to
+            start taking calls.
+          </p>
+          <Link href="/dashboard/voice" className="btn-primary shrink-0 text-xs">
+            Set up AI automation
+          </Link>
+        </div>
       )}
       {upgradeSlug && !upgradeActive && (
         <p className="mt-4 rounded-lg border border-amber-500/30 bg-amber-500/10 px-4 py-3 text-sm text-amber-400">
