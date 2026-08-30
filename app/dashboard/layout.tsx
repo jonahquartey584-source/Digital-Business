@@ -2,7 +2,7 @@ import Link from "next/link";
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { DashboardNav } from "@/components/dashboard-nav";
-import { LogoMark } from "@/components/logo-mark";
+import { LogoWordmark } from "@/components/logo-wordmark";
 
 export const dynamic = "force-dynamic";
 
@@ -19,15 +19,16 @@ export default async function DashboardLayout({
   if (!user) redirect("/login");
 
   return (
-    <div className="min-h-screen bg-slate-50">
-      <header className="border-b border-slate-200 bg-white">
+    <div className="min-h-screen bg-ink">
+      <header className="border-b border-ink-border bg-ink-soft">
         <div className="mx-auto flex max-w-6xl items-center justify-between px-6 py-4">
-          <Link href="/dashboard" className="flex items-center gap-2 font-semibold text-slate-900">
-            <LogoMark />
-            Qp Digital
+          <Link href="/dashboard">
+            <LogoWordmark className="text-xl" />
           </Link>
-          <div className="flex items-center gap-4 text-sm text-slate-600">
-            <span className="hidden sm:inline">{user.email}</span>
+          <div className="flex items-center gap-4">
+            <span className="hidden font-mono text-xs text-cream-dim sm:inline">
+              {user.email}
+            </span>
             <form action="/auth/signout" method="post">
               <button type="submit" className="btn-ghost">
                 Sign out

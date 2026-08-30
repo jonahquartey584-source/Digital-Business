@@ -12,17 +12,17 @@ export function DealCard({ deal }: { deal: CrmDeal }) {
   return (
     <div className="card p-4">
       <div className="flex items-start justify-between gap-2">
-        <p className="font-medium text-slate-900">{deal.title}</p>
+        <p className="font-medium text-cream">{deal.title}</p>
         <button
           onClick={() => startTransition(() => deleteDeal(deal.id))}
-          className="text-xs text-slate-400 hover:text-red-600"
+          className="text-xs text-cream-dim hover:text-red-400"
           aria-label="Delete deal"
         >
           ✕
         </button>
       </div>
       {deal.value != null && (
-        <p className="mt-1 text-sm text-slate-600">
+        <p className="mt-1 text-sm text-gold-300">
           ${Number(deal.value).toLocaleString()}
         </p>
       )}

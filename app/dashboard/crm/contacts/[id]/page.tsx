@@ -40,26 +40,26 @@ export default async function ContactDetailPage({
 
   return (
     <div>
-      <Link href="/dashboard/crm/contacts" className="text-sm text-brand-700 hover:underline">
+      <Link href="/dashboard/crm/contacts" className="text-sm text-gold-300 hover:underline">
         ← Contacts
       </Link>
 
-      <h1 className="mt-2 text-2xl font-semibold text-slate-900">
+      <h1 className="mt-2 font-display text-2xl font-bold text-cream">
         {contact.first_name} {contact.last_name ?? ""}
       </h1>
-      <p className="text-sm text-slate-500">
+      <p className="text-sm text-cream-dim">
         {[contact.title, company?.name].filter(Boolean).join(" · ")}
       </p>
 
-      <div className="mt-4 grid gap-2 text-sm text-slate-600 sm:grid-cols-2">
+      <div className="mt-4 grid gap-2 text-sm text-cream-dim sm:grid-cols-2">
         {contact.email && <p>Email: {contact.email}</p>}
         {contact.phone && <p>Phone: {contact.phone}</p>}
       </div>
       {contact.notes && (
-        <p className="mt-4 whitespace-pre-wrap text-sm text-slate-700">{contact.notes}</p>
+        <p className="mt-4 whitespace-pre-wrap text-sm text-cream-dim">{contact.notes}</p>
       )}
 
-      <h2 className="mt-8 text-lg font-semibold text-slate-900">Activity</h2>
+      <h2 className="mt-8 font-display text-lg font-bold text-cream">Activity</h2>
       <form action={addActivity} className="mt-3 flex gap-2">
         <input type="hidden" name="contact_id" value={contact.id} />
         <input type="hidden" name="type" value="note" />
@@ -77,14 +77,14 @@ export default async function ContactDetailPage({
       <ul className="mt-4 space-y-3">
         {((activities as CrmActivity[]) ?? []).map((activity) => (
           <li key={activity.id} className="card p-3 text-sm">
-            <p className="text-slate-700">{activity.content}</p>
-            <p className="mt-1 text-xs text-slate-400">
+            <p className="text-cream-dim">{activity.content}</p>
+            <p className="mt-1 text-xs text-cream-dim/60">
               {new Date(activity.created_at).toLocaleString()}
             </p>
           </li>
         ))}
         {(!activities || activities.length === 0) && (
-          <p className="text-sm text-slate-500">No activity logged yet.</p>
+          <p className="text-sm text-cream-dim">No activity logged yet.</p>
         )}
       </ul>
     </div>

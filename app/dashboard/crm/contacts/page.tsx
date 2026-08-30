@@ -20,7 +20,7 @@ export default async function ContactsPage() {
   return (
     <div>
       <details className="card mb-6 p-4">
-        <summary className="cursor-pointer text-sm font-medium text-slate-900">
+        <summary className="cursor-pointer text-sm font-medium text-cream">
           + New contact
         </summary>
         <form action={createContact} className="mt-4 grid gap-3 sm:grid-cols-2">
@@ -62,23 +62,23 @@ export default async function ContactsPage() {
       </details>
 
       {contactList.length === 0 ? (
-        <p className="text-sm text-slate-500">No contacts yet.</p>
+        <p className="text-sm text-cream-dim">No contacts yet.</p>
       ) : (
-        <div className="card divide-y divide-slate-100">
+        <div className="card divide-y divide-ink-border">
           {contactList.map((contact) => (
             <div key={contact.id} className="flex items-center justify-between p-4">
               <Link href={`/dashboard/crm/contacts/${contact.id}`} className="min-w-0">
-                <p className="font-medium text-slate-900">
+                <p className="font-medium text-cream">
                   {contact.first_name} {contact.last_name ?? ""}
                 </p>
-                <p className="text-sm text-slate-500">
+                <p className="text-sm text-cream-dim">
                   {[contact.title, companyName(contact.company_id), contact.email]
                     .filter(Boolean)
                     .join(" · ")}
                 </p>
               </Link>
               <form action={deleteContact.bind(null, contact.id)}>
-                <button type="submit" className="btn-ghost text-red-600">
+                <button type="submit" className="btn-ghost text-red-400 hover:text-red-300">
                   Delete
                 </button>
               </form>

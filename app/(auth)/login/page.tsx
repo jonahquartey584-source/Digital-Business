@@ -13,8 +13,8 @@ export default function LoginPage() {
 
   return (
     <>
-      <h1 className="text-xl font-semibold text-slate-900">Log in</h1>
-      <p className="mt-1 text-sm text-slate-600">
+      <h1 className="font-display text-xl font-bold text-cream">Log in</h1>
+      <p className="mt-1 text-sm text-cream-dim">
         Welcome back to Qp Digital.
       </p>
 
@@ -29,15 +29,15 @@ export default function LoginPage() {
         </div>
 
         {state.error && (
-          <p className="rounded-lg bg-red-50 px-3 py-2 text-sm text-red-700">{state.error}</p>
+          <p className="rounded-lg border border-red-500/30 bg-red-500/10 px-3 py-2 text-sm text-red-400">{state.error}</p>
         )}
 
         <SubmitButton pendingText="Logging in…">Log in</SubmitButton>
       </form>
 
-      <p className="mt-6 text-center text-sm text-slate-600">
+      <p className="mt-6 text-center text-sm text-cream-dim">
         Don&apos;t have an account?{" "}
-        <Link href="/signup" className="font-medium text-brand-700 hover:underline">
+        <Link href="/signup" className="font-medium text-gold-300 hover:underline">
           Sign up
         </Link>
       </p>

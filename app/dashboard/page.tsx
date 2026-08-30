@@ -9,24 +9,24 @@ export default async function DashboardOverviewPage() {
 
   return (
     <div>
-      <h1 className="text-2xl font-semibold text-slate-900">Overview</h1>
-      <p className="mt-1 text-sm text-slate-600">
+      <h1 className="font-display text-2xl font-bold text-cream">Overview</h1>
+      <p className="mt-1 text-sm text-cream-dim">
         Your Qp Digital services, in one place.
       </p>
 
       <div className="mt-8 grid gap-6 sm:grid-cols-2">
         <div className="card p-6">
           <div className="flex items-start justify-between">
-            <h2 className="text-lg font-semibold text-slate-900">
+            <h2 className="font-display text-lg font-bold text-cream">
               {PRODUCTS.crm.name}
             </h2>
             {crmActive ? (
-              <span className="badge bg-emerald-50 text-emerald-700">Active</span>
+              <span className="badge-success">Active</span>
             ) : (
-              <span className="badge bg-slate-100 text-slate-600">Not subscribed</span>
+              <span className="badge-neutral">Not subscribed</span>
             )}
           </div>
-          <p className="mt-2 text-sm text-slate-600">{PRODUCTS.crm.description}</p>
+          <p className="mt-2 text-sm text-cream-dim">{PRODUCTS.crm.description}</p>
           <Link
             href={crmActive ? "/dashboard/crm" : "/dashboard/billing?upgrade=crm"}
             className="btn-primary mt-6 w-full"
@@ -35,13 +35,13 @@ export default async function DashboardOverviewPage() {
           </Link>
         </div>
 
-        <div className="card p-6 opacity-70">
-          <h2 className="text-lg font-semibold text-slate-900">More services</h2>
-          <p className="mt-2 text-sm text-slate-600">
+        <div className="card p-6 opacity-60">
+          <h2 className="font-display text-lg font-bold text-cream">More services</h2>
+          <p className="mt-2 text-sm text-cream-dim">
             Invoicing, scheduling, and more are on the way. New services
             appear here as soon as they launch.
           </p>
-          <span className="badge bg-slate-100 text-slate-600 mt-6 inline-flex">
+          <span className="badge-neutral mt-6 inline-flex">
             Coming soon
           </span>
         </div>

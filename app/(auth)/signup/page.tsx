@@ -13,8 +13,8 @@ export default function SignUpPage() {
 
   return (
     <>
-      <h1 className="text-xl font-semibold text-slate-900">Create your account</h1>
-      <p className="mt-1 text-sm text-slate-600">
+      <h1 className="font-display text-xl font-bold text-cream">Create your account</h1>
+      <p className="mt-1 text-sm text-cream-dim">
         Free to join. Subscribe to services like CRM when you&apos;re ready.
       </p>
 
@@ -37,10 +37,10 @@ export default function SignUpPage() {
         </div>
 
         {state.error && (
-          <p className="rounded-lg bg-red-50 px-3 py-2 text-sm text-red-700">{state.error}</p>
+          <p className="rounded-lg border border-red-500/30 bg-red-500/10 px-3 py-2 text-sm text-red-400">{state.error}</p>
         )}
         {state.message && (
-          <p className="rounded-lg bg-emerald-50 px-3 py-2 text-sm text-emerald-700">
+          <p className="rounded-lg border border-emerald-500/30 bg-emerald-500/10 px-3 py-2 text-sm text-emerald-400">
             {state.message}
           </p>
         )}
@@ -48,9 +48,9 @@ export default function SignUpPage() {
         <SubmitButton pendingText="Creating account…">Create account</SubmitButton>
       </form>
 
-      <p className="mt-6 text-center text-sm text-slate-600">
+      <p className="mt-6 text-center text-sm text-cream-dim">
         Already have an account?{" "}
-        <Link href="/login" className="font-medium text-brand-700 hover:underline">
+        <Link href="/login" className="font-medium text-gold-300 hover:underline">
           Log in
         </Link>
       </p>

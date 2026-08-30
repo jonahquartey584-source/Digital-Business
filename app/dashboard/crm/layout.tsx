@@ -21,14 +21,14 @@ export default async function CrmLayout({
   return (
     <div>
       <div className="mb-6 flex items-center justify-between">
-        <h1 className="text-2xl font-semibold text-slate-900">CRM</h1>
+        <h1 className="font-display text-2xl font-bold text-cream">CRM</h1>
       </div>
-      <div className="mb-6 flex gap-2 border-b border-slate-200">
+      <div className="mb-6 flex gap-2 border-b border-ink-border">
         {tabs.map((tab) => (
           <Link
             key={tab.href}
             href={tab.href}
-            className="rounded-t-lg px-3 py-2 text-sm font-medium text-slate-600 hover:bg-slate-100 hover:text-slate-900"
+            className="nav-link rounded-t-lg px-3 py-2 hover:bg-white/5"
           >
             {tab.label}
           </Link>

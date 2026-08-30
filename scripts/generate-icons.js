@@ -6,17 +6,51 @@
 // background, keep your logo within the inner ~80% so OS icon masks don't
 // clip it), then run:
 //
-//   node scripts/generate-icons.js
+//   npm run icons
 //
-// Requires the `sharp` package (already a project dependency).
+// Requires the `sharp` package (already a project dependency). The SVGs
+// reference "Playfair Display" — sharp renders SVG text via the system's
+// installed fonts (fontconfig), not CSS/webfonts, so this script first
+// makes sure scripts/fonts/PlayfairDisplay-Bold.ttf is registered locally.
 
 const sharp = require("sharp");
 const fs = require("fs");
 const path = require("path");
+const os = require("os");
+const { execSync } = require("child_process");
 
 const root = path.join(__dirname, "..");
 const outDir = path.join(root, "public", "icons");
 fs.mkdirSync(outDir, { recursive: true });
+
+function ensureFontRegistered() {
+  if (process.platform !== "linux") {
+    console.warn(
+      "Non-Linux platform detected: if the rendered icons show a fallback " +
+        "font instead of Playfair Display, install scripts/fonts/PlayfairDisplay-Bold.ttf " +
+        "yourself (double-click it on macOS/Windows) and re-run this script."
+    );
+    return;
+  }
+  try {
+    const fontsDir = path.join(os.homedir(), ".local", "share", "fonts");
+    fs.mkdirSync(fontsDir, { recursive: true });
+    const src = path.join(__dirname, "fonts", "PlayfairDisplay-Bold.ttf");
+    const dest = path.join(fontsDir, "PlayfairDisplay-Bold.ttf");
+    if (!fs.existsSync(dest)) {
+      fs.copyFileSync(src, dest);
+      execSync("fc-cache -f", { stdio: "ignore" });
+    }
+  } catch (err) {
+    console.warn(
+      "Could not auto-register Playfair Display with fontconfig — icons may " +
+        "render with a fallback font. Error:",
+      err.message
+    );
+  }
+}
+
+ensureFontRegistered();
 
 const base = fs.readFileSync(path.join(__dirname, "logo-source.svg"));
 const maskable = fs.readFileSync(path.join(__dirname, "logo-maskable-source.svg"));

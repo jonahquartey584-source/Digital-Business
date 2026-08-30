@@ -8,26 +8,33 @@ const config: Config = {
   theme: {
     extend: {
       colors: {
-        brand: {
-          50: "#eef4ff",
-          100: "#dbe6fe",
-          200: "#bfd3fe",
-          300: "#93b5fd",
-          400: "#608cfa",
-          500: "#3b66f5",
-          600: "#2547e9",
-          700: "#1e37d4",
-          800: "#1f30ab",
-          900: "#1f2f87",
-          950: "#181d52",
+        // Site palette, matched to qp-digital.netlify.app — warm black,
+        // gold/bronze accent, off-white/cream text.
+        ink: {
+          DEFAULT: "#0A0806", // page background
+          soft: "#120E0A", // header/footer, slightly raised
+          card: "#171310", // card surfaces
+          border: "#2B2318", // hairline borders on dark
         },
-        // Logo mark palette — black / dark gold / off-white.
-        logo: {
-          black: "#121212",
-          gold: "#C9A227",
-          "gold-dark": "#9C7A1B",
-          offwhite: "#F5F1E6",
+        gold: {
+          100: "#F3E3BE",
+          200: "#EBD3A0",
+          300: "#E4C287",
+          400: "#D9AF63",
+          500: "#C9973F",
+          600: "#B07B2E",
+          700: "#8F5F22",
         },
+        cream: {
+          DEFAULT: "#F1E9D8",
+          dim: "#B9AE99",
+        },
+      },
+      fontFamily: {
+        sans: ["var(--font-body)", "ui-sans-serif", "system-ui", "sans-serif"],
+        display: ["var(--font-display)", "var(--font-body)", "sans-serif"],
+        serif: ["var(--font-wordmark)", "ui-serif", "Georgia", "serif"],
+        mono: ["var(--font-mono)", "ui-monospace", "SFMono-Regular", "monospace"],
       },
     },
   },

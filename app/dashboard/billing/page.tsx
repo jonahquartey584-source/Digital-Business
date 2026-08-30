@@ -26,18 +26,18 @@ export default async function BillingPage({
 
   return (
     <div>
-      <h1 className="text-2xl font-semibold text-slate-900">Billing</h1>
-      <p className="mt-1 text-sm text-slate-600">
+      <h1 className="font-display text-2xl font-bold text-cream">Billing</h1>
+      <p className="mt-1 text-sm text-cream-dim">
         Manage which Qp Digital services you&apos;re subscribed to.
       </p>
 
       {sp.success && (
-        <p className="mt-4 rounded-lg bg-emerald-50 px-4 py-3 text-sm text-emerald-700">
+        <p className="mt-4 rounded-lg border border-emerald-500/30 bg-emerald-500/10 px-4 py-3 text-sm text-emerald-400">
           Subscription updated. It may take a few seconds to appear below.
         </p>
       )}
       {sp.upgrade === "crm" && !crmActive && (
-        <p className="mt-4 rounded-lg bg-amber-50 px-4 py-3 text-sm text-amber-800">
+        <p className="mt-4 rounded-lg border border-amber-500/30 bg-amber-500/10 px-4 py-3 text-sm text-amber-400">
           Subscribe to CRM below to unlock that part of your dashboard.
         </p>
       )}
@@ -45,14 +45,14 @@ export default async function BillingPage({
       <div className="mt-8 card p-6">
         <div className="flex flex-wrap items-center justify-between gap-4">
           <div>
-            <h2 className="text-lg font-semibold text-slate-900">
+            <h2 className="font-display text-lg font-bold text-cream">
               {PRODUCTS.crm.name}
             </h2>
-            <p className="mt-1 text-sm text-slate-600">
+            <p className="mt-1 text-sm text-cream-dim">
               {PRODUCTS.crm.description}
             </p>
             {crmSub && (
-              <p className="mt-2 text-xs text-slate-500">
+              <p className="mt-2 text-xs text-cream-dim/70">
                 Status: {STATUS_LABEL[crmSub.status] ?? crmSub.status}
                 {crmSub.current_period_end &&
                   ` · Renews ${new Date(

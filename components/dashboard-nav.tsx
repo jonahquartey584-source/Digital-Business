@@ -22,10 +22,10 @@ export function DashboardNav() {
           <Link
             key={link.href}
             href={link.href}
-            className={`block rounded-lg px-3 py-2 text-sm font-medium ${
+            className={`block rounded-lg px-3 py-2 font-mono text-xs uppercase tracking-wider ${
               active
-                ? "bg-brand-50 text-brand-700"
-                : "text-slate-600 hover:bg-slate-100 hover:text-slate-900"
+                ? "border border-gold-600/40 bg-gold-500/10 text-gold-300"
+                : "text-cream-dim hover:bg-white/5 hover:text-cream"
             }`}
           >
             {link.label}

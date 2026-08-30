@@ -34,7 +34,7 @@ export default async function CrmPipelinePage() {
   return (
     <div>
       <details className="card mb-6 p-4">
-        <summary className="cursor-pointer text-sm font-medium text-slate-900">
+        <summary className="cursor-pointer text-sm font-medium text-cream">
           + New deal
         </summary>
         <form action={createDeal} className="mt-4 grid gap-3 sm:grid-cols-2">
@@ -83,14 +83,14 @@ export default async function CrmPipelinePage() {
       </details>
 
       {dealList.length === 0 ? (
-        <p className="text-sm text-slate-500">
+        <p className="text-sm text-cream-dim">
           No deals yet. Add your first deal above.
         </p>
       ) : (
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-5">
           {STAGES.map((stage) => (
             <div key={stage.key}>
-              <h2 className="mb-3 text-xs font-semibold uppercase tracking-wide text-slate-500">
+              <h2 className="mb-3 text-xs font-semibold uppercase tracking-wide text-cream-dim">
                 {stage.label} ·{" "}
                 {dealList.filter((d) => d.stage === stage.key).length}
               </h2>

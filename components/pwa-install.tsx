@@ -87,17 +87,17 @@ export function PwaInstall() {
   if (dismissed || (!installEvent && !showIosHint)) return null;
 
   return (
-    <div className="fixed inset-x-0 bottom-0 z-50 border-t border-slate-200 bg-white px-4 py-3 shadow-lg sm:bottom-4 sm:left-auto sm:right-4 sm:w-96 sm:rounded-xl sm:border">
+    <div className="fixed inset-x-0 bottom-0 z-50 border-t border-ink-border bg-ink-soft px-4 py-3 shadow-lg sm:bottom-4 sm:left-auto sm:right-4 sm:w-96 sm:rounded-xl sm:border">
       <div className="flex items-start gap-3">
         <LogoMark className="h-9 w-9 text-sm" />
         <div className="min-w-0 flex-1">
-          <p className="text-sm font-medium text-slate-900">Install Qp Digital</p>
+          <p className="text-sm font-medium text-cream">Install Qp Digital</p>
           {installEvent ? (
-            <p className="mt-0.5 text-xs text-slate-600">
+            <p className="mt-0.5 text-xs text-cream-dim">
               Add it to your home screen for quick access to your CRM.
             </p>
           ) : (
-            <p className="mt-0.5 text-xs text-slate-600">
+            <p className="mt-0.5 text-xs text-cream-dim">
               Tap the Share icon, then &quot;Add to Home Screen.&quot;
             </p>
           )}

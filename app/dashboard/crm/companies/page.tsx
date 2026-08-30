@@ -16,7 +16,7 @@ export default async function CompaniesPage() {
   return (
     <div>
       <details className="card mb-6 p-4">
-        <summary className="cursor-pointer text-sm font-medium text-slate-900">
+        <summary className="cursor-pointer text-sm font-medium text-cream">
           + New company
         </summary>
         <form action={createCompany} className="mt-4 grid gap-3 sm:grid-cols-2">
@@ -45,19 +45,19 @@ export default async function CompaniesPage() {
       </details>
 
       {companies.length === 0 ? (
-        <p className="text-sm text-slate-500">No companies yet.</p>
+        <p className="text-sm text-cream-dim">No companies yet.</p>
       ) : (
-        <div className="card divide-y divide-slate-100">
+        <div className="card divide-y divide-ink-border">
           {companies.map((company) => (
             <div key={company.id} className="flex items-center justify-between p-4">
               <div>
-                <p className="font-medium text-slate-900">{company.name}</p>
-                <p className="text-sm text-slate-500">
+                <p className="font-medium text-cream">{company.name}</p>
+                <p className="text-sm text-cream-dim">
                   {[company.industry, company.website].filter(Boolean).join(" · ")}
                 </p>
               </div>
               <form action={deleteCompany.bind(null, company.id)}>
-                <button type="submit" className="btn-ghost text-red-600">
+                <button type="submit" className="btn-ghost text-red-400 hover:text-red-300">
                   Delete
                 </button>
               </form>
