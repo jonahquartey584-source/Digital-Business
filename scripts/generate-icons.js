@@ -2,9 +2,10 @@
 //
 // To use your own logo instead of the placeholder "Qp" mark: replace
 // scripts/logo-source.svg (square, no padding — corners get rounded
-// automatically) and scripts/logo-maskable-source.svg (square, full-bleed
+// automatically), scripts/logo-maskable-source.svg (square, full-bleed
 // background, keep your logo within the inner ~80% so OS icon masks don't
-// clip it), then run:
+// clip it), and scripts/logo-simple-source.svg (plain version used only for
+// the tiny 16/32px favicons, where fine detail turns to mud), then run:
 //
 //   npm run icons
 //
@@ -54,13 +55,16 @@ ensureFontRegistered();
 
 const base = fs.readFileSync(path.join(__dirname, "logo-source.svg"));
 const maskable = fs.readFileSync(path.join(__dirname, "logo-maskable-source.svg"));
+const simple = fs.readFileSync(path.join(__dirname, "logo-simple-source.svg"));
 
 const jobs = [
   [base, 512, "icon-512.png"],
   [base, 192, "icon-192.png"],
   [base, 180, "apple-touch-icon.png"],
-  [base, 32, "favicon-32.png"],
-  [base, 16, "favicon-16.png"],
+  // The dot/gradient detail in the full mark turns to mud below ~64px, so
+  // the tiny browser-tab favicons use the plain black + off-white version.
+  [simple, 32, "favicon-32.png"],
+  [simple, 16, "favicon-16.png"],
   [maskable, 512, "icon-maskable-512.png"],
   [maskable, 192, "icon-maskable-192.png"],
 ];

@@ -1,0 +1,8 @@
+<!-- Used only for the 16/32px favicons — dots and gradients turn to mud
+     at that size, so this is the plain black + off-white mark. -->
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+  <rect width="512" height="512" rx="96" fill="#0A0806"/>
+  <text x="256" y="332" text-anchor="middle"
+        font-family="Playfair Display" font-weight="700"
+        font-size="252" fill="#F1E9D8">Qp</text>
+</svg>
