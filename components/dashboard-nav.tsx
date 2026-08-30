@@ -7,6 +7,7 @@ const links = [
   { href: "/dashboard", label: "Overview", exact: true },
   { href: "/dashboard/crm", label: "CRM" },
   { href: "/dashboard/voice", label: "AI Reception" },
+  { href: "/dashboard/booking", label: "Booking" },
   { href: "/dashboard/billing", label: "Billing" },
 ];
 

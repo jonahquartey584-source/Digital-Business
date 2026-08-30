@@ -132,3 +132,50 @@ export interface VoiceCall {
   ended_at: string | null;
   created_at: string;
 }
+
+// ---------- Booking System ----------
+
+/** ["09:00", "17:00"] style ranges, per weekday. Empty/missing = closed. */
+export type WeeklyHours = Partial<
+  Record<"mon" | "tue" | "wed" | "thu" | "fri" | "sat" | "sun", [string, string][]>
+>;
+
+export interface BookingSettings {
+  id: string;
+  owner_id: string;
+  slug: string;
+  business_name: string | null;
+  description: string | null;
+  timezone: string;
+  weekly_hours: WeeklyHours;
+  enabled: boolean;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface BookingService {
+  id: string;
+  owner_id: string;
+  name: string;
+  duration_minutes: number;
+  price: number | null;
+  active: boolean;
+  created_at: string;
+}
+
+export type BookingStatus = "confirmed" | "cancelled";
+
+export interface Booking {
+  id: string;
+  owner_id: string;
+  service_id: string | null;
+  customer_name: string;
+  customer_email: string | null;
+  customer_phone: string | null;
+  notes: string | null;
+  starts_at: string;
+  ends_at: string;
+  status: BookingStatus;
+  contact_id: string | null;
+  created_at: string;
+}

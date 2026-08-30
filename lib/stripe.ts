@@ -51,6 +51,20 @@ export const PRODUCTS = {
       "Ring your team first, or AI-first — your choice",
     ],
   },
+  booking: {
+    slug: "booking",
+    name: "Booking System",
+    description:
+      "A public booking page your customers use to schedule appointments — synced to your availability and your CRM.",
+    priceId: process.env.STRIPE_BOOKING_PRICE_ID ?? "",
+    priceLabel: "$19/month",
+    features: [
+      "Your own public booking page",
+      "Set your weekly hours & services",
+      "Double-booking prevented automatically",
+      "New bookings logged straight to your CRM",
+    ],
+  },
 } as const;
 
 export type ProductSlug = keyof typeof PRODUCTS;

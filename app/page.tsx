@@ -46,31 +46,20 @@ export default function HomePage() {
             </p>
 
             <div className="mt-10 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-              <div className="card p-6">
-                <p className="badge-success">Available now</p>
-                <h3 className="mt-3 font-display text-lg font-bold text-cream">
-                  {PRODUCTS.crm.name}
-                </h3>
-                <p className="mt-2 text-sm text-cream-dim">
-                  {PRODUCTS.crm.description}
-                </p>
-                <p className="mt-4 text-sm font-medium text-gold-300">
-                  {PRODUCTS.crm.priceLabel}
-                </p>
-              </div>
-
-              <div className="card p-6">
-                <p className="badge-success">Available now</p>
-                <h3 className="mt-3 font-display text-lg font-bold text-cream">
-                  {PRODUCTS.voice.name}
-                </h3>
-                <p className="mt-2 text-sm text-cream-dim">
-                  {PRODUCTS.voice.description}
-                </p>
-                <p className="mt-4 text-sm font-medium text-gold-300">
-                  {PRODUCTS.voice.priceLabel}
-                </p>
-              </div>
+              {(Object.keys(PRODUCTS) as (keyof typeof PRODUCTS)[]).map((slug) => (
+                <div key={slug} className="card p-6">
+                  <p className="badge-success">Available now</p>
+                  <h3 className="mt-3 font-display text-lg font-bold text-cream">
+                    {PRODUCTS[slug].name}
+                  </h3>
+                  <p className="mt-2 text-sm text-cream-dim">
+                    {PRODUCTS[slug].description}
+                  </p>
+                  <p className="mt-4 text-sm font-medium text-gold-300">
+                    {PRODUCTS[slug].priceLabel}
+                  </p>
+                </div>
+              ))}
 
               <div className="card p-6 opacity-60">
                 <p className="badge-neutral">Coming soon</p>

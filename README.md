@@ -2,10 +2,11 @@
 
 A subscription SaaS for Qp Digital: users create a free account, then pay for
 individual services — a full CRM (contacts, companies, deal pipeline,
-activity notes), and AI Reception (an AI that answers missed calls on the
+activity notes), AI Reception (an AI that answers missed calls on the
 client's own Twilio number, has a real conversation, and logs it to their
-CRM). It's installable straight from the browser as a PWA on iPhone and
-Android (no app store needed), and is also wrapped with
+CRM), and a Booking System (a public appointment page, synced to their
+availability and their CRM). It's installable straight from the browser as
+a PWA on iPhone and Android (no app store needed), and is also wrapped with
 [Capacitor](https://capacitorjs.com) so it can be published to the Apple App
 Store and Google Play later if you want that too.
 
@@ -30,8 +31,12 @@ app/
       contacts/               contacts list + detail w/ activity log
       companies/              companies list
     voice/                   AI Reception — gated behind an active "voice" subscription
-      page.tsx                settings: Twilio credentials, business info, webhook URLs
+      page.tsx                settings: your number, business info, rotate webhook
       calls/                   call log with transcripts + AI summaries
+    booking/                 Booking System — gated behind an active "booking" subscription
+      page.tsx                settings: business info, weekly hours, services
+      appointments/            upcoming/past bookings, cancel
+  book/[slug]/              PUBLIC booking page — no login, this is for the client's customers
   api/stripe/
     checkout/route.ts        creates a Stripe Checkout session
     portal/route.ts          opens the Stripe customer billing portal
@@ -40,8 +45,10 @@ app/
 lib/
   supabase/                 browser/server/middleware Supabase clients + isSupabaseConfigured guard
   crm/actions.ts             CRM server actions (each one re-checks the subscription)
-  voice/                     AI Reception: settings actions, Twilio webhook handlers, Claude calls
-  crypto.ts                  AES-256-GCM encrypt/decrypt for Twilio Auth Tokens at rest
+  voice/                     AI Reception: provisioning, Twilio webhook handlers, Claude calls
+  booking/                   Booking System: dashboard actions + public.ts/public-actions.ts
+                              (service-role reads/writes — the public page has no user session)
+  crypto.ts                  AES-256-GCM encrypt/decrypt for Twilio Subaccount tokens at rest
   stripe.ts                  Stripe client + PRODUCTS catalog (add new services here)
   subscription.ts            hasActiveSubscription() gate used everywhere
 supabase/migrations/*.sql    full DB schema + Row Level Security policies
@@ -86,15 +93,16 @@ npm install
 ### 2. Create a Supabase project
 
 1. Create a project at [supabase.com](https://supabase.com).
-2. In the SQL Editor, run `supabase/migrations/0001_init.sql`, then
-   `0002_voice.sql`.
+2. In the SQL Editor, run the migrations in order: `0001_init.sql`,
+   `0002_voice.sql`, `0003_booking.sql`.
 3. Copy **Project URL**, **anon public key**, and **service_role key** from
    Project Settings → API.
 
 ### 3. Create Stripe products
 
-1. In the Stripe Dashboard, create two products, each with a recurring
-   monthly Price: "CRM" and "AI Reception". Copy each Price ID (`price_...`).
+1. In the Stripe Dashboard, create three products, each with a recurring
+   monthly Price: "CRM", "AI Reception", and "Booking System". Copy each
+   Price ID (`price_...`).
 2. Create a webhook endpoint pointing at
    `https://YOUR-DOMAIN/api/stripe/webhook`, subscribed to:
    `checkout.session.completed`, `customer.subscription.created`,
@@ -227,6 +235,49 @@ That's it — calls to that number now go through the flow below.
 - No built-in per-client usage/cost dashboard yet — Twilio's Subaccount
   Usage Records API (queryable per `twilio_account_sid`) is the natural
   place to build one if/when you need per-client cost visibility.
+
+## Booking System
+
+A public appointment page per client: `yourdomain.com/book/<their-slug>`.
+No Twilio, no external account needed here — pure software, same margin
+profile as CRM.
+
+**What a client does, once, in `/dashboard/booking`:** subscribe, set a
+business name (which generates their `/book/<slug>` URL — editable), their
+weekly hours (a simple day-by-day open/closed + start/end time grid), and
+the services they offer (name, duration, optional price). That's the whole
+setup — their booking page is live immediately.
+
+**How a booking happens** (`app/book/[slug]/page.tsx`,
+`components/booking-widget.tsx`, `lib/booking/*`):
+
+1. A customer opens the public page, picks a service and a date.
+2. `getSlotsForDate` (`lib/booking/public-actions.ts`) computes open slots
+   from the business's weekly hours minus their already-confirmed bookings
+   for that day (`lib/booking/availability.ts` — pure, easily testable
+   logic, no I/O).
+3. Customer picks a slot, fills in name + email/phone, submits.
+4. `createPublicBooking` **re-checks the slot is still free** immediately
+   before inserting — the customer's last availability fetch could be
+   stale by the time they submit, so this is the actual race-condition
+   guard, not just the earlier display.
+5. If the client also has an active CRM subscription, the booking
+   finds/creates a CRM contact (matched by email, then phone) and logs a
+   `booking`-type activity — same "logged automatically, nothing falls
+   through the cracks" pattern as AI Reception's call logging.
+
+The public page and its server actions run entirely on the service-role
+admin client (`lib/booking/public.ts`) — there's no user session on a page
+a client's *customers* are visiting, so it can't go through the normal
+RLS-protected client. `supabase/migrations/0003_booking.sql`'s comments
+explain why there's deliberately no public RLS `select` policy instead.
+
+**Known limitation:** times are wall-clock on whatever timezone the server
+process runs in (UTC on Netlify/Vercel functions) — `booking_settings.timezone`
+is stored but not yet used for real IANA conversion. Fine as long as a
+business enters their hours with that in mind; a proper fix would run
+`lib/booking/availability.ts` through a timezone library keyed off that
+column.
 
 ## Install as an app — no app store needed
 

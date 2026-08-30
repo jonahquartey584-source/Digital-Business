@@ -53,16 +53,17 @@ export default async function PricingPage() {
           upgrade, downgrade, or cancel anytime from your billing page.
         </p>
 
-        <div className="mt-12 grid gap-6 sm:grid-cols-2">
+        <div className="mt-12 grid gap-6 sm:grid-cols-3">
           <PricingCard slug="crm" signedIn={!!user} />
           <PricingCard slug="voice" signedIn={!!user} />
+          <PricingCard slug="booking" signedIn={!!user} />
         </div>
 
         <div className="card mt-6 flex flex-col p-8 opacity-60">
           <h2 className="font-display text-lg font-bold text-cream">More services</h2>
           <p className="mt-2 text-sm text-cream-dim">
-            Invoicing, scheduling, and marketing tools are on the roadmap —
-            each will be its own subscription, priced separately.
+            Invoicing and marketing tools are on the roadmap — each will be
+            its own subscription, priced separately.
           </p>
           <p className="mt-6 font-mono text-xs uppercase tracking-wider text-cream-dim">
             Coming soon

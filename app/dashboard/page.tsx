@@ -8,6 +8,7 @@ export const dynamic = "force-dynamic";
 const SERVICE_HREF: Record<ProductSlug, string> = {
   crm: "/dashboard/crm",
   voice: "/dashboard/voice",
+  booking: "/dashboard/booking",
 };
 
 export default async function DashboardOverviewPage() {
@@ -64,8 +65,8 @@ export default async function DashboardOverviewPage() {
         <div className="card p-6 opacity-60">
           <h2 className="font-display text-lg font-bold text-cream">More services</h2>
           <p className="mt-2 text-sm text-cream-dim">
-            Invoicing, scheduling, and more are on the way. New services
-            appear here as soon as they launch.
+            Invoicing and more are on the way. New services appear here as
+            soon as they launch.
           </p>
           <span className="badge-neutral mt-6 inline-flex">
             Coming soon
