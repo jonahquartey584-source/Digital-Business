@@ -24,6 +24,20 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: 22
+      - name: Prepare Qp Digital Mac icon
+        run: |
+          mkdir -p build/icon.iconset
+          sips -z 16 16 ../public/icons/icon-512.png --out build/icon.iconset/icon_16x16.png
+          sips -z 32 32 ../public/icons/icon-512.png --out build/icon.iconset/icon_16x16@2x.png
+          sips -z 32 32 ../public/icons/icon-512.png --out build/icon.iconset/icon_32x32.png
+          sips -z 64 64 ../public/icons/icon-512.png --out build/icon.iconset/icon_32x32@2x.png
+          sips -z 128 128 ../public/icons/icon-512.png --out build/icon.iconset/icon_128x128.png
+          sips -z 256 256 ../public/icons/icon-512.png --out build/icon.iconset/icon_128x128@2x.png
+          sips -z 256 256 ../public/icons/icon-512.png --out build/icon.iconset/icon_256x256.png
+          sips -z 512 512 ../public/icons/icon-512.png --out build/icon.iconset/icon_256x256@2x.png
+          cp ../public/icons/icon-512.png build/icon.iconset/icon_512x512.png
+          sips -z 1024 1024 ../public/icons/icon-512.png --out build/icon.iconset/icon_512x512@2x.png
+          iconutil -c icns build/icon.iconset -o build/app.icns
       - run: npm install
       - run: npm run dist
         env:
@@ -45,6 +59,9 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: 22
+      - name: Prepare Qp Digital Windows icon
+        shell: pwsh
+        run: magick ../public/icons/icon-512.png -define icon:auto-resize=256,128,64,48,32,16 build/app.ico
       - run: npm install
       - run: npm run dist
         env:
@@ -67,5 +84,5 @@ jobs:
           GH_TOKEN: ${{ github.token }}
           GH_REPO: jonahquartey584-source/Digital-Business
         run: |
-          gh release view desktop-v1.0.0 >/dev/null 2>&1 || gh release create desktop-v1.0.0 --target claude/qp-digital-saas-crm-3qsipn --title "Qp Digital CRM Desktop v1.0.0" --notes "Desktop installers for the Qp Digital CRM. These initial builds are unsigned and may show an operating-system security warning on first launch."
-          gh release upload desktop-v1.0.0 installers/* --clobber
+          gh release view desktop-v1.0.1 >/dev/null 2>&1 || gh release create desktop-v1.0.1 --target claude/qp-digital-saas-crm-3qsipn --title "Qp Digital CRM Desktop v1.0.1" --notes "Qp Digital-branded desktop installers for Mac and Windows. These builds are unsigned and may show an operating-system security warning on first launch."
+          gh release upload desktop-v1.0.1 installers/* --clobber
