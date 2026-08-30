@@ -1,0 +1,70 @@
+name: Build Qp Digital CRM desktop installers
+
+on:
+  push:
+    branches:
+      - claude/random-artist-generator-epy20n
+    paths:
+      - .github/workflows/build-desktop.yml
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  mac:
+    runs-on: macos-14
+    defaults:
+      run:
+        working-directory: desktop
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: claude/qp-digital-saas-crm-3qsipn
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - run: npm install
+      - run: npm run dist
+        env:
+          CSC_IDENTITY_AUTO_DISCOVERY: "false"
+      - uses: actions/upload-artifact@v4
+        with:
+          name: mac-installers
+          path: desktop/dist/*.dmg
+
+  windows:
+    runs-on: windows-latest
+    defaults:
+      run:
+        working-directory: desktop
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: claude/qp-digital-saas-crm-3qsipn
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - run: npm install
+      - run: npm run dist
+        env:
+          CSC_IDENTITY_AUTO_DISCOVERY: "false"
+      - uses: actions/upload-artifact@v4
+        with:
+          name: windows-installer
+          path: desktop/dist/*.exe
+
+  release:
+    needs: [mac, windows]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          path: installers
+          merge-multiple: true
+      - name: Publish installers
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release view desktop-v1.0.0 >/dev/null 2>&1 || gh release create desktop-v1.0.0 --target claude/qp-digital-saas-crm-3qsipn --title "Qp Digital CRM Desktop v1.0.0" --notes "Desktop installers for the Qp Digital CRM. These initial builds are unsigned and may show an operating-system security warning on first launch."
+          gh release upload desktop-v1.0.0 installers/* --clobber
