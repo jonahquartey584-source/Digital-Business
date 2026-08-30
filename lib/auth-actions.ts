@@ -94,6 +94,34 @@ export async function loginAction(
   redirect("/dashboard");
 }
 
+export async function setPasswordAction(
+  _prevState: AuthFormState,
+  formData: FormData
+): Promise<AuthFormState> {
+  if (!isSupabaseConfigured) return { error: NOT_CONFIGURED_ERROR };
+
+  const password = String(formData.get("password") ?? "");
+  const confirm = String(formData.get("confirm") ?? "");
+
+  if (password.length < 8) {
+    return { error: "Password must be at least 8 characters." };
+  }
+  if (password !== confirm) {
+    return { error: "Passwords don't match." };
+  }
+
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  if (!user) redirect("/login");
+
+  const { error } = await supabase.auth.updateUser({ password });
+  if (error) return { error: error.message };
+
+  redirect("/dashboard?welcome=1");
+}
+
 export async function signOutAction() {
   if (isSupabaseConfigured) {
     const supabase = await createClient();

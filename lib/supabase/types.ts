@@ -15,8 +15,10 @@ export type SubscriptionStatus =
 
 export interface Profile {
   id: string;
+  email: string | null;
   full_name: string | null;
   company_name: string | null;
+  stripe_customer_id: string | null;
   created_at: string;
 }
 

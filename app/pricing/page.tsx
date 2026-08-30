@@ -1,12 +1,9 @@
-import Link from "next/link";
 import { MarketingNav } from "@/components/marketing-nav";
 import { PRODUCTS, type ProductSlug } from "@/lib/stripe";
-import { createClient } from "@/lib/supabase/server";
-import { isSupabaseConfigured } from "@/lib/supabase/config";
 
 export const dynamic = "force-dynamic";
 
-function PricingCard({ slug, signedIn }: { slug: ProductSlug; signedIn: boolean }) {
+function PricingCard({ slug }: { slug: ProductSlug }) {
   const product = PRODUCTS[slug];
   return (
     <div className="card flex flex-col p-8">
@@ -20,27 +17,20 @@ function PricingCard({ slug, signedIn }: { slug: ProductSlug; signedIn: boolean 
           <li key={feature}>✓ {feature}</li>
         ))}
       </ul>
-      {signedIn ? (
-        <form action="/api/stripe/checkout" method="POST" className="mt-8">
-          <input type="hidden" name="product" value={slug} />
-          <button type="submit" className="btn-primary w-full">
-            Subscribe to {product.name}
-          </button>
-        </form>
-      ) : (
-        <Link href="/signup?next=/pricing" className="btn-primary mt-8 w-full">
-          Create an account to subscribe
-        </Link>
-      )}
+      {/* Works whether you're signed in or not — /api/stripe/checkout
+          attaches to your account if you're logged in, or collects your
+          email at checkout and creates one automatically once you pay. */}
+      <form action="/api/stripe/checkout" method="POST" className="mt-8">
+        <input type="hidden" name="product" value={slug} />
+        <button type="submit" className="btn-primary w-full">
+          Subscribe to {product.name}
+        </button>
+      </form>
     </div>
   );
 }
 
-export default async function PricingPage() {
-  const user = isSupabaseConfigured
-    ? (await (await createClient()).auth.getUser()).data.user
-    : null;
-
+export default function PricingPage() {
   return (
     <>
       <MarketingNav />
@@ -49,14 +39,15 @@ export default async function PricingPage() {
           Simple, per-service pricing
         </h1>
         <p className="mx-auto mt-3 max-w-xl text-center text-cream-dim">
-          A Qp Digital account is free. Subscribe to the services you need —
-          upgrade, downgrade, or cancel anytime from your billing page.
+          No account needed up front — subscribe below and we&apos;ll set one
+          up for you automatically. Already have an account? Log in first
+          and it subscribes on your existing account instead.
         </p>
 
         <div className="mt-12 grid gap-6 sm:grid-cols-3">
-          <PricingCard slug="crm" signedIn={!!user} />
-          <PricingCard slug="voice" signedIn={!!user} />
-          <PricingCard slug="booking" signedIn={!!user} />
+          <PricingCard slug="crm" />
+          <PricingCard slug="voice" />
+          <PricingCard slug="booking" />
         </div>
 
         <div className="card mt-6 flex flex-col p-8 opacity-60">

@@ -3,6 +3,7 @@ import type Stripe from "stripe";
 import { getStripe, PRODUCTS, type ProductSlug } from "@/lib/stripe";
 import { createAdminClient } from "@/lib/supabase/server";
 import { releaseNumberForUser } from "@/lib/voice/provisioning";
+import { resolveOrCreateUserForEmail } from "@/lib/auth-provisioning";
 
 export const runtime = "nodejs";
 
@@ -67,6 +68,42 @@ async function upsertFromSubscription(
   }
 }
 
+/**
+ * Handles the "paid without an existing account" path
+ * (app/api/stripe/checkout — anonymous checkout): resolves or creates the
+ * Supabase account for the email Stripe collected, then writes that link
+ * back onto the Stripe subscription/customer so every future webhook event
+ * for it already carries supabase_user_id — this only needs to run once,
+ * right after the first successful payment.
+ */
+async function linkAnonymousCheckoutToAccount(
+  stripe: Stripe,
+  subscription: Stripe.Subscription,
+  email: string | null | undefined,
+  siteUrl: string
+): Promise<Stripe.Subscription> {
+  if (!email) {
+    console.error(
+      "Anonymous checkout completed with no email on the session:",
+      subscription.id
+    );
+    return subscription;
+  }
+
+  const userId = await resolveOrCreateUserForEmail(email, siteUrl);
+
+  const updated = await stripe.subscriptions.update(subscription.id, {
+    metadata: { ...subscription.metadata, supabase_user_id: userId },
+  });
+
+  const admin = createAdminClient();
+  const customerId =
+    typeof updated.customer === "string" ? updated.customer : updated.customer.id;
+  await admin.from("profiles").update({ stripe_customer_id: customerId }).eq("id", userId);
+
+  return updated;
+}
+
 export async function POST(request: Request) {
   const signature = request.headers.get("stripe-signature");
   const webhookSecret = process.env.STRIPE_WEBHOOK_SECRET;
@@ -93,11 +130,23 @@ export async function POST(request: Request) {
     case "checkout.session.completed": {
       const session = event.data.object as Stripe.Checkout.Session;
       if (session.mode === "subscription" && session.subscription) {
-        const subscription = await stripe.subscriptions.retrieve(
+        let subscription: Stripe.Subscription = await stripe.subscriptions.retrieve(
           typeof session.subscription === "string"
             ? session.subscription
             : session.subscription.id
         );
+
+        if (!subscription.metadata?.supabase_user_id) {
+          const siteUrl =
+            process.env.NEXT_PUBLIC_SITE_URL ?? new URL(request.url).origin;
+          subscription = await linkAnonymousCheckoutToAccount(
+            stripe,
+            subscription,
+            session.customer_details?.email,
+            siteUrl
+          );
+        }
+
         await upsertFromSubscription(subscription, session.metadata?.product);
       }
       break;

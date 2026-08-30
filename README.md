@@ -1,11 +1,16 @@
 # Qp Digital — SaaS Platform
 
-A subscription SaaS for Qp Digital: users create a free account, then pay for
-individual services — a full CRM (contacts, companies, deal pipeline,
-activity notes), AI Reception (an AI that answers missed calls on the
-client's own Twilio number, has a real conversation, and logs it to their
-CRM), and a Booking System (a public appointment page, synced to their
-availability and their CRM). It's installable straight from the browser as
+A subscription SaaS for Qp Digital: people pay for individual services — a
+full CRM (contacts, companies, deal pipeline, activity notes), AI Reception
+(an AI that answers missed calls on the client's own Twilio number, has a
+real conversation, and logs it to their CRM), and a Booking System (a public
+appointment page, synced to their availability and their CRM). No account is
+required up front: subscribing from `/pricing` while signed out collects
+your email at Stripe Checkout and the webhook creates your Qp Digital
+account automatically once payment succeeds, then emails you a link to set
+a password (`lib/auth-provisioning.ts`). Already have an account? Log in
+first and the same Checkout flow attaches the new subscription to it
+instead. It's installable straight from the browser as
 a PWA on iPhone and Android (no app store needed), and is also wrapped with
 [Capacitor](https://capacitorjs.com) so it can be published to the Apple App
 Store and Google Play later if you want that too.
@@ -22,6 +27,8 @@ app/
   pricing/                 public pricing page (Stripe Checkout button)
   (auth)/login, signup/    email+password auth
   auth/callback, signout/  auth route handlers
+  auth/set-password/       where the account-creation invite email lands
+  welcome/                 post-payment landing page for signed-out checkout
   dashboard/                protected app shell (requires login)
     page.tsx                overview / service tiles
     billing/                subscribe / manage subscription (Stripe)
@@ -73,6 +80,27 @@ public/icons/                 generated app icons (see scripts/generate-icons.js
    with an `owner_id` RLS policy (copy the CRM ones), gate its routes with
    `hasActiveSubscription("your-service")`.
 
+### Pay-first checkout (no account needed up front)
+
+`/api/stripe/checkout` branches on whether the visitor is signed in:
+
+- **Signed in** — attaches the subscription to their existing Stripe
+  customer (creating one on first purchase), same as before.
+- **Signed out** — creates the Checkout Session with no `customer` set, so
+  Stripe collects the email itself. On `checkout.session.completed`, the
+  webhook (`app/api/stripe/webhook/route.ts`) checks whether the
+  subscription already has a `supabase_user_id`; if not, it calls
+  `resolveOrCreateUserForEmail()` (`lib/auth-provisioning.ts`) which looks
+  up `profiles.email` for an existing account or calls
+  `supabase.auth.admin.inviteUserByEmail()` to create one and send an
+  invite email, then writes `supabase_user_id` back onto the Stripe
+  subscription's metadata so every later webhook event for it resolves
+  normally. The invite link lands on `/auth/set-password`, which sets the
+  new user's password and drops them into `/dashboard`. The buyer sees
+  `/welcome` right after paying, before the invite email necessarily
+  arrives. Requires `supabase/migrations/0004_profiles_email.sql` (adds
+  `profiles.email`, used to find an existing account by email).
+
 ### Data model note
 
 Every CRM row is owned by a single user (`owner_id`). This is the simplest
@@ -94,7 +122,7 @@ npm install
 
 1. Create a project at [supabase.com](https://supabase.com).
 2. In the SQL Editor, run the migrations in order: `0001_init.sql`,
-   `0002_voice.sql`, `0003_booking.sql`.
+   `0002_voice.sql`, `0003_booking.sql`, `0004_profiles_email.sql`.
 3. Copy **Project URL**, **anon public key**, and **service_role key** from
    Project Settings → API.
 
