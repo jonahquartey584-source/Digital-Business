@@ -1,5 +1,4 @@
-// Admin login: exchanges an email + password + the answer to a personal
-// security question for a short-lived session token. admin.html gates the
+// Admin login: exchanges an email + password for a short-lived session token. admin.html gates the
 // New Client Setup tool behind this — log in once, then the tool attaches
 // the returned token as `Authorization: Bearer <token>` to every
 // create-client/upload call instead of asking for a password on each one.
@@ -31,22 +30,19 @@ export default async (req: Request, context: Context) => {
 
   const email = Netlify.env.get("ADMIN_EMAIL") ?? "";
   const password = Netlify.env.get("ADMIN_PASSWORD") ?? "";
-  const securityAnswer = Netlify.env.get("ADMIN_SECURITY_ANSWER") ?? "";
   const sessionSecret = Netlify.env.get("ADMIN_SESSION_SECRET") ?? "";
 
-  if (!email || !password || !securityAnswer || !sessionSecret) {
+  if (!email || !password || !sessionSecret) {
     return json(500, {
       status: "error",
-      message: "Admin login isn't configured yet — set ADMIN_EMAIL, ADMIN_PASSWORD, ADMIN_SECURITY_ANSWER and ADMIN_SESSION_SECRET",
+      message: "Admin login isn't configured yet.",
     });
   }
 
   const emailOk = safeEqual(normalize(email), normalize(String(input.email ?? "")));
   const passwordOk = safeEqual(password, String(input.password ?? ""));
-  const answerOk = safeEqual(normalize(securityAnswer), normalize(String(input.securityAnswer ?? "")));
-
-  if (!emailOk || !passwordOk || !answerOk) {
-    return json(401, { status: "error", message: "Wrong email, password, or answer" });
+  if (!emailOk || !passwordOk) {
+    return json(401, { status: "error", message: "Wrong email or password" });
   }
 
   const ttlSeconds = input.remember ? REMEMBERED_SESSION_TTL_SECONDS : SESSION_TTL_SECONDS;

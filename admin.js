@@ -226,7 +226,6 @@ if (loginForm) {
 
     const email = loginForm.loginEmail.value.trim();
     const password = loginForm.loginPassword.value;
-    const securityAnswer = loginForm.loginSecurityAnswer.value;
     const remember = loginForm.loginRemember.checked;
 
     loginBtn.disabled = true;
@@ -237,7 +236,7 @@ if (loginForm) {
       const response = await fetch("api/admin_login.php", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email, password, securityAnswer, remember }),
+        body: JSON.stringify({ email, password, remember }),
       });
       const result = await response.json();
 
@@ -245,7 +244,7 @@ if (loginForm) {
         saveSession(result.token, email, remember);
         showAdminTool(email);
       } else {
-        loginNote.textContent = result.message || "Wrong email, password, or answer.";
+        loginNote.textContent = result.message || "Wrong email or password.";
         loginNote.style.color = "#ff8a8a";
       }
     } catch (err) {
