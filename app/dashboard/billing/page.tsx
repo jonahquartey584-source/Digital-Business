@@ -1,5 +1,6 @@
-import { PRODUCTS } from "@/lib/stripe";
+import { PRODUCTS, type ProductSlug } from "@/lib/stripe";
 import { getSubscriptions } from "@/lib/subscription";
+import type { Subscription } from "@/lib/supabase/types";
 
 export const dynamic = "force-dynamic";
 
@@ -14,6 +15,51 @@ const STATUS_LABEL: Record<string, string> = {
   paused: "Paused",
 };
 
+function ProductBillingCard({
+  slug,
+  subscription,
+}: {
+  slug: ProductSlug;
+  subscription: Subscription | undefined;
+}) {
+  const product = PRODUCTS[slug];
+  const active = subscription && ["active", "trialing"].includes(subscription.status);
+
+  return (
+    <div className="card p-6">
+      <div className="flex flex-wrap items-center justify-between gap-4">
+        <div>
+          <h2 className="font-display text-lg font-bold text-cream">{product.name}</h2>
+          <p className="mt-1 text-sm text-cream-dim">{product.description}</p>
+          {subscription && (
+            <p className="mt-2 text-xs text-cream-dim/70">
+              Status: {STATUS_LABEL[subscription.status] ?? subscription.status}
+              {subscription.current_period_end &&
+                ` · Renews ${new Date(subscription.current_period_end).toLocaleDateString()}`}
+              {subscription.cancel_at_period_end && " · Cancels at period end"}
+            </p>
+          )}
+        </div>
+
+        {active ? (
+          <form action="/api/stripe/portal" method="POST">
+            <button type="submit" className="btn-secondary">
+              Manage subscription
+            </button>
+          </form>
+        ) : (
+          <form action="/api/stripe/checkout" method="POST">
+            <input type="hidden" name="product" value={slug} />
+            <button type="submit" className="btn-primary">
+              Subscribe — {product.priceLabel}
+            </button>
+          </form>
+        )}
+      </div>
+    </div>
+  );
+}
+
 export default async function BillingPage({
   searchParams,
 }: {
@@ -21,8 +67,12 @@ export default async function BillingPage({
 }) {
   const sp = await searchParams;
   const subscriptions = await getSubscriptions();
-  const crmSub = subscriptions.find((s) => s.product === "crm");
-  const crmActive = crmSub && ["active", "trialing"].includes(crmSub.status);
+  const slugs = Object.keys(PRODUCTS) as ProductSlug[];
+  const upgradeSlug = slugs.includes(sp.upgrade as ProductSlug)
+    ? (sp.upgrade as ProductSlug)
+    : null;
+  const upgradeSub = upgradeSlug && subscriptions.find((s) => s.product === upgradeSlug);
+  const upgradeActive = upgradeSub && ["active", "trialing"].includes(upgradeSub.status);
 
   return (
     <div>
@@ -36,48 +86,21 @@ export default async function BillingPage({
           Subscription updated. It may take a few seconds to appear below.
         </p>
       )}
-      {sp.upgrade === "crm" && !crmActive && (
+      {upgradeSlug && !upgradeActive && (
         <p className="mt-4 rounded-lg border border-amber-500/30 bg-amber-500/10 px-4 py-3 text-sm text-amber-400">
-          Subscribe to CRM below to unlock that part of your dashboard.
+          Subscribe to {PRODUCTS[upgradeSlug].name} below to unlock that part
+          of your dashboard.
         </p>
       )}
 
-      <div className="mt-8 card p-6">
-        <div className="flex flex-wrap items-center justify-between gap-4">
-          <div>
-            <h2 className="font-display text-lg font-bold text-cream">
-              {PRODUCTS.crm.name}
-            </h2>
-            <p className="mt-1 text-sm text-cream-dim">
-              {PRODUCTS.crm.description}
-            </p>
-            {crmSub && (
-              <p className="mt-2 text-xs text-cream-dim/70">
-                Status: {STATUS_LABEL[crmSub.status] ?? crmSub.status}
-                {crmSub.current_period_end &&
-                  ` · Renews ${new Date(
-                    crmSub.current_period_end
-                  ).toLocaleDateString()}`}
-                {crmSub.cancel_at_period_end && " · Cancels at period end"}
-              </p>
-            )}
-          </div>
-
-          {crmActive ? (
-            <form action="/api/stripe/portal" method="POST">
-              <button type="submit" className="btn-secondary">
-                Manage subscription
-              </button>
-            </form>
-          ) : (
-            <form action="/api/stripe/checkout" method="POST">
-              <input type="hidden" name="product" value="crm" />
-              <button type="submit" className="btn-primary">
-                Subscribe — {PRODUCTS.crm.priceLabel}
-              </button>
-            </form>
-          )}
-        </div>
+      <div className="mt-8 space-y-6">
+        {slugs.map((slug) => (
+          <ProductBillingCard
+            key={slug}
+            slug={slug}
+            subscription={subscriptions.find((s) => s.product === slug)}
+          />
+        ))}
       </div>
     </div>
   );

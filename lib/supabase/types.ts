@@ -84,3 +84,51 @@ export interface CrmActivity {
   content: string;
   created_at: string;
 }
+
+// ---------- AI Reception (voice) ----------
+
+export interface VoiceSettings {
+  id: string;
+  owner_id: string;
+  twilio_account_sid: string | null;
+  twilio_auth_token_enc: string | null;
+  twilio_phone_number: string | null;
+  forwarding_number: string | null;
+  business_name: string | null;
+  business_context: string | null;
+  greeting: string | null;
+  enabled: boolean;
+  webhook_token: string;
+  created_at: string;
+  updated_at: string;
+}
+
+export type VoiceCallStatus =
+  | "ringing"
+  | "human_answered"
+  | "ai_answered"
+  | "completed"
+  | "no_answer"
+  | "failed";
+
+export interface VoiceTranscriptTurn {
+  role: "caller" | "ai";
+  text: string;
+  at: string;
+}
+
+export interface VoiceCall {
+  id: string;
+  owner_id: string;
+  twilio_call_sid: string;
+  from_number: string | null;
+  to_number: string | null;
+  status: VoiceCallStatus;
+  transcript: VoiceTranscriptTurn[];
+  summary: string | null;
+  contact_id: string | null;
+  duration_seconds: number | null;
+  started_at: string;
+  ended_at: string | null;
+  created_at: string;
+}

@@ -1,14 +1,17 @@
 # Qp Digital — SaaS Platform
 
 A subscription SaaS for Qp Digital: users create a free account, then pay for
-individual services — starting with a full CRM (contacts, companies, deal
-pipeline, activity notes). It's installable straight from the browser as a
-PWA on iPhone and Android (no app store needed), and is also wrapped with
+individual services — a full CRM (contacts, companies, deal pipeline,
+activity notes), and AI Reception (an AI that answers missed calls on the
+client's own Twilio number, has a real conversation, and logs it to their
+CRM). It's installable straight from the browser as a PWA on iPhone and
+Android (no app store needed), and is also wrapped with
 [Capacitor](https://capacitorjs.com) so it can be published to the Apple App
 Store and Google Play later if you want that too.
 
 **Stack:** Next.js 16 (App Router) · TypeScript · Tailwind CSS · Supabase
-(Postgres + Auth) · Stripe Billing · Capacitor.
+(Postgres + Auth) · Stripe Billing · Twilio · Claude (Anthropic API) ·
+Capacitor.
 
 ## How it's organized
 
@@ -26,16 +29,22 @@ app/
       pipeline/               deal pipeline (kanban by stage)
       contacts/               contacts list + detail w/ activity log
       companies/              companies list
+    voice/                   AI Reception — gated behind an active "voice" subscription
+      page.tsx                settings: Twilio credentials, business info, webhook URLs
+      calls/                   call log with transcripts + AI summaries
   api/stripe/
     checkout/route.ts        creates a Stripe Checkout session
     portal/route.ts          opens the Stripe customer billing portal
     webhook/route.ts         syncs subscription status into Supabase
+  api/twilio/voice/[token]/  inbound call webhooks — see "AI Reception" below
 lib/
-  supabase/                 browser/server/middleware Supabase clients
+  supabase/                 browser/server/middleware Supabase clients + isSupabaseConfigured guard
   crm/actions.ts             CRM server actions (each one re-checks the subscription)
+  voice/                     AI Reception: settings actions, Twilio webhook handlers, Claude calls
+  crypto.ts                  AES-256-GCM encrypt/decrypt for Twilio Auth Tokens at rest
   stripe.ts                  Stripe client + PRODUCTS catalog (add new services here)
   subscription.ts            hasActiveSubscription() gate used everywhere
-supabase/migrations/0001_init.sql   full DB schema + Row Level Security policies
+supabase/migrations/*.sql    full DB schema + Row Level Security policies
 capacitor.config.ts          points the native app shell at your deployed site
 public/manifest.json, sw.js  PWA install manifest + service worker
 public/icons/                 generated app icons (see scripts/generate-icons.js)
@@ -77,14 +86,15 @@ npm install
 ### 2. Create a Supabase project
 
 1. Create a project at [supabase.com](https://supabase.com).
-2. In the SQL Editor, run `supabase/migrations/0001_init.sql`.
+2. In the SQL Editor, run `supabase/migrations/0001_init.sql`, then
+   `0002_voice.sql`.
 3. Copy **Project URL**, **anon public key**, and **service_role key** from
    Project Settings → API.
 
-### 3. Create a Stripe product
+### 3. Create Stripe products
 
-1. In the Stripe Dashboard, create a product "CRM" with a recurring monthly
-   Price. Copy its Price ID (`price_...`).
+1. In the Stripe Dashboard, create two products, each with a recurring
+   monthly Price: "CRM" and "AI Reception". Copy each Price ID (`price_...`).
 2. Create a webhook endpoint pointing at
    `https://YOUR-DOMAIN/api/stripe/webhook`, subscribed to:
    `checkout.session.completed`, `customer.subscription.created`,
@@ -93,14 +103,30 @@ npm install
    - For local development, use the [Stripe CLI](https://stripe.com/docs/stripe-cli):
      `stripe listen --forward-to localhost:3000/api/stripe/webhook`.
 
-### 4. Configure environment variables
+### 4. Get an Anthropic API key (powers AI Reception)
+
+Create a key at [console.anthropic.com](https://console.anthropic.com) →
+API Keys. This is **your** key, used for every client's AI phone
+conversations and call summaries — it's a platform cost, not something each
+client provides.
+
+### 5. Generate an encryption key
+
+Each client's Twilio Auth Token is encrypted before it's stored. Generate a
+key once and keep it secret:
+
+```bash
+openssl rand -base64 32
+```
+
+### 6. Configure environment variables
 
 ```bash
 cp .env.example .env.local
-# then fill in the Supabase and Stripe values from steps 2–3
+# then fill in the values from steps 2–5
 ```
 
-### 5. Run it
+### 7. Run it
 
 ```bash
 npm run dev
@@ -112,15 +138,82 @@ Sign up, then visit `/pricing` or `/dashboard/billing` to subscribe to CRM
 
 ## Deploying the website
 
-Any Node host works; [Vercel](https://vercel.com) is the path of least
-resistance for Next.js:
+Any Node host works. [Vercel](https://vercel.com) is the path of least
+resistance for Next.js; this repo also ships a `netlify.toml` (pins
+`@netlify/plugin-nextjs`) if you'd rather deploy to
+[Netlify](https://netlify.com) — either way:
 
 1. Push this repo to GitHub (already done if you're reading this from the
-   repo) and import it in Vercel.
+   repo) and import it in Vercel or link it in Netlify.
 2. Add the same environment variables from `.env.local`, with
    `NEXT_PUBLIC_SITE_URL` set to your real production URL.
 3. Point your Stripe webhook endpoint and Supabase's "Site URL" / redirect
    allow-list at that same production URL.
+
+The app is written to **degrade gracefully without Supabase configured**
+(`lib/supabase/config.ts`'s `isSupabaseConfigured`): every page still
+renders, sign-in just shows a clear "not set up yet" message instead of
+crashing. Safe to deploy before every credential above is wired up.
+
+## AI Reception — how a client connects their Twilio number
+
+Each CRM/AI Reception subscriber connects their **own** Twilio account —
+you (the platform operator) never see or hold their Twilio credentials in
+plaintext, and they're billed by Twilio directly for their own call usage.
+
+**What a client does, once, in `/dashboard/voice`:**
+
+1. Subscribe to AI Reception (Billing page).
+2. [Buy a phone number](https://console.twilio.com/us1/develop/phone-numbers/manage/search)
+   in their own Twilio account if they don't already have one.
+3. Fill in their Twilio **Account SID**, **Auth Token**, and **phone
+   number**, plus what the AI should know about their business (services,
+   hours, pricing — free text) and, optionally, a real phone number to ring
+   first before the AI picks up.
+4. Save — the page then shows two webhook URLs, unique to that client
+   (`/api/twilio/voice/<their-token>` and `.../status`).
+5. In the [Twilio Console](https://console.twilio.com) → Phone Numbers →
+   their number → **Voice Configuration**: paste the first URL into **"A
+   call comes in"** and the second into **"Call status changes"**, both as
+   `HTTP POST`.
+
+That's it — calls to that number now go through the flow below.
+
+**How a call flows** (`app/api/twilio/voice/[token]/*`, `lib/voice/*`):
+
+1. **Inbound call** → if a forwarding number is set, Twilio rings it first
+   (`<Dial>`, 18s timeout); otherwise the AI answers immediately.
+2. **Unanswered/no forwarding number** → the AI greets the caller and the
+   conversation begins.
+3. **Each turn** → Twilio transcribes the caller's speech (`<Gather
+   input="speech">`) and POSTs the text to `.../gather`; that handler calls
+   Claude with the business context + conversation so far, gets a short
+   spoken reply, and returns TwiML that speaks it and listens for the next
+   turn. **This is one HTTP request per turn, not a persistent audio
+   stream** — deliberately, so it runs on ordinary serverless functions
+   (Netlify/Vercel) with no dedicated server to host. The tradeoff is
+   turn-based latency (roughly 1–2s per exchange) rather than true
+   full-duplex conversation; upgrading to Twilio's `<ConversationRelay>` /
+   Media Streams for lower-latency streaming audio is possible but needs a
+   long-lived WebSocket server, which is a real infra addition beyond what
+   this app hosts today.
+4. **Call ends** → Twilio's "Call status changes" webhook (`.../status`)
+   fires once, generating a short AI summary and — if the client also has
+   an active CRM subscription — finding or creating a CRM contact by phone
+   number and logging the call as an activity.
+
+**Known limitations to be aware of:**
+
+- CRM contact matching is an **exact string match** on phone number (no
+  normalization of formatting/country codes yet).
+- A caller who stays completely silent gets one reprompt, then the AI ends
+  the call; a very long call is capped (`MAX_CALLER_TURNS` in
+  `app/api/twilio/voice/[token]/gather/route.ts`) so a stuck conversation
+  can't run indefinitely.
+- The Twilio Auth Token is encrypted at rest (`lib/crypto.ts`,
+  AES-256-GCM) but decrypted server-side on every webhook call — normal
+  for a webhook that must reconstruct Twilio's signature, but worth
+  knowing if you're doing a security review.
 
 ## Install as an app — no app store needed
 

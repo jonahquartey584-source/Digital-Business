@@ -1,10 +1,40 @@
 import Link from "next/link";
 import { MarketingNav } from "@/components/marketing-nav";
-import { PRODUCTS } from "@/lib/stripe";
+import { PRODUCTS, type ProductSlug } from "@/lib/stripe";
 import { createClient } from "@/lib/supabase/server";
 import { isSupabaseConfigured } from "@/lib/supabase/config";
 
 export const dynamic = "force-dynamic";
+
+function PricingCard({ slug, signedIn }: { slug: ProductSlug; signedIn: boolean }) {
+  const product = PRODUCTS[slug];
+  return (
+    <div className="card flex flex-col p-8">
+      <h2 className="font-display text-lg font-bold text-cream">{product.name}</h2>
+      <p className="mt-2 text-sm text-cream-dim">{product.description}</p>
+      <p className="mt-6 font-display text-3xl font-bold text-gold-300">
+        {product.priceLabel}
+      </p>
+      <ul className="mt-6 flex-1 space-y-2 text-sm text-cream-dim">
+        {product.features.map((feature) => (
+          <li key={feature}>✓ {feature}</li>
+        ))}
+      </ul>
+      {signedIn ? (
+        <form action="/api/stripe/checkout" method="POST" className="mt-8">
+          <input type="hidden" name="product" value={slug} />
+          <button type="submit" className="btn-primary w-full">
+            Subscribe to {product.name}
+          </button>
+        </form>
+      ) : (
+        <Link href="/signup?next=/pricing" className="btn-primary mt-8 w-full">
+          Create an account to subscribe
+        </Link>
+      )}
+    </div>
+  );
+}
 
 export default async function PricingPage() {
   const user = isSupabaseConfigured
@@ -24,48 +54,19 @@ export default async function PricingPage() {
         </p>
 
         <div className="mt-12 grid gap-6 sm:grid-cols-2">
-          <div className="card flex flex-col p-8">
-            <h2 className="font-display text-lg font-bold text-cream">
-              {PRODUCTS.crm.name}
-            </h2>
-            <p className="mt-2 text-sm text-cream-dim">
-              {PRODUCTS.crm.description}
-            </p>
-            <p className="mt-6 font-display text-3xl font-bold text-gold-300">
-              {PRODUCTS.crm.priceLabel}
-            </p>
-            <ul className="mt-6 flex-1 space-y-2 text-sm text-cream-dim">
-              <li>✓ Unlimited contacts &amp; companies</li>
-              <li>✓ Deal pipeline with stages</li>
-              <li>✓ Activity notes &amp; timeline</li>
-              <li>✓ Access on web and the Qp Digital app</li>
-            </ul>
-            {user ? (
-              <form action="/api/stripe/checkout" method="POST" className="mt-8">
-                <input type="hidden" name="product" value="crm" />
-                <button type="submit" className="btn-primary w-full">
-                  Subscribe to CRM
-                </button>
-              </form>
-            ) : (
-              <Link href="/signup?next=/pricing" className="btn-primary mt-8 w-full">
-                Create an account to subscribe
-              </Link>
-            )}
-          </div>
+          <PricingCard slug="crm" signedIn={!!user} />
+          <PricingCard slug="voice" signedIn={!!user} />
+        </div>
 
-          <div className="card flex flex-col p-8 opacity-60">
-            <h2 className="font-display text-lg font-bold text-cream">
-              More services
-            </h2>
-            <p className="mt-2 text-sm text-cream-dim">
-              Invoicing, scheduling, and marketing tools are on the roadmap —
-              each will be its own subscription, priced separately.
-            </p>
-            <p className="mt-6 font-mono text-xs uppercase tracking-wider text-cream-dim">
-              Coming soon
-            </p>
-          </div>
+        <div className="card mt-6 flex flex-col p-8 opacity-60">
+          <h2 className="font-display text-lg font-bold text-cream">More services</h2>
+          <p className="mt-2 text-sm text-cream-dim">
+            Invoicing, scheduling, and marketing tools are on the roadmap —
+            each will be its own subscription, priced separately.
+          </p>
+          <p className="mt-6 font-mono text-xs uppercase tracking-wider text-cream-dim">
+            Coming soon
+          </p>
         </div>
       </main>
     </>

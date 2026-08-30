@@ -59,6 +59,19 @@ export default function HomePage() {
                 </p>
               </div>
 
+              <div className="card p-6">
+                <p className="badge-success">Available now</p>
+                <h3 className="mt-3 font-display text-lg font-bold text-cream">
+                  {PRODUCTS.voice.name}
+                </h3>
+                <p className="mt-2 text-sm text-cream-dim">
+                  {PRODUCTS.voice.description}
+                </p>
+                <p className="mt-4 text-sm font-medium text-gold-300">
+                  {PRODUCTS.voice.priceLabel}
+                </p>
+              </div>
+
               <div className="card p-6 opacity-60">
                 <p className="badge-neutral">Coming soon</p>
                 <h3 className="mt-3 font-display text-lg font-bold text-cream">
@@ -66,16 +79,6 @@ export default function HomePage() {
                 </h3>
                 <p className="mt-2 text-sm text-cream-dim">
                   Send invoices and track payments from your CRM contacts.
-                </p>
-              </div>
-
-              <div className="card p-6 opacity-60">
-                <p className="badge-neutral">Coming soon</p>
-                <h3 className="mt-3 font-display text-lg font-bold text-cream">
-                  Scheduling
-                </h3>
-                <p className="mt-2 text-sm text-cream-dim">
-                  Client-facing booking pages backed by your calendar.
                 </p>
               </div>
             </div>

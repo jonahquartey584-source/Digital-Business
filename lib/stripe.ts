@@ -30,6 +30,26 @@ export const PRODUCTS = {
       "Manage contacts, companies, and your sales pipeline in one place.",
     priceId: process.env.STRIPE_CRM_PRICE_ID ?? "",
     priceLabel: "$29/month",
+    features: [
+      "Unlimited contacts & companies",
+      "Deal pipeline with stages",
+      "Activity notes & timeline",
+      "Access on web and the Qp Digital app",
+    ],
+  },
+  voice: {
+    slug: "voice",
+    name: "AI Reception",
+    description:
+      "Connect your own Twilio number — when a call is missed, an AI answers, talks with the caller, and logs it straight to your CRM.",
+    priceId: process.env.STRIPE_VOICE_PRICE_ID ?? "",
+    priceLabel: "$49/month",
+    features: [
+      "Uses your own Twilio number",
+      "Real-time AI phone conversations",
+      "Auto-logs calls & summaries to your CRM",
+      "Ring your team first, or AI-first — your choice",
+    ],
   },
 } as const;
 
