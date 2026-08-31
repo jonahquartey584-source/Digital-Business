@@ -66,13 +66,42 @@ function safeUrl(value) {
   } catch { return ""; }
 }
 
-function renderPurchases(purchases) {
-  results.innerHTML = `<div class="member-results__head"><div><p class="section__tag">// Access Granted</p><h2>Your purchases</h2></div><button class="btn btn--ghost" id="memberLogout" type="button">Sign Out</button></div>` + purchases.map((purchase, index) => {
+const SERVICE_CATALOG = [
+  { name: "Websites", description: "Custom-built, mobile-friendly websites designed to turn visitors into customers.", aliases: ["website", "web design"] },
+  { name: "CRM", description: "Track every lead, customer and conversation in one organised system.", aliases: ["crm", "customer relationship"] },
+  { name: "Website Management", description: "Ongoing updates, hosting, security and fixes for your website.", aliases: ["website management", "site management", "hosting"] },
+  { name: "SEO", description: "Search optimisation that helps local customers find your business.", aliases: ["seo", "search optimisation", "search optimization"] },
+  { name: "Booking System", description: "Online appointment and service booking available around the clock.", aliases: ["booking", "appointments"] },
+  { name: "Branding & Print", description: "Logos, brand identity, flyers and business cards.", aliases: ["branding", "logo", "flyer", "business card", "print"] },
+  { name: "Social Media & Content", description: "Posts, captions and content that keep your business visible.", aliases: ["social media", "content"] },
+  { name: "Reporting Dashboards", description: "View leads, calls, bookings and sales in one dashboard.", aliases: ["reporting", "dashboard", "analytics"] },
+  { name: "Automation Systems", description: "Automate repetitive administration and business processes.", aliases: ["automation system", "workflow automation"] },
+  { name: "Automated Follow-Ups", description: "Automatically follow up missed calls, quotes and review requests.", aliases: ["follow-up", "follow up", "followup"] },
+  { name: "Chatbots & Live Chat", description: "Answer questions and capture leads through automated or live chat.", aliases: ["chatbot", "live chat", "ai assistant"] },
+];
+
+function findPurchasedService(service, purchases) {
+  return purchases.find((purchase) => {
+    const searchable = `${purchase.title || ""} ${purchase.service || ""}`.toLowerCase();
+    return service.aliases.some((alias) => searchable.includes(alias));
+  });
+}
+
+function renderServiceLibrary(purchases) {
+  return SERVICE_CATALOG.map((service) => {
+    const purchase = findPurchasedService(service, purchases);
+    if (!purchase) {
+      return `<article class="portal-service portal-service--locked" aria-label="${escapeHtml(service.name)} — locked"><div class="portal-service__blur" aria-hidden="true"><span class="status-pill">Available service</span><h3>${escapeHtml(service.name)}</h3><p>${escapeHtml(service.description)}</p><div class="portal-service__placeholder"></div></div><div class="portal-service__lock"><span aria-hidden="true">&#128274;</span><strong>Locked</strong><small>This service is not included in your account.</small></div></article>`;
+    }
     const liveUrl = safeUrl(purchase.liveUrl);
     const fileUrl = safeUrl(purchase.deliverableFileUrl);
     const date = purchase.activatedAt ? new Date(purchase.activatedAt).toLocaleDateString("en-GB", { day: "numeric", month: "long", year: "numeric" }) : "Active";
-    return `<article class="member-purchase"><div class="member-purchase__number">${String(index + 1).padStart(2, "0")}</div><div class="member-purchase__content"><span class="status-pill status-pill--active">Active</span><h3>${escapeHtml(purchase.title || purchase.service)}</h3><p>${escapeHtml(purchase.service)}</p><dl><div><dt>Account</dt><dd>${escapeHtml(purchase.account)}</dd></div><div><dt>Activated</dt><dd>${escapeHtml(date)}</dd></div><div><dt>Price</dt><dd>${escapeHtml(purchase.price)}</dd></div></dl><div class="member-purchase__actions">${liveUrl ? `<a class="btn btn--primary" href="${escapeHtml(liveUrl)}" target="_blank" rel="noopener">Open Your Service →</a>` : ""}${fileUrl ? `<a class="btn btn--ghost" href="${escapeHtml(fileUrl)}" target="_blank" rel="noopener" download>Download Your Files →</a>` : ""}</div></div></article>`;
+    return `<article class="portal-service portal-service--unlocked"><div class="portal-service__top"><span class="status-pill status-pill--active">Unlocked</span><span class="portal-service__key" aria-label="Unlocked">&#128275;</span></div><h3>${escapeHtml(service.name)}</h3><p>${escapeHtml(service.description)}</p><dl><div><dt>Account</dt><dd>${escapeHtml(purchase.account)}</dd></div><div><dt>Activated</dt><dd>${escapeHtml(date)}</dd></div><div><dt>Price</dt><dd>${escapeHtml(purchase.price)}</dd></div></dl><div class="member-purchase__actions">${liveUrl ? `<a class="btn btn--primary" href="${escapeHtml(liveUrl)}" target="_blank" rel="noopener">Open ${escapeHtml(service.name)} →</a>` : `<span class="portal-service__active-note">Your service is active</span>`}${fileUrl ? `<a class="btn btn--ghost" href="${escapeHtml(fileUrl)}" target="_blank" rel="noopener" download>Download Your Files →</a>` : ""}</div></article>`;
   }).join("");
+}
+
+function renderPurchases(purchases) {
+  results.innerHTML = `<div class="member-results__head"><div><p class="section__tag">// Access Granted</p><h2>Your Qp Digital services</h2><p>Everything Qp Digital offers is shown below. Your purchases are unlocked and ready to use.</p></div><button class="btn btn--ghost" id="memberLogout" type="button">Sign Out</button></div><div class="portal-service-grid">${renderServiceLibrary(purchases)}</div>`;
   form.hidden = true;
   document.getElementById("memberPanelLead").hidden = true;
   results.hidden = false;
