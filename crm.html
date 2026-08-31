@@ -8,25 +8,52 @@
 <body>
   <main class="service-app-shell" data-member-service data-service-aliases="crm,customer relationship" hidden>
     <aside class="service-app-sidebar">
-      <div class="service-app-brand"><span>QP</span>Qp CRM</div>
+      <a class="service-app-brand" href="crm.html"><img src="apple-touch-icon.png" alt="" width="32" height="32"><span>Qp Digital CRM</span></a>
       <nav class="service-app-nav" aria-label="CRM navigation">
-        <button class="is-active" type="button">Pipeline</button><button type="button">Leads Database</button><button type="button">Contacts</button><button type="button">Tasks & Follow-ups</button><button type="button">Reporting</button><button type="button">Import History</button><a href="members.html">← Members Portal</a>
+        <a data-crm-link="pipeline" href="#">Pipeline</a>
+        <a data-crm-link="leads" href="#">Leads Database</a>
+        <a data-crm-link="contacts" href="#">Contacts</a>
+        <a data-crm-link="tasks" href="#">Tasks &amp; Follow-ups</a>
+        <a data-crm-link="reporting" href="#">Reporting</a>
+        <a data-crm-link="import" href="#">Import History</a>
+        <a href="members.html">← Members Portal</a>
       </nav>
     </aside>
     <section class="service-app-main">
       <header class="service-app-topbar">
-        <div><p class="section__tag">// Personalised Client Workspace</p><h1>Sales Pipeline</h1><p>Account <strong data-member-account></strong> · Track every opportunity from enquiry to customer.</p></div>
-        <div class="service-app-tools"><button class="btn btn--ghost" type="button">Search</button><button class="btn btn--ghost" type="button">Edit Pipeline</button><button class="btn btn--ghost" type="button">Import Leads</button><button class="btn btn--primary" type="button">+ Add Lead</button></div>
+        <div><p class="section__tag">// Personalised Client Workspace</p><h1>Your CRM</h1><p>Account <strong data-member-account></strong> · your real, working CRM opens in the Qp Digital app.</p></div>
       </header>
-      <div class="crm-stats"><article class="crm-stat"><span>Open pipeline</span><strong data-crm-open-value>£0</strong></article><article class="crm-stat"><span>Active leads</span><strong data-crm-active-count>0</strong></article><article class="crm-stat"><span>Conversion rate</span><strong data-crm-conversion>0%</strong></article><article class="crm-stat"><span>Won this month</span><strong data-crm-won-value>£0</strong></article></div>
-      <div class="crm-board-pro" aria-label="Sales pipeline">
-        <section class="crm-column" data-stage="new"><div class="crm-column__head"><h2>New Lead</h2><span>0</span></div><p class="crm-column__total">£0 potential</p><p class="crm-column__empty">No leads yet. Add one manually or import a CSV file.</p><button class="crm-add-deal" type="button">+ Add lead</button></section>
-        <section class="crm-column" data-stage="contacted"><div class="crm-column__head"><h2>Contacted</h2><span>0</span></div><p class="crm-column__total">£0 potential</p><p class="crm-column__empty">Leads you contact will appear here.</p><button class="crm-add-deal" type="button">+ Add lead</button></section>
-        <section class="crm-column" data-stage="proposal"><div class="crm-column__head"><h2>Proposal Sent</h2><span>0</span></div><p class="crm-column__total">£0 potential</p><p class="crm-column__empty">Sent proposals will appear here.</p><button class="crm-add-deal" type="button">+ Add lead</button></section>
-        <section class="crm-column" data-stage="won"><div class="crm-column__head"><h2>Won</h2><span>0</span></div><p class="crm-column__total">£0 won</p><p class="crm-column__empty">Won customers will appear here.</p><button class="crm-add-deal" type="button">+ Add lead</button></section>
+      <div class="crm-launch-grid" aria-label="CRM sections">
+        <a class="crm-launch-card" data-crm-link="pipeline" href="#">
+          <h2>Pipeline</h2>
+          <p>Every deal, tracked by stage from first enquiry to won or lost.</p>
+        </a>
+        <a class="crm-launch-card" data-crm-link="leads" href="#">
+          <h2>Leads Database</h2>
+          <p>Unqualified leads, kept separate from your real contacts until they're worth promoting.</p>
+        </a>
+        <a class="crm-launch-card" data-crm-link="contacts" href="#">
+          <h2>Contacts</h2>
+          <p>Every person you've engaged with, with a full activity history.</p>
+        </a>
+        <a class="crm-launch-card" data-crm-link="tasks" href="#">
+          <h2>Tasks &amp; Follow-ups</h2>
+          <p>Nothing depends on remembering — see what's due, and what's overdue.</p>
+        </a>
+        <a class="crm-launch-card" data-crm-link="reporting" href="#">
+          <h2>Reporting</h2>
+          <p>Pipeline value, win rate and lead-conversion stats at a glance.</p>
+        </a>
+        <a class="crm-launch-card" data-crm-link="import" href="#">
+          <h2>Import History</h2>
+          <p>Bring in existing contacts from a CSV file, and see every past import.</p>
+        </a>
       </div>
+      <p class="crm-launch-note">Opens in the Qp Digital app — first time here? Sign up there with <strong data-member-account-email></strong> to unlock it; it's already included with your CRM purchase.</p>
     </section>
   </main>
   <section class="container member-service-gate" id="memberServiceGate" hidden><h1>Members Portal access required</h1><p>Sign in with an account that includes CRM.</p><a class="btn btn--primary" href="members.html">Return to Members Portal →</a></section>
-  <script src="member-service.js"></script><script src="client-assistant.js"></script>
+  <script src="member-service.js"></script>
+  <script src="crm-links.js"></script>
+  <script src="client-assistant.js"></script>
 </body></html>

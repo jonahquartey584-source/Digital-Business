@@ -26,11 +26,23 @@
 .mini-lead span { color: var(--muted); font-size: .82rem; margin-top: .25rem; }
 .service-app-shell { min-height: 100vh; display: grid; grid-template-columns: 230px minmax(0, 1fr); background: var(--bg); }
 .service-app-sidebar { border-right: 1px solid var(--line); padding: 1.4rem 1rem; background: var(--surface); }
-.service-app-brand { display: flex; align-items: center; gap: .7rem; margin-bottom: 2rem; font-family: var(--display); font-size: 1.15rem; color: var(--gold); }
-.service-app-brand span { display: grid; place-items: center; width: 2.35rem; height: 2.35rem; background: var(--gold); color: #111; font-family: var(--mono); font-size: .8rem; }
+.service-app-brand { display: flex; align-items: center; gap: .7rem; margin-bottom: 2rem; font-family: var(--display); font-size: 1.15rem; color: var(--gold); text-decoration: none; }
+.service-app-brand img { width: 2.15rem; height: 2.15rem; border-radius: .55rem; display: block; }
 .service-app-nav { display: grid; gap: .35rem; }
 .service-app-nav button, .service-app-nav a { width: 100%; text-align: left; border: 0; background: transparent; color: var(--muted); padding: .75rem; text-decoration: none; font-family: var(--sans); cursor: pointer; }
 .service-app-nav .is-active, .service-app-nav button:hover, .service-app-nav a:hover { background: color-mix(in srgb, var(--gold) 12%, transparent); color: var(--text); }
+
+.crm-launch-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 1rem; }
+.crm-launch-card {
+  display: block; border: 1px solid var(--line); background: var(--surface); padding: 1.25rem;
+  text-decoration: none; color: var(--text); transition: border-color .15s ease, transform .15s ease;
+}
+.crm-launch-card:hover { border-color: var(--gold); transform: translateY(-2px); }
+.crm-launch-card h2 { margin: 0 0 .5rem; font-size: 1.05rem; font-family: var(--display); color: var(--gold); }
+.crm-launch-card p { margin: 0; color: var(--muted); font-size: .9rem; }
+.crm-launch-note { margin-top: 1.5rem; color: var(--muted); font-size: .88rem; }
+.crm-launch-note strong { color: var(--text); }
+@media (max-width: 700px) { .crm-launch-grid { grid-template-columns: 1fr; } }
 .service-app-main { min-width: 0; padding: 1.6rem; }
 .service-app-topbar { display: flex; justify-content: space-between; gap: 1rem; align-items: center; margin-bottom: 1.5rem; }
 .service-app-topbar h1 { margin: 0; font-size: clamp(1.7rem, 4vw, 2.4rem); }

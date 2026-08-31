@@ -122,6 +122,111 @@ export async function sendEmail(options: {
   }
 }
 
+// --- Real CRM/Booking app provisioning ------------------------------------
+//
+// Clients here (Netlify Blobs) and the real SaaS platform's CRM/Booking
+// (Supabase) are two different systems. When a client on THIS site pays for
+// "CRM" or "Booking System", their crm.html/booking-system.html links only
+// go somewhere useful once they also have an active account + subscription
+// row over on the real app — otherwise clicking through just lands on a
+// paywall for something they already paid for here. This closes that gap:
+// call it right after a client record flips to 'active' (webhook.mts,
+// activate-client.mts) for any service whose name matches CRM or Booking.
+//
+// Uses plain fetch against Supabase's REST/Admin HTTP API — no supabase-js
+// dependency on this project, matching this codebase's existing pattern of
+// hand-rolled HTTP calls (see verifyStripeSignature above) rather than
+// adding SDKs. Requires SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY env vars
+// (same project as the real app — see .env.example over there). Best-effort:
+// logs and swallows failures rather than throwing, same as sendEmail() above
+// — a client's Blobs record staying 'active' matters more than this succeeding
+// on the first try, and it's safe to retry (upsert) on the next webhook event.
+export type RealAppProduct = "crm" | "booking";
+
+export function realAppProductForService(service: string): RealAppProduct | null {
+  const s = service.toLowerCase();
+  if (s.includes("crm")) return "crm";
+  if (s.includes("booking")) return "booking";
+  return null;
+}
+
+export async function provisionRealAppAccess(email: string, product: RealAppProduct): Promise<void> {
+  const supabaseUrl = Netlify.env.get("SUPABASE_URL") ?? "";
+  const serviceKey = Netlify.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? "";
+  if (!supabaseUrl || !serviceKey) {
+    console.error("provisionRealAppAccess: SUPABASE_URL/SUPABASE_SERVICE_ROLE_KEY not set — skipping.");
+    return;
+  }
+
+  const headers = {
+    apikey: serviceKey,
+    Authorization: `Bearer ${serviceKey}`,
+    "Content-Type": "application/json",
+  };
+  const normalizedEmail = email.trim().toLowerCase();
+
+  try {
+    // 1. Find an existing account for this email, or invite a new one —
+    //    same resolve-or-create shape as lib/auth-provisioning.ts on the
+    //    real app, reimplemented here over plain REST since this is a
+    //    separate codebase/runtime.
+    let userId: string | null = null;
+
+    const lookup = await fetch(
+      `${supabaseUrl}/rest/v1/profiles?email=eq.${encodeURIComponent(normalizedEmail)}&select=id`,
+      { headers }
+    );
+    if (lookup.ok) {
+      const rows = (await lookup.json()) as Array<{ id: string }>;
+      if (rows[0]) userId = rows[0].id;
+    }
+
+    if (!userId) {
+      const invite = await fetch(`${supabaseUrl}/auth/v1/invite`, {
+        method: "POST",
+        headers,
+        body: JSON.stringify({ email: normalizedEmail }),
+      });
+      if (invite.ok) {
+        const created = (await invite.json()) as { id?: string };
+        userId = created.id ?? null;
+      } else {
+        // Race: created between the lookup above and this call. Look up
+        // again rather than fail the whole provisioning step.
+        const retry = await fetch(
+          `${supabaseUrl}/rest/v1/profiles?email=eq.${encodeURIComponent(normalizedEmail)}&select=id`,
+          { headers }
+        );
+        if (retry.ok) {
+          const rows = (await retry.json()) as Array<{ id: string }>;
+          if (rows[0]) userId = rows[0].id;
+        }
+      }
+    }
+
+    if (!userId) {
+      console.error(`provisionRealAppAccess: could not resolve or create an account for ${normalizedEmail}`);
+      return;
+    }
+
+    // 2. Mark that account as having an active subscription to this
+    //    product — hasActiveSubscription() on the real app reads exactly
+    //    this table, no stripe_subscription_id required.
+    await fetch(`${supabaseUrl}/rest/v1/subscriptions?on_conflict=user_id,product`, {
+      method: "POST",
+      headers: { ...headers, Prefer: "resolution=merge-duplicates" },
+      body: JSON.stringify({
+        user_id: userId,
+        product,
+        status: "active",
+        updated_at: new Date().toISOString(),
+      }),
+    });
+  } catch (error) {
+    console.error("provisionRealAppAccess failed:", error);
+  }
+}
+
 export interface ClientRecord {
   account: string;
   code: string;

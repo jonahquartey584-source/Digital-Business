@@ -17,7 +17,13 @@
 import type { Config, Context } from "@netlify/functions";
 import { getStore } from "@netlify/blobs";
 import { createHash, randomInt } from "node:crypto";
-import { json, requireAdminSession, type ClientRecord } from "./_shared.mts";
+import {
+  json,
+  requireAdminSession,
+  provisionRealAppAccess,
+  realAppProductForService,
+  type ClientRecord,
+} from "./_shared.mts";
 
 function createPortalCode(): string {
   return Array.from({ length: 12 }, () => randomInt(0, 10)).join("");
@@ -70,6 +76,11 @@ export default async (req: Request, context: Context) => {
   };
 
   await store.setJSON(account, updated);
+
+  const realAppProduct = realAppProductForService(updated.service);
+  if (realAppProduct) {
+    await provisionRealAppAccess(existing.clientEmail, realAppProduct);
+  }
 
   return json(200, { status: "activated", account, code, clientEmail: updated.clientEmail });
 };

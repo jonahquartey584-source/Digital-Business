@@ -12,7 +12,13 @@
 import type { Config, Context } from "@netlify/functions";
 import { getStore } from "@netlify/blobs";
 import { createHash, createHmac, randomInt } from "node:crypto";
-import { safeEqual, sendEmail, type ClientRecord } from "./_shared.mts";
+import {
+  safeEqual,
+  sendEmail,
+  provisionRealAppAccess,
+  realAppProductForService,
+  type ClientRecord,
+} from "./_shared.mts";
 
 function createPortalCode(): string {
   return Array.from({ length: 12 }, () => randomInt(0, 10)).join("");
@@ -81,6 +87,17 @@ export default async (req: Request, context: Context) => {
           client.portalCodeIssuedAt = new Date().toISOString();
         }
         await store.setJSON(accountNumber, client);
+
+        // CRM/Booking specifically also live on the real SaaS platform —
+        // give this email an account + active subscription there too, so
+        // the "Qp CRM"/"Qp Booking" links in their members portal actually
+        // work instead of dead-ending on a paywall for something they
+        // already paid for here. See _shared.mts for why this is
+        // best-effort (never throws).
+        const realAppProduct = realAppProductForService(client.service);
+        if (realAppProduct && recipient) {
+          await provisionRealAppAccess(recipient, realAppProduct);
+        }
 
         if (portalCode && recipient) {
           const formattedCode = portalCode.replace(/(\d{4})(?=\d)/g, "$1 ");
