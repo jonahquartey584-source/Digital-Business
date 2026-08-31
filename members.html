@@ -10,6 +10,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=Sora:wght@600;700;800&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@500;600&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="style.css" />
+  <script type="importmap">{"imports":{"@netlify/identity":"https://esm.sh/@netlify/identity"}}</script>
   <script>try{document.documentElement.dataset.theme=localStorage.getItem("qpTheme")==="light"?"light":"dark"}catch(_){document.documentElement.dataset.theme="dark"}</script>
 </head>
 <body>
@@ -53,18 +54,45 @@
             <div id="memberAccess" role="tabpanel" aria-labelledby="memberModeButton">
             <p class="section__tag">// Member Login</p>
             <h2>Access your purchases</h2>
-            <p class="members-panel__lead" id="memberPanelLead">Use the email address from your payment and the 12-digit code we sent you.</p>
+            <p class="members-panel__lead" id="memberPanelLead">First visit? Use your 12-digit code to create a password. Returning clients can sign in with their password.</p>
+            <div class="portal-mode member-login-mode" role="tablist" aria-label="Choose member sign in method">
+              <button class="portal-mode__button is-active" id="firstLoginButton" type="button" role="tab" aria-selected="true">First login</button>
+              <button class="portal-mode__button" id="passwordLoginButton" type="button" role="tab" aria-selected="false">Password login</button>
+            </div>
             <form id="memberLoginForm" class="member-login">
               <label for="memberEmail">Email address</label>
               <input id="memberEmail" name="email" type="email" autocomplete="email" required placeholder="you@business.co.uk" />
               <label for="memberCode">12-digit access code</label>
               <input id="memberCode" name="code" type="text" inputmode="numeric" autocomplete="one-time-code" maxlength="14" required placeholder="1234 5678 9012" />
+              <button class="btn btn--primary btn--lg" type="submit">Verify Code & Create Password →</button>
+              <p class="form-note" id="memberLoginNote" aria-live="polite"></p>
+            </form>
+            <form id="memberPasswordLoginForm" class="member-login" hidden>
+              <label for="returningMemberEmail">Email address</label>
+              <input id="returningMemberEmail" name="email" type="email" autocomplete="username" required placeholder="you@business.co.uk" />
+              <label for="returningMemberPassword">Password</label>
+              <input id="returningMemberPassword" name="password" type="password" autocomplete="current-password" required placeholder="Your password" />
               <div class="portal-remember">
                 <input id="memberRemember" name="remember" type="checkbox" />
                 <label for="memberRemember">Remember me on this device for 30 days</label>
               </div>
-              <button class="btn btn--primary btn--lg" type="submit">Enter Members Portal →</button>
-              <p class="form-note" id="memberLoginNote" aria-live="polite"></p>
+              <button class="btn btn--primary btn--lg" type="submit">Sign In →</button>
+              <p class="form-note" id="memberPasswordLoginNote" aria-live="polite"></p>
+            </form>
+            <form id="memberCreatePasswordForm" class="member-login" hidden>
+              <p class="section__tag">// Secure Your Account</p>
+              <h3>Create your members portal password</h3>
+              <p class="members-panel__lead">Your 12-digit code has been verified. Create a password for all future logins.</p>
+              <label for="newMemberPassword">New password</label>
+              <input id="newMemberPassword" name="password" type="password" autocomplete="new-password" minlength="8" required placeholder="At least 8 characters" />
+              <label for="confirmMemberPassword">Confirm password</label>
+              <input id="confirmMemberPassword" name="confirmPassword" type="password" autocomplete="new-password" minlength="8" required placeholder="Type it again" />
+              <div class="portal-remember">
+                <input id="newMemberRemember" name="remember" type="checkbox" />
+                <label for="newMemberRemember">Remember me on this device for 30 days</label>
+              </div>
+              <button class="btn btn--primary btn--lg" type="submit">Create Password & Enter Portal →</button>
+              <p class="form-note" id="memberCreatePasswordNote" aria-live="polite"></p>
             </form>
             <div class="member-results" id="memberResults" hidden></div>
             </div>
@@ -94,6 +122,6 @@
   </main>
 
   <footer class="site-footer"><div class="container footer__bottom"><p>&copy; <span id="year"></span> Qp Digital. All rights reserved.</p><p><a href="index.html">Return to website</a></p></div></footer>
-  <script src="members.js"></script>
+  <script type="module" src="members.js"></script>
 </body>
 </html>

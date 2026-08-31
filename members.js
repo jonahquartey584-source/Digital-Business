@@ -1,3 +1,7 @@
+import { getUser, handleAuthCallback, login, logout, signup } from "@netlify/identity";
+
+await handleAuthCallback().catch(() => null);
+
 const form = document.getElementById("memberLoginForm");
 const codeInput = document.getElementById("memberCode");
 const note = document.getElementById("memberLoginNote");
@@ -9,9 +13,32 @@ const adminModeButton = document.getElementById("adminModeButton");
 const adminLoginForm = document.getElementById("adminPortalLoginForm");
 const adminLoginNote = document.getElementById("adminPortalLoginNote");
 const adminMemberResults = document.getElementById("adminMemberResults");
+const passwordLoginForm = document.getElementById("memberPasswordLoginForm");
+const createPasswordForm = document.getElementById("memberCreatePasswordForm");
+const passwordLoginNote = document.getElementById("memberPasswordLoginNote");
+const createPasswordNote = document.getElementById("memberCreatePasswordNote");
+const firstLoginButton = document.getElementById("firstLoginButton");
+const passwordLoginButton = document.getElementById("passwordLoginButton");
+let verifiedFirstLogin = null;
 
 const ADMIN_SESSION_STORAGE_KEY = "qpAdminSession";
 const MEMBER_SESSION_STORAGE_KEY = "qpMemberSession";
+
+function selectMemberLoginMode(mode) {
+  const returning = mode === "password";
+  form.hidden = returning;
+  passwordLoginForm.hidden = !returning;
+  createPasswordForm.hidden = true;
+  firstLoginButton.classList.toggle("is-active", !returning);
+  passwordLoginButton.classList.toggle("is-active", returning);
+  firstLoginButton.setAttribute("aria-selected", String(!returning));
+  passwordLoginButton.setAttribute("aria-selected", String(returning));
+  if (returning) document.getElementById("returningMemberEmail").focus();
+  else document.getElementById("memberEmail").focus();
+}
+
+firstLoginButton.addEventListener("click", () => selectMemberLoginMode("code"));
+passwordLoginButton.addEventListener("click", () => selectMemberLoginMode("password"));
 
 function selectPortalMode(mode) {
   const adminMode = mode === "admin";
@@ -102,6 +129,9 @@ function renderPurchases(purchases, profile = null) {
   localStorage.setItem("qpMemberPurchases", JSON.stringify(purchases));
   results.innerHTML = `<div class="member-results__head"><div><p class="section__tag">// Access Granted</p><h1>Qp Digital Members Portal</h1><p>${profile ? `Welcome, ${escapeHtml(profile.contactName)} from ${escapeHtml(profile.businessName)}.` : "Everything Qp Digital offers is shown below."} Your purchases are unlocked and ready to use.</p></div><button class="btn btn--ghost" id="memberLogout" type="button">Sign Out</button></div><div class="portal-service-grid">${renderServiceLibrary(purchases)}</div><div class="portal-more-service"><p>Want another service?</p><button class="btn btn--primary" type="button" data-quote-service="another Qp Digital service">Get a Quote →</button></div><div class="portal-quote-modal" id="portalQuoteModal" hidden><div class="portal-quote-modal__dialog" role="dialog" aria-modal="true" aria-labelledby="portalQuoteTitle"><span class="portal-quote-modal__icon" aria-hidden="true">&#128274;</span><p class="section__tag">// Locked Service</p><h2 id="portalQuoteTitle">Get a quote?</h2><p id="portalQuoteService"></p><div class="portal-quote-modal__actions"><button class="btn btn--ghost" id="portalQuoteCancel" type="button">Cancel</button><a class="btn btn--primary" href="https://qp-digital.co.uk/#enquire">Continue →</a></div></div></div>`;
   form.hidden = true;
+  passwordLoginForm.hidden = true;
+  createPasswordForm.hidden = true;
+  document.querySelector(".member-login-mode").hidden = true;
   document.getElementById("memberPanelLead").hidden = true;
   results.hidden = false;
   document.querySelector(".members-page").classList.add("is-dashboard");
@@ -113,13 +143,16 @@ function renderPurchases(purchases, profile = null) {
   }));
   document.getElementById("portalQuoteCancel").addEventListener("click", () => { quoteModal.hidden = true; });
   quoteModal.addEventListener("click", (event) => { if (event.target === quoteModal) quoteModal.hidden = true; });
-  document.getElementById("memberLogout").addEventListener("click", () => {
+  document.getElementById("memberLogout").addEventListener("click", async () => {
+    await logout().catch(() => {});
     localStorage.removeItem(MEMBER_SESSION_STORAGE_KEY);
     sessionStorage.removeItem(MEMBER_SESSION_STORAGE_KEY);
     results.hidden = true;
     results.innerHTML = "";
     form.reset();
     form.hidden = false;
+    document.querySelector(".member-login-mode").hidden = false;
+    selectMemberLoginMode("password");
     document.getElementById("memberPanelLead").hidden = false;
     document.querySelector(".members-page").classList.remove("is-dashboard");
     note.textContent = "";
@@ -187,17 +220,76 @@ form.addEventListener("submit", async (event) => {
     const response = await fetch("/api/member-access", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ email: form.email.value.trim(), code: form.code.value }) });
     const data = await response.json();
     if (!response.ok || data.status !== "ok") throw new Error(data.message || "We couldn't verify those details.");
-    openMemberPortal(data.purchases, form.email.value.trim(), form.remember.checked);
+    verifiedFirstLogin = { email: form.email.value.trim().toLowerCase(), purchases: data.purchases };
+    form.hidden = true;
+    passwordLoginForm.hidden = true;
+    document.querySelector(".member-login-mode").hidden = true;
+    createPasswordForm.hidden = false;
+    document.getElementById("newMemberPassword").focus();
+    note.textContent = "";
   } catch (error) {
     note.textContent = error.message || "We couldn't verify those details. Check the email and code, then try again.";
   } finally { button.disabled = false; }
+});
+
+createPasswordForm.addEventListener("submit", async (event) => {
+  event.preventDefault();
+  if (!verifiedFirstLogin) return;
+  const button = createPasswordForm.querySelector("button[type=submit]");
+  const password = createPasswordForm.password.value;
+  if (password !== createPasswordForm.confirmPassword.value) {
+    createPasswordNote.textContent = "The passwords do not match.";
+    return;
+  }
+  createPasswordNote.textContent = "Creating your secure account…";
+  button.disabled = true;
+  try {
+    const user = await signup(verifiedFirstLogin.email, password, { full_name: verifiedFirstLogin.email.split("@")[0] });
+    if (!user.emailVerified) {
+      createPasswordNote.textContent = "Your account was created. Check your email to confirm it, then use Password login.";
+      selectMemberLoginMode("password");
+      passwordLoginForm.email.value = verifiedFirstLogin.email;
+      return;
+    }
+    openMemberPortal(verifiedFirstLogin.purchases, verifiedFirstLogin.email, createPasswordForm.remember.checked);
+  } catch (error) {
+    const message = String(error?.message || "We couldn't create your password.");
+    createPasswordNote.textContent = /already|registered|exists/i.test(message)
+      ? "An account already exists for this email. Choose Password login instead."
+      : message;
+  } finally {
+    button.disabled = false;
+  }
+});
+
+passwordLoginForm.addEventListener("submit", async (event) => {
+  event.preventDefault();
+  const button = passwordLoginForm.querySelector("button[type=submit]");
+  const email = passwordLoginForm.email.value.trim().toLowerCase();
+  passwordLoginNote.textContent = "Signing you in securely…";
+  button.disabled = true;
+  try {
+    await login(email, passwordLoginForm.password.value);
+    const response = await fetch("/api/member-purchases");
+    const data = await response.json();
+    if (!response.ok || data.status !== "ok") throw new Error(data.message || "Your purchased services could not be loaded.");
+    passwordLoginForm.password.value = "";
+    openMemberPortal(data.purchases, email, passwordLoginForm.remember.checked);
+  } catch (error) {
+    passwordLoginNote.textContent = error?.status === 401
+      ? "Incorrect email or password."
+      : (error?.message || "We couldn't sign you in. Please try again.");
+  } finally {
+    button.disabled = false;
+  }
 });
 
 const rememberedMember = localStorage.getItem(MEMBER_SESSION_STORAGE_KEY) || sessionStorage.getItem(MEMBER_SESSION_STORAGE_KEY);
 if (rememberedMember) {
   try {
     const session = JSON.parse(rememberedMember);
-    if (session.expiresAt > Date.now() && Array.isArray(session.purchases)) {
+    const identityUser = await getUser();
+    if (identityUser?.email?.toLowerCase() === session.email?.toLowerCase() && session.expiresAt > Date.now() && Array.isArray(session.purchases)) {
       openMemberPortal(session.purchases, session.email, Boolean(localStorage.getItem(MEMBER_SESSION_STORAGE_KEY)));
     } else {
       localStorage.removeItem(MEMBER_SESSION_STORAGE_KEY);

@@ -5,6 +5,7 @@
   "description": "Dependencies for the Netlify Functions backend under netlify/functions/ — the site itself has no build step.",
   "dependencies": {
     "@netlify/blobs": "^8",
+    "@netlify/identity": "latest",
     "openai": "^4.0.0"
   },
   "devDependencies": {
