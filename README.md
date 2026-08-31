@@ -35,8 +35,12 @@ app/
     crm/                     CRM module — gated behind an active "crm" subscription
       page.tsx               dashboard: stat tiles, pipeline breakdown, recent activity
       pipeline/               deal pipeline (kanban by stage)
+      leads/                  Leads Database — unqualified inbound leads, promote to Contact
       contacts/               contacts list + detail w/ activity log
       companies/              companies list
+      tasks/                  Tasks & Follow-ups — optionally linked to a lead/contact/deal
+      reporting/               pipeline + lead-funnel stats, computed from existing data
+      import/                  CSV import (into Leads Database) + import history log
     voice/                   AI Reception — gated behind an active "voice" subscription
       page.tsx                settings: your number, business info, rotate webhook
       calls/                   call log with transcripts + AI summaries
@@ -122,7 +126,8 @@ npm install
 
 1. Create a project at [supabase.com](https://supabase.com).
 2. In the SQL Editor, run the migrations in order: `0001_init.sql`,
-   `0002_voice.sql`, `0003_booking.sql`, `0004_profiles_email.sql`.
+   `0002_voice.sql`, `0003_booking.sql`, `0004_profiles_email.sql`,
+   `0005_crm_expansion.sql`.
 3. Copy **Project URL**, **anon public key**, and **service_role key** from
    Project Settings → API.
 

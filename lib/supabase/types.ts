@@ -87,6 +87,50 @@ export interface CrmActivity {
   created_at: string;
 }
 
+export type LeadStatus = "new" | "contacted" | "unqualified" | "promoted";
+
+export interface CrmLead {
+  id: string;
+  owner_id: string;
+  first_name: string;
+  last_name: string | null;
+  email: string | null;
+  phone: string | null;
+  source: string | null;
+  status: LeadStatus;
+  notes: string | null;
+  promoted_contact_id: string | null;
+  created_at: string;
+  updated_at: string;
+}
+
+export type TaskStatus = "open" | "done";
+
+export interface CrmTask {
+  id: string;
+  owner_id: string;
+  lead_id: string | null;
+  contact_id: string | null;
+  deal_id: string | null;
+  title: string;
+  due_date: string | null;
+  status: TaskStatus;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface CrmImport {
+  id: string;
+  owner_id: string;
+  filename: string;
+  row_count: number;
+  success_count: number;
+  error_count: number;
+  status: "completed" | "failed";
+  error_summary: string | null;
+  created_at: string;
+}
+
 // ---------- AI Reception (voice) ----------
 
 export interface VoiceSettings {
