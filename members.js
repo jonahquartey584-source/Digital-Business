@@ -95,12 +95,14 @@ function renderServiceLibrary(purchases) {
     const liveUrl = safeUrl(purchase.liveUrl);
     const fileUrl = safeUrl(purchase.deliverableFileUrl);
     const date = purchase.activatedAt ? new Date(purchase.activatedAt).toLocaleDateString("en-GB", { day: "numeric", month: "long", year: "numeric" }) : "Active";
-    return `<article class="portal-service portal-service--unlocked"><div class="portal-service__top"><span class="status-pill status-pill--active">Unlocked</span><span class="portal-service__key" aria-label="Unlocked">&#128275;</span></div><h3>${escapeHtml(service.name)}</h3><p>${escapeHtml(service.description)}</p><dl><div><dt>Account</dt><dd>${escapeHtml(purchase.account)}</dd></div><div><dt>Activated</dt><dd>${escapeHtml(date)}</dd></div><div><dt>Price</dt><dd>${escapeHtml(purchase.price)}</dd></div></dl><div class="member-purchase__actions">${liveUrl ? `<a class="btn btn--primary" href="${escapeHtml(liveUrl)}" target="_blank" rel="noopener">Open ${escapeHtml(service.name)} →</a>` : `<span class="portal-service__active-note">Your service is active</span>`}${fileUrl ? `<a class="btn btn--ghost" href="${escapeHtml(fileUrl)}" target="_blank" rel="noopener" download>Download Your Files →</a>` : ""}</div></article>`;
+    const dashboardUrl = `service-dashboard.html?service=${encodeURIComponent(service.name)}&account=${encodeURIComponent(purchase.account)}`;
+    return `<article class="portal-service portal-service--unlocked"><div class="portal-service__top"><span class="status-pill status-pill--active">Unlocked</span><span class="portal-service__key" aria-label="Unlocked">&#128275;</span></div><h3>${escapeHtml(service.name)}</h3><p>${escapeHtml(service.description)}</p><dl><div><dt>Account</dt><dd>${escapeHtml(purchase.account)}</dd></div><div><dt>Activated</dt><dd>${escapeHtml(date)}</dd></div><div><dt>Price</dt><dd>${escapeHtml(purchase.price)}</dd></div></dl><div class="member-purchase__actions"><a class="btn btn--primary" href="${escapeHtml(dashboardUrl)}">Open ${escapeHtml(service.name)} →</a>${fileUrl ? `<a class="btn btn--ghost" href="${escapeHtml(fileUrl)}" target="_blank" rel="noopener" download>Download Your Files →</a>` : ""}</div></article>`;
   }).join("");
 }
 
-function renderPurchases(purchases) {
-  results.innerHTML = `<div class="member-results__head"><div><p class="section__tag">// Access Granted</p><h1>Qp Digital Members Portal</h1><p>Everything Qp Digital offers is shown below. Your purchases are unlocked and ready to use.</p></div><button class="btn btn--ghost" id="memberLogout" type="button">Sign Out</button></div><div class="portal-service-grid">${renderServiceLibrary(purchases)}</div><div class="portal-more-service"><p>Want another service?</p><button class="btn btn--primary" type="button" data-quote-service="another Qp Digital service">Get a Quote →</button></div><div class="portal-quote-modal" id="portalQuoteModal" hidden><div class="portal-quote-modal__dialog" role="dialog" aria-modal="true" aria-labelledby="portalQuoteTitle"><span class="portal-quote-modal__icon" aria-hidden="true">&#128274;</span><p class="section__tag">// Locked Service</p><h2 id="portalQuoteTitle">Get a quote?</h2><p id="portalQuoteService"></p><div class="portal-quote-modal__actions"><button class="btn btn--ghost" id="portalQuoteCancel" type="button">Cancel</button><a class="btn btn--primary" href="https://qp-digital.co.uk/#enquire">Continue →</a></div></div></div>`;
+function renderPurchases(purchases, profile = null) {
+  sessionStorage.setItem("qpMemberPurchases", JSON.stringify(purchases));
+  results.innerHTML = `<div class="member-results__head"><div><p class="section__tag">// Access Granted</p><h1>Qp Digital Members Portal</h1><p>${profile ? `Welcome, ${escapeHtml(profile.contactName)} from ${escapeHtml(profile.businessName)}.` : "Everything Qp Digital offers is shown below."} Your purchases are unlocked and ready to use.</p></div><button class="btn btn--ghost" id="memberLogout" type="button">Sign Out</button></div><div class="portal-service-grid">${renderServiceLibrary(purchases)}</div><div class="portal-more-service"><p>Want another service?</p><button class="btn btn--primary" type="button" data-quote-service="another Qp Digital service">Get a Quote →</button></div><div class="portal-quote-modal" id="portalQuoteModal" hidden><div class="portal-quote-modal__dialog" role="dialog" aria-modal="true" aria-labelledby="portalQuoteTitle"><span class="portal-quote-modal__icon" aria-hidden="true">&#128274;</span><p class="section__tag">// Locked Service</p><h2 id="portalQuoteTitle">Get a quote?</h2><p id="portalQuoteService"></p><div class="portal-quote-modal__actions"><button class="btn btn--ghost" id="portalQuoteCancel" type="button">Cancel</button><a class="btn btn--primary" href="https://qp-digital.co.uk/#enquire">Continue →</a></div></div></div>`;
   form.hidden = true;
   document.getElementById("memberPanelLead").hidden = true;
   results.hidden = false;
@@ -151,6 +153,23 @@ function renderAdministratorMembers(clients, email) {
   });
 }
 
+function openMemberPortal(purchases, email) {
+  const key = `qpMemberProfile:${email.toLowerCase()}`;
+  const saved = localStorage.getItem(key);
+  if (saved) { renderPurchases(purchases, JSON.parse(saved)); return; }
+  form.hidden = true;
+  document.getElementById("memberPanelLead").hidden = true;
+  results.hidden = false;
+  results.innerHTML = `<div class="member-onboarding"><p class="section__tag">// First-time setup</p><h2>Tell us about your business</h2><p class="members-panel__lead">Answer five quick questions so Qp Digital can personalise your services.</p><form class="member-login" id="memberOnboardingForm"><label>Your name</label><input name="contactName" required><label>Business name</label><input name="businessName" required><label>What industry are you in?</label><input name="industry" required><label>Who is your ideal customer?</label><textarea name="idealCustomer" required></textarea><label>What is your main business goal?</label><textarea name="primaryGoal" required></textarea><button class="btn btn--primary btn--lg" type="submit">Personalise My Portal →</button></form></div>`;
+  document.getElementById("memberOnboardingForm").addEventListener("submit", (event) => {
+    event.preventDefault();
+    const data = Object.fromEntries(new FormData(event.currentTarget));
+    localStorage.setItem(key, JSON.stringify(data));
+    sessionStorage.setItem("qpMemberProfile", JSON.stringify(data));
+    renderPurchases(purchases, data);
+  });
+}
+
 form.addEventListener("submit", async (event) => {
   event.preventDefault();
   const button = form.querySelector("button[type=submit]");
@@ -160,7 +179,7 @@ form.addEventListener("submit", async (event) => {
     const response = await fetch("/api/member-access", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ email: form.email.value.trim(), code: form.code.value }) });
     const data = await response.json();
     if (!response.ok || data.status !== "ok") throw new Error(data.message || "We couldn't verify those details.");
-    renderPurchases(data.purchases);
+    openMemberPortal(data.purchases, form.email.value.trim());
   } catch (error) {
     note.textContent = error.message || "We couldn't verify those details. Check the email and code, then try again.";
   } finally { button.disabled = false; }

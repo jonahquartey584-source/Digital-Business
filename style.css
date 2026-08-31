@@ -2022,6 +2022,9 @@ html[data-theme="light"] .theme-toggle__sun{display:none}html[data-theme="light"
 .member-login label { margin-top: .55rem; font: 600 .78rem/1 "IBM Plex Mono", monospace; letter-spacing: .08em; text-transform: uppercase; color: var(--text-dim); }
 .member-login input { width: 100%; min-height: 58px; padding: 0 1rem; border: 1px solid var(--border); background: var(--bg); color: var(--text); font: 500 1rem/1 "IBM Plex Sans", sans-serif; outline: none; }
 .member-login input:focus { border-color: var(--gold); box-shadow: 0 0 0 3px rgba(var(--gold-rgb), .16); }
+.member-login textarea { width: 100%; min-height: 110px; padding: 1rem; border: 1px solid var(--border); background: var(--bg); color: var(--text); font: 500 1rem/1.5 "IBM Plex Sans", sans-serif; resize: vertical; }
+.member-login textarea:focus { border-color: var(--gold); outline: none; box-shadow: 0 0 0 3px rgba(var(--gold-rgb), .16); }
+.member-onboarding { max-width: 760px; margin: 0 auto; }
 .member-login #memberCode { font-family: "IBM Plex Mono", monospace; font-size: 1.2rem; letter-spacing: .14em; }
 .member-login .btn { margin-top: .9rem; width: 100%; }
 .portal-remember { display: grid; grid-template-columns: auto 1fr; gap: .7rem; align-items: center; margin-top: .7rem; }
@@ -2069,6 +2072,20 @@ html[data-theme="light"] .theme-toggle__sun{display:none}html[data-theme="light"
 .portal-quote-modal__actions { display: flex; justify-content: center; gap: .75rem; margin-top: 1.5rem; }
 .portal-more-service { display: flex; align-items: center; justify-content: space-between; gap: 1rem; margin-top: 1rem; padding: 1.25rem 1.4rem; border: 1px solid var(--gold); background: var(--surface-alt); }
 .portal-more-service p { margin: 0; font-family: "Sora", sans-serif; font-size: 1.15rem; font-weight: 700; color: var(--text); }
+.service-dashboard-page { min-height: calc(100vh - 88px); padding: clamp(3rem, 7vw, 6rem) 0; background: var(--bg); }
+.service-dashboard__head { display: flex; align-items: flex-start; justify-content: space-between; gap: 2rem; padding-bottom: 2rem; border-bottom: 1px solid var(--border); }
+.service-dashboard__head h1,.service-dashboard-error h1 { margin: .65rem 0 1rem; font-family: "Sora", sans-serif; font-size: clamp(3rem, 7vw, 6rem); line-height: .95; letter-spacing: -.06em; color: var(--text); }
+.service-dashboard__head > div > p:last-child,.service-dashboard-error p { max-width: 720px; color: var(--text-dim); font-size: 1.05rem; line-height: 1.7; }
+.service-dashboard__grid { display: grid; grid-template-columns: repeat(2, minmax(0,1fr)); gap: 1rem; margin-top: 2rem; }
+.service-dashboard__card { padding: clamp(1.5rem, 4vw, 2.5rem); border: 1px solid var(--border); background: var(--surface); }
+.service-dashboard__card--wide { grid-column: 1 / -1; }
+.service-dashboard__card h2 { margin: .65rem 0 1rem; font-family: "Sora", sans-serif; font-size: clamp(1.7rem, 3vw, 2.5rem); color: var(--text); }
+.service-dashboard__card > p:not(.section__tag) { color: var(--text-dim); line-height: 1.65; }
+.service-dashboard__card dl { display: grid; gap: .8rem; margin: 1.5rem 0 0; }
+.service-dashboard__card dl div { display: flex; justify-content: space-between; gap: 1rem; padding-top: .8rem; border-top: 1px solid var(--border-soft); }
+.service-dashboard__card dt { font: 600 .7rem/1.4 "IBM Plex Mono", monospace; text-transform: uppercase; color: var(--text-faint); }
+.service-dashboard__card dd { margin: 0; color: var(--text); }
+@media (max-width: 700px) { .service-dashboard__grid { grid-template-columns: 1fr; }.service-dashboard__card--wide { grid-column: auto; }.service-dashboard__head { display: block; }.service-dashboard__head > .status-pill { display: inline-block; margin-top: 1rem; } }
 @media (max-width: 900px) { .members-shell { grid-template-columns: 1fr; }.members-panel { margin-right: 14px; }.members-intro h1 { font-size: clamp(3rem, 12vw, 5rem); } }
 @media (max-width: 700px) { .portal-service-grid { grid-template-columns: 1fr; }.portal-more-service { align-items: stretch; flex-direction: column; } }
 @media (max-width: 560px) { .members-hero { padding-top: 3.5rem; }.members-panel__bar p { display: none; }.members-panel__body { padding: 1.35rem; }.member-purchase { grid-template-columns: 1fr; }.member-purchase dl { grid-template-columns: 1fr; }.member-results__head { display: block; }.member-results__head .btn { margin-top: 1rem; } }
