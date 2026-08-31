@@ -11,6 +11,7 @@ const adminLoginNote = document.getElementById("adminPortalLoginNote");
 const adminMemberResults = document.getElementById("adminMemberResults");
 
 const ADMIN_SESSION_STORAGE_KEY = "qpAdminSession";
+const MEMBER_SESSION_STORAGE_KEY = "qpMemberSession";
 
 function selectPortalMode(mode) {
   const adminMode = mode === "admin";
@@ -92,12 +93,13 @@ function renderServiceLibrary(purchases) {
     const fileUrl = safeUrl(purchase.deliverableFileUrl);
     const date = purchase.activatedAt ? new Date(purchase.activatedAt).toLocaleDateString("en-GB", { day: "numeric", month: "long", year: "numeric" }) : "Active";
     const dashboardUrl = `${service.page}?account=${encodeURIComponent(purchase.account)}`;
-    return `<article class="portal-service portal-service--unlocked"><div class="portal-service__top"><span class="status-pill status-pill--active">Unlocked</span><span class="portal-service__key" aria-label="Unlocked">&#128275;</span></div><h3>${escapeHtml(service.name)}</h3><p>${escapeHtml(service.description)}</p><dl><div><dt>Account</dt><dd>${escapeHtml(purchase.account)}</dd></div><div><dt>Activated</dt><dd>${escapeHtml(date)}</dd></div><div><dt>Price</dt><dd>${escapeHtml(purchase.price)}</dd></div></dl><div class="member-purchase__actions"><a class="btn btn--primary" href="${escapeHtml(dashboardUrl)}">Open ${escapeHtml(service.name)} →</a>${fileUrl ? `<a class="btn btn--ghost" href="${escapeHtml(fileUrl)}" target="_blank" rel="noopener" download>Download Your Files →</a>` : ""}</div></article>`;
+    return `<article class="portal-service portal-service--unlocked"><div class="portal-service__top"><span class="status-pill status-pill--active">Unlocked</span><span class="portal-service__key" aria-label="Unlocked">&#128275;</span></div><h3>${escapeHtml(service.name)}</h3><p>${escapeHtml(service.description)}</p><dl><div><dt>Account</dt><dd>${escapeHtml(purchase.account)}</dd></div><div><dt>Activated</dt><dd>${escapeHtml(date)}</dd></div><div><dt>Price</dt><dd>${escapeHtml(purchase.price)}</dd></div></dl><div class="member-purchase__actions"><a class="btn btn--primary" href="${escapeHtml(dashboardUrl)}" target="_blank" rel="noopener">Launch ${escapeHtml(service.name)} ↗</a>${fileUrl ? `<a class="btn btn--ghost" href="${escapeHtml(fileUrl)}" target="_blank" rel="noopener" download>Download Your Files →</a>` : ""}</div></article>`;
   }).join("");
 }
 
 function renderPurchases(purchases, profile = null) {
   sessionStorage.setItem("qpMemberPurchases", JSON.stringify(purchases));
+  localStorage.setItem("qpMemberPurchases", JSON.stringify(purchases));
   results.innerHTML = `<div class="member-results__head"><div><p class="section__tag">// Access Granted</p><h1>Qp Digital Members Portal</h1><p>${profile ? `Welcome, ${escapeHtml(profile.contactName)} from ${escapeHtml(profile.businessName)}.` : "Everything Qp Digital offers is shown below."} Your purchases are unlocked and ready to use.</p></div><button class="btn btn--ghost" id="memberLogout" type="button">Sign Out</button></div><div class="portal-service-grid">${renderServiceLibrary(purchases)}</div><div class="portal-more-service"><p>Want another service?</p><button class="btn btn--primary" type="button" data-quote-service="another Qp Digital service">Get a Quote →</button></div><div class="portal-quote-modal" id="portalQuoteModal" hidden><div class="portal-quote-modal__dialog" role="dialog" aria-modal="true" aria-labelledby="portalQuoteTitle"><span class="portal-quote-modal__icon" aria-hidden="true">&#128274;</span><p class="section__tag">// Locked Service</p><h2 id="portalQuoteTitle">Get a quote?</h2><p id="portalQuoteService"></p><div class="portal-quote-modal__actions"><button class="btn btn--ghost" id="portalQuoteCancel" type="button">Cancel</button><a class="btn btn--primary" href="https://qp-digital.co.uk/#enquire">Continue →</a></div></div></div>`;
   form.hidden = true;
   document.getElementById("memberPanelLead").hidden = true;
@@ -112,6 +114,8 @@ function renderPurchases(purchases, profile = null) {
   document.getElementById("portalQuoteCancel").addEventListener("click", () => { quoteModal.hidden = true; });
   quoteModal.addEventListener("click", (event) => { if (event.target === quoteModal) quoteModal.hidden = true; });
   document.getElementById("memberLogout").addEventListener("click", () => {
+    localStorage.removeItem(MEMBER_SESSION_STORAGE_KEY);
+    sessionStorage.removeItem(MEMBER_SESSION_STORAGE_KEY);
     results.hidden = true;
     results.innerHTML = "";
     form.reset();
@@ -149,7 +153,15 @@ function renderAdministratorMembers(clients, email) {
   });
 }
 
-function openMemberPortal(purchases, email) {
+function openMemberPortal(purchases, email, remember = false) {
+  const memberSession = JSON.stringify({ email, purchases, expiresAt: Date.now() + (30 * 24 * 60 * 60 * 1000) });
+  if (remember) {
+    localStorage.setItem(MEMBER_SESSION_STORAGE_KEY, memberSession);
+    sessionStorage.removeItem(MEMBER_SESSION_STORAGE_KEY);
+  } else {
+    sessionStorage.setItem(MEMBER_SESSION_STORAGE_KEY, memberSession);
+    localStorage.removeItem(MEMBER_SESSION_STORAGE_KEY);
+  }
   const key = `qpMemberProfile:${email.toLowerCase()}`;
   const saved = localStorage.getItem(key);
   if (saved) { renderPurchases(purchases, JSON.parse(saved)); return; }
@@ -175,11 +187,27 @@ form.addEventListener("submit", async (event) => {
     const response = await fetch("/api/member-access", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ email: form.email.value.trim(), code: form.code.value }) });
     const data = await response.json();
     if (!response.ok || data.status !== "ok") throw new Error(data.message || "We couldn't verify those details.");
-    openMemberPortal(data.purchases, form.email.value.trim());
+    openMemberPortal(data.purchases, form.email.value.trim(), form.remember.checked);
   } catch (error) {
     note.textContent = error.message || "We couldn't verify those details. Check the email and code, then try again.";
   } finally { button.disabled = false; }
 });
+
+const rememberedMember = localStorage.getItem(MEMBER_SESSION_STORAGE_KEY) || sessionStorage.getItem(MEMBER_SESSION_STORAGE_KEY);
+if (rememberedMember) {
+  try {
+    const session = JSON.parse(rememberedMember);
+    if (session.expiresAt > Date.now() && Array.isArray(session.purchases)) {
+      openMemberPortal(session.purchases, session.email, Boolean(localStorage.getItem(MEMBER_SESSION_STORAGE_KEY)));
+    } else {
+      localStorage.removeItem(MEMBER_SESSION_STORAGE_KEY);
+      sessionStorage.removeItem(MEMBER_SESSION_STORAGE_KEY);
+    }
+  } catch {
+    localStorage.removeItem(MEMBER_SESSION_STORAGE_KEY);
+    sessionStorage.removeItem(MEMBER_SESSION_STORAGE_KEY);
+  }
+}
 
 adminLoginForm.addEventListener("submit", async (event) => {
   event.preventDefault();

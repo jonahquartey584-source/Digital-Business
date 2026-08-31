@@ -24,4 +24,65 @@
 .mini-lead { margin-top: .6rem; padding: .7rem; border: 1px solid var(--line); background: var(--surface); }
 .mini-lead strong, .mini-lead span { display: block; }
 .mini-lead span { color: var(--muted); font-size: .82rem; margin-top: .25rem; }
+.service-app-shell { min-height: 100vh; display: grid; grid-template-columns: 230px minmax(0, 1fr); background: var(--bg); }
+.service-app-sidebar { border-right: 1px solid var(--line); padding: 1.4rem 1rem; background: var(--surface); }
+.service-app-brand { display: flex; align-items: center; gap: .7rem; margin-bottom: 2rem; font-family: var(--display); font-size: 1.15rem; color: var(--gold); }
+.service-app-brand span { display: grid; place-items: center; width: 2.35rem; height: 2.35rem; background: var(--gold); color: #111; font-family: var(--mono); font-size: .8rem; }
+.service-app-nav { display: grid; gap: .35rem; }
+.service-app-nav button, .service-app-nav a { width: 100%; text-align: left; border: 0; background: transparent; color: var(--muted); padding: .75rem; text-decoration: none; font-family: var(--sans); cursor: pointer; }
+.service-app-nav .is-active, .service-app-nav button:hover, .service-app-nav a:hover { background: color-mix(in srgb, var(--gold) 12%, transparent); color: var(--text); }
+.service-app-main { min-width: 0; padding: 1.6rem; }
+.service-app-topbar { display: flex; justify-content: space-between; gap: 1rem; align-items: center; margin-bottom: 1.5rem; }
+.service-app-topbar h1 { margin: 0; font-size: clamp(1.7rem, 4vw, 2.4rem); }
+.service-app-tools { display: flex; flex-wrap: wrap; gap: .55rem; }
+.crm-stats { display: grid; grid-template-columns: repeat(4, minmax(0,1fr)); gap: .8rem; margin-bottom: 1rem; }
+.crm-stat { border: 1px solid var(--line); background: var(--surface); padding: 1rem; }
+.crm-stat span { display: block; color: var(--muted); font-family: var(--mono); font-size: .72rem; text-transform: uppercase; letter-spacing: .06em; }
+.crm-stat strong { display: block; margin-top: .35rem; font-size: 1.3rem; }
+.crm-board-pro { display: grid; grid-template-columns: repeat(4,minmax(230px,1fr)); gap: .8rem; overflow-x: auto; padding-bottom: 1rem; }
+.crm-column { min-width: 230px; border: 1px solid var(--line); background: color-mix(in srgb,var(--surface) 90%,transparent); padding: .75rem; }
+.crm-column__head { display: flex; justify-content: space-between; gap: .5rem; align-items: center; border-bottom: 1px solid var(--line); padding-bottom: .7rem; }
+.crm-column__head h2 { margin: 0; font-family: var(--mono); font-size: .8rem; text-transform: uppercase; letter-spacing: .06em; }
+.crm-column__head span { color: var(--gold); font-family: var(--mono); }
+.crm-column__total { color: var(--muted); font-family: var(--mono); font-size: .75rem; margin: .6rem 0; }
+.crm-column__empty { min-height: 90px; display: grid; place-items: center; padding: 1rem .6rem; border: 1px dashed var(--line); color: var(--muted); text-align: center; font-size: .82rem; }
+.crm-column:has(.crm-deal) .crm-column__empty { display: none; }
+.crm-deal { background: var(--bg); border: 1px solid var(--line); padding: .8rem; margin-top: .6rem; }
+.crm-deal__top, .crm-deal__bottom { display: flex; justify-content: space-between; gap: .5rem; }
+.crm-deal p { margin: .35rem 0 .7rem; color: var(--muted); font-size: .85rem; }
+.crm-deal__bottom { border-top: 1px solid var(--line); padding-top: .55rem; font-family: var(--mono); font-size: .72rem; color: var(--muted); }
+.crm-deal__value { color: var(--text); font-weight: 700; }
+.crm-add-deal { width: 100%; border: 1px dashed var(--line); background: transparent; color: var(--muted); padding: .65rem; margin-top: .65rem; cursor: pointer; }
+.crm-add-deal:hover { border-color: var(--gold); color: var(--gold); }
+.client-ai-launcher { position: fixed; right: 1.25rem; bottom: 1.25rem; z-index: 30; width: 3.8rem; height: 3.8rem; border-radius: 50%; border: 3px solid var(--bg); background: var(--gold); color: #111; font-size: 1.35rem; cursor: pointer; box-shadow: 0 12px 35px rgba(0,0,0,.35); }
+.client-ai-panel { position: fixed; right: 1.25rem; bottom: 6rem; z-index: 31; width: min(390px,calc(100vw - 2rem)); height: min(610px,calc(100vh - 8rem)); display: grid; grid-template-rows: auto 1fr auto; background: var(--surface); border: 1px solid var(--gold); box-shadow: 0 20px 60px rgba(0,0,0,.45); }
+.client-ai-panel[hidden] { display: none; }
+.client-ai-head { display: flex; justify-content: space-between; align-items: center; gap: .75rem; padding: 1rem; border-bottom: 1px solid var(--line); }
+.client-ai-head strong, .client-ai-head span { display: block; }
+.client-ai-head span { color: var(--muted); font-size: .78rem; margin-top: .2rem; }
+.client-ai-close { border: 0; background: transparent; color: var(--text); font-size: 1.35rem; cursor: pointer; }
+.client-ai-messages { overflow-y: auto; padding: 1rem; display: flex; flex-direction: column; gap: .7rem; }
+.client-ai-message { max-width: 86%; padding: .75rem .85rem; border: 1px solid var(--line); line-height: 1.5; }
+.client-ai-message--assistant { align-self: flex-start; background: var(--bg); }
+.client-ai-message--user { align-self: flex-end; background: var(--gold); color: #111; border-color: var(--gold); }
+.client-ai-form { display: grid; grid-template-columns: 1fr auto; gap: .5rem; padding: .85rem; border-top: 1px solid var(--line); }
+.client-ai-form input { min-width: 0; background: var(--bg); color: var(--text); border: 1px solid var(--line); padding: .8rem; font: inherit; }
+.client-ai-form button { min-width: 3rem; border: 0; background: var(--gold); color: #111; font-weight: 700; cursor: pointer; }
+.service-action-modal { position: fixed; inset: 0; z-index: 50; display: grid; place-items: center; padding: 1rem; background: rgba(0,0,0,.72); }
+.service-action-modal[hidden] { display: none; }
+.service-action-dialog { width: min(560px,100%); max-height: calc(100vh - 2rem); overflow-y: auto; background: var(--surface); color: var(--text); border: 1px solid var(--gold); padding: 1.25rem; box-shadow: 0 24px 80px rgba(0,0,0,.5); }
+.service-action-dialog__head { display: flex; justify-content: space-between; align-items: flex-start; gap: 1rem; border-bottom: 1px solid var(--line); padding-bottom: .85rem; margin-bottom: 1rem; }
+.service-action-dialog__head h2 { margin: .2rem 0 0; }
+.service-action-close { border: 0; background: transparent; color: var(--text); font-size: 1.5rem; cursor: pointer; }
+.service-action-form { display: grid; gap: .8rem; }
+.service-action-form label { display: grid; gap: .35rem; color: var(--muted); font-size: .86rem; }
+.service-action-form input, .service-action-form select, .service-action-form textarea { width: 100%; border: 1px solid var(--line); background: var(--bg); color: var(--text); padding: .75rem; font: inherit; }
+.service-action-form textarea { min-height: 110px; resize: vertical; }
+.service-action-form__buttons { display: flex; justify-content: flex-end; gap: .6rem; margin-top: .4rem; }
+.service-action-note { border-left: 3px solid var(--gold); background: var(--bg); padding: .8rem; margin-bottom: 1rem; color: var(--muted); }
+.service-toast { position: fixed; left: 50%; bottom: 1.25rem; z-index: 70; transform: translateX(-50%); background: var(--gold); color: #111; padding: .8rem 1.1rem; font-weight: 700; box-shadow: 0 12px 30px rgba(0,0,0,.35); }
+.service-toast[hidden] { display: none; }
+.crm-deal[hidden] { display: none; }
 @media (max-width: 760px) { .member-service-head { flex-direction: column; } .member-service-summary, .member-service-grid { grid-template-columns: 1fr; } .member-service-summary > div { border-right: 0; border-bottom: 1px solid var(--line); } .member-service-summary > div:last-child { border-bottom: 0; } }
+@media (max-width: 900px) { .service-app-shell { grid-template-columns: 1fr; } .service-app-sidebar { display: none; } .crm-stats { grid-template-columns: repeat(2,minmax(0,1fr)); } }
+@media (max-width: 520px) { .service-app-main { padding: 1rem; } .service-app-topbar { align-items: flex-start; flex-direction: column; } .crm-stats { grid-template-columns: 1fr; } }
