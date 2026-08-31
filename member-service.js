@@ -1,3 +1,6 @@
+const savedMemberTheme = localStorage.getItem("qpTheme") === "light" ? "light" : "dark";
+document.documentElement.dataset.theme = savedMemberTheme;
+
 const servicePage = document.querySelector("[data-member-service]");
 const gate = document.getElementById("memberServiceGate");
 const accountTarget = document.querySelector("[data-member-account]");
@@ -44,12 +47,17 @@ if (servicePage && allowed) {
 } else if (gate) {
   gate.hidden = false;
 }
-document.querySelectorAll("[data-theme-toggle]").forEach((button) => button.addEventListener("click", () => {
-  const next = document.documentElement.dataset.theme === "light" ? "dark" : "light";
-  document.documentElement.dataset.theme = next;
-  localStorage.setItem("qpTheme", next);
-  button.textContent = next === "light" ? "Dark" : "Light";
-}));
+document.querySelectorAll("[data-theme-toggle]").forEach((button) => {
+  button.textContent = savedMemberTheme === "light" ? "Dark" : "Light";
+  button.setAttribute("aria-pressed", String(savedMemberTheme === "light"));
+  button.addEventListener("click", () => {
+    const next = document.documentElement.dataset.theme === "light" ? "dark" : "light";
+    document.documentElement.dataset.theme = next;
+    localStorage.setItem("qpTheme", next);
+    button.textContent = next === "light" ? "Dark" : "Light";
+    button.setAttribute("aria-pressed", String(next === "light"));
+  });
+});
 if (!document.querySelector('script[src="client-assistant.js"]')) {
   const assistantScript = document.createElement("script");
   assistantScript.src = "client-assistant.js";
