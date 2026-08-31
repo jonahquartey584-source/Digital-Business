@@ -69,8 +69,7 @@ function safeUrl(value) {
 const SERVICE_CATALOG = [
   { name: "Websites", description: "Custom-built, mobile-friendly websites designed to turn visitors into customers.", aliases: ["website", "web design"] },
   { name: "CRM", description: "Track every lead, customer and conversation in one organised system.", aliases: ["crm", "customer relationship"] },
-  { name: "Website Management", description: "Ongoing updates, hosting, security and fixes for your website.", aliases: ["website management", "site management", "hosting"] },
-  { name: "SEO", description: "Search optimisation that helps local customers find your business.", aliases: ["seo", "search optimisation", "search optimization"] },
+  { name: "Website Management", description: "Ongoing updates, hosting, security, fixes and SEO for your website.", aliases: ["website management", "site management", "hosting", "seo", "search optimisation", "search optimization"] },
   { name: "Booking System", description: "Online appointment and service booking available around the clock.", aliases: ["booking", "appointments"] },
   { name: "Branding & Print", description: "Logos, brand identity, flyers and business cards.", aliases: ["branding", "logo", "flyer", "business card", "print"] },
   { name: "Social Media & Content", description: "Posts, captions and content that keep your business visible.", aliases: ["social media", "content"] },
