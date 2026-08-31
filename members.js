@@ -83,7 +83,7 @@ const SERVICE_CATALOG = [
 function findPurchasedService(service, purchases) {
   return purchases.find((purchase) => {
     const searchable = `${purchase.title || ""} ${purchase.service || ""}`.toLowerCase();
-    return service.aliases.some((alias) => searchable.includes(alias));
+    return searchable.includes("all services") || service.aliases.some((alias) => searchable.includes(alias));
   });
 }
 
@@ -91,7 +91,7 @@ function renderServiceLibrary(purchases) {
   return SERVICE_CATALOG.map((service) => {
     const purchase = findPurchasedService(service, purchases);
     if (!purchase) {
-      return `<article class="portal-service portal-service--locked" aria-label="${escapeHtml(service.name)} — locked"><div class="portal-service__blur" aria-hidden="true"><span class="status-pill">Available service</span><h3>${escapeHtml(service.name)}</h3><p>${escapeHtml(service.description)}</p><div class="portal-service__placeholder"></div></div><div class="portal-service__lock"><span aria-hidden="true">&#128274;</span><strong>Locked</strong><small>This service is not included in your account.</small></div></article>`;
+      return `<button class="portal-service portal-service--locked" type="button" data-quote-service="${escapeHtml(service.name)}" aria-label="${escapeHtml(service.name)} — locked; request a quote"><div class="portal-service__blur" aria-hidden="true"><span class="status-pill">Available service</span><p>${escapeHtml(service.description)}</p><div class="portal-service__placeholder"></div></div><div class="portal-service__lock"><span aria-hidden="true">&#128274;</span><h3>${escapeHtml(service.name)}</h3><strong>Locked</strong><small>Click to request a quote.</small></div></button>`;
     }
     const liveUrl = safeUrl(purchase.liveUrl);
     const fileUrl = safeUrl(purchase.deliverableFileUrl);
@@ -101,10 +101,18 @@ function renderServiceLibrary(purchases) {
 }
 
 function renderPurchases(purchases) {
-  results.innerHTML = `<div class="member-results__head"><div><p class="section__tag">// Access Granted</p><h2>Your Qp Digital services</h2><p>Everything Qp Digital offers is shown below. Your purchases are unlocked and ready to use.</p></div><button class="btn btn--ghost" id="memberLogout" type="button">Sign Out</button></div><div class="portal-service-grid">${renderServiceLibrary(purchases)}</div>`;
+  results.innerHTML = `<div class="member-results__head"><div><p class="section__tag">// Access Granted</p><h2>Your Qp Digital services</h2><p>Everything Qp Digital offers is shown below. Your purchases are unlocked and ready to use.</p></div><button class="btn btn--ghost" id="memberLogout" type="button">Sign Out</button></div><div class="portal-service-grid">${renderServiceLibrary(purchases)}</div><div class="portal-more-service"><p>Want another service?</p><button class="btn btn--primary" type="button" data-quote-service="another Qp Digital service">Get a Quote →</button></div><div class="portal-quote-modal" id="portalQuoteModal" hidden><div class="portal-quote-modal__dialog" role="dialog" aria-modal="true" aria-labelledby="portalQuoteTitle"><span class="portal-quote-modal__icon" aria-hidden="true">&#128274;</span><p class="section__tag">// Locked Service</p><h2 id="portalQuoteTitle">Get a quote?</h2><p id="portalQuoteService"></p><div class="portal-quote-modal__actions"><button class="btn btn--ghost" id="portalQuoteCancel" type="button">Cancel</button><a class="btn btn--primary" href="https://qp-digital.co.uk/#enquire">Continue →</a></div></div></div>`;
   form.hidden = true;
   document.getElementById("memberPanelLead").hidden = true;
   results.hidden = false;
+  const quoteModal = document.getElementById("portalQuoteModal");
+  results.querySelectorAll("[data-quote-service]").forEach((card) => card.addEventListener("click", () => {
+    document.getElementById("portalQuoteService").textContent = `Would you like to request a quote for ${card.dataset.quoteService}?`;
+    quoteModal.hidden = false;
+    document.getElementById("portalQuoteCancel").focus();
+  }));
+  document.getElementById("portalQuoteCancel").addEventListener("click", () => { quoteModal.hidden = true; });
+  quoteModal.addEventListener("click", (event) => { if (event.target === quoteModal) quoteModal.hidden = true; });
   document.getElementById("memberLogout").addEventListener("click", () => {
     results.hidden = true;
     results.innerHTML = "";
