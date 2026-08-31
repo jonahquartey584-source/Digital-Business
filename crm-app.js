@@ -377,6 +377,37 @@ document.getElementById("crmImportForm")?.addEventListener("submit", async (even
   }
 });
 
+// ---------- AI Assistant nav lock ----------
+//
+// Unlocked only if the member's purchases include AI & Automation — same
+// alias set ai-automation.html itself gates on, so "unlocked here" always
+// matches "actually opens there". Locked members are sent to the Get a
+// Quote enquiry section instead of a dead end.
+
+const AI_AUTOMATION_ALIASES = ["ai", "automation", "chatbot", "follow-up", "live chat"];
+
+function hasAiAutomationAccess() {
+  const raw = sessionStorage.getItem("qpMemberPurchases") || localStorage.getItem("qpMemberPurchases");
+  if (!raw) return false;
+  let purchases = [];
+  try {
+    purchases = JSON.parse(raw);
+  } catch {
+    return false;
+  }
+  return purchases.some((purchase) => {
+    const text = `${purchase.title || ""} ${purchase.service || ""}`.toLowerCase();
+    return text.includes("all services") || AI_AUTOMATION_ALIASES.some((term) => text.includes(term));
+  });
+}
+
+const aiNav = document.getElementById("crmAiNav");
+if (aiNav) {
+  const unlocked = hasAiAutomationAccess();
+  aiNav.dataset.locked = String(!unlocked);
+  aiNav.href = unlocked ? "ai-automation.html" : "index.html#enquire";
+}
+
 // ---------- Nav switching ----------
 
 const VIEW_TITLE = {

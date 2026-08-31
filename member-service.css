@@ -32,6 +32,16 @@
 .service-app-nav button, .service-app-nav a { width: 100%; text-align: left; border: 0; background: transparent; color: var(--muted); padding: .75rem; text-decoration: none; font-family: var(--sans); cursor: pointer; }
 .service-app-nav .is-active, .service-app-nav button:hover, .service-app-nav a:hover { background: color-mix(in srgb, var(--gold) 12%, transparent); color: var(--text); }
 
+.crm-ai-link { display: flex !important; align-items: center; justify-content: space-between; gap: .5rem; }
+.crm-ai-lockbadge {
+  font-family: var(--mono); font-size: .68rem; text-transform: uppercase; letter-spacing: .04em;
+  padding: .15rem .5rem; border: 1px solid var(--line); color: var(--muted); white-space: nowrap;
+}
+.crm-ai-link[data-locked="true"] .crm-ai-lockbadge::before { content: "Locked"; }
+.crm-ai-link[data-locked="true"]:hover .crm-ai-lockbadge::before { content: "Unlock"; }
+.crm-ai-link[data-locked="true"]:hover .crm-ai-lockbadge { border-color: var(--gold); color: var(--gold); }
+.crm-ai-link[data-locked="false"] .crm-ai-lockbadge { display: none; }
+
 .service-app-main { min-width: 0; padding: 1.6rem; }
 .crm-status { min-height: 1.2rem; margin: -.5rem 0 1rem; font-size: .85rem; color: var(--muted); }
 .crm-panel__hint { color: var(--muted); font-size: .9rem; margin-bottom: 1rem; }
