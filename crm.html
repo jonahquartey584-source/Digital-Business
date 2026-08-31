@@ -10,50 +10,100 @@
     <aside class="service-app-sidebar">
       <a class="service-app-brand" href="crm.html"><img src="apple-touch-icon.png" alt="" width="32" height="32"><span>Qp Digital CRM</span></a>
       <nav class="service-app-nav" aria-label="CRM navigation">
-        <a data-crm-link="pipeline" href="#">Pipeline</a>
-        <a data-crm-link="leads" href="#">Leads Database</a>
-        <a data-crm-link="contacts" href="#">Contacts</a>
-        <a data-crm-link="tasks" href="#">Tasks &amp; Follow-ups</a>
-        <a data-crm-link="reporting" href="#">Reporting</a>
-        <a data-crm-link="import" href="#">Import History</a>
+        <button data-crm-view="pipeline" class="is-active" type="button">Pipeline</button>
+        <button data-crm-view="leads" type="button">Leads Database</button>
+        <button data-crm-view="contacts" type="button">Contacts</button>
+        <button data-crm-view="tasks" type="button">Tasks &amp; Follow-ups</button>
+        <button data-crm-view="reporting" type="button">Reporting</button>
+        <button data-crm-view="import" type="button">Import History</button>
         <a href="members.html">← Members Portal</a>
       </nav>
     </aside>
     <section class="service-app-main">
       <header class="service-app-topbar">
-        <div><p class="section__tag">// Personalised Client Workspace</p><h1>Your CRM</h1><p>Account <strong data-member-account></strong> · your real, working CRM opens in the Qp Digital app.</p></div>
+        <div><p class="section__tag">// Personalised Client Workspace</p><h1 data-crm-view-title>Pipeline</h1><p>Account <strong data-member-account></strong> · <span data-crm-view-lead>Track every opportunity from enquiry to customer.</span></p></div>
+        <div class="service-app-tools" data-crm-view="pipeline">
+          <button class="btn btn--primary" id="crmAddDealBtn" type="button">+ Add deal</button>
+        </div>
       </header>
-      <div class="crm-launch-grid" aria-label="CRM sections">
-        <a class="crm-launch-card" data-crm-link="pipeline" href="#">
-          <h2>Pipeline</h2>
-          <p>Every deal, tracked by stage from first enquiry to won or lost.</p>
-        </a>
-        <a class="crm-launch-card" data-crm-link="leads" href="#">
-          <h2>Leads Database</h2>
-          <p>Unqualified leads, kept separate from your real contacts until they're worth promoting.</p>
-        </a>
-        <a class="crm-launch-card" data-crm-link="contacts" href="#">
-          <h2>Contacts</h2>
-          <p>Every person you've engaged with, with a full activity history.</p>
-        </a>
-        <a class="crm-launch-card" data-crm-link="tasks" href="#">
-          <h2>Tasks &amp; Follow-ups</h2>
-          <p>Nothing depends on remembering — see what's due, and what's overdue.</p>
-        </a>
-        <a class="crm-launch-card" data-crm-link="reporting" href="#">
-          <h2>Reporting</h2>
-          <p>Pipeline value, win rate and lead-conversion stats at a glance.</p>
-        </a>
-        <a class="crm-launch-card" data-crm-link="import" href="#">
-          <h2>Import History</h2>
-          <p>Bring in existing contacts from a CSV file, and see every past import.</p>
-        </a>
+
+      <p class="crm-status" id="crmStatus" aria-live="polite"></p>
+
+      <!-- Pipeline -->
+      <div data-crm-panel="pipeline" class="crm-panel">
+        <div class="crm-board-pro" id="crmBoard" aria-label="Sales pipeline"></div>
       </div>
-      <p class="crm-launch-note">Opens in the Qp Digital app — first time here? Sign up there with <strong data-member-account-email></strong> to unlock it; it's already included with your CRM purchase.</p>
+
+      <!-- Leads Database -->
+      <div data-crm-panel="leads" class="crm-panel" hidden>
+        <details class="member-service-panel" style="margin-bottom:1rem">
+          <summary style="cursor:pointer;color:var(--gold)">+ New lead</summary>
+          <form id="crmLeadForm" class="crm-form">
+            <input name="firstName" placeholder="First name" required>
+            <input name="lastName" placeholder="Last name">
+            <input name="email" type="email" placeholder="Email">
+            <input name="phone" type="tel" placeholder="Phone">
+            <input name="source" placeholder="Source (e.g. Referral)">
+            <button class="btn btn--primary" type="submit">Add lead</button>
+          </form>
+        </details>
+        <div class="member-service-list" id="crmLeadsList"></div>
+      </div>
+
+      <!-- Contacts -->
+      <div data-crm-panel="contacts" class="crm-panel" hidden>
+        <p class="crm-panel__hint">Contacts are created automatically when you promote a lead in the Leads Database.</p>
+        <div class="member-service-list" id="crmContactsList"></div>
+      </div>
+
+      <!-- Tasks & Follow-ups -->
+      <div data-crm-panel="tasks" class="crm-panel" hidden>
+        <details class="member-service-panel" style="margin-bottom:1rem">
+          <summary style="cursor:pointer;color:var(--gold)">+ New task</summary>
+          <form id="crmTaskForm" class="crm-form">
+            <input name="title" placeholder="Task" required style="grid-column:1/-1">
+            <input name="dueDate" type="date">
+            <select name="link"><option value="">Not linked</option></select>
+            <button class="btn btn--primary" type="submit">Add task</button>
+          </form>
+        </details>
+        <h3 class="crm-subhead">Open</h3>
+        <div class="member-service-list" id="crmTasksOpen"></div>
+        <h3 class="crm-subhead">Done</h3>
+        <div class="member-service-list" id="crmTasksDone"></div>
+      </div>
+
+      <!-- Reporting -->
+      <div data-crm-panel="reporting" class="crm-panel" hidden>
+        <div class="crm-stats" id="crmReportStats"></div>
+        <div class="member-service-grid">
+          <div class="member-service-panel">
+            <h2>Pipeline by stage</h2>
+            <div id="crmReportPipeline" class="crm-bars"></div>
+          </div>
+          <div class="member-service-panel">
+            <h2>Lead funnel</h2>
+            <div id="crmReportLeads" class="crm-bars"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Import History -->
+      <div data-crm-panel="import" class="crm-panel" hidden>
+        <div class="member-service-panel" style="margin-bottom:1.25rem">
+          <h2>Import leads from CSV</h2>
+          <p>Needs at least a name column (first name, or a combined "name" column) — email and phone are picked up automatically if present.</p>
+          <form id="crmImportForm" class="crm-form">
+            <input type="file" name="file" accept=".csv,text/csv" required>
+            <button class="btn btn--primary" type="submit">Import</button>
+          </form>
+        </div>
+        <div class="member-service-list" id="crmImportHistory"></div>
+      </div>
     </section>
   </main>
   <section class="container member-service-gate" id="memberServiceGate" hidden><h1>Members Portal access required</h1><p>Sign in with an account that includes CRM.</p><a class="btn btn--primary" href="members.html">Return to Members Portal →</a></section>
   <script src="member-service.js"></script>
-  <script src="crm-links.js"></script>
+  <script src="crm-app.js"></script>
   <script src="client-assistant.js"></script>
 </body></html>
