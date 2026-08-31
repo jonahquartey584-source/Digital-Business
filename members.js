@@ -67,16 +67,12 @@ function safeUrl(value) {
 }
 
 const SERVICE_CATALOG = [
-  { name: "Websites", description: "Custom-built, mobile-friendly websites designed to turn visitors into customers.", aliases: ["website", "web design"] },
-  { name: "CRM", description: "Track every lead, customer and conversation in one organised system.", aliases: ["crm", "customer relationship"] },
-  { name: "Website Management", description: "Ongoing updates, hosting, security, fixes and SEO for your website.", aliases: ["website management", "site management", "hosting", "seo", "search optimisation", "search optimization"] },
-  { name: "Booking System", description: "Online appointment and service booking available around the clock.", aliases: ["booking", "appointments"] },
-  { name: "Branding & Print", description: "Logos, brand identity, flyers and business cards.", aliases: ["branding", "logo", "flyer", "business card", "print"] },
-  { name: "Social Media & Content", description: "Posts, captions and content that keep your business visible.", aliases: ["social media", "content"] },
-  { name: "Reporting Dashboards", description: "View leads, calls, bookings and sales in one dashboard.", aliases: ["reporting", "dashboard", "analytics"] },
-  { name: "Automation Systems", description: "Automate repetitive administration and business processes.", aliases: ["automation system", "workflow automation"] },
-  { name: "Automated Follow-Ups", description: "Automatically follow up missed calls, quotes and review requests.", aliases: ["follow-up", "follow up", "followup"] },
-  { name: "Chatbots & Live Chat", description: "Answer questions and capture leads through automated or live chat.", aliases: ["chatbot", "live chat", "ai assistant"] },
+  { name: "Web Development", page: "web-development.html", description: "View your website, request edits and manage your ongoing website plan.", aliases: ["website", "web design", "website management", "site management", "hosting", "seo"] },
+  { name: "CRM", page: "crm.html", description: "Manage your personalised lead database and sales pipeline.", aliases: ["crm", "customer relationship"] },
+  { name: "Booking System", page: "booking-system.html", description: "Manage appointments, availability, services and customer bookings.", aliases: ["booking", "appointments"] },
+  { name: "Branding", page: "branding.html", description: "View and download your branding products or request more work.", aliases: ["branding", "logo", "flyer", "business card", "print"] },
+  { name: "AI & Automation", page: "ai-automation.html", description: "Control the AI tools and automated workflows running for your business.", aliases: ["ai", "automation", "chatbot", "follow-up", "follow up", "live chat"] },
+  { name: "Social Media", page: "social-media.html", description: "Review your content, approvals, publishing plan and campaign progress.", aliases: ["social media", "content"] },
 ];
 
 function findPurchasedService(service, purchases) {
@@ -95,7 +91,7 @@ function renderServiceLibrary(purchases) {
     const liveUrl = safeUrl(purchase.liveUrl);
     const fileUrl = safeUrl(purchase.deliverableFileUrl);
     const date = purchase.activatedAt ? new Date(purchase.activatedAt).toLocaleDateString("en-GB", { day: "numeric", month: "long", year: "numeric" }) : "Active";
-    const dashboardUrl = `service-dashboard.html?service=${encodeURIComponent(service.name)}&account=${encodeURIComponent(purchase.account)}`;
+    const dashboardUrl = `${service.page}?account=${encodeURIComponent(purchase.account)}`;
     return `<article class="portal-service portal-service--unlocked"><div class="portal-service__top"><span class="status-pill status-pill--active">Unlocked</span><span class="portal-service__key" aria-label="Unlocked">&#128275;</span></div><h3>${escapeHtml(service.name)}</h3><p>${escapeHtml(service.description)}</p><dl><div><dt>Account</dt><dd>${escapeHtml(purchase.account)}</dd></div><div><dt>Activated</dt><dd>${escapeHtml(date)}</dd></div><div><dt>Price</dt><dd>${escapeHtml(purchase.price)}</dd></div></dl><div class="member-purchase__actions"><a class="btn btn--primary" href="${escapeHtml(dashboardUrl)}">Open ${escapeHtml(service.name)} →</a>${fileUrl ? `<a class="btn btn--ghost" href="${escapeHtml(fileUrl)}" target="_blank" rel="noopener" download>Download Your Files →</a>` : ""}</div></article>`;
   }).join("");
 }
