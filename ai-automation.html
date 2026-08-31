@@ -1,1 +1,59 @@
-<!doctype html><html lang="en" data-theme="dark"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>AI & Automation — Qp Digital Members Portal</title><link rel="stylesheet" href="style.css"><link rel="stylesheet" href="member-service.css"></head><body><header class="site-header"><div class="container header__inner"><a class="logo" href="/">Qp Digital</a><nav class="nav"><a href="members.html">← Members Portal</a></nav><button class="theme-toggle" data-theme-toggle type="button">Light</button></div></header><main><section class="container member-service-page" data-member-service data-service-aliases="ai,automation,chatbot,follow-up,live chat" hidden><div class="member-service-head"><div><p class="section__tag">// AI & Automation</p><h1>Automation Control Centre</h1><p>Monitor and control the AI tools and workflows running for your business.</p></div><div class="member-service-actions"><button class="btn btn--primary" type="button">+ Request Automation</button></div></div><div class="member-service-summary"><div><span>Account</span><strong data-member-account></strong></div><div><span>Active workflows</span><strong>4</strong></div><div><span>Membership</span><strong>Active</strong></div></div><div class="member-service-grid"><article class="member-service-panel"><p class="section__tag">// Workflows</p><h2>Active automations</h2><div class="member-service-list"><div class="member-service-row"><span>New enquiry follow-up</span><strong>Running</strong></div><div class="member-service-row"><span>Missed call response</span><strong>Running</strong></div><div class="member-service-row"><span>Review request</span><strong>Running</strong></div></div></article><article class="member-service-panel"><p class="section__tag">// AI Assistant</p><h2>Website assistant</h2><p>Your Qp Digital assistant is answering questions and collecting qualified leads.</p><div class="member-service-list"><div class="member-service-row"><span>Conversations this month</span><strong>37</strong></div><div class="member-service-row"><span>Agent requests</span><strong>5</strong></div></div><button class="btn btn--ghost" type="button">Manage Assistant</button></article></div></section><section class="container member-service-gate" id="memberServiceGate" hidden><h1>Members Portal access required</h1><p>Sign in with an account that includes AI & Automation.</p><a class="btn btn--primary" href="members.html">Return to Members Portal →</a></section></main><script src="member-service.js"></script></body></html>
+<!doctype html><html lang="en" data-theme="dark"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>AI &amp; Automation — Qp Digital Members Portal</title><link rel="stylesheet" href="style.css"><link rel="stylesheet" href="member-service.css"></head><body>
+<header class="site-header"><div class="container header__inner"><a class="logo" href="/">Qp Digital</a><nav class="nav"><a href="members.html">← Members Portal</a></nav><button class="theme-toggle" data-theme-toggle type="button">Light</button></div></header>
+<main>
+  <section class="container member-service-page" data-member-service data-service-aliases="ai,automation,chatbot,follow-up,live chat" hidden>
+    <div class="member-service-head">
+      <div>
+        <p class="section__tag">// AI Reception</p>
+        <h1>AI &amp; Automation</h1>
+        <p>Your business's real phone number rings first. If nobody picks up, this AI answers instead — has a real conversation, and logs it to your CRM — so a missed call never quietly becomes a lost lead.</p>
+      </div>
+    </div>
+
+    <p class="crm-status" id="voiceStatus" aria-live="polite"></p>
+
+    <!-- Not yet set up -->
+    <div id="voiceSetup" hidden>
+      <div class="member-service-panel">
+        <h2>Set up AI Reception</h2>
+        <form id="voiceSetupForm" class="crm-form" style="margin-top:1rem">
+          <input name="businessName" placeholder="Business name" required>
+          <input name="forwardingNumber" type="tel" placeholder="Your real number (e.g. +447...)" required>
+          <textarea name="businessContext" placeholder="What should the AI know? Opening hours, services, pricing, anything callers might ask." rows="3" style="grid-column:1/-1"></textarea>
+          <input name="greeting" placeholder="Custom greeting (optional)" style="grid-column:1/-1">
+          <button class="btn btn--primary" type="submit" id="voiceSearchBtn">Find me a number →</button>
+        </form>
+      </div>
+
+      <div id="voiceNumberChoices" style="margin-top:1.25rem"></div>
+    </div>
+
+    <!-- Already set up -->
+    <div id="voiceLive" hidden>
+      <div class="member-service-summary">
+        <div><span>Your AI Reception number</span><strong id="voiceNumberDisplay"></strong></div>
+        <div><span>Status</span><strong id="voiceEnabledDisplay"></strong></div>
+        <div><span>Calls handled</span><strong id="voiceCallCountDisplay"></strong></div>
+      </div>
+
+      <details class="member-service-panel" style="margin-bottom:1.25rem">
+        <summary style="cursor:pointer;color:var(--gold)">Edit business info &amp; greeting</summary>
+        <form id="voiceUpdateForm" class="crm-form" style="margin-top:1rem">
+          <input name="businessName" placeholder="Business name">
+          <input name="forwardingNumber" type="tel" placeholder="Your real number">
+          <textarea name="businessContext" placeholder="What the AI should know" rows="3" style="grid-column:1/-1"></textarea>
+          <input name="greeting" placeholder="Custom greeting" style="grid-column:1/-1">
+          <button class="btn btn--primary" type="submit">Save changes</button>
+        </form>
+      </details>
+
+      <h2 class="crm-subhead" style="margin-top:0">Recent calls</h2>
+      <div class="member-service-list" id="voiceCallLog"></div>
+    </div>
+  </section>
+
+  <section class="container member-service-gate" id="memberServiceGate" hidden><h1>Members Portal access required</h1><p>Sign in with an account that includes AI &amp; Automation.</p><a class="btn btn--primary" href="members.html">Return to Members Portal →</a></section>
+</main>
+<script src="member-service.js"></script>
+<script src="ai-automation.js"></script>
+</body></html>

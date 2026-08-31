@@ -6,7 +6,8 @@
   "dependencies": {
     "@netlify/blobs": "^8",
     "@netlify/identity": "latest",
-    "openai": "^4.0.0"
+    "openai": "^4.0.0",
+    "twilio": "^5"
   },
   "devDependencies": {
     "@netlify/functions": "^2"

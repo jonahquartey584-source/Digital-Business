@@ -384,16 +384,11 @@ document.getElementById("crmImportForm")?.addEventListener("submit", async (even
 // matches "actually opens there". Locked members are sent to the Get a
 // Quote enquiry section instead of a dead end.
 //
-// Unlocked members go to the REAL AI Reception dashboard on the real app
-// (missed-call AI answering — a live Twilio integration with real
-// per-call cost, not something to fake here) instead of the static,
-// placeholder-data ai-automation.html page. Same app CRM/Booking already
-// link into; provisionRealAppAccess() in _shared.mts grants "voice"
-// access there whenever a client's paid service matches these aliases,
-// so this link is never a paywall for something already paid for here.
+// Unlocked members go to ai-automation.html — the real AI Reception setup
+// page built directly into this site (netlify/functions/voice-*.mts +
+// ai-automation.html/ai-automation.js), not a separate app.
 
 const AI_AUTOMATION_ALIASES = ["ai", "automation", "chatbot", "follow-up", "live chat"];
-const REAL_APP_URL = "https://qp-digital-crm-app.netlify.app";
 
 function hasAiAutomationAccess() {
   const raw = sessionStorage.getItem("qpMemberPurchases") || localStorage.getItem("qpMemberPurchases");
@@ -414,13 +409,7 @@ const aiNav = document.getElementById("crmAiNav");
 if (aiNav) {
   const unlocked = hasAiAutomationAccess();
   aiNav.dataset.locked = String(!unlocked);
-  if (unlocked) {
-    const url = new URL("/dashboard/voice", REAL_APP_URL);
-    if (email) url.searchParams.set("email", email);
-    aiNav.href = url.toString();
-  } else {
-    aiNav.href = "index.html#enquire";
-  }
+  aiNav.href = unlocked ? "ai-automation.html" : "index.html#enquire";
 }
 
 // ---------- Nav switching ----------
