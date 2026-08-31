@@ -141,12 +141,19 @@ export async function sendEmail(options: {
 // logs and swallows failures rather than throwing, same as sendEmail() above
 // — a client's Blobs record staying 'active' matters more than this succeeding
 // on the first try, and it's safe to retry (upsert) on the next webhook event.
-export type RealAppProduct = "crm" | "booking";
+export type RealAppProduct = "crm" | "booking" | "voice";
 
 export function realAppProductForService(service: string): RealAppProduct | null {
   const s = service.toLowerCase();
   if (s.includes("crm")) return "crm";
   if (s.includes("booking")) return "booking";
+  // "voice" is the real app's product key for AI Reception (missed-call AI
+  // answering) — matches the same alias vocabulary ai-automation.html
+  // already gates on, so a client who buys AI & Automation here gets real
+  // access there too, not just a locked/unlocked badge.
+  if (["ai", "automation", "assistant", "chatbot", "follow-up", "reception", "call"].some((term) => s.includes(term))) {
+    return "voice";
+  }
   return null;
 }
 
