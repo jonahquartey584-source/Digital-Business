@@ -2005,6 +2005,13 @@ html[data-theme="light"] .theme-toggle__sun{display:none}html[data-theme="light"
 .members-panel__bar span:nth-child(2) { opacity: .65; }.members-panel__bar span:nth-child(3) { opacity: .35; }
 .members-panel__bar p { margin: 0 0 0 auto; font: 600 .72rem/1 "IBM Plex Mono", monospace; letter-spacing: .08em; color: var(--text-faint); }
 .members-panel__body { padding: clamp(1.7rem, 4vw, 3.5rem); }
+.members-page.is-dashboard .members-hero { padding: 3rem 0 5rem; }
+.members-page.is-dashboard .members-shell { display: block; }
+.members-page.is-dashboard .members-intro { display: none; }
+.members-page.is-dashboard .members-panel { width: 100%; }
+.members-page.is-dashboard .members-panel::after { display: none; }
+.members-page.is-dashboard .members-panel__body { padding: clamp(2rem, 5vw, 4.5rem); }
+.members-page.is-dashboard .member-results__head h1 { margin: .6rem 0 .8rem; max-width: 850px; font-family: "Sora", sans-serif; font-size: clamp(2.7rem, 6vw, 5.5rem); line-height: .98; letter-spacing: -.055em; color: var(--text); }
 .portal-mode { display: grid; grid-template-columns: 1fr 1fr; gap: 4px; margin-bottom: 2.2rem; padding: 4px; border: 1px solid var(--border); background: var(--bg); }
 .portal-mode__button { min-height: 44px; border: 0; background: transparent; color: var(--text-dim); cursor: pointer; font: 700 .72rem/1 "IBM Plex Mono", monospace; letter-spacing: .08em; text-transform: uppercase; transition: background .2s ease, color .2s ease; }
 .portal-mode__button:hover { color: var(--gold-bright); }

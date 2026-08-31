@@ -100,10 +100,11 @@ function renderServiceLibrary(purchases) {
 }
 
 function renderPurchases(purchases) {
-  results.innerHTML = `<div class="member-results__head"><div><p class="section__tag">// Access Granted</p><h2>Your Qp Digital services</h2><p>Everything Qp Digital offers is shown below. Your purchases are unlocked and ready to use.</p></div><button class="btn btn--ghost" id="memberLogout" type="button">Sign Out</button></div><div class="portal-service-grid">${renderServiceLibrary(purchases)}</div><div class="portal-more-service"><p>Want another service?</p><button class="btn btn--primary" type="button" data-quote-service="another Qp Digital service">Get a Quote →</button></div><div class="portal-quote-modal" id="portalQuoteModal" hidden><div class="portal-quote-modal__dialog" role="dialog" aria-modal="true" aria-labelledby="portalQuoteTitle"><span class="portal-quote-modal__icon" aria-hidden="true">&#128274;</span><p class="section__tag">// Locked Service</p><h2 id="portalQuoteTitle">Get a quote?</h2><p id="portalQuoteService"></p><div class="portal-quote-modal__actions"><button class="btn btn--ghost" id="portalQuoteCancel" type="button">Cancel</button><a class="btn btn--primary" href="https://qp-digital.co.uk/#enquire">Continue →</a></div></div></div>`;
+  results.innerHTML = `<div class="member-results__head"><div><p class="section__tag">// Access Granted</p><h1>Qp Digital Members Portal</h1><p>Everything Qp Digital offers is shown below. Your purchases are unlocked and ready to use.</p></div><button class="btn btn--ghost" id="memberLogout" type="button">Sign Out</button></div><div class="portal-service-grid">${renderServiceLibrary(purchases)}</div><div class="portal-more-service"><p>Want another service?</p><button class="btn btn--primary" type="button" data-quote-service="another Qp Digital service">Get a Quote →</button></div><div class="portal-quote-modal" id="portalQuoteModal" hidden><div class="portal-quote-modal__dialog" role="dialog" aria-modal="true" aria-labelledby="portalQuoteTitle"><span class="portal-quote-modal__icon" aria-hidden="true">&#128274;</span><p class="section__tag">// Locked Service</p><h2 id="portalQuoteTitle">Get a quote?</h2><p id="portalQuoteService"></p><div class="portal-quote-modal__actions"><button class="btn btn--ghost" id="portalQuoteCancel" type="button">Cancel</button><a class="btn btn--primary" href="https://qp-digital.co.uk/#enquire">Continue →</a></div></div></div>`;
   form.hidden = true;
   document.getElementById("memberPanelLead").hidden = true;
   results.hidden = false;
+  document.querySelector(".members-page").classList.add("is-dashboard");
   const quoteModal = document.getElementById("portalQuoteModal");
   results.querySelectorAll("[data-quote-service]").forEach((card) => card.addEventListener("click", () => {
     document.getElementById("portalQuoteService").textContent = `Would you like to request a quote for ${card.dataset.quoteService}?`;
@@ -118,6 +119,7 @@ function renderPurchases(purchases) {
     form.reset();
     form.hidden = false;
     document.getElementById("memberPanelLead").hidden = false;
+    document.querySelector(".members-page").classList.remove("is-dashboard");
     note.textContent = "";
   });
 }
