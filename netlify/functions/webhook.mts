@@ -70,7 +70,8 @@ export default async (req: Request, context: Context) => {
       if (client) {
         const customerEmail = String(event?.data?.object?.customer_details?.email ?? "").trim().toLowerCase();
         const recipient = (client.clientEmail || customerEmail).trim().toLowerCase();
-        const portalCode = client.portalCodeHash ? null : createPortalCode();
+        const checkoutPortalCode = String(event?.data?.object?.metadata?.portal_code ?? "").replace(/\D/g, "").slice(0, 12);
+        const portalCode = client.portalCodeHash ? null : (checkoutPortalCode.length === 12 ? checkoutPortalCode : createPortalCode());
 
         client.status = "active";
         client.activatedAt = new Date().toISOString();
@@ -86,10 +87,19 @@ export default async (req: Request, context: Context) => {
           await sendEmail({
             to: recipient,
             subject: "Your Qp Digital members portal access code",
-            text: `Payment received. Your 12-digit Qp Digital members portal code is ${formattedCode}. Sign in at https://qp-digital.netlify.app/members.html using this email address.`,
-            html: `<div style="font-family:Arial,sans-serif;max-width:620px;margin:auto;padding:32px;background:#0c0b09;color:#f7f0df;border:1px solid #9b6a23"><p style="color:#d3a34f;letter-spacing:.12em;text-transform:uppercase">Qp Digital Members Portal</p><h1 style="font-size:28px">Payment received.</h1><p>Your service is now available in your members portal.</p><p style="font-size:30px;font-weight:700;letter-spacing:.16em;color:#e0b35b">${formattedCode}</p><p>Use this email address and the 12-digit code to sign in.</p><p><a href="https://qp-digital.netlify.app/members.html" style="display:inline-block;padding:14px 20px;background:#c7923c;color:#0c0b09;text-decoration:none;font-weight:700">Open Members Portal</a></p></div>`,
+            text: `Payment received. Your 12-digit Qp Digital members portal code is ${formattedCode}. Sign in at https://qp-digital.co.uk/members.html using this email address.`,
+            html: `<div style="font-family:Arial,sans-serif;max-width:620px;margin:auto;padding:32px;background:#0c0b09;color:#f7f0df;border:1px solid #9b6a23"><p style="color:#d3a34f;letter-spacing:.12em;text-transform:uppercase">Qp Digital Members Portal</p><h1 style="font-size:28px">Payment received.</h1><p>Your service is now available in your members portal.</p><p style="font-size:30px;font-weight:700;letter-spacing:.16em;color:#e0b35b">${formattedCode}</p><p>Use this email address and the 12-digit code to sign in.</p><p><a href="https://qp-digital.co.uk/members.html" style="display:inline-block;padding:14px 20px;background:#c7923c;color:#0c0b09;text-decoration:none;font-weight:700">Open Members Portal</a></p></div>`,
           });
         }
+
+        const ownerEmail = Netlify.env.get("PAYMENT_NOTIFICATION_EMAIL") ?? "jonahquartey584@gmail.com";
+        await sendEmail({
+          to: ownerEmail,
+          subject: `Payment received: ${client.service} — ${accountNumber}`,
+          text: `A Qp Digital client payment has been completed.\n\nAccount: ${accountNumber}\nService: ${client.service}\nPrice: ${client.price}\nClient email: ${recipient || "Not supplied"}\nActivated: ${client.activatedAt}`,
+          html: `<div style="font-family:Arial,sans-serif;line-height:1.6"><h1>Client payment received</h1><p><strong>Account:</strong> ${accountNumber}</p><p><strong>Service:</strong> ${client.service}</p><p><strong>Price:</strong> ${client.price}</p><p><strong>Client email:</strong> ${recipient || "Not supplied"}</p><p><strong>Activated:</strong> ${client.activatedAt}</p></div>`,
+          ...(recipient ? { replyTo: recipient } : {}),
+        });
       }
     }
   }
