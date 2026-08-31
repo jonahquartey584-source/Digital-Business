@@ -20,6 +20,7 @@ const createPasswordNote = document.getElementById("memberCreatePasswordNote");
 const firstLoginButton = document.getElementById("firstLoginButton");
 const passwordLoginButton = document.getElementById("passwordLoginButton");
 let verifiedFirstLogin = null;
+let activeAdminToken = "";
 
 const ADMIN_SESSION_STORAGE_KEY = "qpAdminSession";
 const MEMBER_SESSION_STORAGE_KEY = "qpMemberSession";
@@ -165,7 +166,10 @@ function renderAdministratorMembers(clients, email) {
     const fileUrl = safeUrl(client.deliverableFileUrl);
     const active = client.status === "active";
     const created = client.createdAt ? new Date(client.createdAt).toLocaleDateString("en-GB", { day: "numeric", month: "long", year: "numeric" }) : "—";
-    return `<article class="member-purchase"><div class="member-purchase__number">${String(index + 1).padStart(2, "0")}</div><div class="member-purchase__content"><span class="status-pill ${active ? "status-pill--active" : ""}">${active ? "Active" : "Pending payment"}</span><h3>${escapeHtml(client.title || client.service)}</h3><p>${escapeHtml(client.clientEmail || "No client email saved")}</p><dl><div><dt>Account</dt><dd>${escapeHtml(client.account)}</dd></div><div><dt>Created</dt><dd>${escapeHtml(created)}</dd></div><div><dt>Price</dt><dd>${escapeHtml(client.price)}</dd></div></dl><p>${escapeHtml(client.preview || "No description added.")}</p><div class="member-purchase__actions">${liveUrl ? `<a class="btn btn--primary" href="${escapeHtml(liveUrl)}" target="_blank" rel="noopener">Open Service →</a>` : ""}${fileUrl ? `<a class="btn btn--ghost" href="${escapeHtml(fileUrl)}" target="_blank" rel="noopener">Open Deliverable →</a>` : ""}</div></div></article>`;
+    const accessText = String(client.service || "").toLowerCase();
+    const serviceChecks = SERVICE_CATALOG.map((service) => `<label class="admin-access-option"><input type="checkbox" name="services" value="${escapeHtml(service.name)}" ${accessText.includes("all services") || service.aliases.some((alias) => accessText.includes(alias)) ? "checked" : ""}> <span>${escapeHtml(service.name)}</span></label>`).join("");
+    const displayedCode = client.portalCode ? String(client.portalCode).replace(/(\d{4})(?=\d)/g, "$1 ") : "Protected — generate a replacement to view it";
+    return `<article class="member-purchase" data-admin-member="${escapeHtml(client.account)}"><div class="member-purchase__number">${String(index + 1).padStart(2, "0")}</div><div class="member-purchase__content"><span class="status-pill ${active ? "status-pill--active" : ""}">${active ? "Active" : "Pending payment"}</span><h3>${escapeHtml(client.title || client.service)}</h3><p>${escapeHtml(client.clientEmail || "No client email saved")}</p><dl><div><dt>Account</dt><dd>${escapeHtml(client.account)}</dd></div><div><dt>Created</dt><dd>${escapeHtml(created)}</dd></div><div><dt>Price</dt><dd>${escapeHtml(client.price)}</dd></div></dl><p>${escapeHtml(client.preview || "No description added.")}</p><section class="admin-access-panel"><div><span class="section__tag">// Member access code</span><strong class="admin-access-code">${escapeHtml(displayedCode)}</strong></div><button class="btn btn--ghost" type="button" data-reset-code>Generate New 12-Digit Code</button><details><summary>Edit service access</summary><div class="admin-access-grid">${serviceChecks}</div><label class="portal-remember"><input type="checkbox" name="enabled" ${active ? "checked" : ""}> <span>Member access enabled</span></label><button class="btn btn--primary" type="button" data-save-access>Save Access</button><p class="form-note" data-access-note aria-live="polite"></p></details></section><div class="member-purchase__actions">${liveUrl ? `<a class="btn btn--primary" href="${escapeHtml(liveUrl)}" target="_blank" rel="noopener">Open Service →</a>` : ""}${fileUrl ? `<a class="btn btn--ghost" href="${escapeHtml(fileUrl)}" target="_blank" rel="noopener">Open Deliverable →</a>` : ""}</div></div></article>`;
   }).join("");
 
   adminLoginForm.hidden = true;
@@ -173,6 +177,37 @@ function renderAdministratorMembers(clients, email) {
   adminLoginForm.nextElementSibling.hidden = true;
   adminMemberResults.innerHTML = `<div class="member-results__head"><div><p class="section__tag">// Administrator Access</p><h2>All member portals</h2><p>Logged in as ${escapeHtml(email)} · ${clients.length} member record${clients.length === 1 ? "" : "s"}</p></div><button class="btn btn--ghost" id="adminMemberLogout" type="button">Sign Out</button></div>${memberCards || '<p class="members-panel__lead">No member records have been created yet.</p>'}`;
   adminMemberResults.hidden = false;
+  adminMemberResults.querySelectorAll("[data-admin-member]").forEach((card) => {
+    const account = card.dataset.adminMember;
+    const noteTarget = card.querySelector("[data-access-note]");
+    card.querySelector("[data-reset-code]").addEventListener("click", async (event) => {
+      const button = event.currentTarget;
+      button.disabled = true;
+      noteTarget.textContent = "Generating a secure replacement code…";
+      try {
+        const response = await fetch("/api/manage-member-access", { method: "POST", headers: { "Content-Type": "application/json", Authorization: `Bearer ${activeAdminToken}` }, body: JSON.stringify({ action: "regenerate_code", account }) });
+        const data = await response.json();
+        if (!response.ok) throw new Error(data.message || "The code could not be generated.");
+        card.querySelector(".admin-access-code").textContent = data.code;
+        noteTarget.textContent = "New code created. The previous 12-digit code no longer works.";
+      } catch (error) { noteTarget.textContent = error.message; }
+      finally { button.disabled = false; }
+    });
+    card.querySelector("[data-save-access]").addEventListener("click", async (event) => {
+      const button = event.currentTarget;
+      const services = [...card.querySelectorAll('input[name="services"]:checked')].map((input) => input.value);
+      const enabled = card.querySelector('input[name="enabled"]').checked;
+      button.disabled = true;
+      noteTarget.textContent = "Saving member access…";
+      try {
+        const response = await fetch("/api/manage-member-access", { method: "POST", headers: { "Content-Type": "application/json", Authorization: `Bearer ${activeAdminToken}` }, body: JSON.stringify({ action: "update_access", account, services, enabled }) });
+        const data = await response.json();
+        if (!response.ok) throw new Error(data.message || "Access could not be updated.");
+        noteTarget.textContent = "Member access updated successfully.";
+      } catch (error) { noteTarget.textContent = error.message; }
+      finally { button.disabled = false; }
+    });
+  });
   document.getElementById("adminMemberLogout").addEventListener("click", () => {
     localStorage.removeItem(ADMIN_SESSION_STORAGE_KEY);
     sessionStorage.removeItem(ADMIN_SESSION_STORAGE_KEY);
@@ -183,6 +218,7 @@ function renderAdministratorMembers(clients, email) {
     adminLoginForm.previousElementSibling.hidden = false;
     adminLoginForm.nextElementSibling.hidden = false;
     adminLoginNote.textContent = "";
+    activeAdminToken = "";
   });
 }
 
@@ -321,6 +357,7 @@ adminLoginForm.addEventListener("submit", async (event) => {
     }
 
     const storedSession = JSON.stringify({ token: data.token, email });
+    activeAdminToken = data.token;
     if (remember) {
       localStorage.setItem(ADMIN_SESSION_STORAGE_KEY, storedSession);
       sessionStorage.removeItem(ADMIN_SESSION_STORAGE_KEY);

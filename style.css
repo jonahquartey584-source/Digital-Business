@@ -2089,3 +2089,13 @@ html[data-theme="light"] .theme-toggle__sun{display:none}html[data-theme="light"
 @media (max-width: 900px) { .members-shell { grid-template-columns: 1fr; }.members-panel { margin-right: 14px; }.members-intro h1 { font-size: clamp(3rem, 12vw, 5rem); } }
 @media (max-width: 700px) { .portal-service-grid { grid-template-columns: 1fr; }.portal-more-service { align-items: stretch; flex-direction: column; } }
 @media (max-width: 560px) { .members-hero { padding-top: 3.5rem; }.members-panel__bar p { display: none; }.members-panel__body { padding: 1.35rem; }.member-purchase { grid-template-columns: 1fr; }.member-purchase dl { grid-template-columns: 1fr; }.member-results__head { display: block; }.member-results__head .btn { margin-top: 1rem; } }
+/* Administrator member access controls */
+.admin-access-panel{margin:1.4rem 0;padding:1.2rem;border:1px solid var(--border);background:color-mix(in srgb,var(--surface) 92%,transparent);display:grid;gap:1rem}
+.admin-access-panel>div:first-child{display:grid;gap:.45rem}
+.admin-access-code{font-family:var(--mono);font-size:1.05rem;letter-spacing:.12em;color:var(--gold-light);overflow-wrap:anywhere}
+.admin-access-panel details{border-top:1px solid var(--border);padding-top:1rem}
+.admin-access-panel summary{cursor:pointer;font-family:var(--mono);font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--text)}
+.admin-access-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:.65rem;margin:1rem 0}
+.admin-access-option{display:flex;align-items:center;gap:.65rem;padding:.75rem;border:1px solid var(--border);background:var(--bg);font-weight:600}
+.admin-access-option input{width:1.1rem;height:1.1rem;accent-color:var(--gold)}
+@media(max-width:700px){.admin-access-grid{grid-template-columns:1fr}}
