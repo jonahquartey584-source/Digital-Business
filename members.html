@@ -46,9 +46,14 @@
         <div class="members-panel" id="membersPanel">
           <div class="members-panel__bar"><span></span><span></span><span></span><p>secure-member-access.log</p></div>
           <div class="members-panel__body">
+            <div class="portal-mode" role="tablist" aria-label="Choose portal access">
+              <button class="portal-mode__button is-active" id="memberModeButton" type="button" role="tab" aria-selected="true" aria-controls="memberAccess">Member</button>
+              <button class="portal-mode__button" id="adminModeButton" type="button" role="tab" aria-selected="false" aria-controls="adminAccess">Administrator</button>
+            </div>
+            <div id="memberAccess" role="tabpanel" aria-labelledby="memberModeButton">
             <p class="section__tag">// Member Login</p>
             <h2>Access your purchases</h2>
-            <p class="members-panel__lead">Use the email address from your payment and the 12-digit code we sent you.</p>
+            <p class="members-panel__lead" id="memberPanelLead">Use the email address from your payment and the 12-digit code we sent you.</p>
             <form id="memberLoginForm" class="member-login">
               <label for="memberEmail">Email address</label>
               <input id="memberEmail" name="email" type="email" autocomplete="email" required placeholder="you@business.co.uk" />
@@ -58,6 +63,26 @@
               <p class="form-note" id="memberLoginNote" aria-live="polite"></p>
             </form>
             <div class="member-results" id="memberResults" hidden></div>
+            </div>
+            <div id="adminAccess" role="tabpanel" aria-labelledby="adminModeButton" hidden>
+              <p class="section__tag">// Administrator Login</p>
+              <h2>Full portal access</h2>
+              <p class="members-panel__lead">Sign in with your Qp Digital administrator details to view every member's purchased services and deliverables.</p>
+              <form id="adminPortalLoginForm" class="member-login">
+                <label for="adminPortalEmail">Administrator email</label>
+                <input id="adminPortalEmail" name="email" type="email" autocomplete="username" required placeholder="Your administrator email" />
+                <label for="adminPortalPassword">Password</label>
+                <input id="adminPortalPassword" name="password" type="password" autocomplete="current-password" required placeholder="Your password" />
+                <div class="portal-remember">
+                  <input id="adminPortalRemember" name="remember" type="checkbox" />
+                  <label for="adminPortalRemember">Remember me on this device for 30 days</label>
+                </div>
+                <button class="btn btn--primary btn--lg" type="submit">Open All Member Portals →</button>
+                <p class="form-note" id="adminPortalLoginNote" aria-live="polite"></p>
+              </form>
+              <div class="member-results" id="adminMemberResults" hidden></div>
+              <p class="portal-security">Administrator access is verified securely. Your password is never stored in this page.</p>
+            </div>
           </div>
         </div>
       </div>
