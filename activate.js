@@ -83,6 +83,60 @@ function previewFrame(result) {
   `;
 }
 
+// Loads Stripe.js on demand (only once payment is actually needed, not on
+// every page load) and mounts Stripe's Embedded Checkout straight into this
+// page — the card form itself lives in an iframe Stripe controls, but it
+// never navigates the visitor away to checkout.stripe.com or a
+// buy.stripe.com Payment Link. Only the very last step (after payment
+// succeeds) does one same-origin redirect, to payment-success.html on this
+// site, which is guaranteed by return_url — no separate "after payment"
+// setting to configure per link, unlike a Payment Link.
+let stripeJsPromise = null;
+function loadStripeJs() {
+  if (window.Stripe) return Promise.resolve(window.Stripe);
+  if (stripeJsPromise) return stripeJsPromise;
+  stripeJsPromise = new Promise((resolve, reject) => {
+    const script = document.createElement("script");
+    script.src = "https://js.stripe.com/v3/";
+    script.onload = () => resolve(window.Stripe);
+    script.onerror = () => reject(new Error("Couldn't load Stripe — check your connection and try again."));
+    document.head.appendChild(script);
+  });
+  return stripeJsPromise;
+}
+
+async function startEmbeddedCheckout(account, payButton, note) {
+  payButton.disabled = true;
+  note.textContent = "Preparing secure payment…";
+  note.style.color = "";
+
+  try {
+    const response = await fetch("/api/embedded-checkout", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ account }),
+    });
+    const data = await response.json();
+    if (!response.ok || data.status !== "ok" || !data.clientSecret) {
+      throw new Error(data.message || "Payment couldn't be started — try again shortly.");
+    }
+
+    const Stripe = await loadStripeJs();
+    const stripe = Stripe(data.publishableKey);
+    const checkout = await stripe.initEmbeddedCheckout({ clientSecret: data.clientSecret });
+
+    payButton.closest(".order-summary").hidden = true;
+    const container = document.getElementById("embeddedCheckout");
+    container.hidden = false;
+    checkout.mount(container);
+    container.scrollIntoView({ behavior: "smooth", block: "start" });
+  } catch (error) {
+    payButton.disabled = false;
+    note.textContent = error.message || "Payment couldn't be started — try again shortly.";
+    note.style.color = "#ff8a8a";
+  }
+}
+
 const activateForm = document.getElementById("activateForm");
 const activateResult = document.getElementById("activateResult");
 
@@ -145,11 +199,16 @@ if (activateForm && activateResult) {
             <span class="order-summary__price-label mono">Total</span>
             <span class="order-summary__price mono">${result.price}</span>
           </div>
-          <a class="btn btn--primary btn--lg" href="/api/start-checkout?account=${encodeURIComponent(result.account)}">Pay ${result.price} &amp; Activate →</a>
-          <p class="order-summary__note">Once your payment is confirmed, this service is activated automatically.</p>
+          <button type="button" class="btn btn--primary btn--lg" id="embeddedPayButton" data-account="${result.account}">Pay ${result.price} &amp; Activate →</button>
+          <p class="order-summary__note" id="embeddedPayNote">Payment happens right here — you won't be sent to a separate site. Once it's confirmed, this service is activated automatically.</p>
           <p class="form-consent">By paying, you agree to our <a href="terms.html">Terms &amp; Conditions</a> and <a href="privacy.html">Privacy Policy</a>.</p>
         </div>
       `;
+      document.getElementById("embeddedCheckout").hidden = true;
+      document.getElementById("embeddedCheckout").innerHTML = "";
+      const payButton = document.getElementById("embeddedPayButton");
+      const payNote = document.getElementById("embeddedPayNote");
+      payButton.addEventListener("click", () => startEmbeddedCheckout(payButton.dataset.account, payButton, payNote));
     } else {
       activateResult.className = "activate-result activate-result--error";
       activateResult.innerHTML = `

@@ -1233,6 +1233,15 @@ textarea {
   margin-top: 24px;
 }
 
+.embedded-checkout {
+  margin-top: 24px;
+  min-height: 420px;
+  border: 1px solid var(--line, var(--border));
+  border-radius: 10px;
+  background: #fff;
+  overflow: hidden;
+}
+
 .activate-result .terminal-window {
   max-width: none;
   margin-bottom: 18px;

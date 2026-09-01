@@ -225,9 +225,11 @@ function render() {
   // Belt-and-braces: the inputs are also marked `required`, but don't rely
   // on that alone (e.g. a re-triggered submit via regenerateBtn skips
   // native browser validation entirely) — always give visible feedback
-  // rather than silently doing nothing.
-  if (!service || !price || !basePaymentUrl) {
-    saveNote.textContent = "Check at least one service (or fill in \"Other\"), and fill in Price and Payment link.";
+  // rather than silently doing nothing. Payment link is optional — the
+  // redeem page pays the Price above directly via embedded Stripe
+  // Checkout, no Payment Link required.
+  if (!service || !price) {
+    saveNote.textContent = "Check at least one service (or fill in \"Other\"), and fill in Price.";
     saveNote.style.color = "#ff8a8a";
     return;
   }
@@ -250,7 +252,7 @@ function render() {
 
   const account = generateAccountNumber();
   const code = generateActivationCode();
-  const paymentUrl = withClientReference(basePaymentUrl, account);
+  const paymentUrl = basePaymentUrl ? withClientReference(basePaymentUrl, account) : "";
 
   currentData = {
     account,

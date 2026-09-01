@@ -116,9 +116,9 @@
           </div>
 
           <div class="form-row">
-            <label for="adminPaymentUrl">Payment link</label>
-            <input type="url" id="adminPaymentUrl" name="adminPaymentUrl" placeholder="https://buy.stripe.com/..." required />
-            <p class="admin-hint">Their account number is appended automatically as <code>?client_reference_id=...</code> — this is how the Stripe webhook knows whose payment just landed. Leave the base link as-is (no query string of your own).</p>
+            <label for="adminPaymentUrl">Payment link (optional)</label>
+            <input type="url" id="adminPaymentUrl" name="adminPaymentUrl" placeholder="https://buy.stripe.com/... (only if you need one)" />
+            <p class="admin-hint">Not needed for a normal client — the redeem page's "Pay &amp; Activate" button already charges the <strong>Price</strong> above automatically, right on the site, with no separate link to create. Only fill this in if you specifically want to send them a standalone Stripe Payment Link instead (it'll get their account number appended as <code>?client_reference_id=...</code>).</p>
           </div>
 
           <div class="form-row">

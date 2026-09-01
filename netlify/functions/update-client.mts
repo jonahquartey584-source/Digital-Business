@@ -45,7 +45,8 @@ export default async (req: Request, context: Context) => {
   const clientEmail = String(input.clientEmail ?? "").trim();
   const status: ClientRecord["status"] = input.status === "active" ? "active" : "pending_payment";
 
-  if (!code || !service || !price || !paymentUrl) {
+  // paymentUrl is optional now — see create-client.mts.
+  if (!code || !service || !price) {
     return json(400, { status: "error", message: "Missing required fields" });
   }
 

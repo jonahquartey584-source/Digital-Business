@@ -156,11 +156,16 @@ function renderClientsList() {
   }
 
   clientsListContainer.innerHTML = filtered
-    .map(
-      (client) => `
+    .map((client) => {
+      const account = adminEscapeHtml(client.account);
+      const portalCodeIssued = Boolean(client.portalCodeHash);
+      const portalCodeDate = client.portalCodeIssuedAt
+        ? new Date(client.portalCodeIssuedAt).toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" })
+        : "";
+      return `
       <div class="client-row">
         <div class="client-row__info">
-          <div class="client-row__account mono">${adminEscapeHtml(client.account)}</div>
+          <div class="client-row__account mono">${account}</div>
           <div class="client-row__service">${adminEscapeHtml(client.title || client.service)} — ${adminEscapeHtml(client.price)}</div>
           <div class="client-row__code mono">Setup code: ${adminEscapeHtml(client.code)}</div>
           ${
@@ -168,15 +173,22 @@ function renderClientsList() {
               ? `<div class="client-row__email mono">${adminEscapeHtml(client.clientEmail)}</div>`
               : ""
           }
+          <div class="client-row__portal-code mono" data-portal-code-row="${account}">
+            ${
+              portalCodeIssued
+                ? `12-digit login code: issued ${adminEscapeHtml(portalCodeDate)} (can't be shown again — reissue for a new one) `
+                : `12-digit login code: not issued yet `
+            }<button type="button" class="btn btn--ghost btn--sm" data-generate-code="${account}">${portalCodeIssued ? "Reissue" : "Generate"} Code</button>
+          </div>
         </div>
         <span class="status-pill status-pill--${client.status === "active" ? "active" : "pending"}">${client.status === "active" ? "Active" : "Pending Payment"}</span>
         <div class="client-row__actions">
-          <button type="button" class="btn btn--ghost btn--sm" data-edit-account="${adminEscapeHtml(client.account)}">Edit</button>
-          <button type="button" class="btn btn--danger btn--sm" data-delete-account="${adminEscapeHtml(client.account)}">Delete</button>
+          <button type="button" class="btn btn--ghost btn--sm" data-edit-account="${account}">Edit</button>
+          <button type="button" class="btn btn--danger btn--sm" data-delete-account="${account}">Delete</button>
         </div>
       </div>
-    `
-    )
+    `;
+    })
     .join("");
 
   clientsListContainer.querySelectorAll("[data-edit-account]").forEach((button) => {
@@ -185,6 +197,73 @@ function renderClientsList() {
   clientsListContainer.querySelectorAll("[data-delete-account]").forEach((button) => {
     button.addEventListener("click", () => deleteClient(button.getAttribute("data-delete-account")));
   });
+  clientsListContainer.querySelectorAll("[data-generate-code]").forEach((button) => {
+    button.addEventListener("click", () => generatePortalCode(button.getAttribute("data-generate-code")));
+  });
+}
+
+// Shows the plaintext 12-digit code right in the list the moment it's
+// generated — same one-time-only rule as everywhere else this code is
+// issued (webhook.mts on payment, the Edit panel's own reissue button):
+// only the hash is ever stored, so this is the only chance to see it.
+async function generatePortalCode(account) {
+  const row = clientsListContainer.querySelector(`[data-portal-code-row="${CSS.escape(account)}"]`);
+  if (!row) return;
+  const client = clientsCache.find((c) => c.account === account);
+  if (client && !client.clientEmail) {
+    row.innerHTML = `<span style="color:#ff8a8a">Add a client email first (Edit →) — the code has nowhere to be sent otherwise.</span>`;
+    return;
+  }
+  if (!window.confirm(`Generate a new 12-digit login code for ${account}? Any existing code stops working immediately.`)) return;
+
+  const originalHtml = row.innerHTML;
+  row.innerHTML = "Generating a secure code…";
+
+  try {
+    const response = await fetch("/api/manage-member-access", {
+      method: "POST",
+      headers: { "Content-Type": "application/json", ...adminAuthHeader() },
+      body: JSON.stringify({ action: "regenerate_code", account }),
+    });
+
+    if (response.status === 401) return adminHandleSessionRejected();
+
+    const result = await response.json();
+
+    if (response.ok && result.status === "ok") {
+      const formatted = String(result.code).replace(/(\d{4})(?=\d)/g, "$1 ");
+      row.innerHTML = `<strong style="color:var(--gold)">New code: ${adminEscapeHtml(formatted)}</strong> <button type="button" class="btn btn--ghost btn--sm" data-copy-code>Copy</button> — save this now, it won't be shown again.`;
+      row.querySelector("[data-copy-code]")?.addEventListener("click", async (event) => {
+        try {
+          await navigator.clipboard.writeText(result.code);
+          event.currentTarget.textContent = "Copied!";
+        } catch {
+          // Clipboard API unavailable — the code is already visible to select/copy by hand.
+        }
+      });
+      const cached = clientsCache.find((c) => c.account === account);
+      if (cached) {
+        cached.portalCodeHash = "issued";
+        cached.status = "active";
+      }
+      const statusPill = row.closest(".client-row")?.querySelector(".status-pill");
+      if (statusPill) {
+        statusPill.textContent = "Active";
+        statusPill.classList.add("status-pill--active");
+        statusPill.classList.remove("status-pill--pending");
+      }
+    } else {
+      row.innerHTML = originalHtml;
+      row.querySelector("[data-generate-code]")?.addEventListener("click", () => generatePortalCode(account));
+      clientsListNote.textContent = result.message || "Couldn't generate a code — try again.";
+      clientsListNote.style.color = "#ff8a8a";
+    }
+  } catch (err) {
+    row.innerHTML = originalHtml;
+    row.querySelector("[data-generate-code]")?.addEventListener("click", () => generatePortalCode(account));
+    clientsListNote.textContent = "Couldn't reach /api/manage-member-access — is the backend deployed?";
+    clientsListNote.style.color = "#ff8a8a";
+  }
 }
 
 if (clientsSearchInput) {

@@ -35,7 +35,11 @@ export default async (req: Request, context: Context) => {
   const liveUrl = String(input.liveUrl ?? "").trim();
   const clientEmail = String(input.clientEmail ?? "").trim();
 
-  if (!account || !code || !service || !price || !paymentUrl) {
+  // paymentUrl is no longer required — the real payment path is the
+  // embedded Stripe Checkout on activate.html (embedded-checkout.mts),
+  // driven by `price` directly. A manually-pasted Payment Link is now
+  // just an optional fallback/override, not the primary flow.
+  if (!account || !code || !service || !price) {
     return json(400, { status: "error", message: "Missing required fields" });
   }
 
