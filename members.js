@@ -12,6 +12,10 @@ const memberModeButton = document.getElementById("memberModeButton");
 const adminModeButton = document.getElementById("adminModeButton");
 const adminLoginForm = document.getElementById("adminPortalLoginForm");
 const adminLoginNote = document.getElementById("adminPortalLoginNote");
+const adminMemberResults = document.getElementById("adminMemberResults");
+let activeMemberState = null;
+let memberRefreshTimer = null;
+let memberRefreshInFlight = false;
 const passwordLoginForm = document.getElementById("memberPasswordLoginForm");
 const createPasswordForm = document.getElementById("memberCreatePasswordForm");
 const passwordLoginNote = document.getElementById("memberPasswordLoginNote");
@@ -24,11 +28,26 @@ let activeAdminToken = "";
 const ADMIN_SESSION_STORAGE_KEY = "qpAdminSession";
 const MEMBER_SESSION_STORAGE_KEY = "qpMemberSession";
 
+async function adminAccessRequest(action, account, extra = {}) {
+  const token = String(activeAdminToken || "").trim();
+  if (!token) throw new Error("Your administrator session has expired. Sign in again and retry.");
+  const endpoint = `${window.location.origin}/api/manage-member-access`;
+  const response = await fetch(endpoint, {
+    method: "POST",
+    headers: { "Content-Type": "application/json", "Authorization": `Bearer ${token}` },
+    body: JSON.stringify({ action, account: String(account || "").trim(), ...extra }),
+  });
+  const data = await response.json().catch(() => ({}));
+  if (!response.ok) throw new Error(data.message || "The member-access update failed.");
+  return data;
+}
+
 // Head-admin auto-recognition: if the Netlify Identity user already signed
 // in through the ordinary Member "Password login" form is the site's
 // ADMIN_EMAIL, this silently exchanges that for an admin session token —
 // no separate admin password prompt. Same qpAdminSession storage shape
-// admin.html itself reads, so /admin picks the session straight up too.
+// admin.html itself reads, so opening it (the embedded New Client Setup
+// iframe below included, same origin) picks the session straight up too.
 async function tryAutoAdminSession() {
   try {
     const response = await fetch("/api/admin_auto_session.php");
@@ -43,13 +62,32 @@ async function tryAutoAdminSession() {
   }
 }
 
-// Sends a recognised administrator straight to the Admin Dashboard — its
-// own full page with New Client Setup, Members, AI Agent Requests and
-// Website Enquiries each getting their own uncrowded page, rather than
-// cramming any of that in here. /admin reads the same qpAdminSession this
-// page just wrote, so it opens straight in, no second login.
-function goToAdminDashboard() {
-  window.location.assign("/admin");
+function showNewClientSetupPanel() {
+  const panel = document.getElementById("adminNewClientPanel");
+  const frame = document.getElementById("adminNewClientFrame");
+  if (!panel || !frame) return;
+  if (!frame.src) frame.src = "admin.html";
+  panel.hidden = false;
+}
+
+// Loads every member record and the New Client Setup tool straight into the
+// Administrator tab — called the moment a head admin is recognised, so the
+// tab is fully populated before they've even clicked it, with no login form
+// in between.
+async function revealHeadAdminAccess(email) {
+  adminModeButton.textContent = "Administrator (You)";
+  try {
+    const membersResponse = await fetch("/api/list_clients.php", { headers: { Authorization: `Bearer ${activeAdminToken}` } });
+    const membersData = await membersResponse.json();
+    if (membersResponse.ok && membersData.status === "ok") {
+      renderAdministratorMembers(membersData.clients || [], email);
+    } else {
+      adminLoginNote.textContent = membersData.message || "Could not load member records.";
+    }
+  } catch {
+    adminLoginNote.textContent = "Could not reach the member records.";
+  }
+  showNewClientSetupPanel();
 }
 
 function selectMemberLoginMode(mode) {
@@ -81,16 +119,7 @@ function selectPortalMode(mode) {
 }
 
 memberModeButton.addEventListener("click", () => selectPortalMode("member"));
-adminModeButton.addEventListener("click", () => {
-  // Already recognised/logged in as administrator (auto-recognition or an
-  // earlier login this session) — no need to show the tab at all, straight
-  // to the Admin Dashboard.
-  if (activeAdminToken) {
-    goToAdminDashboard();
-    return;
-  }
-  selectPortalMode("admin");
-});
+adminModeButton.addEventListener("click", () => selectPortalMode("admin"));
 
 document.getElementById("year").textContent = new Date().getFullYear();
 
@@ -201,7 +230,71 @@ function renderPurchases(purchases, profile = null) {
   });
 }
 
+function renderAdministratorMembers(clients, email) {
+  const memberCards = clients.map((client, index) => {
+    const liveUrl = safeUrl(client.liveUrl);
+    const fileUrl = safeUrl(client.deliverableFileUrl);
+    const active = client.status === "active";
+    const created = client.createdAt ? new Date(client.createdAt).toLocaleDateString("en-GB", { day: "numeric", month: "long", year: "numeric" }) : "—";
+    const accessText = String(client.service || "").toLowerCase();
+    const serviceChecks = SERVICE_CATALOG.map((service) => `<label class="admin-access-option"><input type="checkbox" name="services" value="${escapeHtml(service.name)}" ${accessText.includes("all services") || service.aliases.some((alias) => accessText.includes(alias)) ? "checked" : ""}> <span>${escapeHtml(service.name)}</span></label>`).join("");
+    const displayedCode = client.portalCode ? String(client.portalCode).replace(/(\d{4})(?=\d)/g, "$1 ") : "Protected — generate a replacement to view it";
+    return `<article class="member-purchase" data-admin-member="${escapeHtml(client.account)}"><div class="member-purchase__number">${String(index + 1).padStart(2, "0")}</div><div class="member-purchase__content"><span class="status-pill ${active ? "status-pill--active" : ""}">${active ? "Active" : "Pending payment"}</span><h3>${escapeHtml(client.title || client.service)}</h3><p>${escapeHtml(client.clientEmail || "No client email saved")}</p><dl><div><dt>Account</dt><dd>${escapeHtml(client.account)}</dd></div><div><dt>Created</dt><dd>${escapeHtml(created)}</dd></div><div><dt>Price</dt><dd>${escapeHtml(client.price)}</dd></div></dl><p>${escapeHtml(client.preview || "No description added.")}</p><section class="admin-access-panel"><div><span class="section__tag">// Member access code</span><strong class="admin-access-code">${escapeHtml(displayedCode)}</strong></div><button class="btn btn--ghost" type="button" data-reset-code>Generate New 12-Digit Code</button><details><summary>Edit service access</summary><div class="admin-access-grid">${serviceChecks}</div><label class="portal-remember"><input type="checkbox" name="enabled" ${active ? "checked" : ""}> <span>Member access enabled</span></label><button class="btn btn--primary" type="button" data-save-access>Save Access</button><p class="form-note" data-access-note aria-live="polite"></p></details></section><div class="member-purchase__actions">${liveUrl ? `<a class="btn btn--primary" href="${escapeHtml(liveUrl)}" target="_blank" rel="noopener">Open Service →</a>` : ""}${fileUrl ? `<a class="btn btn--ghost" href="${escapeHtml(fileUrl)}" target="_blank" rel="noopener">Open Deliverable →</a>` : ""}</div></div></article>`;
+  }).join("");
+
+  adminLoginForm.hidden = true;
+  adminLoginForm.previousElementSibling.hidden = true;
+  adminLoginForm.nextElementSibling.hidden = true;
+  adminMemberResults.innerHTML = `<div class="member-results__head"><div><p class="section__tag">// Administrator Access</p><h2>All member portals</h2><p>Logged in as ${escapeHtml(email)} · ${clients.length} member record${clients.length === 1 ? "" : "s"}</p></div><button class="btn btn--ghost" id="adminMemberLogout" type="button">Sign Out</button></div>${memberCards || '<p class="members-panel__lead">No member records have been created yet.</p>'}`;
+  adminMemberResults.hidden = false;
+  adminMemberResults.querySelectorAll("[data-admin-member]").forEach((card) => {
+    const account = card.dataset.adminMember;
+    const noteTarget = card.querySelector("[data-access-note]");
+    card.querySelector("[data-reset-code]").addEventListener("click", async (event) => {
+      const button = event.currentTarget;
+      button.disabled = true;
+      noteTarget.textContent = "Generating a secure replacement code…";
+      try {
+        const data = await adminAccessRequest("regenerate_code", account);
+        card.querySelector(".admin-access-code").textContent = data.code;
+        noteTarget.textContent = "New code created. The previous 12-digit code no longer works.";
+      } catch (error) { noteTarget.textContent = error.message; }
+      finally { button.disabled = false; }
+    });
+    card.querySelector("[data-save-access]").addEventListener("click", async (event) => {
+      const button = event.currentTarget;
+      const services = [...card.querySelectorAll('input[name="services"]:checked')].map((input) => input.value);
+      const enabled = card.querySelector('input[name="enabled"]').checked;
+      button.disabled = true;
+      noteTarget.textContent = "Saving member access…";
+      try {
+        const data = await adminAccessRequest("update_access", account, { services, enabled });
+        noteTarget.textContent = "Member access updated successfully.";
+      } catch (error) { noteTarget.textContent = error.message; }
+      finally { button.disabled = false; }
+    });
+  });
+  document.getElementById("adminMemberLogout").addEventListener("click", () => {
+    localStorage.removeItem(ADMIN_SESSION_STORAGE_KEY);
+    sessionStorage.removeItem(ADMIN_SESSION_STORAGE_KEY);
+    adminMemberResults.hidden = true;
+    adminMemberResults.innerHTML = "";
+    adminLoginForm.reset();
+    adminLoginForm.hidden = false;
+    adminLoginForm.previousElementSibling.hidden = false;
+    adminLoginForm.nextElementSibling.hidden = false;
+    adminLoginNote.textContent = "";
+    activeAdminToken = "";
+    adminModeButton.textContent = "Administrator";
+    const newClientPanel = document.getElementById("adminNewClientPanel");
+    const newClientFrame = document.getElementById("adminNewClientFrame");
+    if (newClientPanel) newClientPanel.hidden = true;
+    if (newClientFrame) newClientFrame.removeAttribute("src");
+  });
+}
+
 function openMemberPortal(purchases, email, remember = false) {
+  activeMemberState = { email: email.toLowerCase(), purchases, remember };
   const memberSession = JSON.stringify({ email, purchases, expiresAt: Date.now() + (30 * 24 * 60 * 60 * 1000) });
   if (remember) {
     localStorage.setItem(MEMBER_SESSION_STORAGE_KEY, memberSession);
@@ -212,7 +305,11 @@ function openMemberPortal(purchases, email, remember = false) {
   }
   const key = `qpMemberProfile:${email.toLowerCase()}`;
   const saved = localStorage.getItem(key);
-  if (saved) { renderPurchases(purchases, JSON.parse(saved)); return; }
+  if (saved) {
+    renderPurchases(purchases, JSON.parse(saved));
+    startMemberAccessRefresh();
+    return;
+  }
   form.hidden = true;
   document.getElementById("memberPanelLead").hidden = true;
   results.hidden = false;
@@ -223,8 +320,58 @@ function openMemberPortal(purchases, email, remember = false) {
     localStorage.setItem(key, JSON.stringify(data));
     sessionStorage.setItem("qpMemberProfile", JSON.stringify(data));
     renderPurchases(purchases, data);
+    startMemberAccessRefresh();
   });
 }
+
+function saveRefreshedMemberSession(state) {
+  const storage = state.remember ? localStorage : sessionStorage;
+  const otherStorage = state.remember ? sessionStorage : localStorage;
+  storage.setItem(MEMBER_SESSION_STORAGE_KEY, JSON.stringify({
+    email: state.email,
+    purchases: state.purchases,
+    expiresAt: Date.now() + (30 * 24 * 60 * 60 * 1000),
+  }));
+  otherStorage.removeItem(MEMBER_SESSION_STORAGE_KEY);
+}
+
+async function refreshMemberAccess() {
+  if (!activeMemberState || memberRefreshInFlight) return;
+  memberRefreshInFlight = true;
+  try {
+    const response = await fetch("/api/member-purchases", { cache: "no-store" });
+    const data = await response.json().catch(() => ({}));
+    const latest = response.ok && data.status === "ok" && Array.isArray(data.purchases)
+      ? data.purchases
+      : response.status === 404 ? [] : null;
+    if (!latest || JSON.stringify(latest) === JSON.stringify(activeMemberState.purchases)) return;
+    activeMemberState.purchases = latest;
+    saveRefreshedMemberSession(activeMemberState);
+    const profileKey = `qpMemberProfile:${activeMemberState.email}`;
+    const profileValue = localStorage.getItem(profileKey);
+    const profile = profileValue ? JSON.parse(profileValue) : null;
+    renderPurchases(latest, profile);
+    const announcement = document.createElement("p");
+    announcement.className = "form-note member-access-updated";
+    announcement.setAttribute("role", "status");
+    announcement.textContent = "Your service access has just been updated.";
+    results.prepend(announcement);
+  } catch {
+    // Keep the last verified view during a temporary connection problem and
+    // retry automatically; never replace it with invented access data.
+  } finally {
+    memberRefreshInFlight = false;
+  }
+}
+
+function startMemberAccessRefresh() {
+  if (!memberRefreshTimer) memberRefreshTimer = window.setInterval(refreshMemberAccess, 15000);
+}
+
+window.addEventListener("focus", refreshMemberAccess);
+document.addEventListener("visibilitychange", () => {
+  if (!document.hidden) refreshMemberAccess();
+});
 
 form.addEventListener("submit", async (event) => {
   event.preventDefault();
@@ -321,11 +468,12 @@ passwordLoginForm.addEventListener("submit", async (event) => {
 const identityUser = await getUser().catch(() => null);
 
 // Runs on every page load where Identity already has this browser signed
-// in (password login persists across reloads) — so a head administrator's
-// token is ready the instant they click the Administrator tab, without
-// forcing a redirect just for loading this page.
+// in (password login persists across reloads) — so the head admin never
+// has to re-prove who they are beyond that one Identity password, ever.
 if (identityUser?.email) {
-  tryAutoAdminSession();
+  tryAutoAdminSession().then((isHeadAdmin) => {
+    if (isHeadAdmin) revealHeadAdminAccess(identityUser.email);
+  });
 }
 
 const rememberedMember = localStorage.getItem(MEMBER_SESSION_STORAGE_KEY) || sessionStorage.getItem(MEMBER_SESSION_STORAGE_KEY);
@@ -334,6 +482,7 @@ if (rememberedMember) {
     const session = JSON.parse(rememberedMember);
     if (identityUser?.email?.toLowerCase() === session.email?.toLowerCase() && session.expiresAt > Date.now() && Array.isArray(session.purchases)) {
       openMemberPortal(session.purchases, session.email, Boolean(localStorage.getItem(MEMBER_SESSION_STORAGE_KEY)));
+      refreshMemberAccess();
     } else {
       localStorage.removeItem(MEMBER_SESSION_STORAGE_KEY);
       sessionStorage.removeItem(MEMBER_SESSION_STORAGE_KEY);
