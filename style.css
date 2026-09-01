@@ -2062,6 +2062,7 @@ html[data-theme="light"] .theme-toggle__sun{display:none}html[data-theme="light"
 .portal-remember input { width: 18px; min-height: 18px; accent-color: var(--gold); }
 .portal-remember label { margin: 0; text-transform: none; letter-spacing: 0; line-height: 1.45; }
 .portal-security { margin: 1.2rem 0 0; color: var(--text-faint); font: 500 .68rem/1.55 "IBM Plex Mono", monospace; }
+.admin-embedded-frame { width: 100%; min-height: 1400px; border: 1px solid var(--border); border-radius: 10px; background: var(--surface, #12100b); }
 .member-results__head { display: flex; justify-content: space-between; gap: 1.5rem; align-items: flex-start; margin-bottom: 1.5rem; }
 .member-results__head h2 { margin-bottom: 0; }
 .member-purchase { position: relative; display: grid; grid-template-columns: 58px 1fr; gap: 1.2rem; padding: 1.5rem 0; border-top: 1px solid var(--border); }

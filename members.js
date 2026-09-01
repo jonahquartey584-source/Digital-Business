@@ -25,6 +25,54 @@ let activeAdminToken = "";
 const ADMIN_SESSION_STORAGE_KEY = "qpAdminSession";
 const MEMBER_SESSION_STORAGE_KEY = "qpMemberSession";
 
+// Head-admin auto-recognition: if the Netlify Identity user already signed
+// in through the ordinary Member "Password login" form is the site's
+// ADMIN_EMAIL, this silently exchanges that for an admin session token —
+// no separate admin password prompt. Same qpAdminSession storage shape
+// admin.html itself reads, so opening it (the embedded New Client Setup
+// iframe below included, same origin) picks the session straight up too.
+async function tryAutoAdminSession() {
+  try {
+    const response = await fetch("/api/admin_auto_session.php");
+    const data = await response.json().catch(() => ({}));
+    if (!response.ok || data.status !== "ok" || !data.token) return false;
+    activeAdminToken = data.token;
+    localStorage.setItem(ADMIN_SESSION_STORAGE_KEY, JSON.stringify({ token: data.token, email: data.email }));
+    sessionStorage.removeItem(ADMIN_SESSION_STORAGE_KEY);
+    return true;
+  } catch {
+    return false;
+  }
+}
+
+function showNewClientSetupPanel() {
+  const panel = document.getElementById("adminNewClientPanel");
+  const frame = document.getElementById("adminNewClientFrame");
+  if (!panel || !frame) return;
+  if (!frame.src) frame.src = "admin.html";
+  panel.hidden = false;
+}
+
+// Loads every member record and the New Client Setup tool straight into the
+// Administrator tab — called the moment a head admin is recognised, so the
+// tab is fully populated before they've even clicked it, with no login form
+// in between.
+async function revealHeadAdminAccess(email) {
+  adminModeButton.textContent = "Administrator (You)";
+  try {
+    const membersResponse = await fetch("/api/list_clients.php", { headers: { Authorization: `Bearer ${activeAdminToken}` } });
+    const membersData = await membersResponse.json();
+    if (membersResponse.ok && membersData.status === "ok") {
+      renderAdministratorMembers(membersData.clients || [], email);
+    } else {
+      adminLoginNote.textContent = membersData.message || "Could not load member records.";
+    }
+  } catch {
+    adminLoginNote.textContent = "Could not reach the member records.";
+  }
+  showNewClientSetupPanel();
+}
+
 function selectMemberLoginMode(mode) {
   const returning = mode === "password";
   form.hidden = returning;
@@ -219,6 +267,11 @@ function renderAdministratorMembers(clients, email) {
     adminLoginForm.nextElementSibling.hidden = false;
     adminLoginNote.textContent = "";
     activeAdminToken = "";
+    adminModeButton.textContent = "Administrator";
+    const newClientPanel = document.getElementById("adminNewClientPanel");
+    const newClientFrame = document.getElementById("adminNewClientFrame");
+    if (newClientPanel) newClientPanel.hidden = true;
+    if (newClientFrame) newClientFrame.removeAttribute("src");
   });
 }
 
@@ -306,11 +359,27 @@ passwordLoginForm.addEventListener("submit", async (event) => {
   button.disabled = true;
   try {
     await login(email, passwordLoginForm.password.value);
-    const response = await fetch("/api/member-purchases");
-    const data = await response.json();
-    if (!response.ok || data.status !== "ok") throw new Error(data.message || "Your purchased services could not be loaded.");
+    // Same Identity sign-in doubles as the admin check — no second password.
+    const isHeadAdmin = await tryAutoAdminSession();
+    if (isHeadAdmin) revealHeadAdminAccess(email);
+    let purchases = [];
+    try {
+      const response = await fetch("/api/member-purchases");
+      const data = await response.json();
+      if (response.ok && data.status === "ok" && Array.isArray(data.purchases)) purchases = data.purchases;
+      else if (!isHeadAdmin) throw new Error(data.message || "Your purchased services could not be loaded.");
+    } catch (purchaseError) {
+      if (!isHeadAdmin) throw purchaseError;
+    }
     passwordLoginForm.password.value = "";
-    openMemberPortal(data.purchases, email, passwordLoginForm.remember.checked);
+    if (purchases.length) {
+      openMemberPortal(purchases, email, passwordLoginForm.remember.checked);
+    } else if (isHeadAdmin) {
+      passwordLoginNote.textContent = "Signed in as head administrator — see the Administrator tab above.";
+      selectPortalMode("admin");
+    } else {
+      throw new Error("Your purchased services could not be loaded.");
+    }
   } catch (error) {
     passwordLoginNote.textContent = error?.status === 401
       ? "Incorrect email or password."
@@ -320,11 +389,21 @@ passwordLoginForm.addEventListener("submit", async (event) => {
   }
 });
 
+const identityUser = await getUser().catch(() => null);
+
+// Runs on every page load where Identity already has this browser signed
+// in (password login persists across reloads) — so the head admin never
+// has to re-prove who they are beyond that one Identity password, ever.
+if (identityUser?.email) {
+  tryAutoAdminSession().then((isHeadAdmin) => {
+    if (isHeadAdmin) revealHeadAdminAccess(identityUser.email);
+  });
+}
+
 const rememberedMember = localStorage.getItem(MEMBER_SESSION_STORAGE_KEY) || sessionStorage.getItem(MEMBER_SESSION_STORAGE_KEY);
 if (rememberedMember) {
   try {
     const session = JSON.parse(rememberedMember);
-    const identityUser = await getUser();
     if (identityUser?.email?.toLowerCase() === session.email?.toLowerCase() && session.expiresAt > Date.now() && Array.isArray(session.purchases)) {
       openMemberPortal(session.purchases, session.email, Boolean(localStorage.getItem(MEMBER_SESSION_STORAGE_KEY)));
     } else {
