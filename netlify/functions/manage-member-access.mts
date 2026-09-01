@@ -60,11 +60,14 @@ export default async (req: Request, context: Context) => {
       ? input.services.map((value) => String(value)).filter(Boolean)
       : [];
     const enabled = Boolean(input.enabled);
-    if (services.length) client.service = services.join(", ");
+    // Always write the submitted list, including an empty list. Previously
+    // unchecking every service left the old value untouched, so revoked
+    // services continued to appear in the client's portal.
+    client.service = services.join(", ");
     client.status = enabled ? "active" : "pending_payment";
     if (enabled) client.activatedAt = client.activatedAt ?? new Date().toISOString();
     await store.setJSON(account, client);
-    return json(200, { status: "ok" });
+    return json(200, { status: "ok", services, enabled });
   }
 
   return json(400, { status: "error", message: "Unknown action." });
