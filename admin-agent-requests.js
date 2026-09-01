@@ -32,7 +32,44 @@ async function loadAgentRequests() {
   }
 }
 
+// Rebuilding agentRequestsContainer's innerHTML (the auto-refresh below,
+// the manual Refresh button, and every search keystroke all do it) used to
+// wipe out whatever reply you were mid-way through typing — capture it
+// first and put it straight back afterwards, cursor position included.
+function captureReplyDraft() {
+  const focused = document.activeElement;
+  const values = {};
+  agentRequestsContainer.querySelectorAll("[data-agent-reply-key]").forEach((form) => {
+    const input = form.querySelector("input");
+    if (input && input.value) values[form.dataset.agentReplyKey] = input.value;
+  });
+  const focusedForm = focused?.closest?.("[data-agent-reply-key]");
+  return {
+    values,
+    focusedKey: focusedForm ? focusedForm.dataset.agentReplyKey : null,
+    selectionStart: focusedForm && focused.tagName === "INPUT" ? focused.selectionStart : null,
+    selectionEnd: focusedForm && focused.tagName === "INPUT" ? focused.selectionEnd : null,
+  };
+}
+
+function restoreReplyDraft(draft) {
+  Object.entries(draft.values).forEach(([key, value]) => {
+    const input = agentRequestsContainer.querySelector(`[data-agent-reply-key="${CSS.escape(key)}"] input`);
+    if (input) input.value = value;
+  });
+  if (draft.focusedKey) {
+    const input = agentRequestsContainer.querySelector(`[data-agent-reply-key="${CSS.escape(draft.focusedKey)}"] input`);
+    if (input) {
+      input.focus();
+      if (draft.selectionStart != null) {
+        try { input.setSelectionRange(draft.selectionStart, draft.selectionEnd); } catch {}
+      }
+    }
+  }
+}
+
 function renderAgentRequests() {
+  const draft = captureReplyDraft();
   const query = (agentRequestsSearchInput?.value || "").trim().toLowerCase();
   const requests = agentRequestsCache.filter((request) => request.source !== "website-enquiry").filter((request) => {
     if (!query) return true;
@@ -76,6 +113,7 @@ function renderAgentRequests() {
         <button class="btn btn--danger btn--sm" data-delete-request-key="${adminEscapeHtml(request.key)}">Delete request</button>
       </div>
     </article>`).join("");
+  restoreReplyDraft(draft);
 }
 
 agentRequestsContainer?.addEventListener("click", async (event) => {
@@ -152,8 +190,14 @@ agentRequestsSearchInput?.addEventListener("input", renderAgentRequests);
 
 // Keep live-agent conversations current while this page is open — picks up
 // messages sent after the original handoff without needing a manual Refresh.
+// Skipped outright while a reply box has focus, on top of the
+// capture/restore in renderAgentRequests() above — no re-render at all
+// while you're mid-keystroke, so nothing can flicker or drop what you've
+// typed.
 window.setInterval(() => {
-  if (session && adminAuthHeader().Authorization) loadAgentRequests();
+  if (!session || !adminAuthHeader().Authorization) return;
+  if (document.activeElement?.closest?.("[data-agent-reply-key]")) return;
+  loadAgentRequests();
 }, 5000);
 
 if (session) loadAgentRequests();
