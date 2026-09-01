@@ -89,8 +89,24 @@
           </div>
 
           <div class="form-row">
-            <label for="adminService">Service</label>
-            <input type="text" id="adminService" name="adminService" placeholder="e.g. Website — Standard Plan" required />
+            <label>Services purchased</label>
+            <p class="admin-hint">
+              Check every service this account should unlock — the client's account
+              number and 12-digit code work for all of them at once. This is what
+              decides which Members Portal pages (CRM, AI &amp; Automation, Booking
+              System, etc.) their code actually opens.
+            </p>
+            <div class="admin-service-options" id="adminServiceOptions">
+              <label class="admin-service-option"><input type="checkbox" name="adminServiceOption" value="Website"> Website</label>
+              <label class="admin-service-option"><input type="checkbox" name="adminServiceOption" value="Website Management"> Website Management</label>
+              <label class="admin-service-option"><input type="checkbox" name="adminServiceOption" value="CRM"> CRM</label>
+              <label class="admin-service-option"><input type="checkbox" name="adminServiceOption" value="Booking System"> Booking System</label>
+              <label class="admin-service-option"><input type="checkbox" name="adminServiceOption" value="Branding & Print"> Branding &amp; Print</label>
+              <label class="admin-service-option"><input type="checkbox" name="adminServiceOption" value="Social Media & Content"> Social Media &amp; Content</label>
+              <label class="admin-service-option"><input type="checkbox" name="adminServiceOption" value="AI & Automation"> AI &amp; Automation</label>
+            </div>
+            <input type="text" id="adminServiceOther" name="adminServiceOther" placeholder="Other / additional detail (optional) — e.g. plan name, tier" />
+            <input type="hidden" id="adminService" name="adminService" required />
           </div>
 
           <div class="form-row">

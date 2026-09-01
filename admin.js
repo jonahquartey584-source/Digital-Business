@@ -280,6 +280,27 @@ const previewFileStatus = document.getElementById("previewFileStatus");
 const deliverableFile = document.getElementById("adminDeliverableFile");
 const deliverableFileStatus = document.getElementById("deliverableFileStatus");
 const emailClientBtn = document.getElementById("emailClientBtn");
+
+// Keeps the hidden #adminService input (what actually gets saved as the
+// client's `service` field) in sync with the checkbox group + "Other"
+// text — a comma-joined list, e.g. "CRM, AI & Automation". Each service
+// page's own gate (member-service.js's data-service-aliases check) does a
+// case-insensitive substring match against this whole string, so a client
+// with multiple boxes checked gets every one of those pages unlocked by
+// the same account number + code — no per-service accounts needed.
+const adminServiceHidden = document.getElementById("adminService");
+const adminServiceOther = document.getElementById("adminServiceOther");
+function syncAdminServiceField() {
+  const checked = Array.from(
+    document.querySelectorAll('input[name="adminServiceOption"]:checked')
+  ).map((el) => el.value);
+  const other = adminServiceOther.value.trim();
+  adminServiceHidden.value = [...checked, other].filter(Boolean).join(", ");
+}
+document.querySelectorAll('input[name="adminServiceOption"]').forEach((el) => {
+  el.addEventListener("change", syncAdminServiceField);
+});
+adminServiceOther.addEventListener("input", syncAdminServiceField);
 const emailClientNote = document.getElementById("emailClientNote");
 
 let currentData = null;
@@ -368,7 +389,7 @@ function render() {
   // native browser validation entirely) — always give visible feedback
   // rather than silently doing nothing.
   if (!service || !price || !basePaymentUrl) {
-    saveNote.textContent = "Fill in Service, Price and Payment link first.";
+    saveNote.textContent = "Check at least one service (or fill in \"Other\"), and fill in Price and Payment link.";
     saveNote.style.color = "#ff8a8a";
     return;
   }
