@@ -4,3 +4,21 @@
 
 [functions]
   directory = "netlify/functions"
+
+# Keep the internal dashboard available at the short address shown to the
+# administrator. The trailing-dot rule also repairs the commonly pasted
+# "admin." address by sending it to the canonical clean URL.
+[[redirects]]
+  from = "/admin."
+  to = "/admin"
+  status = 301
+
+[[redirects]]
+  from = "/admin"
+  to = "/admin.html"
+  status = 200
+
+[[redirects]]
+  from = "/admin/"
+  to = "/admin.html"
+  status = 200

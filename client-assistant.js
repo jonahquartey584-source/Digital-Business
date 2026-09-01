@@ -6,12 +6,21 @@
   launcher.className = "client-ai-launcher"; launcher.type = "button"; launcher.setAttribute("aria-label", "Open Qp Digital client assistant"); launcher.textContent = "✦";
   const panel = document.createElement("section");
   panel.className = "client-ai-panel"; panel.hidden = true;
-  panel.innerHTML = `<div class="client-ai-head"><div><strong>Qp Client Assistant</strong><span>${serviceName} support · Online</span></div><button class="client-ai-close" type="button" aria-label="Close assistant">×</button></div><div class="client-ai-messages" aria-live="polite"><div class="client-ai-message client-ai-message--assistant">Hi — I’m your Qp Digital client assistant. I can help you understand this workspace, plan your next step, or prepare a request for the Qp Digital team.</div></div><form class="client-ai-form"><input name="message" aria-label="Message the Qp Client Assistant" placeholder="Ask about your service…" autocomplete="off" required><button type="submit" aria-label="Send message">↑</button></form>`;
+  const portalPage = location.pathname.endsWith("members.html") || location.pathname.endsWith("/members");
+  const welcome = portalPage
+    ? "Hi — I’m your Qp Digital members portal guide. I can explain how to sign in, unlock services, use your dashboards, import leads, request changes, or contact the Qp Digital team. What would you like help with?"
+    : "Hi — I’m your Qp Digital client assistant. I can help you understand this workspace, plan your next step, or prepare a request for the Qp Digital team.";
+  panel.innerHTML = `<div class="client-ai-head"><div><strong>Qp Digital AI Assistant</strong><span>${serviceName} support · Online</span></div><button class="client-ai-close" type="button" aria-label="Close assistant">×</button></div><div class="client-ai-messages" aria-live="polite"><div class="client-ai-message client-ai-message--assistant">${welcome}</div></div>${portalPage ? '<div class="client-ai-quick"><button type="button" data-question="How do I access a service I paid for?">Access a service</button><button type="button" data-question="Why is a service locked?">Locked services</button><button type="button" data-question="How do I use my CRM?">Use my CRM</button></div>' : ''}<form class="client-ai-form"><input name="message" aria-label="Message the Qp Client Assistant" placeholder="Ask about your portal…" autocomplete="off" required><button type="submit" aria-label="Send message">↑</button></form>`;
   document.body.append(launcher, panel);
   const messagesEl = panel.querySelector(".client-ai-messages"); const history = [];
   const add = (role, content) => { const item = document.createElement("div"); item.className = `client-ai-message client-ai-message--${role}`; item.textContent = content; messagesEl.appendChild(item); messagesEl.scrollTop = messagesEl.scrollHeight; };
   launcher.addEventListener("click", () => { panel.hidden = false; panel.querySelector("input").focus(); });
   panel.querySelector(".client-ai-close").addEventListener("click", () => { panel.hidden = true; });
+  panel.querySelectorAll("[data-question]").forEach((button) => button.addEventListener("click", () => {
+    const input = panel.querySelector('input[name="message"]');
+    input.value = button.dataset.question;
+    input.focus();
+  }));
   panel.querySelector("form").addEventListener("submit", async (event) => {
     event.preventDefault(); const input = event.currentTarget.message; const text = input.value.trim(); if (!text) return; input.value = ""; add("user", text); history.push({ role: "user", content: `The client is inside their ${serviceName} workspace. ${text}` }); input.disabled = true;
     try { const response = await fetch("/api/ai-help", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ messages: history.slice(-8) }) }); const data = await response.json(); if (!response.ok || !data.reply) throw new Error(); add("assistant", data.reply); history.push({ role: "assistant", content: data.reply }); }

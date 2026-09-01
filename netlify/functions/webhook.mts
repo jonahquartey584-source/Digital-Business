@@ -13,6 +13,7 @@ import type { Config, Context } from "@netlify/functions";
 import { getStore } from "@netlify/blobs";
 import { createHash, createHmac, randomInt } from "node:crypto";
 import {
+  encryptPortalCode,
   safeEqual,
   sendEmail,
   provisionRealAppAccess,
@@ -85,6 +86,7 @@ export default async (req: Request, context: Context) => {
         if (!client.clientEmail && customerEmail) client.clientEmail = customerEmail;
         if (portalCode) {
           client.portalCodeHash = hashPortalCode(portalCode);
+          client.portalCodeEncrypted = encryptPortalCode(portalCode);
           client.portalCodeIssuedAt = new Date().toISOString();
         }
 

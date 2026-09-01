@@ -5,7 +5,7 @@
 
 import type { Config, Context } from "@netlify/functions";
 import { getStore } from "@netlify/blobs";
-import { json, requireAdminSession, type ClientRecord } from "./_shared.mts";
+import { decryptPortalCode, json, requireAdminSession, type ClientRecord } from "./_shared.mts";
 
 export default async (req: Request, context: Context) => {
   if (req.method !== "GET") {
@@ -25,7 +25,15 @@ export default async (req: Request, context: Context) => {
 
   clients.sort((a, b) => (b.createdAt || "").localeCompare(a.createdAt || ""));
 
-  return json(200, { status: "ok", clients });
+  return json(200, {
+    status: "ok",
+    clients: clients.map((client) => ({
+      ...client,
+      portalCode: decryptPortalCode(client.portalCodeEncrypted),
+      portalCodeHash: undefined,
+      portalCodeEncrypted: undefined,
+    })),
+  });
 };
 
 export const config: Config = {

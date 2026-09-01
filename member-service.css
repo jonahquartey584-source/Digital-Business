@@ -17,9 +17,6 @@
 .member-service-row { display: flex; justify-content: space-between; gap: 1rem; padding: .75rem 0; border-top: 1px solid var(--line); }
 .member-service-row span { color: var(--muted); }
 .member-service-preview { min-height: 220px; display: grid; place-items: center; border: 1px dashed var(--line); background: var(--bg); color: var(--muted); text-align: center; padding: 2rem; }
-.member-service-locked { display: grid; justify-items: center; gap: .75rem; text-align: center; padding: 1.75rem 1rem; border: 1px dashed var(--line); background: var(--bg); margin-top: 1rem; }
-.member-service-locked__icon { font-size: 1.4rem; opacity: .8; }
-.member-service-locked p { color: var(--muted); max-width: 420px; margin: 0; }
 .member-service-gate { padding: 5rem 0; text-align: center; }
 .member-service-gate p { margin: .75rem auto 1.25rem; max-width: 620px; }
 .mini-pipeline { display: grid; grid-template-columns: repeat(4, minmax(190px, 1fr)); gap: .75rem; overflow-x: auto; }
@@ -96,7 +93,7 @@
 .crm-add-deal { width: 100%; border: 1px dashed var(--line); background: transparent; color: var(--muted); padding: .65rem; margin-top: .65rem; cursor: pointer; }
 .crm-add-deal:hover { border-color: var(--gold); color: var(--gold); }
 .client-ai-launcher { position: fixed; right: 1.25rem; bottom: 1.25rem; z-index: 30; width: 3.8rem; height: 3.8rem; border-radius: 50%; border: 3px solid var(--bg); background: var(--gold); color: #111; font-size: 1.35rem; cursor: pointer; box-shadow: 0 12px 35px rgba(0,0,0,.35); }
-.client-ai-panel { position: fixed; right: 1.25rem; bottom: 6rem; z-index: 31; width: min(390px,calc(100vw - 2rem)); height: min(610px,calc(100vh - 8rem)); display: grid; grid-template-rows: auto 1fr auto; background: var(--surface); border: 1px solid var(--gold); box-shadow: 0 20px 60px rgba(0,0,0,.45); }
+.client-ai-panel { position: fixed; right: 1.25rem; bottom: 6rem; z-index: 31; width: min(390px,calc(100vw - 2rem)); height: min(610px,calc(100vh - 8rem)); display: grid; grid-template-rows: auto minmax(0,1fr) auto auto; background: var(--surface); border: 1px solid var(--gold); box-shadow: 0 20px 60px rgba(0,0,0,.45); }
 .client-ai-panel[hidden] { display: none; }
 .client-ai-head { display: flex; justify-content: space-between; align-items: center; gap: .75rem; padding: 1rem; border-bottom: 1px solid var(--line); }
 .client-ai-head strong, .client-ai-head span { display: block; }
@@ -106,6 +103,9 @@
 .client-ai-message { max-width: 86%; padding: .75rem .85rem; border: 1px solid var(--line); line-height: 1.5; }
 .client-ai-message--assistant { align-self: flex-start; background: var(--bg); }
 .client-ai-message--user { align-self: flex-end; background: var(--gold); color: #111; border-color: var(--gold); }
+.client-ai-quick { display: flex; gap: .4rem; padding: 0 .85rem .75rem; overflow-x: auto; }
+.client-ai-quick button { flex: 0 0 auto; border: 1px solid var(--line); background: var(--bg); color: var(--text); padding: .5rem .65rem; font: 600 .72rem var(--mono); cursor: pointer; }
+.client-ai-quick button:hover, .client-ai-quick button:focus-visible { border-color: var(--gold); color: var(--gold); }
 .client-ai-form { display: grid; grid-template-columns: 1fr auto; gap: .5rem; padding: .85rem; border-top: 1px solid var(--line); }
 .client-ai-form input { min-width: 0; background: var(--bg); color: var(--text); border: 1px solid var(--line); padding: .8rem; font: inherit; }
 .client-ai-form button { min-width: 3rem; border: 0; background: var(--gold); color: #111; font-weight: 700; cursor: pointer; }

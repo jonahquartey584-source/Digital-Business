@@ -158,7 +158,9 @@ function renderClientsList() {
   clientsListContainer.innerHTML = filtered
     .map((client) => {
       const account = adminEscapeHtml(client.account);
-      const portalCodeIssued = Boolean(client.portalCodeHash);
+      const portalCode = String(client.portalCode || "").replace(/\D/g, "");
+      const portalCodeIssued = Boolean(portalCode || client.portalCodeIssuedAt);
+      const formattedPortalCode = portalCode.replace(/(\d{4})(?=\d)/g, "$1 ");
       const portalCodeDate = client.portalCodeIssuedAt
         ? new Date(client.portalCodeIssuedAt).toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" })
         : "";
@@ -175,9 +177,11 @@ function renderClientsList() {
           }
           <div class="client-row__portal-code mono" data-portal-code-row="${account}">
             ${
-              portalCodeIssued
-                ? `12-digit login code: issued ${adminEscapeHtml(portalCodeDate)} (can't be shown again — reissue for a new one) `
-                : `12-digit login code: not issued yet `
+              portalCode
+                ? `12-digit login code: <strong>${adminEscapeHtml(formattedPortalCode)}</strong>${portalCodeDate ? ` · issued ${adminEscapeHtml(portalCodeDate)}` : ""} `
+                : portalCodeIssued
+                  ? `12-digit login code: protected legacy code — generate a replacement to view it `
+                  : `12-digit login code: not issued yet `
             }<button type="button" class="btn btn--ghost btn--sm" data-generate-code="${account}">${portalCodeIssued ? "Reissue" : "Generate"} Code</button>
           </div>
         </div>
@@ -202,18 +206,12 @@ function renderClientsList() {
   });
 }
 
-// Shows the plaintext 12-digit code right in the list the moment it's
-// generated — same one-time-only rule as everywhere else this code is
-// issued (webhook.mts on payment, the Edit panel's own reissue button):
-// only the hash is ever stored, so this is the only chance to see it.
+// Shows the newly generated 12-digit code in the list. Current records store
+// an encrypted copy as well as the login hash, allowing an authenticated
+// administrator to view the code again from this page.
 async function generatePortalCode(account) {
   const row = clientsListContainer.querySelector(`[data-portal-code-row="${CSS.escape(account)}"]`);
   if (!row) return;
-  const client = clientsCache.find((c) => c.account === account);
-  if (client && !client.clientEmail) {
-    row.innerHTML = `<span style="color:#ff8a8a">Add a client email first (Edit →) — the code has nowhere to be sent otherwise.</span>`;
-    return;
-  }
   if (!window.confirm(`Generate a new 12-digit login code for ${account}? Any existing code stops working immediately.`)) return;
 
   const originalHtml = row.innerHTML;
@@ -232,7 +230,7 @@ async function generatePortalCode(account) {
 
     if (response.ok && result.status === "ok") {
       const formatted = String(result.code).replace(/(\d{4})(?=\d)/g, "$1 ");
-      row.innerHTML = `<strong style="color:var(--gold)">New code: ${adminEscapeHtml(formatted)}</strong> <button type="button" class="btn btn--ghost btn--sm" data-copy-code>Copy</button> — save this now, it won't be shown again.`;
+      row.innerHTML = `<strong style="color:var(--gold)">12-digit login code: ${adminEscapeHtml(formatted)}</strong> <button type="button" class="btn btn--ghost btn--sm" data-copy-code>Copy</button> <button type="button" class="btn btn--ghost btn--sm" data-generate-code="${adminEscapeHtml(account)}">Reissue Code</button>`;
       row.querySelector("[data-copy-code]")?.addEventListener("click", async (event) => {
         try {
           await navigator.clipboard.writeText(result.code);
@@ -241,9 +239,11 @@ async function generatePortalCode(account) {
           // Clipboard API unavailable — the code is already visible to select/copy by hand.
         }
       });
+      row.querySelector("[data-generate-code]")?.addEventListener("click", () => generatePortalCode(account));
       const cached = clientsCache.find((c) => c.account === account);
       if (cached) {
-        cached.portalCodeHash = "issued";
+        cached.portalCode = String(result.code).replace(/\D/g, "");
+        cached.portalCodeIssuedAt = new Date().toISOString();
         cached.status = "active";
       }
       const statusPill = row.closest(".client-row")?.querySelector(".status-pill");

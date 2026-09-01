@@ -7,7 +7,7 @@
 //
 // Same Checkout Session mechanics as start-checkout.mts (metadata.account /
 // metadata.portal_code, webhook.mts reads both on checkout.session.completed)
-// — the only difference is ui_mode: "embedded" + a single return_url instead
+// — the only difference is ui_mode: "embedded_page" + a single return_url instead
 // of separate success_url/cancel_url, and this returns the resulting
 // client_secret as JSON instead of redirecting, since the frontend needs it
 // to mount the embedded form.
@@ -45,7 +45,7 @@ export default async (req: Request, _context: Context) => {
   const origin = "https://qp-digital.co.uk";
 
   const form = new URLSearchParams({
-    ui_mode: "embedded",
+    ui_mode: "embedded_page",
     mode: recurring ? "subscription" : "payment",
     client_reference_id: account,
     "line_items[0][quantity]": "1",

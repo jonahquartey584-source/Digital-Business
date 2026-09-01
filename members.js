@@ -28,8 +28,7 @@ const MEMBER_SESSION_STORAGE_KEY = "qpMemberSession";
 // in through the ordinary Member "Password login" form is the site's
 // ADMIN_EMAIL, this silently exchanges that for an admin session token —
 // no separate admin password prompt. Same qpAdminSession storage shape
-// admin.html itself reads, so opening it (the embedded New Client Setup
-// iframe below included, same origin) picks the session straight up too.
+// admin.html itself reads, so /admin picks the session straight up too.
 async function tryAutoAdminSession() {
   try {
     const response = await fetch("/api/admin_auto_session.php");
@@ -47,10 +46,10 @@ async function tryAutoAdminSession() {
 // Sends a recognised administrator straight to the Admin Dashboard — its
 // own full page with New Client Setup, Members, AI Agent Requests and
 // Website Enquiries each getting their own uncrowded page, rather than
-// cramming any of that in here. admin.html reads the same qpAdminSession
-// this page just wrote, so it opens straight in, no second login.
+// cramming any of that in here. /admin reads the same qpAdminSession this
+// page just wrote, so it opens straight in, no second login.
 function goToAdminDashboard() {
-  window.location.href = "admin.html";
+  window.location.assign("/admin");
 }
 
 function selectMemberLoginMode(mode) {
@@ -282,17 +281,29 @@ passwordLoginForm.addEventListener("submit", async (event) => {
   try {
     await login(email, passwordLoginForm.password.value);
     // Same Identity sign-in doubles as the admin check — no second password.
-    // A recognised head administrator goes straight to the Admin Dashboard.
     const isHeadAdmin = await tryAutoAdminSession();
     if (isHeadAdmin) {
-      goToAdminDashboard();
+      window.location.assign("/admin");
       return;
     }
-    const response = await fetch("/api/member-purchases");
-    const data = await response.json();
-    if (!response.ok || data.status !== "ok") throw new Error(data.message || "Your purchased services could not be loaded.");
+    let purchases = [];
+    try {
+      const response = await fetch("/api/member-purchases");
+      const data = await response.json();
+      if (response.ok && data.status === "ok" && Array.isArray(data.purchases)) purchases = data.purchases;
+      else if (!isHeadAdmin) throw new Error(data.message || "Your purchased services could not be loaded.");
+    } catch (purchaseError) {
+      if (!isHeadAdmin) throw purchaseError;
+    }
     passwordLoginForm.password.value = "";
-    openMemberPortal(data.purchases, email, passwordLoginForm.remember.checked);
+    if (purchases.length) {
+      openMemberPortal(purchases, email, passwordLoginForm.remember.checked);
+    } else if (isHeadAdmin) {
+      passwordLoginNote.textContent = "Signed in as head administrator — see the Administrator tab above.";
+      selectPortalMode("admin");
+    } else {
+      throw new Error("Your purchased services could not be loaded.");
+    }
   } catch (error) {
     passwordLoginNote.textContent = error?.status === 401
       ? "Incorrect email or password."
@@ -357,8 +368,8 @@ adminLoginForm.addEventListener("submit", async (event) => {
       localStorage.removeItem(ADMIN_SESSION_STORAGE_KEY);
     }
     adminLoginForm.password.value = "";
-    adminLoginNote.textContent = "Access granted — opening the Admin Dashboard…";
-    goToAdminDashboard();
+    adminLoginNote.textContent = "Access granted. Opening the Admin Dashboard…";
+    window.location.assign("/admin");
   } catch (error) {
     adminLoginNote.textContent = error.message || "We couldn't verify your administrator details. Please try again.";
   } finally {

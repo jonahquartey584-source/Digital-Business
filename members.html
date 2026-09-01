@@ -10,6 +10,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=Sora:wght@600;700;800&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@500;600&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="style.css" />
+  <link rel="stylesheet" href="member-service.css" />
   <script type="importmap">{"imports":{"@netlify/identity":"https://esm.sh/@netlify/identity"}}</script>
   <script>try{document.documentElement.dataset.theme=localStorage.getItem("qpTheme")==="light"?"light":"dark"}catch(_){document.documentElement.dataset.theme="dark"}</script>
 </head>
@@ -99,7 +100,7 @@
             <div id="adminAccess" role="tabpanel" aria-labelledby="adminModeButton" hidden>
               <p class="section__tag">// Administrator Login</p>
               <h2>Full portal access</h2>
-              <p class="members-panel__lead">Sign in with your Qp Digital administrator details to view every member's purchased services and deliverables.</p>
+              <p class="members-panel__lead">Sign in with your Qp Digital administrator details to open the Admin Dashboard, where every management tool has its own page.</p>
               <form id="adminPortalLoginForm" class="member-login">
                 <label for="adminPortalEmail">Administrator email</label>
                 <input id="adminPortalEmail" name="email" type="email" autocomplete="username" required placeholder="Your administrator email" />
@@ -109,7 +110,7 @@
                   <input id="adminPortalRemember" name="remember" type="checkbox" />
                   <label for="adminPortalRemember">Remember me on this device for 30 days</label>
                 </div>
-                <button class="btn btn--primary btn--lg" type="submit">Open All Member Portals →</button>
+                <button class="btn btn--primary btn--lg" type="submit">Open Admin Dashboard →</button>
                 <p class="form-note" id="adminPortalLoginNote" aria-live="polite"></p>
               </form>
               <p class="portal-security">Administrator access is verified securely. Your password is never stored in this page. Once you're in, it opens the full Admin Dashboard — New Client Setup, Members, AI Agent Requests and Website Enquiries each get their own page.</p>
@@ -122,5 +123,6 @@
 
   <footer class="site-footer"><div class="container footer__bottom"><p>&copy; <span id="year"></span> Qp Digital. All rights reserved.</p><p><a href="index.html">Return to website</a></p></div></footer>
   <script type="module" src="members.js"></script>
+  <script src="client-assistant.js"></script>
 </body>
 </html>
