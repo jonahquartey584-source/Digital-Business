@@ -10,6 +10,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=Sora:wght@600;700;800&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@500;600&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="style.css" />
+  <link rel="stylesheet" href="member-service.css" />
   <script type="importmap">{"imports":{"@netlify/identity":"https://esm.sh/@netlify/identity"}}</script>
   <script>try{document.documentElement.dataset.theme=localStorage.getItem("qpTheme")==="light"?"light":"dark"}catch(_){document.documentElement.dataset.theme="dark"}</script>
 </head>
@@ -112,7 +113,18 @@
                 <button class="btn btn--primary btn--lg" type="submit">Open All Member Portals →</button>
                 <p class="form-note" id="adminPortalLoginNote" aria-live="polite"></p>
               </form>
-              <p class="portal-security">Administrator access is verified securely. Your password is never stored in this page. Once you're in, it opens the full Admin Dashboard — New Client Setup, Members, AI Agent Requests and Website Enquiries each get their own page.</p>
+              <div class="member-results" id="adminMemberResults" hidden></div>
+              <div class="member-results" id="adminNewClientPanel" hidden>
+                <div class="member-results__head">
+                  <div>
+                    <p class="section__tag">// New Client Setup</p>
+                    <h2>Create a client &amp; generate their code</h2>
+                    <p>The full New Client Setup tool, right here in the Members Portal — no separate page or password.</p>
+                  </div>
+                </div>
+                <iframe id="adminNewClientFrame" class="admin-embedded-frame" title="New Client Setup" loading="lazy"></iframe>
+              </div>
+              <p class="portal-security">Administrator access is verified securely. Your password is never stored in this page.</p>
             </div>
           </div>
         </div>
@@ -122,5 +134,6 @@
 
   <footer class="site-footer"><div class="container footer__bottom"><p>&copy; <span id="year"></span> Qp Digital. All rights reserved.</p><p><a href="index.html">Return to website</a></p></div></footer>
   <script type="module" src="members.js"></script>
+  <script src="client-assistant.js"></script>
 </body>
 </html>

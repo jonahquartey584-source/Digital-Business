@@ -12,6 +12,7 @@ const memberModeButton = document.getElementById("memberModeButton");
 const adminModeButton = document.getElementById("adminModeButton");
 const adminLoginForm = document.getElementById("adminPortalLoginForm");
 const adminLoginNote = document.getElementById("adminPortalLoginNote");
+const adminMemberResults = document.getElementById("adminMemberResults");
 const passwordLoginForm = document.getElementById("memberPasswordLoginForm");
 const createPasswordForm = document.getElementById("memberCreatePasswordForm");
 const passwordLoginNote = document.getElementById("memberPasswordLoginNote");
@@ -23,6 +24,20 @@ let activeAdminToken = "";
 
 const ADMIN_SESSION_STORAGE_KEY = "qpAdminSession";
 const MEMBER_SESSION_STORAGE_KEY = "qpMemberSession";
+
+async function adminAccessRequest(action, account, extra = {}) {
+  const token = String(activeAdminToken || "").trim();
+  if (!token) throw new Error("Your administrator session has expired. Sign in again and retry.");
+  const endpoint = `${window.location.origin}/api/manage-member-access`;
+  const response = await fetch(endpoint, {
+    method: "POST",
+    headers: { "Content-Type": "application/json", "Authorization": `Bearer ${token}` },
+    body: JSON.stringify({ action, account: String(account || "").trim(), ...extra }),
+  });
+  const data = await response.json().catch(() => ({}));
+  if (!response.ok) throw new Error(data.message || "The member-access update failed.");
+  return data;
+}
 
 // Head-admin auto-recognition: if the Netlify Identity user already signed
 // in through the ordinary Member "Password login" form is the site's
@@ -44,13 +59,32 @@ async function tryAutoAdminSession() {
   }
 }
 
-// Sends a recognised administrator straight to the Admin Dashboard — its
-// own full page with New Client Setup, Members, AI Agent Requests and
-// Website Enquiries each getting their own uncrowded page, rather than
-// cramming any of that in here. admin.html reads the same qpAdminSession
-// this page just wrote, so it opens straight in, no second login.
-function goToAdminDashboard() {
-  window.location.href = "admin.html";
+function showNewClientSetupPanel() {
+  const panel = document.getElementById("adminNewClientPanel");
+  const frame = document.getElementById("adminNewClientFrame");
+  if (!panel || !frame) return;
+  if (!frame.src) frame.src = "admin.html";
+  panel.hidden = false;
+}
+
+// Loads every member record and the New Client Setup tool straight into the
+// Administrator tab — called the moment a head admin is recognised, so the
+// tab is fully populated before they've even clicked it, with no login form
+// in between.
+async function revealHeadAdminAccess(email) {
+  adminModeButton.textContent = "Administrator (You)";
+  try {
+    const membersResponse = await fetch("/api/list_clients.php", { headers: { Authorization: `Bearer ${activeAdminToken}` } });
+    const membersData = await membersResponse.json();
+    if (membersResponse.ok && membersData.status === "ok") {
+      renderAdministratorMembers(membersData.clients || [], email);
+    } else {
+      adminLoginNote.textContent = membersData.message || "Could not load member records.";
+    }
+  } catch {
+    adminLoginNote.textContent = "Could not reach the member records.";
+  }
+  showNewClientSetupPanel();
 }
 
 function selectMemberLoginMode(mode) {
@@ -82,16 +116,7 @@ function selectPortalMode(mode) {
 }
 
 memberModeButton.addEventListener("click", () => selectPortalMode("member"));
-adminModeButton.addEventListener("click", () => {
-  // Already recognised/logged in as administrator (auto-recognition or an
-  // earlier login this session) — no need to show the tab at all, straight
-  // to the Admin Dashboard.
-  if (activeAdminToken) {
-    goToAdminDashboard();
-    return;
-  }
-  selectPortalMode("admin");
-});
+adminModeButton.addEventListener("click", () => selectPortalMode("admin"));
 
 document.getElementById("year").textContent = new Date().getFullYear();
 
@@ -197,6 +222,69 @@ function renderPurchases(purchases, profile = null) {
   });
 }
 
+function renderAdministratorMembers(clients, email) {
+  const memberCards = clients.map((client, index) => {
+    const liveUrl = safeUrl(client.liveUrl);
+    const fileUrl = safeUrl(client.deliverableFileUrl);
+    const active = client.status === "active";
+    const created = client.createdAt ? new Date(client.createdAt).toLocaleDateString("en-GB", { day: "numeric", month: "long", year: "numeric" }) : "—";
+    const accessText = String(client.service || "").toLowerCase();
+    const serviceChecks = SERVICE_CATALOG.map((service) => `<label class="admin-access-option"><input type="checkbox" name="services" value="${escapeHtml(service.name)}" ${accessText.includes("all services") || service.aliases.some((alias) => accessText.includes(alias)) ? "checked" : ""}> <span>${escapeHtml(service.name)}</span></label>`).join("");
+    const displayedCode = client.portalCode ? String(client.portalCode).replace(/(\d{4})(?=\d)/g, "$1 ") : "Protected — generate a replacement to view it";
+    return `<article class="member-purchase" data-admin-member="${escapeHtml(client.account)}"><div class="member-purchase__number">${String(index + 1).padStart(2, "0")}</div><div class="member-purchase__content"><span class="status-pill ${active ? "status-pill--active" : ""}">${active ? "Active" : "Pending payment"}</span><h3>${escapeHtml(client.title || client.service)}</h3><p>${escapeHtml(client.clientEmail || "No client email saved")}</p><dl><div><dt>Account</dt><dd>${escapeHtml(client.account)}</dd></div><div><dt>Created</dt><dd>${escapeHtml(created)}</dd></div><div><dt>Price</dt><dd>${escapeHtml(client.price)}</dd></div></dl><p>${escapeHtml(client.preview || "No description added.")}</p><section class="admin-access-panel"><div><span class="section__tag">// Member access code</span><strong class="admin-access-code">${escapeHtml(displayedCode)}</strong></div><button class="btn btn--ghost" type="button" data-reset-code>Generate New 12-Digit Code</button><details><summary>Edit service access</summary><div class="admin-access-grid">${serviceChecks}</div><label class="portal-remember"><input type="checkbox" name="enabled" ${active ? "checked" : ""}> <span>Member access enabled</span></label><button class="btn btn--primary" type="button" data-save-access>Save Access</button><p class="form-note" data-access-note aria-live="polite"></p></details></section><div class="member-purchase__actions">${liveUrl ? `<a class="btn btn--primary" href="${escapeHtml(liveUrl)}" target="_blank" rel="noopener">Open Service →</a>` : ""}${fileUrl ? `<a class="btn btn--ghost" href="${escapeHtml(fileUrl)}" target="_blank" rel="noopener">Open Deliverable →</a>` : ""}</div></div></article>`;
+  }).join("");
+
+  adminLoginForm.hidden = true;
+  adminLoginForm.previousElementSibling.hidden = true;
+  adminLoginForm.nextElementSibling.hidden = true;
+  adminMemberResults.innerHTML = `<div class="member-results__head"><div><p class="section__tag">// Administrator Access</p><h2>All member portals</h2><p>Logged in as ${escapeHtml(email)} · ${clients.length} member record${clients.length === 1 ? "" : "s"}</p></div><button class="btn btn--ghost" id="adminMemberLogout" type="button">Sign Out</button></div>${memberCards || '<p class="members-panel__lead">No member records have been created yet.</p>'}`;
+  adminMemberResults.hidden = false;
+  adminMemberResults.querySelectorAll("[data-admin-member]").forEach((card) => {
+    const account = card.dataset.adminMember;
+    const noteTarget = card.querySelector("[data-access-note]");
+    card.querySelector("[data-reset-code]").addEventListener("click", async (event) => {
+      const button = event.currentTarget;
+      button.disabled = true;
+      noteTarget.textContent = "Generating a secure replacement code…";
+      try {
+        const data = await adminAccessRequest("regenerate_code", account);
+        card.querySelector(".admin-access-code").textContent = data.code;
+        noteTarget.textContent = "New code created. The previous 12-digit code no longer works.";
+      } catch (error) { noteTarget.textContent = error.message; }
+      finally { button.disabled = false; }
+    });
+    card.querySelector("[data-save-access]").addEventListener("click", async (event) => {
+      const button = event.currentTarget;
+      const services = [...card.querySelectorAll('input[name="services"]:checked')].map((input) => input.value);
+      const enabled = card.querySelector('input[name="enabled"]').checked;
+      button.disabled = true;
+      noteTarget.textContent = "Saving member access…";
+      try {
+        const data = await adminAccessRequest("update_access", account, { services, enabled });
+        noteTarget.textContent = "Member access updated successfully.";
+      } catch (error) { noteTarget.textContent = error.message; }
+      finally { button.disabled = false; }
+    });
+  });
+  document.getElementById("adminMemberLogout").addEventListener("click", () => {
+    localStorage.removeItem(ADMIN_SESSION_STORAGE_KEY);
+    sessionStorage.removeItem(ADMIN_SESSION_STORAGE_KEY);
+    adminMemberResults.hidden = true;
+    adminMemberResults.innerHTML = "";
+    adminLoginForm.reset();
+    adminLoginForm.hidden = false;
+    adminLoginForm.previousElementSibling.hidden = false;
+    adminLoginForm.nextElementSibling.hidden = false;
+    adminLoginNote.textContent = "";
+    activeAdminToken = "";
+    adminModeButton.textContent = "Administrator";
+    const newClientPanel = document.getElementById("adminNewClientPanel");
+    const newClientFrame = document.getElementById("adminNewClientFrame");
+    if (newClientPanel) newClientPanel.hidden = true;
+    if (newClientFrame) newClientFrame.removeAttribute("src");
+  });
+}
+
 function openMemberPortal(purchases, email, remember = false) {
   const memberSession = JSON.stringify({ email, purchases, expiresAt: Date.now() + (30 * 24 * 60 * 60 * 1000) });
   if (remember) {
@@ -282,17 +370,26 @@ passwordLoginForm.addEventListener("submit", async (event) => {
   try {
     await login(email, passwordLoginForm.password.value);
     // Same Identity sign-in doubles as the admin check — no second password.
-    // A recognised head administrator goes straight to the Admin Dashboard.
     const isHeadAdmin = await tryAutoAdminSession();
-    if (isHeadAdmin) {
-      goToAdminDashboard();
-      return;
+    if (isHeadAdmin) revealHeadAdminAccess(email);
+    let purchases = [];
+    try {
+      const response = await fetch("/api/member-purchases");
+      const data = await response.json();
+      if (response.ok && data.status === "ok" && Array.isArray(data.purchases)) purchases = data.purchases;
+      else if (!isHeadAdmin) throw new Error(data.message || "Your purchased services could not be loaded.");
+    } catch (purchaseError) {
+      if (!isHeadAdmin) throw purchaseError;
     }
-    const response = await fetch("/api/member-purchases");
-    const data = await response.json();
-    if (!response.ok || data.status !== "ok") throw new Error(data.message || "Your purchased services could not be loaded.");
     passwordLoginForm.password.value = "";
-    openMemberPortal(data.purchases, email, passwordLoginForm.remember.checked);
+    if (purchases.length) {
+      openMemberPortal(purchases, email, passwordLoginForm.remember.checked);
+    } else if (isHeadAdmin) {
+      passwordLoginNote.textContent = "Signed in as head administrator — see the Administrator tab above.";
+      selectPortalMode("admin");
+    } else {
+      throw new Error("Your purchased services could not be loaded.");
+    }
   } catch (error) {
     passwordLoginNote.textContent = error?.status === 401
       ? "Incorrect email or password."
@@ -305,11 +402,12 @@ passwordLoginForm.addEventListener("submit", async (event) => {
 const identityUser = await getUser().catch(() => null);
 
 // Runs on every page load where Identity already has this browser signed
-// in (password login persists across reloads) — so a head administrator's
-// token is ready the instant they click the Administrator tab, without
-// forcing a redirect just for loading this page.
+// in (password login persists across reloads) — so the head admin never
+// has to re-prove who they are beyond that one Identity password, ever.
 if (identityUser?.email) {
-  tryAutoAdminSession();
+  tryAutoAdminSession().then((isHeadAdmin) => {
+    if (isHeadAdmin) revealHeadAdminAccess(identityUser.email);
+  });
 }
 
 const rememberedMember = localStorage.getItem(MEMBER_SESSION_STORAGE_KEY) || sessionStorage.getItem(MEMBER_SESSION_STORAGE_KEY);
@@ -357,8 +455,15 @@ adminLoginForm.addEventListener("submit", async (event) => {
       localStorage.removeItem(ADMIN_SESSION_STORAGE_KEY);
     }
     adminLoginForm.password.value = "";
-    adminLoginNote.textContent = "Access granted — opening the Admin Dashboard…";
-    goToAdminDashboard();
+    adminLoginNote.textContent = "Access granted. Loading every member portal…";
+    const membersResponse = await fetch("/api/list_clients.php", {
+      headers: { Authorization: `Bearer ${data.token}` },
+    });
+    const membersData = await membersResponse.json();
+    if (!membersResponse.ok || membersData.status !== "ok") {
+      throw new Error(membersData.message || "The member records could not be loaded.");
+    }
+    renderAdministratorMembers(membersData.clients || [], email);
   } catch (error) {
     adminLoginNote.textContent = error.message || "We couldn't verify your administrator details. Please try again.";
   } finally {
