@@ -35,6 +35,27 @@ let editUploadedPreviewImageUrl = null;
 let editUploadedPreviewFileUrl = null;
 let editUploadedDeliverableFileUrl = null;
 
+// Mirrors the checkbox options in admin-new-client.html and the alias list
+// member-service.js's data-service-aliases gates check against — same
+// spelling matters here, since a client's `service` field is just this
+// comma-joined string matched by substring on every service page.
+const SERVICE_CATALOG = ["Website", "Website Management", "CRM", "Booking System", "Branding & Print", "Social Media & Content", "AI & Automation"];
+
+// Keeps the hidden #editService input (what's actually saved) in sync with
+// the checkbox group + "Other" text, same pattern as
+// admin-new-client.js's syncAdminServiceField.
+function syncEditServiceField() {
+  const checked = Array.from(
+    document.querySelectorAll('input[name="editServiceOption"]:checked')
+  ).map((el) => el.value);
+  const other = editClientForm.editServiceOther.value.trim();
+  editClientForm.editService.value = [...checked, other].filter(Boolean).join(", ");
+}
+document.querySelectorAll('input[name="editServiceOption"]').forEach((el) => {
+  el.addEventListener("change", syncEditServiceField);
+});
+editClientForm.editServiceOther.addEventListener("input", syncEditServiceField);
+
 function withClientReference(baseUrl, account) {
   const separator = baseUrl.includes("?") ? "&" : "?";
   return `${baseUrl}${separator}client_reference_id=${encodeURIComponent(account)}`;
@@ -324,7 +345,20 @@ function openEditPanel(account) {
 
   editClientAccountLabel.textContent = account;
   editClientForm.editTitle.value = client.title || "";
-  editClientForm.editService.value = client.service || "";
+
+  // Pre-check every catalog service this account's `service` string already
+  // mentions; whatever's left over (a plan name, "Other" detail, anything
+  // that isn't one of the standard checkboxes) goes into the free-text field.
+  const accessText = String(client.service || "").toLowerCase();
+  let remaining = client.service || "";
+  document.querySelectorAll('input[name="editServiceOption"]').forEach((el) => {
+    const matched = accessText.includes(el.value.toLowerCase());
+    el.checked = matched;
+    if (matched) remaining = remaining.replace(new RegExp(el.value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&"), "gi"), "");
+  });
+  editClientForm.editServiceOther.value = remaining.replace(/,\s*,/g, ",").replace(/^[,\s]+|[,\s]+$/g, "").trim();
+  syncEditServiceField();
+
   editClientForm.editPrice.value = client.price || "";
   editClientForm.editPreview.value = client.preview || "";
   editClientForm.editPaymentUrl.value = stripClientReference(client.paymentUrl || "");
@@ -376,7 +410,7 @@ if (editClientForm) {
 
     const basePaymentUrl = editClientForm.editPaymentUrl.value.trim();
     if (!editClientForm.editService.value.trim() || !editClientForm.editPrice.value.trim() || !basePaymentUrl) {
-      editClientNote.textContent = "Fill in Service, Price and Payment link first.";
+      editClientNote.textContent = "Check at least one service (or fill in \"Other\"), and fill in Price and Payment link.";
       editClientNote.style.color = "#ff8a8a";
       return;
     }

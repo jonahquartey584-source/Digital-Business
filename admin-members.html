@@ -47,7 +47,7 @@
           <h1>Members<span class="cursor" aria-hidden="true"></span></h1>
           <p class="activate-footnote" style="margin:0;">Logged in as <strong id="loggedInEmail"></strong></p>
         </div>
-        <p class="hero__lead">Every client created through <a href="admin-new-client.html">New Client Setup</a>. Search by account number or email, edit a record, reissue their 12-digit code, or delete them.</p>
+        <p class="hero__lead">Every client created through <a href="admin-new-client.html">New Client Setup</a>. Search by account number or email, manage which services their account has access to, reissue their 12-digit code, or delete them.</p>
 
         <input type="search" id="clientsSearchInput" class="clients-search" placeholder="Search by name, account, email or service…" aria-label="Search members" />
         <p class="form-note" id="clientsListNote"></p>
@@ -66,8 +66,25 @@
             </div>
 
             <div class="form-row">
-              <label for="editService">Service</label>
-              <input type="text" id="editService" name="editService" required />
+              <label>Service access</label>
+              <p class="admin-hint">
+                Check every service this account should have access to — this account
+                number and 12-digit code work for all of them at once. This is what
+                decides which Members Portal pages (CRM, AI &amp; Automation, Booking
+                System, etc.) their code opens. Unchecking one revokes it immediately
+                on save.
+              </p>
+              <div class="admin-service-options" id="editServiceOptions">
+                <label class="admin-service-option"><input type="checkbox" name="editServiceOption" value="Website"> Website</label>
+                <label class="admin-service-option"><input type="checkbox" name="editServiceOption" value="Website Management"> Website Management</label>
+                <label class="admin-service-option"><input type="checkbox" name="editServiceOption" value="CRM"> CRM</label>
+                <label class="admin-service-option"><input type="checkbox" name="editServiceOption" value="Booking System"> Booking System</label>
+                <label class="admin-service-option"><input type="checkbox" name="editServiceOption" value="Branding & Print"> Branding &amp; Print</label>
+                <label class="admin-service-option"><input type="checkbox" name="editServiceOption" value="Social Media & Content"> Social Media &amp; Content</label>
+                <label class="admin-service-option"><input type="checkbox" name="editServiceOption" value="AI & Automation"> AI &amp; Automation</label>
+              </div>
+              <input type="text" id="editServiceOther" name="editServiceOther" placeholder="Other / additional detail (optional) — e.g. plan name, tier" />
+              <input type="hidden" id="editService" name="editService" required />
             </div>
 
             <div class="form-row">
