@@ -67,74 +67,9 @@ function applyWebsiteManagementAccess() {
   if (summaryValue) summaryValue.textContent = managementUnlocked ? "Active" : "Not included";
 }
 
-// Shows whichever live URL deployClientWebsite() (server-side, on payment)
-// set on this account's record, or a "still deploying" state if it hasn't
-// run yet/there's nothing to deploy for this client. Also wires "New
-// Change Request" to actually reach Qp Digital (website-change-request.mts)
-// instead of service-actions.js's generic demo handler, which only ever
-// saved to this browser's own localStorage.
-function applyWebsiteDeployAccess() {
-  const liveUrl = matchedPurchases.map((purchase) => purchase.liveUrl).find(Boolean);
-  const statusValue = document.getElementById("websiteStatusValue");
-  const openBtn = document.getElementById("openWebsiteBtn");
-  const pendingBtn = document.getElementById("openWebsitePending");
-  const preview = document.getElementById("websitePreview");
-
-  if (liveUrl) {
-    if (statusValue) statusValue.textContent = "Live";
-    if (openBtn) { openBtn.href = liveUrl; openBtn.hidden = false; }
-    if (pendingBtn) pendingBtn.hidden = true;
-    if (preview) {
-      preview.textContent = "";
-      const link = document.createElement("a");
-      link.href = liveUrl; link.target = "_blank"; link.rel = "noopener";
-      link.className = "preview-frame-link";
-      link.textContent = liveUrl.replace(/^https?:\/\//, "");
-      preview.appendChild(link);
-    }
-  } else {
-    if (statusValue) statusValue.textContent = "Deploying…";
-    if (openBtn) openBtn.hidden = true;
-    if (pendingBtn) pendingBtn.hidden = false;
-  }
-
-  const changeRequestBtn = document.getElementById("newChangeRequestBtn");
-  const changeRequestNote = document.getElementById("changeRequestNote");
-  changeRequestBtn?.addEventListener("click", async (event) => {
-    // Stops service-actions.js's document-level click handler (matched by
-    // this button's visible text) from also opening its own fake, purely
-    // local version of this same form.
-    event.stopPropagation();
-
-    const page = window.prompt("Which page or section needs the change? (optional)") || "";
-    const change = window.prompt("Describe the change you need:");
-    if (!change || !change.trim()) return;
-
-    changeRequestBtn.disabled = true;
-    if (changeRequestNote) changeRequestNote.textContent = "Sending…";
-    try {
-      const response = await fetch("/api/website-change-request", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ account, page, request: change.trim(), priority: "Standard" }),
-      });
-      const data = await response.json().catch(() => ({}));
-      if (!response.ok || data.status !== "ok") throw new Error(data.message || "Couldn't send that — try again.");
-      if (changeRequestNote) changeRequestNote.textContent = "Sent — Qp Digital will be in touch.";
-    } catch (error) {
-      if (changeRequestNote) changeRequestNote.textContent = error.message || "Couldn't send that — try again.";
-    } finally {
-      changeRequestBtn.disabled = false;
-    }
-  });
-}
-
 if (servicePage && allowed) {
   clearDemonstrationContent();
-  if (location.pathname.split("/").pop() === "web-development.html") {
-    applyWebsiteManagementAccess();
-    applyWebsiteDeployAccess();
-  }
+  if (location.pathname.split("/").pop() === "web-development.html") applyWebsiteManagementAccess();
   servicePage.hidden = false;
   if (accountTarget) accountTarget.textContent = account;
 } else if (gate) {
@@ -161,3 +96,149 @@ if (!document.querySelector('script[src="service-actions.js"]')) {
   actionsScript.src = "service-actions.js";
   document.body.appendChild(actionsScript);
 }
+
+// Service-specific guided tutorials. These run inside the workspace so a
+// client can pause, replay and follow the instructions without leaving their
+// account or sharing any client data with a third-party video platform.
+const serviceTutorials = {
+  "web-development.html": {
+    title: "How to use Web Development",
+    intro: "A complete tour of your website workspace and management plan.",
+    steps: [
+      ["Your website at a glance", "Check the website status and management-plan status at the top before making a request."],
+      ["Open your live website", "Use Open Website to review the current live version in a separate tab."],
+      ["Request a website change", "Choose Request a Change, explain the page, text, image or feature that needs updating, and include enough detail for the Qp Digital team."],
+      ["Review your website preview", "Use the preview panel to confirm which website and version are connected to your account."],
+      ["Understand website management", "Hosting, security, SEO, updates and fixes appear in the management panel when Website Management is included in your plan."],
+      ["Get help", "Open the Qp Client Assistant in the bottom corner whenever you need help preparing a clear request."]
+    ]
+  },
+  "crm.html": {
+    title: "How to use your CRM",
+    intro: "Learn how to manage leads from first enquiry through to a completed sale.",
+    steps: [
+      ["Start with the Pipeline", "The pipeline shows each opportunity by sales stage. Use Add deal to create a new opportunity and record its value."],
+      ["Build your Leads Database", "Open Leads Database, choose New lead, and enter the person's contact details and source."],
+      ["Import existing leads", "Open Import History and upload a CSV file. Include a name column; email and phone columns are detected automatically."],
+      ["Keep contacts organised", "Promote qualified leads into Contacts so customer information stays separate from early enquiries."],
+      ["Never miss a follow-up", "Create tasks with due dates in Tasks & Follow-ups and mark each task complete when it is finished."],
+      ["Measure performance", "Reporting summarises the pipeline value, lead funnel and progress across each stage."],
+      ["Use AI responsibly", "If AI & Automation is included, open AI Assistant for lead follow-up support. Review important messages before they are sent."],
+      ["Ask for help", "Use the Qp Client Assistant in the bottom corner for guidance anywhere in the CRM."]
+    ]
+  },
+  "booking-system.html": {
+    title: "How to use your Booking System",
+    intro: "Set availability, manage appointments and keep your services accurate.",
+    steps: [
+      ["Review the dashboard", "Check today's bookings and the monthly total at the top of the workspace."],
+      ["Set your availability", "Use Edit Availability to define the days and times customers are allowed to book."],
+      ["Add a booking", "Choose New Booking, select the service and time, and add the customer's correct contact details."],
+      ["Manage bookable services", "Keep service names, durations and availability up to date so customers see the correct choices."],
+      ["Confirm changes", "Review upcoming bookings after every change and check that the correct status is shown."],
+      ["Get help", "Use the Qp Client Assistant if you need support configuring a service or booking rule."]
+    ]
+  },
+  "branding.html": {
+    title: "How to use your Brand Library",
+    intro: "Find, review and download the approved files created for your business.",
+    steps: [
+      ["Check your purchased products", "The summary shows how many approved brand files are currently available in your account."],
+      ["Review each preview", "Open the relevant product panel and check the preview before downloading the final files."],
+      ["Download logo files", "Use Download Logo Files for the supplied formats. Keep the original folder together so nothing is lost."],
+      ["Download print artwork", "Use Download Print Files for approved business cards, flyers or other print-ready designs."],
+      ["Request more branding", "Choose Buy More Branding when you need a new design or an additional format."],
+      ["Get help", "Ask the Qp Client Assistant which file format is best for print, websites or social media."]
+    ]
+  },
+  "ai-automation.html": {
+    title: "How to use AI & Automation",
+    intro: "Monitor workflows, request automation and understand what the assistant is doing.",
+    steps: [
+      ["Check your active workflows", "The workspace lists every automation currently configured for your business."],
+      ["Understand each workflow", "Review what triggers the workflow, what action it performs and which customer information it uses."],
+      ["Request an automation", "Choose Request Automation and describe the trigger, desired action and intended customer outcome."],
+      ["Manage the website assistant", "Use Manage Assistant to review the assistant configuration and the enquiries it collects."],
+      ["Review important activity", "Check conversation and agent-request totals regularly so qualified leads receive a human follow-up."],
+      ["Protect customer data", "Only automate approved tasks and avoid entering sensitive information that the workflow does not require."],
+      ["Get help", "Use the Qp Client Assistant to understand a workflow or prepare a request for the Qp Digital team."]
+    ]
+  },
+  "social-media.html": {
+    title: "How to use Social Media",
+    intro: "Review content, approve posts and track performance from one workspace.",
+    steps: [
+      ["Check the publishing plan", "The summary shows the number of scheduled posts and whether your service is monthly or one-time."],
+      ["Review the approval queue", "Open every waiting post and check its wording, image, links and scheduled platform."],
+      ["Upload brand assets", "Use Upload Assets to supply approved photos, videos, logos or campaign materials."],
+      ["Request new content", "Choose Request Content and include the objective, audience, offer, deadline and preferred platform."],
+      ["Track results", "Use the performance panel to review reach, engagement and leads—not just follower numbers."],
+      ["Get help", "Ask the Qp Client Assistant to explain a metric or help structure a content request."]
+    ]
+  }
+};
+
+function installServiceTutorial() {
+  if (!servicePage || !allowed) return;
+  const page = location.pathname.split("/").pop() || "";
+  const tutorial = serviceTutorials[page];
+  if (!tutorial) return;
+  const head = document.querySelector(".member-service-head, .service-app-topbar");
+  const actions = head?.querySelector(".member-service-actions, .service-app-tools") || head;
+  if (!actions) return;
+  const launch = document.createElement("button");
+  launch.className = "btn btn--guide";
+  launch.type = "button";
+  launch.innerHTML = '<span aria-hidden="true">▶</span> Watch video guide';
+  actions.appendChild(launch);
+
+  const overlay = document.createElement("div");
+  overlay.className = "service-tutorial";
+  overlay.hidden = true;
+  overlay.innerHTML = `<div class="service-tutorial__dialog" role="dialog" aria-modal="true" aria-label="${tutorial.title}">
+    <div class="service-tutorial__top"><div><span class="service-tutorial__eyebrow">QP DIGITAL VIDEO GUIDE</span><strong>${tutorial.title}</strong></div><button type="button" class="service-tutorial__close" aria-label="Close video guide">×</button></div>
+    <div class="service-tutorial__screen"><div class="service-tutorial__brand"><img src="favicon-512.png" alt=""><span>QP DIGITAL</span></div><div class="service-tutorial__number"></div><h2></h2><p></p></div>
+    <div class="service-tutorial__timeline"><span></span></div>
+    <div class="service-tutorial__controls"><button type="button" data-tutorial-action="previous">← Previous</button><button type="button" class="service-tutorial__play" data-tutorial-action="play">▶ Play</button><span class="service-tutorial__position"></span><button type="button" data-tutorial-action="next">Next →</button></div>
+    <div class="service-tutorial__chapters"></div>
+  </div>`;
+  document.body.appendChild(overlay);
+  const title = overlay.querySelector(".service-tutorial__screen h2");
+  const copy = overlay.querySelector(".service-tutorial__screen p");
+  const number = overlay.querySelector(".service-tutorial__number");
+  const position = overlay.querySelector(".service-tutorial__position");
+  const progress = overlay.querySelector(".service-tutorial__timeline span");
+  const play = overlay.querySelector(".service-tutorial__play");
+  const chapters = overlay.querySelector(".service-tutorial__chapters");
+  let current = 0;
+  let timer = null;
+  const render = () => {
+    const step = tutorial.steps[current];
+    number.textContent = `STEP ${String(current + 1).padStart(2, "0")}`;
+    title.textContent = step[0]; copy.textContent = step[1];
+    position.textContent = `${current + 1} / ${tutorial.steps.length}`;
+    progress.style.width = `${((current + 1) / tutorial.steps.length) * 100}%`;
+    chapters.querySelectorAll("button").forEach((button, index) => button.classList.toggle("is-active", index === current));
+  };
+  const stop = () => { clearInterval(timer); timer = null; play.textContent = "▶ Play"; window.speechSynthesis?.cancel(); };
+  const speak = () => {
+    if (!("speechSynthesis" in window)) return;
+    window.speechSynthesis.cancel();
+    const utterance = new SpeechSynthesisUtterance(`${tutorial.steps[current][0]}. ${tutorial.steps[current][1]}`);
+    utterance.rate = .92; window.speechSynthesis.speak(utterance);
+  };
+  const advance = () => { if (current >= tutorial.steps.length - 1) { stop(); return; } current += 1; render(); speak(); };
+  tutorial.steps.forEach((step, index) => {
+    const button = document.createElement("button"); button.type = "button"; button.textContent = `${index + 1}. ${step[0]}`;
+    button.addEventListener("click", () => { stop(); current = index; render(); }); chapters.appendChild(button);
+  });
+  launch.addEventListener("click", () => { overlay.hidden = false; document.body.classList.add("tutorial-open"); current = 0; render(); });
+  overlay.querySelector(".service-tutorial__close").addEventListener("click", () => { stop(); overlay.hidden = true; document.body.classList.remove("tutorial-open"); });
+  overlay.addEventListener("click", (event) => { if (event.target === overlay) overlay.querySelector(".service-tutorial__close").click(); });
+  overlay.querySelector('[data-tutorial-action="previous"]').addEventListener("click", () => { stop(); current = Math.max(0, current - 1); render(); });
+  overlay.querySelector('[data-tutorial-action="next"]').addEventListener("click", () => { stop(); current = Math.min(tutorial.steps.length - 1, current + 1); render(); });
+  play.addEventListener("click", () => { if (timer) { stop(); return; } play.textContent = "❚❚ Pause"; speak(); timer = setInterval(advance, 9000); });
+  document.addEventListener("keydown", (event) => { if (event.key === "Escape" && !overlay.hidden) overlay.querySelector(".service-tutorial__close").click(); });
+  render();
+}
+installServiceTutorial();
