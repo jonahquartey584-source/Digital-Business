@@ -22,6 +22,7 @@ import {
   requireAdminSession,
   provisionRealAppAccess,
   realAppProductForService,
+  deployClientWebsite,
   type ClientRecord,
 } from "./_shared.mts";
 
@@ -75,6 +76,14 @@ export default async (req: Request, context: Context) => {
     portalCodeIssuedAt: new Date().toISOString(),
   };
 
+  if (!updated.netlifySiteId && updated.websiteZipUrl) {
+    const deployed = await deployClientWebsite(updated);
+    if (deployed) {
+      updated.netlifySiteId = deployed.siteId;
+      updated.liveUrl = deployed.url;
+    }
+  }
+
   await store.setJSON(account, updated);
 
   const realAppProduct = realAppProductForService(updated.service);
@@ -82,7 +91,7 @@ export default async (req: Request, context: Context) => {
     await provisionRealAppAccess(existing.clientEmail, realAppProduct);
   }
 
-  return json(200, { status: "activated", account, code, clientEmail: updated.clientEmail });
+  return json(200, { status: "activated", account, code, clientEmail: updated.clientEmail, liveUrl: updated.liveUrl });
 };
 
 export const config: Config = {

@@ -42,6 +42,9 @@ export default async (req: Request, context: Context) => {
   const deliverableFileUrl = String(input.deliverableFileUrl ?? "").trim();
   const paymentUrl = String(input.paymentUrl ?? "").trim();
   const liveUrl = String(input.liveUrl ?? "").trim();
+  // Not editable from the Members page yet — preserved as-is so editing
+  // other fields never silently wipes out an already-attached website zip.
+  const websiteZipUrl = existing.websiteZipUrl ?? null;
   const clientEmail = String(input.clientEmail ?? "").trim();
   const status: ClientRecord["status"] = input.status === "active" ? "active" : "pending_payment";
 
@@ -62,6 +65,7 @@ export default async (req: Request, context: Context) => {
     deliverableFileUrl: deliverableFileUrl || null,
     paymentUrl,
     liveUrl: liveUrl || null,
+    websiteZipUrl,
     clientEmail: clientEmail || null,
     status,
     // Newly flipped to active by hand -> stamp it now. Already active ->

@@ -116,6 +116,13 @@
           </div>
 
           <div class="form-row">
+            <label for="adminWebsiteZipFile">Website files — .zip (optional, website clients only)</label>
+            <input type="file" id="adminWebsiteZipFile" name="adminWebsiteZipFile" accept=".zip,application/zip" />
+            <p class="admin-hint">The actual site you built for them — a .zip containing <code>index.html</code> and everything it needs (CSS, JS, images). Leave this out of the preview image/file above; those are just the mockup shown before they pay. The moment their payment is confirmed, this gets deployed automatically to a brand new site under your Netlify account, and the resulting live link is what "Open Website" shows them in the Members Portal — no manual hosting step.</p>
+            <p class="form-note" id="websiteZipStatus"></p>
+          </div>
+
+          <div class="form-row">
             <label for="adminPaymentUrl">Payment link (optional)</label>
             <input type="url" id="adminPaymentUrl" name="adminPaymentUrl" placeholder="https://buy.stripe.com/... (only if you need one)" />
             <p class="admin-hint">Not needed for a normal client — the redeem page's "Pay &amp; Activate" button already charges the <strong>Price</strong> above automatically, right on the site, with no separate link to create. Only fill this in if you specifically want to send them a standalone Stripe Payment Link instead (it'll get their account number appended as <code>?client_reference_id=...</code>).</p>

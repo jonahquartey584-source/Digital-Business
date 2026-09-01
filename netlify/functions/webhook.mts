@@ -17,6 +17,7 @@ import {
   sendEmail,
   provisionRealAppAccess,
   realAppProductForService,
+  deployClientWebsite,
   type ClientRecord,
 } from "./_shared.mts";
 
@@ -86,6 +87,19 @@ export default async (req: Request, context: Context) => {
           client.portalCodeHash = hashPortalCode(portalCode);
           client.portalCodeIssuedAt = new Date().toISOString();
         }
+
+        // Deploy their actual website now that payment is confirmed — not
+        // before. Only runs once (skipped if netlifySiteId is already set,
+        // e.g. a retried webhook delivery) and never for a client with
+        // nothing uploaded to deploy.
+        if (!client.netlifySiteId && client.websiteZipUrl) {
+          const deployed = await deployClientWebsite(client);
+          if (deployed) {
+            client.netlifySiteId = deployed.siteId;
+            client.liveUrl = deployed.url;
+          }
+        }
+
         await store.setJSON(accountNumber, client);
 
         // CRM/Booking specifically also live on the real SaaS platform —

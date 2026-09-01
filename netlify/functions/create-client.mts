@@ -33,6 +33,7 @@ export default async (req: Request, context: Context) => {
   const deliverableFileUrl = String(input.deliverableFileUrl ?? "").trim();
   const paymentUrl = String(input.paymentUrl ?? "").trim();
   const liveUrl = String(input.liveUrl ?? "").trim();
+  const websiteZipUrl = String(input.websiteZipUrl ?? "").trim();
   const clientEmail = String(input.clientEmail ?? "").trim();
 
   // paymentUrl is no longer required — the real payment path is the
@@ -68,6 +69,7 @@ export default async (req: Request, context: Context) => {
     deliverableFileUrl: deliverableFileUrl || null,
     paymentUrl,
     liveUrl: liveUrl || null,
+    websiteZipUrl: websiteZipUrl || null,
     clientEmail: clientEmail || null,
     status: "pending_payment",
     createdAt: new Date().toISOString(),

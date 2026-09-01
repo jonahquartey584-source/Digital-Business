@@ -67,9 +67,74 @@ function applyWebsiteManagementAccess() {
   if (summaryValue) summaryValue.textContent = managementUnlocked ? "Active" : "Not included";
 }
 
+// Shows whichever live URL deployClientWebsite() (server-side, on payment)
+// set on this account's record, or a "still deploying" state if it hasn't
+// run yet/there's nothing to deploy for this client. Also wires "New
+// Change Request" to actually reach Qp Digital (website-change-request.mts)
+// instead of service-actions.js's generic demo handler, which only ever
+// saved to this browser's own localStorage.
+function applyWebsiteDeployAccess() {
+  const liveUrl = matchedPurchases.map((purchase) => purchase.liveUrl).find(Boolean);
+  const statusValue = document.getElementById("websiteStatusValue");
+  const openBtn = document.getElementById("openWebsiteBtn");
+  const pendingBtn = document.getElementById("openWebsitePending");
+  const preview = document.getElementById("websitePreview");
+
+  if (liveUrl) {
+    if (statusValue) statusValue.textContent = "Live";
+    if (openBtn) { openBtn.href = liveUrl; openBtn.hidden = false; }
+    if (pendingBtn) pendingBtn.hidden = true;
+    if (preview) {
+      preview.textContent = "";
+      const link = document.createElement("a");
+      link.href = liveUrl; link.target = "_blank"; link.rel = "noopener";
+      link.className = "preview-frame-link";
+      link.textContent = liveUrl.replace(/^https?:\/\//, "");
+      preview.appendChild(link);
+    }
+  } else {
+    if (statusValue) statusValue.textContent = "Deploying…";
+    if (openBtn) openBtn.hidden = true;
+    if (pendingBtn) pendingBtn.hidden = false;
+  }
+
+  const changeRequestBtn = document.getElementById("newChangeRequestBtn");
+  const changeRequestNote = document.getElementById("changeRequestNote");
+  changeRequestBtn?.addEventListener("click", async (event) => {
+    // Stops service-actions.js's document-level click handler (matched by
+    // this button's visible text) from also opening its own fake, purely
+    // local version of this same form.
+    event.stopPropagation();
+
+    const page = window.prompt("Which page or section needs the change? (optional)") || "";
+    const change = window.prompt("Describe the change you need:");
+    if (!change || !change.trim()) return;
+
+    changeRequestBtn.disabled = true;
+    if (changeRequestNote) changeRequestNote.textContent = "Sending…";
+    try {
+      const response = await fetch("/api/website-change-request", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ account, page, request: change.trim(), priority: "Standard" }),
+      });
+      const data = await response.json().catch(() => ({}));
+      if (!response.ok || data.status !== "ok") throw new Error(data.message || "Couldn't send that — try again.");
+      if (changeRequestNote) changeRequestNote.textContent = "Sent — Qp Digital will be in touch.";
+    } catch (error) {
+      if (changeRequestNote) changeRequestNote.textContent = error.message || "Couldn't send that — try again.";
+    } finally {
+      changeRequestBtn.disabled = false;
+    }
+  });
+}
+
 if (servicePage && allowed) {
   clearDemonstrationContent();
-  if (location.pathname.split("/").pop() === "web-development.html") applyWebsiteManagementAccess();
+  if (location.pathname.split("/").pop() === "web-development.html") {
+    applyWebsiteManagementAccess();
+    applyWebsiteDeployAccess();
+  }
   servicePage.hidden = false;
   if (accountTarget) accountTarget.textContent = account;
 } else if (gate) {

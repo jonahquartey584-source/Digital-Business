@@ -3,6 +3,7 @@
 // this file directly.
 
 import { createHmac, timingSafeEqual } from "node:crypto";
+import { getStore } from "@netlify/blobs";
 
 // Constant-time string comparison, mirroring PHP's hash_equals() (used by
 // the api/*.php equivalents of these functions). A plain `===` leaks how
@@ -248,7 +249,20 @@ export interface ClientRecord {
   // even though it's stored from the moment the client is created.
   deliverableFileUrl: string | null;
   paymentUrl: string;
+  // Set by you when you already know the domain, OR left null and filled
+  // in automatically by deployClientWebsite() below once websiteZipUrl is
+  // set and the client pays — either way, this is what "Open Website" on
+  // web-development.html actually links to.
   liveUrl: string | null;
+  // A .zip of the actual site (index.html + assets) uploaded in New Client
+  // Setup — same "uploads" Blobs store/upload endpoint as previewFileUrl,
+  // just a different field so the mockup shown pre-payment and the real
+  // deployable site aren't the same upload. Deployed for real the moment
+  // payment confirms (see deployClientWebsite below) — not before.
+  websiteZipUrl?: string | null;
+  // Set once deployClientWebsite() has created/deployed a Netlify site for
+  // this account, so a retry after that doesn't spin up a second one.
+  netlifySiteId?: string | null;
   // Not required, not shown to the client anywhere — only used as the
   // destination for send-client-email.mts's "email them their account +
   // code" button in admin.html.
@@ -258,4 +272,83 @@ export interface ClientRecord {
   activatedAt: string | null;
   portalCodeHash?: string | null;
   portalCodeIssuedAt?: string | null;
+}
+
+// --- Auto-deploy a client's own website to Netlify -------------------------
+//
+// New Client Setup lets you attach a .zip of the client's actual website
+// (websiteZipUrl, stored in the "uploads" Blobs store — see
+// upload-preview-file.mts). Once their payment is confirmed (webhook.mts /
+// activate-client.mts), this creates a brand new site under your own
+// Netlify account and deploys that zip to it — no manual "build it, host it
+// somewhere, paste the URL in" step. The resulting URL is saved onto
+// client.liveUrl, which is what "Open Website →" on web-development.html
+// (in the client's Members Portal) actually opens.
+//
+// Requires NETLIFY_API_TOKEN — a Personal Access Token from
+// https://app.netlify.com/user/applications#personal-access-tokens (NOT the
+// same as any of this site's own Stripe/Resend/Twilio keys). Best-effort,
+// same as provisionRealAppAccess above: logs and returns null on any
+// failure rather than throwing, so a deploy hiccup never blocks the
+// client's payment/activation itself — it's safe to retry (this function is
+// only ever called when client.netlifySiteId isn't already set).
+export async function deployClientWebsite(client: ClientRecord): Promise<{ siteId: string; url: string } | null> {
+  if (!client.websiteZipUrl) return null;
+
+  const token = Netlify.env.get("NETLIFY_API_TOKEN") ?? "";
+  if (!token) {
+    console.error("deployClientWebsite: NETLIFY_API_TOKEN not set — skipping.");
+    return null;
+  }
+
+  try {
+    const filename = client.websiteZipUrl.replace(/^uploads\//, "");
+    const store = getStore({ name: "uploads", consistency: "strong" });
+    const zipBytes = await store.get(filename, { type: "arrayBuffer" });
+    if (!zipBytes) {
+      console.error(`deployClientWebsite: uploaded zip not found for ${client.account} (${filename})`);
+      return null;
+    }
+
+    const headers = { Authorization: `Bearer ${token}`, "Content-Type": "application/json" };
+    const baseName = `qp-client-${client.account.toLowerCase().replace(/[^a-z0-9]+/g, "-")}`.replace(/-+$/, "");
+
+    // Netlify site names are a shared global namespace — the first attempt
+    // usually wins, but retry once with a random suffix on a collision
+    // (422) rather than failing the whole deploy over a taken name.
+    let siteResponse = await fetch("https://api.netlify.com/api/v1/sites", {
+      method: "POST",
+      headers,
+      body: JSON.stringify({ name: baseName }),
+    });
+    if (siteResponse.status === 422) {
+      siteResponse = await fetch("https://api.netlify.com/api/v1/sites", {
+        method: "POST",
+        headers,
+        body: JSON.stringify({ name: `${baseName}-${Math.random().toString(36).slice(2, 6)}` }),
+      });
+    }
+    const site = (await siteResponse.json().catch(() => ({}))) as { id?: string; error?: string };
+    if (!siteResponse.ok || !site.id) {
+      console.error(`deployClientWebsite: site creation failed for ${client.account}`, site);
+      return null;
+    }
+
+    const deployResponse = await fetch(`https://api.netlify.com/api/v1/sites/${site.id}/deploys`, {
+      method: "POST",
+      headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/zip" },
+      body: zipBytes,
+    });
+    const deploy = (await deployResponse.json().catch(() => ({}))) as { ssl_url?: string; url?: string };
+    if (!deployResponse.ok) {
+      console.error(`deployClientWebsite: deploy failed for ${client.account}`, deploy);
+      return null;
+    }
+
+    const liveUrl = deploy.ssl_url || deploy.url || `https://${baseName}.netlify.app`;
+    return { siteId: site.id, url: liveUrl };
+  } catch (error) {
+    console.error("deployClientWebsite failed:", error);
+    return null;
+  }
 }

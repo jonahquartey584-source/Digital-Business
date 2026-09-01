@@ -117,6 +117,8 @@ const previewFile = document.getElementById("adminPreviewFile");
 const previewFileStatus = document.getElementById("previewFileStatus");
 const deliverableFile = document.getElementById("adminDeliverableFile");
 const deliverableFileStatus = document.getElementById("deliverableFileStatus");
+const websiteZipFile = document.getElementById("adminWebsiteZipFile");
+const websiteZipStatus = document.getElementById("websiteZipStatus");
 const emailClientBtn = document.getElementById("emailClientBtn");
 const emailClientNote = document.getElementById("emailClientNote");
 
@@ -149,6 +151,7 @@ let currentData = null;
 let uploadedPreviewImageUrl = null;
 let uploadedPreviewFileUrl = null;
 let uploadedDeliverableFileUrl = null;
+let uploadedWebsiteZipUrl = null;
 
 // Shared upload flow for both file inputs: sends the logged-in session
 // token, POSTs the file to `endpoint`, and calls `onUploaded(url, file)`
@@ -213,6 +216,14 @@ wireFileUpload(deliverableFile, deliverableFileStatus, "api/upload_preview_file.
   uploadedDeliverableFileUrl = url;
 });
 
+// The actual deployable site — a .zip, not shown to the client at all
+// until deployClientWebsite (server-side, on payment) turns it into a real
+// Netlify site and sets liveUrl. Same upload endpoint again; it's generic
+// on file type.
+wireFileUpload(websiteZipFile, websiteZipStatus, "api/upload_preview_file.php", (url) => {
+  uploadedWebsiteZipUrl = url;
+});
+
 function render() {
   const title = adminForm.adminTitle.value.trim();
   const service = adminForm.adminService.value.trim();
@@ -248,6 +259,11 @@ function render() {
     saveNote.style.color = "#ff8a8a";
     return;
   }
+  if (websiteZipFile && websiteZipFile.files[0] && !uploadedWebsiteZipUrl) {
+    saveNote.textContent = "Still uploading the website .zip — wait for \"Uploaded ✓\" first.";
+    saveNote.style.color = "#ff8a8a";
+    return;
+  }
   saveNote.style.color = "";
 
   const account = generateAccountNumber();
@@ -264,6 +280,7 @@ function render() {
     previewImageUrl: uploadedPreviewImageUrl,
     previewFileUrl: uploadedPreviewFileUrl,
     deliverableFileUrl: uploadedDeliverableFileUrl,
+    websiteZipUrl: uploadedWebsiteZipUrl,
     paymentUrl,
     liveUrl,
     clientEmail,
