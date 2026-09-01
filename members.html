@@ -5,7 +5,8 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Qp Digital Members Portal</title>
   <meta name="description" content="Sign in to the Qp Digital members portal to access your paid services and deliverables." />
-  <link rel="icon" href="favicon.svg" type="image/svg+xml" />
+  <link rel="icon" href="favicon-512.png" type="image/png" />
+  <link rel="apple-touch-icon" href="apple-touch-icon.png" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=Sora:wght@600;700;800&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@500;600&display=swap" rel="stylesheet" />
@@ -113,7 +114,18 @@
                 <button class="btn btn--primary btn--lg" type="submit">Open Admin Dashboard →</button>
                 <p class="form-note" id="adminPortalLoginNote" aria-live="polite"></p>
               </form>
-              <p class="portal-security">Administrator access is verified securely. Your password is never stored in this page. Once you're in, it opens the full Admin Dashboard — New Client Setup, Members, AI Agent Requests and Website Enquiries each get their own page.</p>
+              <div class="member-results" id="adminMemberResults" hidden></div>
+              <div class="member-results" id="adminNewClientPanel" hidden>
+                <div class="member-results__head">
+                  <div>
+                    <p class="section__tag">// New Client Setup</p>
+                    <h2>Create a client &amp; generate their code</h2>
+                    <p>The full New Client Setup tool, right here in the Members Portal — no separate page or password.</p>
+                  </div>
+                </div>
+                <iframe id="adminNewClientFrame" class="admin-embedded-frame" title="New Client Setup" loading="lazy"></iframe>
+              </div>
+              <p class="portal-security">Administrator access is verified securely. Your password is never stored in this page.</p>
             </div>
           </div>
         </div>
