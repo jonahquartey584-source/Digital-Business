@@ -8,10 +8,19 @@ const params = new URLSearchParams(location.search);
 const account = params.get("account") || "Member account";
 const purchases = JSON.parse(sessionStorage.getItem("qpMemberPurchases") || localStorage.getItem("qpMemberPurchases") || "[]");
 const serviceTerms = (servicePage?.dataset.serviceAliases || "").split(",").map((item) => item.trim().toLowerCase()).filter(Boolean);
-const allowed = purchases.some((purchase) => {
-  const text = `${purchase.title || ""} ${purchase.service || ""}`.toLowerCase();
+function purchaseText(purchase) {
+  return `${purchase.title || ""} ${purchase.service || ""}`.toLowerCase();
+}
+// Every purchase that unlocked this page at all — "Website" and "Website
+// Management" are two different checkboxes in New Client Setup but both
+// alias to this same page (see serviceTerms above), so having only one of
+// them still lets someone in; applyServiceSpecificAccess() below decides
+// what's locked inside the page once they are.
+const matchedPurchases = purchases.filter((purchase) => {
+  const text = purchaseText(purchase);
   return text.includes("all services") || serviceTerms.some((term) => text.includes(term));
 });
+const allowed = matchedPurchases.length > 0;
 function clearDemonstrationContent() {
   const path = location.pathname.split("/").pop();
   if (path === "web-development.html") {
@@ -40,8 +49,27 @@ function clearDemonstrationContent() {
     document.querySelectorAll(".member-service-list").forEach((list) => { list.innerHTML = '<p class="crm-column__empty">No content or performance data yet.</p>'; });
   }
 }
+// Website vs. Website Management: both purchases open this same page, but
+// Website Management is what actually pays for hosting/security/SEO/updates
+// — someone who only bought the website itself shouldn't see those as
+// already included. Locks the Management panel unless one of the matched
+// purchases specifically covers it.
+function applyWebsiteManagementAccess() {
+  const managementUnlocked = matchedPurchases.some((purchase) => {
+    const text = purchaseText(purchase);
+    return text.includes("all services") || text.includes("website management");
+  });
+  const list = document.getElementById("managementList");
+  const locked = document.getElementById("managementLocked");
+  const summaryValue = document.getElementById("managementSummaryValue");
+  if (list) list.hidden = !managementUnlocked;
+  if (locked) locked.hidden = managementUnlocked;
+  if (summaryValue) summaryValue.textContent = managementUnlocked ? "Active" : "Not included";
+}
+
 if (servicePage && allowed) {
   clearDemonstrationContent();
+  if (location.pathname.split("/").pop() === "web-development.html") applyWebsiteManagementAccess();
   servicePage.hidden = false;
   if (accountTarget) accountTarget.textContent = account;
 } else if (gate) {
