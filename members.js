@@ -371,7 +371,10 @@ passwordLoginForm.addEventListener("submit", async (event) => {
     await login(email, passwordLoginForm.password.value);
     // Same Identity sign-in doubles as the admin check — no second password.
     const isHeadAdmin = await tryAutoAdminSession();
-    if (isHeadAdmin) revealHeadAdminAccess(email);
+    if (isHeadAdmin) {
+      window.location.assign("/admin");
+      return;
+    }
     let purchases = [];
     try {
       const response = await fetch("/api/member-purchases");
@@ -455,15 +458,8 @@ adminLoginForm.addEventListener("submit", async (event) => {
       localStorage.removeItem(ADMIN_SESSION_STORAGE_KEY);
     }
     adminLoginForm.password.value = "";
-    adminLoginNote.textContent = "Access granted. Loading every member portal…";
-    const membersResponse = await fetch("/api/list_clients.php", {
-      headers: { Authorization: `Bearer ${data.token}` },
-    });
-    const membersData = await membersResponse.json();
-    if (!membersResponse.ok || membersData.status !== "ok") {
-      throw new Error(membersData.message || "The member records could not be loaded.");
-    }
-    renderAdministratorMembers(membersData.clients || [], email);
+    adminLoginNote.textContent = "Access granted. Opening the Admin Dashboard…";
+    window.location.assign("/admin");
   } catch (error) {
     adminLoginNote.textContent = error.message || "We couldn't verify your administrator details. Please try again.";
   } finally {
