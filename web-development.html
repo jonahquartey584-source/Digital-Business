@@ -27,13 +27,14 @@
         </div>
         <div class="member-service-actions">
           <a class="btn btn--ghost" href="/#contact">Request a Change</a>
-          <button class="btn btn--primary" type="button">Open Website →</button>
+          <a class="btn btn--primary" id="openWebsiteBtn" href="#" target="_blank" rel="noopener" hidden>Open Website →</a>
+          <span class="btn btn--primary" id="openWebsitePending" aria-disabled="true">Deploying your website…</span>
         </div>
       </div>
 
       <div class="member-service-summary">
         <div><span>Account</span><strong data-member-account></strong></div>
-        <div><span>Website status</span><strong>Live</strong></div>
+        <div><span>Website status</span><strong id="websiteStatusValue">Deploying…</strong></div>
         <div><span>Management plan</span><strong id="managementSummaryValue">Active</strong></div>
       </div>
 
@@ -41,14 +42,15 @@
         <article class="member-service-panel member-service-panel--wide">
           <p class="section__tag">// Your Website</p>
           <h2>Website preview</h2>
-          <div class="member-service-preview">Your live business website preview appears here.</div>
+          <div class="member-service-preview" id="websitePreview">Your website hasn't been deployed yet — this appears automatically once it's live.</div>
         </article>
 
         <article class="member-service-panel">
           <p class="section__tag">// Edit Requests</p>
           <h2>Request website changes</h2>
           <p>Describe the text, image or page change you need. Qp Digital will review and complete the edit.</p>
-          <button class="btn btn--primary" type="button">New Change Request →</button>
+          <button class="btn btn--primary" type="button" id="newChangeRequestBtn">New Change Request →</button>
+          <p class="form-note" id="changeRequestNote"></p>
         </article>
 
         <article class="member-service-panel" id="managementPanel">
