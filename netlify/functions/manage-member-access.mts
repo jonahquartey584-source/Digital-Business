@@ -12,7 +12,7 @@
 import type { Config, Context } from "@netlify/functions";
 import { getStore } from "@netlify/blobs";
 import { createHash, randomInt } from "node:crypto";
-import { json, requireAdminSession, type ClientRecord } from "./_shared.mts";
+import { encryptPortalCode, json, requireAdminSession, type ClientRecord } from "./_shared.mts";
 
 function createPortalCode(): string {
   return Array.from({ length: 12 }, () => randomInt(0, 10)).join("");
@@ -45,19 +45,14 @@ export default async (req: Request, context: Context) => {
   }
 
   if (action === "regenerate_code") {
-    if (!client.clientEmail) {
-      return json(400, {
-        status: "error",
-        message: "This client has no email saved — add one (edit their record in New Client Setup) before issuing a code.",
-      });
-    }
     const code = createPortalCode();
     client.status = "active";
     client.activatedAt = client.activatedAt ?? new Date().toISOString();
     client.portalCodeHash = hashPortalCode(code);
+    client.portalCodeEncrypted = encryptPortalCode(code);
     client.portalCodeIssuedAt = new Date().toISOString();
     await store.setJSON(account, client);
-    return json(200, { status: "ok", code });
+    return json(200, { status: "ok", code: code.replace(/(\d{4})(?=\d)/g, "$1 ") });
   }
 
   if (action === "update_access") {

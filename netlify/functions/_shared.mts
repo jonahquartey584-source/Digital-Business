@@ -2,7 +2,7 @@
 // nothing here has a `config.path`, so Netlify never dispatches requests to
 // this file directly.
 
-import { createHmac, timingSafeEqual } from "node:crypto";
+import { createCipheriv, createDecipheriv, createHash, createHmac, randomBytes, timingSafeEqual } from "node:crypto";
 
 // Constant-time string comparison, mirroring PHP's hash_equals() (used by
 // the api/*.php equivalents of these functions). A plain `===` leaks how
@@ -19,6 +19,35 @@ export function json(status: number, body: unknown): Response {
     status,
     headers: { "Content-Type": "application/json" },
   });
+}
+
+function portalCodeKey(): Buffer {
+  const secret = Netlify.env.get("ADMIN_SESSION_SECRET") ?? "";
+  if (!secret) throw new Error("ADMIN_SESSION_SECRET is required to protect portal codes");
+  return createHash("sha256").update(`qp-portal-code:${secret}`).digest();
+}
+
+export function encryptPortalCode(code: string): string {
+  const iv = randomBytes(12);
+  const cipher = createCipheriv("aes-256-gcm", portalCodeKey(), iv);
+  const encrypted = Buffer.concat([cipher.update(code, "utf8"), cipher.final()]);
+  return [iv, cipher.getAuthTag(), encrypted].map((part) => part.toString("base64url")).join(".");
+}
+
+export function decryptPortalCode(value?: string | null): string | null {
+  if (!value) return null;
+  try {
+    const [ivValue, tagValue, encryptedValue] = value.split(".");
+    if (!ivValue || !tagValue || !encryptedValue) return null;
+    const decipher = createDecipheriv("aes-256-gcm", portalCodeKey(), Buffer.from(ivValue, "base64url"));
+    decipher.setAuthTag(Buffer.from(tagValue, "base64url"));
+    return Buffer.concat([
+      decipher.update(Buffer.from(encryptedValue, "base64url")),
+      decipher.final(),
+    ]).toString("utf8");
+  } catch {
+    return null;
+  }
 }
 
 // --- Admin session tokens -------------------------------------------------
@@ -257,5 +286,6 @@ export interface ClientRecord {
   createdAt: string;
   activatedAt: string | null;
   portalCodeHash?: string | null;
+  portalCodeEncrypted?: string | null;
   portalCodeIssuedAt?: string | null;
 }

@@ -18,6 +18,7 @@ import type { Config, Context } from "@netlify/functions";
 import { getStore } from "@netlify/blobs";
 import { createHash, randomInt } from "node:crypto";
 import {
+  encryptPortalCode,
   json,
   requireAdminSession,
   provisionRealAppAccess,
@@ -72,6 +73,7 @@ export default async (req: Request, context: Context) => {
     status: "active",
     activatedAt: existing.activatedAt ?? new Date().toISOString(),
     portalCodeHash: hashPortalCode(code),
+    portalCodeEncrypted: encryptPortalCode(code),
     portalCodeIssuedAt: new Date().toISOString(),
   };
 
