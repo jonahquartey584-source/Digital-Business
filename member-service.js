@@ -191,54 +191,27 @@ function installServiceTutorial() {
   launch.type = "button";
   launch.innerHTML = '<span aria-hidden="true">▶</span> Watch video guide';
   actions.appendChild(launch);
-
+  const videoPaths = {
+    "web-development.html": "tutorials/web-development-guide.mp4",
+    "crm.html": "tutorials/crm-guide.mp4",
+    "booking-system.html": "tutorials/booking-system-guide.mp4",
+    "branding.html": "tutorials/branding-guide.mp4",
+    "ai-automation.html": "tutorials/ai-automation-guide.mp4",
+    "social-media.html": "tutorials/social-media-guide.mp4"
+  };
   const overlay = document.createElement("div");
   overlay.className = "service-tutorial";
   overlay.hidden = true;
   overlay.innerHTML = `<div class="service-tutorial__dialog" role="dialog" aria-modal="true" aria-label="${tutorial.title}">
     <div class="service-tutorial__top"><div><span class="service-tutorial__eyebrow">QP DIGITAL VIDEO GUIDE</span><strong>${tutorial.title}</strong></div><button type="button" class="service-tutorial__close" aria-label="Close video guide">×</button></div>
-    <div class="service-tutorial__screen"><div class="service-tutorial__brand"><img src="favicon-512.png" alt=""><span>QP DIGITAL</span></div><div class="service-tutorial__number"></div><h2></h2><p></p></div>
-    <div class="service-tutorial__timeline"><span></span></div>
-    <div class="service-tutorial__controls"><button type="button" data-tutorial-action="previous">← Previous</button><button type="button" class="service-tutorial__play" data-tutorial-action="play">▶ Play</button><span class="service-tutorial__position"></span><button type="button" data-tutorial-action="next">Next →</button></div>
-    <div class="service-tutorial__chapters"></div>
+    <video class="service-tutorial__video" controls playsinline preload="metadata" poster="favicon-512.png"><source src="${videoPaths[page]}" type="video/mp4">Your browser does not support this video.</video>
+    <div class="service-tutorial__caption"><strong>What this video covers</strong><p>${tutorial.intro} Use pause, rewind, picture-in-picture or fullscreen whenever you need more time.</p></div>
   </div>`;
   document.body.appendChild(overlay);
-  const title = overlay.querySelector(".service-tutorial__screen h2");
-  const copy = overlay.querySelector(".service-tutorial__screen p");
-  const number = overlay.querySelector(".service-tutorial__number");
-  const position = overlay.querySelector(".service-tutorial__position");
-  const progress = overlay.querySelector(".service-tutorial__timeline span");
-  const play = overlay.querySelector(".service-tutorial__play");
-  const chapters = overlay.querySelector(".service-tutorial__chapters");
-  let current = 0;
-  let timer = null;
-  const render = () => {
-    const step = tutorial.steps[current];
-    number.textContent = `STEP ${String(current + 1).padStart(2, "0")}`;
-    title.textContent = step[0]; copy.textContent = step[1];
-    position.textContent = `${current + 1} / ${tutorial.steps.length}`;
-    progress.style.width = `${((current + 1) / tutorial.steps.length) * 100}%`;
-    chapters.querySelectorAll("button").forEach((button, index) => button.classList.toggle("is-active", index === current));
-  };
-  const stop = () => { clearInterval(timer); timer = null; play.textContent = "▶ Play"; window.speechSynthesis?.cancel(); };
-  const speak = () => {
-    if (!("speechSynthesis" in window)) return;
-    window.speechSynthesis.cancel();
-    const utterance = new SpeechSynthesisUtterance(`${tutorial.steps[current][0]}. ${tutorial.steps[current][1]}`);
-    utterance.rate = .92; window.speechSynthesis.speak(utterance);
-  };
-  const advance = () => { if (current >= tutorial.steps.length - 1) { stop(); return; } current += 1; render(); speak(); };
-  tutorial.steps.forEach((step, index) => {
-    const button = document.createElement("button"); button.type = "button"; button.textContent = `${index + 1}. ${step[0]}`;
-    button.addEventListener("click", () => { stop(); current = index; render(); }); chapters.appendChild(button);
-  });
-  launch.addEventListener("click", () => { overlay.hidden = false; document.body.classList.add("tutorial-open"); current = 0; render(); });
-  overlay.querySelector(".service-tutorial__close").addEventListener("click", () => { stop(); overlay.hidden = true; document.body.classList.remove("tutorial-open"); });
+  const video = overlay.querySelector("video");
+  launch.addEventListener("click", () => { overlay.hidden = false; document.body.classList.add("tutorial-open"); video.play().catch(() => {}); });
+  overlay.querySelector(".service-tutorial__close").addEventListener("click", () => { video.pause(); overlay.hidden = true; document.body.classList.remove("tutorial-open"); });
   overlay.addEventListener("click", (event) => { if (event.target === overlay) overlay.querySelector(".service-tutorial__close").click(); });
-  overlay.querySelector('[data-tutorial-action="previous"]').addEventListener("click", () => { stop(); current = Math.max(0, current - 1); render(); });
-  overlay.querySelector('[data-tutorial-action="next"]').addEventListener("click", () => { stop(); current = Math.min(tutorial.steps.length - 1, current + 1); render(); });
-  play.addEventListener("click", () => { if (timer) { stop(); return; } play.textContent = "❚❚ Pause"; speak(); timer = setInterval(advance, 9000); });
   document.addEventListener("keydown", (event) => { if (event.key === "Escape" && !overlay.hidden) overlay.querySelector(".service-tutorial__close").click(); });
-  render();
 }
 installServiceTutorial();

@@ -119,6 +119,10 @@ body.tutorial-open { overflow:hidden; }
 .service-tutorial__top strong,.service-tutorial__eyebrow { display:block; }
 .service-tutorial__eyebrow { color:var(--gold); font:700 .68rem var(--mono); letter-spacing:.16em; margin-bottom:.25rem; }
 .service-tutorial__close { border:0; background:transparent; color:var(--text); font-size:1.8rem; cursor:pointer; }
+.service-tutorial__video { display:block; width:100%; max-height:min(72vh,720px); background:#000; aspect-ratio:16/9; }
+.service-tutorial__caption { padding:1rem 1.25rem 1.2rem; border-top:1px solid var(--line); }
+.service-tutorial__caption strong { color:var(--gold); font:700 .78rem var(--mono); text-transform:uppercase; letter-spacing:.1em; }
+.service-tutorial__caption p { margin:.45rem 0 0; color:var(--muted); line-height:1.55; }
 .service-tutorial__screen { position:relative; min-height:410px; display:flex; flex-direction:column; justify-content:center; align-items:center; text-align:center; padding:4rem clamp(1.5rem,7vw,6rem); overflow:hidden; background:radial-gradient(circle at 80% 10%,rgba(197,142,65,.25),transparent 32%),linear-gradient(135deg,#080807,#18130d); color:#f7f2e8; }
 .service-tutorial__screen::before { content:""; position:absolute; inset:0; opacity:.16; background-image:linear-gradient(rgba(197,142,65,.35) 1px,transparent 1px),linear-gradient(90deg,rgba(197,142,65,.35) 1px,transparent 1px); background-size:50px 50px; }
 .service-tutorial__screen>* { position:relative; z-index:1; }
