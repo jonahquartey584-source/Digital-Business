@@ -21,6 +21,24 @@ const matchedPurchases = purchases.filter((purchase) => {
   return text.includes("all services") || serviceTerms.some((term) => text.includes(term));
 });
 const allowed = matchedPurchases.length > 0;
+
+async function syncLiveServiceAccess() {
+  try {
+    const response = await fetch("/api/member-purchases", { cache: "no-store" });
+    const data = await response.json().catch(() => ({}));
+    const latest = response.ok && data.status === "ok" && Array.isArray(data.purchases)
+      ? data.purchases
+      : response.status === 404 ? [] : null;
+    if (!latest || JSON.stringify(latest) === JSON.stringify(purchases)) return;
+    sessionStorage.setItem("qpMemberPurchases", JSON.stringify(latest));
+    localStorage.setItem("qpMemberPurchases", JSON.stringify(latest));
+    // Re-evaluate the service gate and any service-specific sub-access using
+    // the authoritative server record instead of the old page snapshot.
+    location.reload();
+  } catch {
+    // A temporary connection problem must not invent or expand access.
+  }
+}
 function clearDemonstrationContent() {
   const path = location.pathname.split("/").pop();
   if (path === "web-development.html") {
@@ -215,3 +233,10 @@ function installServiceTutorial() {
   document.addEventListener("keydown", (event) => { if (event.key === "Escape" && !overlay.hidden) overlay.querySelector(".service-tutorial__close").click(); });
 }
 installServiceTutorial();
+
+window.setInterval(syncLiveServiceAccess, 15000);
+window.addEventListener("focus", syncLiveServiceAccess);
+document.addEventListener("visibilitychange", () => {
+  if (!document.hidden) syncLiveServiceAccess();
+});
+syncLiveServiceAccess();
