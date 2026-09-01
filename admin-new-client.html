@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>New Client Setup — Qp Digital</title>
+  <meta name="description" content="Internal tool: generate an account number and activation code for a new client." />
+  <meta name="robots" content="noindex, nofollow" />
+  <link rel="icon" href="favicon.svg" type="image/svg+xml" />
+  <link rel="icon" href="favicon-32.png" sizes="32x32" type="image/png" />
+  <link rel="apple-touch-icon" href="apple-touch-icon.png" />
+  <meta name="theme-color" content="#0c0b09" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=Sora:wght@600;700;800&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@500;600&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="style.css" />
+  <noscript><style>[data-reveal] { opacity: 1 !important; transform: none !important; }</style></noscript>
+</head>
+<body>
+
+  <div class="gold-rule"></div>
+
+  <header class="site-header">
+    <div class="container header__inner">
+      <a class="brand" href="index.html">
+        <span class="brand__name">Qp Digital</span>
+      </a>
+      <nav class="nav" id="nav">
+        <a href="index.html#services">Services</a>
+        <a href="index.html#how-it-works">How It Works</a>
+        <a href="index.html#enquire">Enquire</a>
+        <a href="index.html#contact">Contact</a>
+        <a class="nav-secondary" href="activate.html">Redeem Service</a>
+      </nav>
+      <button class="nav-toggle" id="navToggle" aria-label="Toggle menu" aria-expanded="false">
+        <span></span><span></span><span></span>
+      </button>
+    </div>
+  </header>
+
+  <main>
+    <section class="activate-hero">
+      <div class="container activate-hero__inner">
+        <a class="admin-back-link" href="admin.html">← Admin Dashboard</a>
+        <p class="eyebrow">Internal Tool — Not Linked From The Site</p>
+        <div class="admin-page-head">
+          <h1>New Client Setup<span class="cursor" aria-hidden="true"></span></h1>
+          <p class="activate-footnote" style="margin:0;">Logged in as <strong id="loggedInEmail"></strong></p>
+        </div>
+
+        <p class="hero__lead">
+          Fill this in for a client whose service is ready. Generates an account number
+          and activation code, then saves the client straight to the live database — or,
+          if you haven't deployed the backend yet, gives you a snippet to paste into
+          <code>accounts-data.js</code> instead.
+        </p>
+
+        <form class="enquiry-form activate-form" id="adminForm">
+          <div class="form-row">
+            <label for="adminTitle">Title (optional)</label>
+            <input type="text" id="adminTitle" name="adminTitle" placeholder="e.g. Sarah's Bakery Website" />
+            <p class="admin-hint">Used for the "Preview of …" heading the client sees. Leave blank to just use the service name below.</p>
+          </div>
+
+          <div class="form-row">
+            <label>Services purchased</label>
+            <p class="admin-hint">
+              Check every service this account should unlock — the client's account
+              number and 12-digit code work for all of them at once. This is what
+              decides which Members Portal pages (CRM, AI &amp; Automation, Booking
+              System, etc.) their code actually opens.
+            </p>
+            <div class="admin-service-options" id="adminServiceOptions">
+              <label class="admin-service-option"><input type="checkbox" name="adminServiceOption" value="Website"> Website</label>
+              <label class="admin-service-option"><input type="checkbox" name="adminServiceOption" value="Website Management"> Website Management</label>
+              <label class="admin-service-option"><input type="checkbox" name="adminServiceOption" value="CRM"> CRM</label>
+              <label class="admin-service-option"><input type="checkbox" name="adminServiceOption" value="Booking System"> Booking System</label>
+              <label class="admin-service-option"><input type="checkbox" name="adminServiceOption" value="Branding & Print"> Branding &amp; Print</label>
+              <label class="admin-service-option"><input type="checkbox" name="adminServiceOption" value="Social Media & Content"> Social Media &amp; Content</label>
+              <label class="admin-service-option"><input type="checkbox" name="adminServiceOption" value="AI & Automation"> AI &amp; Automation</label>
+            </div>
+            <input type="text" id="adminServiceOther" name="adminServiceOther" placeholder="Other / additional detail (optional) — e.g. plan name, tier" />
+            <input type="hidden" id="adminService" name="adminService" required />
+          </div>
+
+          <div class="form-row">
+            <label for="adminPrice">Price</label>
+            <input type="text" id="adminPrice" name="adminPrice" placeholder="e.g. £450 or £150/month" required />
+          </div>
+
+          <div class="form-row">
+            <label for="adminPreview">Preview / what's included</label>
+            <textarea id="adminPreview" name="adminPreview" rows="3" placeholder="A short, client-facing description of what they're getting"></textarea>
+          </div>
+
+          <div class="form-row">
+            <label for="adminPreviewImageFile">Preview image (optional)</label>
+            <input type="file" id="adminPreviewImageFile" name="adminPreviewImageFile" accept="image/png, image/jpeg, image/gif, image/webp" />
+            <p class="admin-hint">A screenshot or mockup of what they're getting — shown as a preview on the redeem page. Attach the file here and it uploads straight away. For a website, a screenshot of the draft site works well.</p>
+            <p class="form-note" id="previewImageStatus"></p>
+            <img id="previewImageThumb" class="admin-image-thumb" alt="Uploaded preview" hidden />
+          </div>
+
+          <div class="form-row">
+            <label for="adminPreviewFile">Preview file (optional)</label>
+            <input type="file" id="adminPreviewFile" name="adminPreviewFile" />
+            <p class="admin-hint">Where clicking the preview image sends them — attach anything: an HTML prototype of their site (opens live in the browser), a PDF proposal, a design export, whatever's relevant. Leave blank to just open the attached image itself.</p>
+            <p class="form-note" id="previewFileStatus"></p>
+          </div>
+
+          <div class="form-row">
+            <label for="adminDeliverableFile">Deliverable file (optional)</label>
+            <input type="file" id="adminDeliverableFile" name="adminDeliverableFile" />
+            <p class="admin-hint">The actual finished thing — a logo, a design export, whatever they're paying for that isn't a website. Attach it here and it uploads straight away, but stays hidden until they've paid: once their status flips to active, <strong>Download Your&nbsp;…</strong> appears on their redeem page with a link straight to this file. Leave blank for services with nothing to download (a website, ongoing SEO, etc.).</p>
+            <p class="form-note" id="deliverableFileStatus"></p>
+          </div>
+
+          <div class="form-row">
+            <label for="adminPaymentUrl">Payment link</label>
+            <input type="url" id="adminPaymentUrl" name="adminPaymentUrl" placeholder="https://buy.stripe.com/..." required />
+            <p class="admin-hint">Their account number is appended automatically as <code>?client_reference_id=...</code> — this is how the Stripe webhook knows whose payment just landed. Leave the base link as-is (no query string of your own).</p>
+          </div>
+
+          <div class="form-row">
+            <label for="adminLiveUrl">Live site URL (optional)</label>
+            <input type="url" id="adminLiveUrl" name="adminLiveUrl" placeholder="https://client-domain.com" />
+            <p class="admin-hint">Only for website clients whose domain you already know. Shown to them once their service is active.</p>
+          </div>
+
+          <div class="form-row">
+            <label for="adminClientEmail">Client email (optional)</label>
+            <input type="email" id="adminClientEmail" name="adminClientEmail" placeholder="client@example.com" />
+            <p class="admin-hint">Not shown to the client anywhere — just so you can email them their account number, code and the redeem link straight from here after saving, instead of copy-pasting the message below yourself.</p>
+          </div>
+
+          <div class="admin-actions">
+            <button type="submit" class="btn btn--primary btn--lg" id="generateBtn">Generate Account &amp; Code →</button>
+          </div>
+        </form>
+
+        <div class="admin-output" id="adminOutput" hidden>
+
+          <div class="admin-output__block" id="saveBlock">
+            <button type="button" class="btn btn--primary btn--lg" id="saveBtn">Save To Live Database →</button>
+            <p class="form-note" id="saveNote"></p>
+            <button type="button" class="btn btn--ghost" id="emailClientBtn" hidden>Email Account &amp; Code to Client →</button>
+            <p class="form-note" id="emailClientNote"></p>
+          </div>
+
+          <div class="admin-output__block">
+            <div class="admin-output__head">
+              <p class="section__tag" style="margin:0;">// Fallback: Paste Into accounts-data.js</p>
+              <button type="button" class="btn btn--ghost btn--copy" data-copy-target="snippetText">Copy</button>
+            </div>
+            <div class="terminal-window">
+              <div class="terminal-window__bar">
+                <span class="terminal-window__dot"></span>
+                <span class="terminal-window__dot"></span>
+                <span class="terminal-window__dot"></span>
+                <span class="terminal-window__filename mono">accounts-data.js</span>
+              </div>
+              <div class="terminal-body mono" id="snippetOutput"></div>
+            </div>
+          </div>
+
+          <div class="admin-output__block">
+            <div class="admin-output__head">
+              <p class="section__tag" style="margin:0;">// Message To Send The Client</p>
+              <button type="button" class="btn btn--ghost btn--copy" data-copy-target="messageText">Copy</button>
+            </div>
+            <textarea class="admin-output__message" id="messageOutput" readonly rows="7"></textarea>
+          </div>
+
+          <button type="button" class="btn btn--ghost" id="regenerateBtn">Regenerate Account &amp; Code</button>
+        </div>
+
+        <p class="activate-footnote">
+          Codes are generated in your browser. <strong>Save To Live Database</strong> sends
+          them to <code>api/create_client.php</code> on this domain — nothing is saved
+          anywhere until you click it (or paste the fallback snippet yourself). Want to try the
+          whole flow, including a simulated payment, without touching the real database?
+          Use the <a href="pipeline-tester.html">Pipeline Tester</a>. Need to edit or delete an
+          existing client instead? Head to <a href="admin-members.html">Members</a>.
+        </p>
+      </div>
+    </section>
+  </main>
+
+  <footer class="site-footer" id="contact">
+    <div class="container footer__inner">
+      <div>
+        <div class="brand brand--footer">
+          <span class="brand__name">Qp Digital</span>
+        </div>
+        <p class="footer__tagline">Websites, CRM, SEO, branding, dashboards and automation — all under one roof. Open to any digital project.</p>
+      </div>
+      <div class="footer__contact">
+        <h4>Contact</h4>
+        <p>Email: <a href="mailto:jonahquartey584@gmail.com">jonahquartey584@gmail.com</a></p>
+        <p>Phone: <a href="tel:+447544856633">07544 856633</a></p>
+      </div>
+      <div class="footer__links">
+        <h4>Explore</h4>
+        <a href="index.html#services">Services</a>
+        <a href="index.html#how-it-works">How It Works</a>
+        <a href="activate.html">Redeem a Service</a>
+      </div>
+    </div>
+    <div class="container footer__bottom">
+      <p>&copy; <span id="year"></span> Qp Digital. All rights reserved.</p>
+      <p class="footer__legal-links"><a href="terms.html">Terms &amp; Conditions</a><span>·</span><a href="privacy.html">Privacy Policy</a></p>
+    </div>
+  </footer>
+
+  <script src="script.js"></script>
+  <script src="admin-common.js"></script>
+  <script src="admin-new-client.js"></script>
+</body>
+</html>

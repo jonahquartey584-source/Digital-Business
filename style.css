@@ -1420,6 +1420,16 @@ textarea {
   margin-top: 4px;
 }
 
+.admin-hub-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 1.5rem; margin-top: 2.2rem; }
+.admin-hub-card { display: block; padding: 2rem 1.8rem; border: 1px solid var(--border); border-radius: 12px; background: var(--surface, #12100b); text-decoration: none; transition: border-color .2s ease, transform .2s ease; }
+.admin-hub-card:hover, .admin-hub-card:focus-visible { border-color: var(--gold); transform: translateY(-3px); }
+.admin-hub-card__icon { display: inline-flex; align-items: center; justify-content: center; width: 44px; height: 44px; border-radius: 50%; border: 1px solid var(--border); font-size: 1.25rem; color: var(--gold); margin-bottom: 1rem; }
+.admin-hub-card h3 { margin: 0 0 .6rem; font-family: "Sora", sans-serif; color: var(--text); font-size: 1.3rem; }
+.admin-hub-card p { margin: 0; color: var(--text-faint); font-size: .92rem; line-height: 1.55; }
+.admin-page-head { display: flex; justify-content: space-between; align-items: flex-start; gap: 1.5rem; flex-wrap: wrap; margin-bottom: 1.6rem; }
+.admin-back-link { display: inline-block; margin-bottom: 1.2rem; color: var(--gold); font: 600 .78rem/1 "IBM Plex Mono", monospace; text-decoration: none; letter-spacing: .04em; }
+.admin-back-link:hover { text-decoration: underline; }
+
 .admin-output {
   margin-top: 32px;
   display: flex;
@@ -2062,7 +2072,6 @@ html[data-theme="light"] .theme-toggle__sun{display:none}html[data-theme="light"
 .portal-remember input { width: 18px; min-height: 18px; accent-color: var(--gold); }
 .portal-remember label { margin: 0; text-transform: none; letter-spacing: 0; line-height: 1.45; }
 .portal-security { margin: 1.2rem 0 0; color: var(--text-faint); font: 500 .68rem/1.55 "IBM Plex Mono", monospace; }
-.admin-embedded-frame { width: 100%; min-height: 1400px; border: 1px solid var(--border); border-radius: 10px; background: var(--surface, #12100b); }
 .member-results__head { display: flex; justify-content: space-between; gap: 1.5rem; align-items: flex-start; margin-bottom: 1.5rem; }
 .member-results__head h2 { margin-bottom: 0; }
 .member-purchase { position: relative; display: grid; grid-template-columns: 58px 1fr; gap: 1.2rem; padding: 1.5rem 0; border-top: 1px solid var(--border); }

@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Members — Qp Digital Admin</title>
+  <meta name="description" content="Internal tool: search, edit, reissue codes for, or delete existing clients." />
+  <meta name="robots" content="noindex, nofollow" />
+  <link rel="icon" href="favicon.svg" type="image/svg+xml" />
+  <link rel="icon" href="favicon-32.png" sizes="32x32" type="image/png" />
+  <link rel="apple-touch-icon" href="apple-touch-icon.png" />
+  <meta name="theme-color" content="#0c0b09" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=Sora:wght@600;700;800&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@500;600&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="style.css" />
+  <noscript><style>[data-reveal] { opacity: 1 !important; transform: none !important; }</style></noscript>
+</head>
+<body>
+
+  <div class="gold-rule"></div>
+
+  <header class="site-header">
+    <div class="container header__inner">
+      <a class="brand" href="index.html">
+        <span class="brand__name">Qp Digital</span>
+      </a>
+      <nav class="nav" id="nav">
+        <a href="index.html#services">Services</a>
+        <a href="index.html#how-it-works">How It Works</a>
+        <a href="index.html#enquire">Enquire</a>
+        <a href="index.html#contact">Contact</a>
+        <a class="nav-secondary" href="activate.html">Redeem Service</a>
+      </nav>
+      <button class="nav-toggle" id="navToggle" aria-label="Toggle menu" aria-expanded="false">
+        <span></span><span></span><span></span>
+      </button>
+    </div>
+  </header>
+
+  <main>
+    <section class="activate-hero">
+      <div class="container activate-hero__inner">
+        <a class="admin-back-link" href="admin.html">← Admin Dashboard</a>
+        <p class="eyebrow">Internal Tool — Not Linked From The Site</p>
+        <div class="admin-page-head">
+          <h1>Members<span class="cursor" aria-hidden="true"></span></h1>
+          <p class="activate-footnote" style="margin:0;">Logged in as <strong id="loggedInEmail"></strong></p>
+        </div>
+        <p class="hero__lead">Every client created through <a href="admin-new-client.html">New Client Setup</a>. Search by account number or email, edit a record, reissue their 12-digit code, or delete them.</p>
+
+        <input type="search" id="clientsSearchInput" class="clients-search" placeholder="Search by account number or email…" aria-label="Search members" />
+        <p class="form-note" id="clientsListNote"></p>
+        <div class="client-list" id="clientsListContainer"></div>
+
+        <div class="admin-output__block" id="editClientPanel" hidden style="margin-top:32px;">
+          <div class="admin-output__head">
+            <p class="section__tag" style="margin:0;">// Editing <span id="editClientAccount"></span></p>
+            <button type="button" class="btn btn--ghost btn--sm" id="cancelEditBtn">Cancel</button>
+          </div>
+
+          <form class="enquiry-form activate-form" id="editClientForm">
+            <div class="form-row">
+              <label for="editTitle">Title (optional)</label>
+              <input type="text" id="editTitle" name="editTitle" />
+            </div>
+
+            <div class="form-row">
+              <label for="editService">Service</label>
+              <input type="text" id="editService" name="editService" required />
+            </div>
+
+            <div class="form-row">
+              <label for="editPrice">Price</label>
+              <input type="text" id="editPrice" name="editPrice" required />
+            </div>
+
+            <div class="form-row">
+              <label for="editPreview">Preview / what's included</label>
+              <textarea id="editPreview" name="editPreview" rows="3"></textarea>
+            </div>
+
+            <div class="form-row">
+              <label for="editPreviewImageFile">Replace preview image (optional)</label>
+              <input type="file" id="editPreviewImageFile" name="editPreviewImageFile" accept="image/png, image/jpeg, image/gif, image/webp" />
+              <p class="admin-hint">Leave blank to keep the current one. <span id="editPreviewImageCurrent"></span></p>
+              <p class="form-note" id="editPreviewImageStatus"></p>
+            </div>
+
+            <div class="form-row">
+              <label for="editPreviewFile">Replace preview file (optional)</label>
+              <input type="file" id="editPreviewFile" name="editPreviewFile" />
+              <p class="admin-hint">Leave blank to keep the current one. <span id="editPreviewFileCurrent"></span></p>
+              <p class="form-note" id="editPreviewFileStatus"></p>
+            </div>
+
+            <div class="form-row">
+              <label for="editDeliverableFile">Replace deliverable file (optional)</label>
+              <input type="file" id="editDeliverableFile" name="editDeliverableFile" />
+              <p class="admin-hint">Leave blank to keep the current one. <span id="editDeliverableFileCurrent"></span></p>
+              <p class="form-note" id="editDeliverableFileStatus"></p>
+            </div>
+
+            <div class="form-row">
+              <label for="editPaymentUrl">Payment link</label>
+              <input type="url" id="editPaymentUrl" name="editPaymentUrl" required />
+              <p class="admin-hint">The base link — <code>?client_reference_id=...</code> is reapplied automatically on save.</p>
+            </div>
+
+            <div class="form-row">
+              <label for="editLiveUrl">Live site URL (optional)</label>
+              <input type="url" id="editLiveUrl" name="editLiveUrl" />
+            </div>
+
+            <div class="form-row">
+              <label for="editClientEmail">Client email (optional)</label>
+              <input type="email" id="editClientEmail" name="editClientEmail" placeholder="client@example.com" />
+              <p class="admin-hint">Not shown to the client anywhere — just so you can email them their account number, code and the redeem link.</p>
+            </div>
+
+            <div class="form-row">
+              <label for="editStatus">Status</label>
+              <select id="editStatus" name="editStatus">
+                <option value="pending_payment">Pending Payment</option>
+                <option value="active">Active</option>
+              </select>
+              <p class="admin-hint">Normally flips automatically when Stripe confirms payment — change this by hand only to override it (e.g. they paid another way).</p>
+            </div>
+
+            <div class="admin-actions">
+              <button type="submit" class="btn btn--primary btn--lg" id="saveEditBtn">Save Changes →</button>
+              <button type="button" class="btn btn--ghost" id="editEmailClientBtn" hidden>Email Account &amp; Code to Client →</button>
+              <button type="button" class="btn btn--ghost" id="editRegenerateCodeBtn">Generate New 12-Digit Portal Code →</button>
+            </div>
+            <p class="form-note" id="editClientNote"></p>
+          </form>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="site-footer" id="contact">
+    <div class="container footer__inner">
+      <div>
+        <div class="brand brand--footer">
+          <span class="brand__name">Qp Digital</span>
+        </div>
+        <p class="footer__tagline">Websites, CRM, SEO, branding, dashboards and automation — all under one roof. Open to any digital project.</p>
+      </div>
+      <div class="footer__contact">
+        <h4>Contact</h4>
+        <p>Email: <a href="mailto:jonahquartey584@gmail.com">jonahquartey584@gmail.com</a></p>
+        <p>Phone: <a href="tel:+447544856633">07544 856633</a></p>
+      </div>
+      <div class="footer__links">
+        <h4>Explore</h4>
+        <a href="index.html#services">Services</a>
+        <a href="index.html#how-it-works">How It Works</a>
+        <a href="activate.html">Redeem a Service</a>
+      </div>
+    </div>
+    <div class="container footer__bottom">
+      <p>&copy; <span id="year"></span> Qp Digital. All rights reserved.</p>
+      <p class="footer__legal-links"><a href="terms.html">Terms &amp; Conditions</a><span>·</span><a href="privacy.html">Privacy Policy</a></p>
+    </div>
+  </footer>
+
+  <script src="script.js"></script>
+  <script src="admin-common.js"></script>
+  <script src="admin-members.js"></script>
+</body>
+</html>

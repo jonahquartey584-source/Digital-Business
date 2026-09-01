@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Website Enquiries — Qp Digital Admin</title>
+  <meta name="description" content="Internal tool: every enquiry submitted through the website's contact form." />
+  <meta name="robots" content="noindex, nofollow" />
+  <link rel="icon" href="favicon.svg" type="image/svg+xml" />
+  <link rel="icon" href="favicon-32.png" sizes="32x32" type="image/png" />
+  <link rel="apple-touch-icon" href="apple-touch-icon.png" />
+  <meta name="theme-color" content="#0c0b09" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=Sora:wght@600;700;800&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@500;600&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="style.css" />
+  <noscript><style>[data-reveal] { opacity: 1 !important; transform: none !important; }</style></noscript>
+</head>
+<body>
+
+  <div class="gold-rule"></div>
+
+  <header class="site-header">
+    <div class="container header__inner">
+      <a class="brand" href="index.html">
+        <span class="brand__name">Qp Digital</span>
+      </a>
+      <nav class="nav" id="nav">
+        <a href="index.html#services">Services</a>
+        <a href="index.html#how-it-works">How It Works</a>
+        <a href="index.html#enquire">Enquire</a>
+        <a href="index.html#contact">Contact</a>
+        <a class="nav-secondary" href="activate.html">Redeem Service</a>
+      </nav>
+      <button class="nav-toggle" id="navToggle" aria-label="Toggle menu" aria-expanded="false">
+        <span></span><span></span><span></span>
+      </button>
+    </div>
+  </header>
+
+  <main>
+    <section class="activate-hero">
+      <div class="container activate-hero__inner">
+        <a class="admin-back-link" href="admin.html">← Admin Dashboard</a>
+        <p class="eyebrow">Internal Tool — Not Linked From The Site</p>
+        <div class="admin-page-head">
+          <h1>Website Enquiries<span class="cursor" aria-hidden="true"></span></h1>
+          <p class="activate-footnote" style="margin:0;">Logged in as <strong id="loggedInEmail"></strong></p>
+        </div>
+        <p class="hero__lead">Every enquiry submitted through the website's contact form.</p>
+
+        <div class="admin-output__head">
+          <div></div>
+          <button type="button" class="btn btn--ghost btn--sm" id="refreshEnquiriesBtn">Refresh</button>
+        </div>
+        <input type="search" id="enquiriesSearchInput" class="clients-search" placeholder="Search by name, email, phone, business or service…" aria-label="Search website enquiries" />
+        <p class="form-note" id="enquiriesNote"></p>
+        <div class="agent-request-list" id="enquiriesContainer"></div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="site-footer" id="contact">
+    <div class="container footer__inner">
+      <div>
+        <div class="brand brand--footer">
+          <span class="brand__name">Qp Digital</span>
+        </div>
+        <p class="footer__tagline">Websites, CRM, SEO, branding, dashboards and automation — all under one roof. Open to any digital project.</p>
+      </div>
+      <div class="footer__contact">
+        <h4>Contact</h4>
+        <p>Email: <a href="mailto:jonahquartey584@gmail.com">jonahquartey584@gmail.com</a></p>
+        <p>Phone: <a href="tel:+447544856633">07544 856633</a></p>
+      </div>
+      <div class="footer__links">
+        <h4>Explore</h4>
+        <a href="index.html#services">Services</a>
+        <a href="index.html#how-it-works">How It Works</a>
+        <a href="activate.html">Redeem a Service</a>
+      </div>
+    </div>
+    <div class="container footer__bottom">
+      <p>&copy; <span id="year"></span> Qp Digital. All rights reserved.</p>
+      <p class="footer__legal-links"><a href="terms.html">Terms &amp; Conditions</a><span>·</span><a href="privacy.html">Privacy Policy</a></p>
+    </div>
+  </footer>
+
+  <script src="script.js"></script>
+  <script src="admin-common.js"></script>
+  <script src="admin-enquiries.js"></script>
+</body>
+</html>
