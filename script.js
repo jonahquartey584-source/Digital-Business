@@ -420,7 +420,7 @@ if (enquiryForm) {
       conversation.push({ role: "assistant", content: data.reply });
     } catch {
       typing.remove();
-      const fallbackReply = "I’m temporarily unavailable. Please call 07544 856633 or email jonahquartey584@gmail.com and the Qp Digital team will help.";
+      const fallbackReply = "I’m temporarily unavailable. Please call 020 3750 8659 or email jonahquartey584@gmail.com and the Qp Digital team will help.";
       addMessage("assistant", fallbackReply);
       conversation.push({ role: "assistant", content: fallbackReply });
     } finally {
@@ -466,7 +466,7 @@ if (enquiryForm) {
       addMessage("assistant", "Your request has been sent. A Qp Digital agent will join this chat and be with you soon — please keep this page open.");
       startAgentPolling();
     } catch {
-      handoffNote.textContent = "Couldn’t send that request. Please call 07544 856633 or email jonahquartey584@gmail.com.";
+      handoffNote.textContent = "Couldn’t send that request. Please call 020 3750 8659 or email jonahquartey584@gmail.com.";
     } finally {
       submit.disabled = false;
     }
