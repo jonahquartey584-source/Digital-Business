@@ -3,6 +3,7 @@
 .member-service-head h1 { margin-bottom: .45rem; }
 .member-service-head p { max-width: 720px; }
 .member-service-actions { display: flex; flex-wrap: wrap; gap: .65rem; }
+#openWebsitePending { opacity: .55; cursor: default; pointer-events: none; }
 .member-service-summary { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); border: 1px solid var(--line); margin-bottom: 1.25rem; }
 .member-service-summary > div { padding: 1rem 1.15rem; border-right: 1px solid var(--line); }
 .member-service-summary > div:last-child { border-right: 0; }
