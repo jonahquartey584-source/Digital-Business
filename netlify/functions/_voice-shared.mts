@@ -425,7 +425,11 @@ export async function appendTranscriptTurns(
   return call.transcript;
 }
 
-/** Finalizes a call: marks it completed, stores the summary, and — if this
+/** Finalizes a call: marks it completed, stores the summary, logs it as an
+ * enquiry in the shared agent-requests inbox (so every AI-answered call
+ * shows up in admin-agent-requests.html next to website-chat handoffs,
+ * whether or not this email has a CRM workspace — this is what turns "the
+ * AI had a conversation" into an actual captured enquiry), and — if this
  * email also has an active CRM workspace — logs it there too (finds or
  * creates a lead by phone number). Safe to call more than once per call. */
 export async function finalizeCall(
@@ -445,6 +449,33 @@ export async function finalizeCall(
   await saveVoiceSettings(settings);
 
   if (!call.fromNumber) return;
+
+  if (call.transcript.length > 0) {
+    try {
+      const agentRequestsStore = getStore({ name: "ai-agent-requests", consistency: "strong" });
+      const createdAt = new Date().toISOString();
+      const key = `requests/${createdAt}-voice-${callSid}`;
+      const business = settings.businessName?.trim();
+      await agentRequestsStore.setJSON(key, {
+        key,
+        name: business ? `Caller to ${business}` : "Phone caller",
+        contact: call.fromNumber,
+        message: summary || "AI Reception call — no summary available.",
+        transcript: call.transcript.map((t) => ({
+          role: t.role === "caller" ? ("user" as const) : ("assistant" as const),
+          content: t.text,
+        })),
+        status: "new",
+        createdAt,
+        updatedAt: createdAt,
+        source: "ai-voice-call",
+        channel: "voice",
+        durationSeconds,
+      });
+    } catch (error) {
+      console.error("finalizeCall: enquiry logging failed (non-fatal):", error);
+    }
+  }
 
   try {
     const crmStore = getStore({ name: "crm-workspaces", consistency: "strong" });

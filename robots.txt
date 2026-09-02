@@ -5,6 +5,7 @@ Disallow: /admin-new-client.html
 Disallow: /admin-members.html
 Disallow: /admin-agent-requests.html
 Disallow: /admin-enquiries.html
+Disallow: /admin-ai-reception.html
 Disallow: /pipeline-tester.html
 Disallow: /payment-success.html
 Disallow: /api/

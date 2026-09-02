@@ -68,6 +68,19 @@ function restoreReplyDraft(draft) {
   }
 }
 
+// Same email-vs-phone split as admin-enquiries.js's enquiryContactLinks —
+// voice-call requests (see source: "ai-voice-call") only ever have a phone
+// number as contact, so a blind mailto: link would be dead.
+function agentRequestContactLinks(contact) {
+  const parts = String(contact || "").split("·").map((part) => part.trim()).filter(Boolean);
+  if (!parts.length) return "";
+  return parts.map((part) => {
+    const isEmail = part.includes("@");
+    const href = isEmail ? `mailto:${encodeURIComponent(part)}` : `tel:${part.replace(/[^+\d]/g, "")}`;
+    return `<a href="${href}">${adminEscapeHtml(part)}</a>`;
+  }).join(" · ");
+}
+
 function renderAgentRequests() {
   const draft = captureReplyDraft();
   const query = (agentRequestsSearchInput?.value || "").trim().toLowerCase();
@@ -87,19 +100,20 @@ function renderAgentRequests() {
   agentRequestsContainer.innerHTML = requests.map((request) => `
     <article class="agent-request">
       <div class="agent-request__head">
-        <div><strong>${adminEscapeHtml(request.name)}</strong><div class="mono">${adminEscapeHtml(new Date(request.createdAt).toLocaleString())}</div></div>
+        <div>
+          <strong>${adminEscapeHtml(request.name)}</strong>
+          ${request.channel === "voice" ? '<span class="status-badge" style="margin-left:.5rem">☎ Phone call</span>' : ""}
+          <div class="mono">${adminEscapeHtml(new Date(request.createdAt).toLocaleString())}${request.durationSeconds ? ` · ${request.durationSeconds}s` : ""}</div>
+        </div>
         <span class="status-badge">${request.status === "contacted" ? "Contacted" : "New"}</span>
       </div>
-      <div class="agent-request__contact">
-        <a href="mailto:${adminEscapeHtml(request.contact)}">${adminEscapeHtml(request.contact)}</a>
-        <a href="tel:${adminEscapeHtml(request.contact)}">Call</a>
-      </div>
+      <div class="agent-request__contact">${agentRequestContactLinks(request.contact)}</div>
       <p class="agent-request__message">${adminEscapeHtml(request.message || "No additional message.")}</p>
       <details class="agent-transcript">
-        <summary>View assistant conversation (${Array.isArray(request.transcript) ? request.transcript.length : 0} messages)</summary>
+        <summary>View ${request.channel === "voice" ? "call transcript" : "assistant conversation"} (${Array.isArray(request.transcript) ? request.transcript.length : 0} messages)</summary>
         <div class="agent-transcript__messages">
           ${Array.isArray(request.transcript) && request.transcript.length
-            ? request.transcript.map((message) => `<div class="agent-transcript__message agent-transcript__message--${message.role}"><strong>${message.role === "user" ? "Prospect" : message.role === "agent" ? "You" : "Assistant"}:</strong> ${adminEscapeHtml(message.content)}</div>`).join("")
+            ? request.transcript.map((message) => `<div class="agent-transcript__message agent-transcript__message--${message.role}"><strong>${message.role === "user" ? (request.channel === "voice" ? "Caller" : "Prospect") : message.role === "agent" ? "You" : "AI"}:</strong> ${adminEscapeHtml(message.content)}</div>`).join("")
             : '<p class="empty-note">No conversation was captured for this request.</p>'}
         </div>
       </details>
