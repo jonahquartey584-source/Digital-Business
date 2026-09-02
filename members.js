@@ -293,7 +293,110 @@ function renderAdministratorMembers(clients, email) {
   });
 }
 
-function openMemberPortal(purchases, email, remember = false) {
+// The five onboarding questions, one per wizard page ("Question N/5") —
+// see renderOnboardingWizard below.
+const ONBOARDING_STEPS = [
+  { name: "contactName", label: "Your name", type: "input", placeholder: "e.g. Sarah Coleman" },
+  { name: "businessName", label: "Business name", type: "input", placeholder: "e.g. Coleman & Co" },
+  { name: "industry", label: "What industry are you in?", type: "input", placeholder: "e.g. Hair & beauty, trades, retail…" },
+  { name: "idealCustomer", label: "Who is your ideal customer?", type: "textarea", placeholder: "Describe who you most want to reach" },
+  { name: "primaryGoal", label: "What is your main business goal?", type: "textarea", placeholder: "e.g. More bookings, more leads, a professional website…" },
+];
+
+function renderOnboardingWizard(purchases, email) {
+  let stepIndex = 0;
+  const answers = {};
+
+  results.innerHTML = `<div class="member-onboarding">
+    <p class="section__tag">// First-time setup</p>
+    <h2>Tell us about your business</h2>
+    <p class="members-panel__lead">Answer five quick questions so Qp Digital can personalise your services — takes about a minute, and we save your answers to your account so we'll never ask again.</p>
+    <div class="onboarding-progress"><span id="onboardingStepLabel">Question 1/${ONBOARDING_STEPS.length}</span><div class="onboarding-progress__bar"><div class="onboarding-progress__fill" id="onboardingProgressFill" style="width:${Math.round(100 / ONBOARDING_STEPS.length)}%"></div></div></div>
+    <form class="member-login member-onboarding__form" id="memberOnboardingForm" novalidate>
+      ${ONBOARDING_STEPS.map((step, i) => `
+        <div class="onboarding-step" data-onboarding-step="${i}" ${i === 0 ? "" : "hidden"}>
+          <label for="onboarding_${step.name}">${step.label}</label>
+          ${step.type === "textarea"
+            ? `<textarea id="onboarding_${step.name}" name="${step.name}" placeholder="${step.placeholder}"></textarea>`
+            : `<input id="onboarding_${step.name}" name="${step.name}" placeholder="${step.placeholder}">`}
+        </div>`).join("")}
+      <p class="form-note" id="onboardingNote" aria-live="polite"></p>
+      <div class="onboarding-actions">
+        <button type="button" class="btn btn--ghost" id="onboardingBackBtn" hidden>← Back</button>
+        <button type="submit" class="btn btn--primary btn--lg" id="onboardingNextBtn">Next →</button>
+      </div>
+    </form>
+  </div>`;
+
+  const stepEls = Array.from(results.querySelectorAll("[data-onboarding-step]"));
+  const stepLabel = document.getElementById("onboardingStepLabel");
+  const progressFill = document.getElementById("onboardingProgressFill");
+  const backBtn = document.getElementById("onboardingBackBtn");
+  const nextBtn = document.getElementById("onboardingNextBtn");
+  const wizardNote = document.getElementById("onboardingNote");
+  const wizardForm = document.getElementById("memberOnboardingForm");
+
+  function showStep(index) {
+    stepEls.forEach((el, i) => { el.hidden = i !== index; });
+    stepLabel.textContent = `Question ${index + 1}/${ONBOARDING_STEPS.length}`;
+    progressFill.style.width = `${Math.round(((index + 1) / ONBOARDING_STEPS.length) * 100)}%`;
+    backBtn.hidden = index === 0;
+    nextBtn.textContent = index === ONBOARDING_STEPS.length - 1 ? "Personalise My Portal →" : "Next →";
+    wizardNote.textContent = "";
+    stepEls[index].querySelector("input, textarea")?.focus();
+  }
+
+  backBtn.addEventListener("click", () => {
+    if (stepIndex === 0) return;
+    stepIndex -= 1;
+    showStep(stepIndex);
+  });
+
+  wizardForm.addEventListener("submit", async (event) => {
+    event.preventDefault();
+    const field = ONBOARDING_STEPS[stepIndex];
+    const input = stepEls[stepIndex].querySelector("input, textarea");
+    const value = input.value.trim();
+    if (!value) {
+      wizardNote.textContent = "Please answer this question to continue.";
+      input.focus();
+      return;
+    }
+    answers[field.name] = value;
+
+    if (stepIndex < ONBOARDING_STEPS.length - 1) {
+      stepIndex += 1;
+      showStep(stepIndex);
+      return;
+    }
+
+    nextBtn.disabled = true;
+    backBtn.disabled = true;
+    wizardNote.textContent = "Saving…";
+    try {
+      const response = await fetch("/api/member-profile", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(answers),
+      });
+      const data = await response.json().catch(() => ({}));
+      if (!response.ok || data.status !== "ok") throw new Error(data.message || "Could not save your answers.");
+      const profile = data.profile || answers;
+      localStorage.setItem(`qpMemberProfile:${email.toLowerCase()}`, JSON.stringify(profile));
+      sessionStorage.setItem("qpMemberProfile", JSON.stringify(profile));
+      renderPurchases(purchases, profile);
+      startMemberAccessRefresh();
+    } catch (error) {
+      wizardNote.textContent = error.message || "Could not save your answers — please try again.";
+      nextBtn.disabled = false;
+      backBtn.disabled = false;
+    }
+  });
+
+  showStep(0);
+}
+
+async function openMemberPortal(purchases, email, remember = false) {
   activeMemberState = { email: email.toLowerCase(), purchases, remember };
   const memberSession = JSON.stringify({ email, purchases, expiresAt: Date.now() + (30 * 24 * 60 * 60 * 1000) });
   if (remember) {
@@ -303,25 +406,38 @@ function openMemberPortal(purchases, email, remember = false) {
     sessionStorage.setItem(MEMBER_SESSION_STORAGE_KEY, memberSession);
     localStorage.removeItem(MEMBER_SESSION_STORAGE_KEY);
   }
-  const key = `qpMemberProfile:${email.toLowerCase()}`;
-  const saved = localStorage.getItem(key);
-  if (saved) {
-    renderPurchases(purchases, JSON.parse(saved));
-    startMemberAccessRefresh();
-    return;
-  }
+
   form.hidden = true;
   document.getElementById("memberPanelLead").hidden = true;
   results.hidden = false;
-  results.innerHTML = `<div class="member-onboarding"><p class="section__tag">// First-time setup</p><h2>Tell us about your business</h2><p class="members-panel__lead">Answer five quick questions so Qp Digital can personalise your services.</p><form class="member-login" id="memberOnboardingForm"><label>Your name</label><input name="contactName" required><label>Business name</label><input name="businessName" required><label>What industry are you in?</label><input name="industry" required><label>Who is your ideal customer?</label><textarea name="idealCustomer" required></textarea><label>What is your main business goal?</label><textarea name="primaryGoal" required></textarea><button class="btn btn--primary btn--lg" type="submit">Personalise My Portal →</button></form></div>`;
-  document.getElementById("memberOnboardingForm").addEventListener("submit", (event) => {
-    event.preventDefault();
-    const data = Object.fromEntries(new FormData(event.currentTarget));
-    localStorage.setItem(key, JSON.stringify(data));
-    sessionStorage.setItem("qpMemberProfile", JSON.stringify(data));
-    renderPurchases(purchases, data);
+
+  const profileKey = `qpMemberProfile:${email.toLowerCase()}`;
+  let profile = null;
+  const cached = localStorage.getItem(profileKey);
+  if (cached) { try { profile = JSON.parse(cached); } catch { /* ignore a corrupt cache entry */ } }
+  if (!profile) results.innerHTML = '<p class="form-note">Loading your workspace…</p>';
+
+  // The onboarding answers live on the client's account server-side (see
+  // /api/member-profile) — not just this browser's storage — so the
+  // five-question wizard below only ever runs once, however many devices,
+  // browsers or cleared caches this client comes back through.
+  try {
+    const response = await fetch("/api/member-profile");
+    const data = await response.json().catch(() => ({}));
+    if (response.ok && data.status === "ok" && data.profile) profile = data.profile;
+  } catch {
+    // Network hiccup — fall back to whatever was cached locally, if anything.
+  }
+
+  if (profile) {
+    localStorage.setItem(profileKey, JSON.stringify(profile));
+    sessionStorage.setItem("qpMemberProfile", JSON.stringify(profile));
+    renderPurchases(purchases, profile);
     startMemberAccessRefresh();
-  });
+    return;
+  }
+
+  renderOnboardingWizard(purchases, email);
 }
 
 function saveRefreshedMemberSession(state) {
@@ -413,7 +529,7 @@ createPasswordForm.addEventListener("submit", async (event) => {
       passwordLoginForm.email.value = verifiedFirstLogin.email;
       return;
     }
-    openMemberPortal(verifiedFirstLogin.purchases, verifiedFirstLogin.email, createPasswordForm.remember.checked);
+    await openMemberPortal(verifiedFirstLogin.purchases, verifiedFirstLogin.email, createPasswordForm.remember.checked);
   } catch (error) {
     const message = String(error?.message || "We couldn't create your password.");
     createPasswordNote.textContent = /already|registered|exists/i.test(message)
@@ -449,7 +565,7 @@ passwordLoginForm.addEventListener("submit", async (event) => {
     }
     passwordLoginForm.password.value = "";
     if (purchases.length) {
-      openMemberPortal(purchases, email, passwordLoginForm.remember.checked);
+      await openMemberPortal(purchases, email, passwordLoginForm.remember.checked);
     } else if (isHeadAdmin) {
       passwordLoginNote.textContent = "Signed in as head administrator — see the Administrator tab above.";
       selectPortalMode("admin");
@@ -481,7 +597,7 @@ if (rememberedMember) {
   try {
     const session = JSON.parse(rememberedMember);
     if (identityUser?.email?.toLowerCase() === session.email?.toLowerCase() && session.expiresAt > Date.now() && Array.isArray(session.purchases)) {
-      openMemberPortal(session.purchases, session.email, Boolean(localStorage.getItem(MEMBER_SESSION_STORAGE_KEY)));
+      await openMemberPortal(session.purchases, session.email, Boolean(localStorage.getItem(MEMBER_SESSION_STORAGE_KEY)));
       refreshMemberAccess();
     } else {
       localStorage.removeItem(MEMBER_SESSION_STORAGE_KEY);
