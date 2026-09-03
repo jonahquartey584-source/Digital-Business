@@ -1069,7 +1069,23 @@ section {
   }
 }
 
-/* Showcase — invented example businesses */
+/* Showcase — invented example businesses (see examples.html) */
+.showcase-intro {
+  max-width: 720px;
+  color: var(--text-dim);
+  line-height: 1.7;
+  margin: 18px 0 8px;
+}
+
+.showcase-section {
+  padding: 56px 0;
+  border-top: 1px solid var(--border-soft);
+}
+
+.showcase-section:first-of-type {
+  border-top: none;
+}
+
 .showcase-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
@@ -1137,154 +1153,13 @@ section {
 }
 
 .showcase-card__body {
-  padding: 20px 20px 24px;
-  min-height: 190px;
+  line-height: 0;
 }
 
-/* Website mockup */
-.showcase-site__nav {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding-bottom: 14px;
-  margin-bottom: 16px;
-  border-bottom: 1px solid var(--border-soft);
-  font-family: "Sora", sans-serif;
-  font-size: 0.78rem;
-  font-weight: 700;
-  color: var(--text);
-}
-
-.showcase-site__navlink {
-  padding: 5px 10px;
-  border: 1px solid var(--gold);
-  border-radius: 4px;
-  font-size: 0.62rem;
-  font-weight: 600;
-  color: var(--gold-bright);
-}
-
-.showcase-site__hero h4 {
-  margin: 0 0 8px;
-  font-family: "Sora", sans-serif;
-  font-size: 1.08rem;
-  line-height: 1.25;
-  color: var(--text);
-}
-
-.showcase-site__hero p {
-  margin: 0 0 16px;
-  font-size: 0.78rem;
-  color: var(--text-dim);
-}
-
-.showcase-site__btn {
-  display: inline-block;
-  padding: 8px 16px;
-  background: var(--gold-gradient);
-  border-radius: 4px;
-  font-size: 0.72rem;
-  font-weight: 700;
-  color: #1a1409;
-}
-
-/* CRM mockup */
-.showcase-crm {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 10px;
-}
-
-.showcase-crm__col {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-}
-
-.showcase-crm__label {
-  font-family: "IBM Plex Mono", monospace;
-  font-size: 0.6rem;
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
-  color: var(--text-faint);
-}
-
-.showcase-crm__deal {
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-  padding: 8px;
-  background: var(--surface-alt);
-  border: 1px solid var(--border-soft);
-  border-radius: 6px;
-  font-size: 0.66rem;
-  line-height: 1.35;
-  color: var(--text-dim);
-  text-align: left;
-}
-
-.showcase-crm__deal strong {
-  color: var(--gold-bright);
-  font-size: 0.72rem;
-}
-
-.showcase-crm__deal--won {
-  border-color: var(--gold);
-}
-
-/* Branding mockup */
-.showcase-brand {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 14px;
-}
-
-.showcase-brand__logo {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 56px;
-  height: 56px;
-  border: 1px solid var(--gold);
-  border-radius: 50%;
-  font-family: "Playfair Display", serif;
-  font-size: 1.1rem;
-  color: var(--gold-bright);
-}
-
-.showcase-brand__swatches {
-  display: flex;
-  gap: 8px;
-}
-
-.showcase-brand__swatches span {
-  width: 20px;
-  height: 20px;
-  border-radius: 50%;
-  border: 1px solid var(--border-soft);
-}
-
-.showcase-brand__card {
-  display: flex;
-  flex-direction: column;
-  gap: 3px;
-  padding: 12px 20px;
-  background: var(--surface-alt);
-  border: 1px solid var(--border-soft);
-  border-radius: 6px;
-  text-align: center;
-}
-
-.showcase-brand__card strong {
-  font-family: "Playfair Display", serif;
-  font-size: 0.88rem;
-  color: var(--text);
-}
-
-.showcase-brand__card span {
-  font-size: 0.66rem;
-  color: var(--text-faint);
+.showcase-card__body img {
+  display: block;
+  width: 100%;
+  height: auto;
 }
 
 .how__note {
