@@ -1069,6 +1069,224 @@ section {
   }
 }
 
+/* Showcase — invented example businesses */
+.showcase-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 28px;
+  margin-top: 8px;
+}
+
+.showcase-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+}
+
+.showcase-card h3 {
+  margin: 22px 0 6px;
+  font-size: 1.04rem;
+}
+
+.showcase-card p:not(.access-card__caption) {
+  color: var(--text-dim);
+  font-size: 0.9rem;
+  margin: 0;
+}
+
+.showcase-card__frame {
+  width: 100%;
+  background: linear-gradient(155deg, #1c170f, #0e0c09 75%);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  overflow: hidden;
+  box-shadow: var(--shadow);
+  transition: border-color 0.2s ease, transform 0.2s ease;
+}
+
+.showcase-card:hover .showcase-card__frame {
+  border-color: var(--gold);
+  transform: translateY(-4px);
+}
+
+.showcase-card__bar {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  padding: 12px 16px;
+  border-bottom: 1px solid var(--border-soft);
+}
+
+.showcase-card__dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--gold);
+}
+
+.showcase-card__dot:nth-child(1) { opacity: 0.9; }
+.showcase-card__dot:nth-child(2) { opacity: 0.6; }
+.showcase-card__dot:nth-child(3) { opacity: 0.35; }
+
+.showcase-card__url {
+  margin-left: auto;
+  font-size: 0.68rem;
+  color: var(--text-faint);
+  letter-spacing: 0.02em;
+}
+
+.showcase-card__body {
+  padding: 20px 20px 24px;
+  min-height: 190px;
+}
+
+/* Website mockup */
+.showcase-site__nav {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-bottom: 14px;
+  margin-bottom: 16px;
+  border-bottom: 1px solid var(--border-soft);
+  font-family: "Sora", sans-serif;
+  font-size: 0.78rem;
+  font-weight: 700;
+  color: var(--text);
+}
+
+.showcase-site__navlink {
+  padding: 5px 10px;
+  border: 1px solid var(--gold);
+  border-radius: 4px;
+  font-size: 0.62rem;
+  font-weight: 600;
+  color: var(--gold-bright);
+}
+
+.showcase-site__hero h4 {
+  margin: 0 0 8px;
+  font-family: "Sora", sans-serif;
+  font-size: 1.08rem;
+  line-height: 1.25;
+  color: var(--text);
+}
+
+.showcase-site__hero p {
+  margin: 0 0 16px;
+  font-size: 0.78rem;
+  color: var(--text-dim);
+}
+
+.showcase-site__btn {
+  display: inline-block;
+  padding: 8px 16px;
+  background: var(--gold-gradient);
+  border-radius: 4px;
+  font-size: 0.72rem;
+  font-weight: 700;
+  color: #1a1409;
+}
+
+/* CRM mockup */
+.showcase-crm {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
+}
+
+.showcase-crm__col {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.showcase-crm__label {
+  font-family: "IBM Plex Mono", monospace;
+  font-size: 0.6rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--text-faint);
+}
+
+.showcase-crm__deal {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 8px;
+  background: var(--surface-alt);
+  border: 1px solid var(--border-soft);
+  border-radius: 6px;
+  font-size: 0.66rem;
+  line-height: 1.35;
+  color: var(--text-dim);
+  text-align: left;
+}
+
+.showcase-crm__deal strong {
+  color: var(--gold-bright);
+  font-size: 0.72rem;
+}
+
+.showcase-crm__deal--won {
+  border-color: var(--gold);
+}
+
+/* Branding mockup */
+.showcase-brand {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 14px;
+}
+
+.showcase-brand__logo {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 56px;
+  height: 56px;
+  border: 1px solid var(--gold);
+  border-radius: 50%;
+  font-family: "Playfair Display", serif;
+  font-size: 1.1rem;
+  color: var(--gold-bright);
+}
+
+.showcase-brand__swatches {
+  display: flex;
+  gap: 8px;
+}
+
+.showcase-brand__swatches span {
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  border: 1px solid var(--border-soft);
+}
+
+.showcase-brand__card {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  padding: 12px 20px;
+  background: var(--surface-alt);
+  border: 1px solid var(--border-soft);
+  border-radius: 6px;
+  text-align: center;
+}
+
+.showcase-brand__card strong {
+  font-family: "Playfair Display", serif;
+  font-size: 0.88rem;
+  color: var(--text);
+}
+
+.showcase-brand__card span {
+  font-size: 0.66rem;
+  color: var(--text-faint);
+}
+
 .how__note {
   margin-top: 36px;
   display: flex;
@@ -1660,6 +1878,37 @@ textarea {
   max-width: 320px;
 }
 
+.footer__social {
+  display: flex;
+  gap: 10px;
+  margin-top: 18px;
+}
+
+.footer__social a {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 38px;
+  height: 38px;
+  border: 1px solid var(--border-soft);
+  border-radius: 50%;
+  color: var(--gold-bright);
+  transition: background 0.2s ease, border-color 0.2s ease, color 0.2s ease, transform 0.2s ease;
+}
+
+.footer__social a:hover {
+  background: var(--gold-gradient);
+  border-color: transparent;
+  color: #fff;
+  transform: translateY(-2px);
+}
+
+.footer__social svg {
+  width: 18px;
+  height: 18px;
+  fill: currentColor;
+}
+
 .footer__contact h4,
 .footer__links h4 {
   font-family: "IBM Plex Mono", monospace;
@@ -2014,9 +2263,9 @@ html[data-theme="light"]{--bg:#f7f3ea;--bg-alt:#eee8dc;--surface:#fcfaf5;--surfa
 html[data-theme="light"] .site-header{background:rgba(247,243,234,.95)}
 html[data-theme="light"] .hero{background:radial-gradient(circle at 78% 42%,rgba(184,135,50,.14),transparent 34%),#f7f3ea}
 html[data-theme="light"] .hero::before,html[data-theme="light"] .hero::after{opacity:.38}
-html[data-theme="light"] .hero__rotator,html[data-theme="light"] .terminal-window,html[data-theme="light"] .account-card{background:linear-gradient(155deg,#fcfaf5,#eee5d3 75%)}
+html[data-theme="light"] .hero__rotator,html[data-theme="light"] .terminal-window,html[data-theme="light"] .account-card,html[data-theme="light"] .showcase-card__frame{background:linear-gradient(155deg,#fcfaf5,#eee5d3 75%)}
 html[data-theme="light"] .preview-frame__bar{background:linear-gradient(155deg,#fcfaf5,#eee5d3 75%)}
-html[data-theme="light"] .hero__rotator-bar,html[data-theme="light"] .terminal-window__bar,html[data-theme="light"] .account-card__bar{background:rgba(218,190,133,.14)}
+html[data-theme="light"] .hero__rotator-bar,html[data-theme="light"] .terminal-window__bar,html[data-theme="light"] .account-card__bar,html[data-theme="light"] .showcase-card__bar{background:rgba(218,190,133,.14)}
 html[data-theme="light"] .hero__rotator::before,html[data-theme="light"] .terminal-window::before,html[data-theme="light"] .account-card::before{-webkit-mask:linear-gradient(#fff 0 0) content-box,linear-gradient(#fff 0 0);mask:linear-gradient(#fff 0 0) content-box,linear-gradient(#fff 0 0)}
 html[data-theme="light"] .service-card,html[data-theme="light"] .process-card,html[data-theme="light"] .why-card,html[data-theme="light"] .admin-output__block{box-shadow:0 10px 32px rgba(30,25,15,.06)}
 html[data-theme="light"] .ai-help-panel{background:rgba(252,250,245,.985)}
