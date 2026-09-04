@@ -296,12 +296,22 @@ export interface ClientRecord {
   // destination for send-client-email.mts's "email them their account +
   // code" button in admin.html.
   clientEmail: string | null;
-  status: "pending_payment" | "active";
+  status: "pending_payment" | "active" | "refunded";
   createdAt: string;
   activatedAt: string | null;
   portalCodeHash?: string | null;
   portalCodeEncrypted?: string | null;
   portalCodeIssuedAt?: string | null;
+  // Captured by webhook.mts from the Stripe Checkout Session on
+  // checkout.session.completed — the payment_intent is what refund-client.mts
+  // actually refunds against. Absent for anything paid before this was
+  // added, or paid outside Stripe entirely (status flipped to "active" by
+  // hand) — refund-client.mts refuses to run without it.
+  stripePaymentIntentId?: string | null;
+  stripeCheckoutSessionId?: string | null;
+  refundedAt?: string | null;
+  refundAmount?: string | null;
+  refundReason?: string | null;
 }
 
 // --- Auto-deploy a client's own website to Netlify -------------------------

@@ -140,8 +140,9 @@
               <select id="editStatus" name="editStatus">
                 <option value="pending_payment">Pending Payment</option>
                 <option value="active">Active</option>
+                <option value="refunded">Refunded</option>
               </select>
-              <p class="admin-hint">Normally flips automatically when Stripe confirms payment — change this by hand only to override it (e.g. they paid another way).</p>
+              <p class="admin-hint">Normally flips automatically when Stripe confirms payment — change this by hand only to override it (e.g. they paid another way). To actually process a refund through Stripe, use the "Refund" button on the client's row instead of setting this directly.</p>
             </div>
 
             <div class="admin-actions">

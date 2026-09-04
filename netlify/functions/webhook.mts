@@ -83,6 +83,13 @@ export default async (req: Request, context: Context) => {
 
         client.status = "active";
         client.activatedAt = new Date().toISOString();
+        // Needed later by refund-client.mts — payment_intent is a plain
+        // string id here (not expanded), which is exactly what Stripe's
+        // refunds endpoint wants.
+        const sessionId = String(event?.data?.object?.id ?? "").trim();
+        const paymentIntentId = String(event?.data?.object?.payment_intent ?? "").trim();
+        if (sessionId) client.stripeCheckoutSessionId = sessionId;
+        if (paymentIntentId) client.stripePaymentIntentId = paymentIntentId;
         if (!client.clientEmail && customerEmail) client.clientEmail = customerEmail;
         if (portalCode) {
           client.portalCodeHash = hashPortalCode(portalCode);

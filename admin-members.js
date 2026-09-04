@@ -196,6 +196,11 @@ function renderClientsList() {
               ? `<div class="client-row__email mono">${adminEscapeHtml(client.clientEmail)}</div>`
               : ""
           }
+          ${
+            client.status === "refunded"
+              ? `<div class="client-row__email mono" style="color:#e07a6b">Refunded ${adminEscapeHtml(client.refundAmount || "")}${client.refundedAt ? ` on ${adminEscapeHtml(new Date(client.refundedAt).toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" }))}` : ""}${client.refundReason ? ` — ${adminEscapeHtml(client.refundReason)}` : ""}</div>`
+              : ""
+          }
           <div class="client-row__portal-code mono" data-portal-code-row="${account}">
             ${
               portalCode
@@ -206,9 +211,14 @@ function renderClientsList() {
             }<button type="button" class="btn btn--ghost btn--sm" data-generate-code="${account}">${portalCodeIssued ? "Reissue" : "Generate"} Code</button>
           </div>
         </div>
-        <span class="status-pill status-pill--${client.status === "active" ? "active" : "pending"}">${client.status === "active" ? "Active" : "Pending Payment"}</span>
+        <span class="status-pill status-pill--${client.status === "active" ? "active" : client.status === "refunded" ? "refunded" : "pending"}">${client.status === "active" ? "Active" : client.status === "refunded" ? "Refunded" : "Pending Payment"}</span>
         <div class="client-row__actions">
           <button type="button" class="btn btn--ghost btn--sm" data-edit-account="${account}">Edit</button>
+          ${
+            client.status !== "refunded"
+              ? `<button type="button" class="btn btn--ghost btn--sm" data-refund-account="${account}">Refund</button>`
+              : ""
+          }
           <button type="button" class="btn btn--danger btn--sm" data-delete-account="${account}">Delete</button>
         </div>
       </div>
@@ -221,6 +231,9 @@ function renderClientsList() {
   });
   clientsListContainer.querySelectorAll("[data-delete-account]").forEach((button) => {
     button.addEventListener("click", () => deleteClient(button.getAttribute("data-delete-account")));
+  });
+  clientsListContainer.querySelectorAll("[data-refund-account]").forEach((button) => {
+    button.addEventListener("click", () => refundClient(button.getAttribute("data-refund-account")));
   });
   clientsListContainer.querySelectorAll("[data-generate-code]").forEach((button) => {
     button.addEventListener("click", () => generatePortalCode(button.getAttribute("data-generate-code")));
@@ -291,6 +304,50 @@ if (clientsSearchInput) {
   clientsSearchInput.addEventListener("input", () => {
     if (clientsCache.length) renderClientsList();
   });
+}
+
+// Refunds through Stripe and switches the client's access off. Permanent —
+// confirm (twice: the browser confirm, then an optional reason) before
+// calling the endpoint. Matches terms.html: this is an admin decision, not
+// something a client triggers themselves.
+async function refundClient(account) {
+  if (!window.confirm(`Refund ${account} through Stripe? This immediately switches off their access to this service. This can't be undone from here.`)) {
+    return;
+  }
+  const reason = window.prompt("Reason for the refund (optional, for your own records):", "") || "";
+  const amountInput = window.prompt("Refund amount in £ — leave blank for a full refund:", "");
+  if (amountInput === null) return; // cancelled
+  const amount = amountInput.trim() ? amountInput.trim() : undefined;
+
+  clientsListNote.textContent = "Processing refund with Stripe…";
+  clientsListNote.style.color = "";
+
+  try {
+    const response = await fetch("/api/refund-client", {
+      method: "POST",
+      headers: { "Content-Type": "application/json", ...adminAuthHeader() },
+      body: JSON.stringify({ account, reason, amount }),
+    });
+
+    if (response.status === 401) {
+      clientsListNote.textContent = "";
+      adminHandleSessionRejected();
+      return;
+    }
+
+    const result = await response.json();
+
+    if (response.ok && result.status === "ok") {
+      clientsListNote.textContent = `Refunded ${result.refundAmount || ""} for ${account}.`;
+      await loadClients();
+    } else {
+      clientsListNote.textContent = result.message || "Couldn't process that refund — try again.";
+      clientsListNote.style.color = "#ff8a8a";
+    }
+  } catch (err) {
+    clientsListNote.textContent = "Couldn't reach /api/refund-client — is the backend deployed?";
+    clientsListNote.style.color = "#ff8a8a";
+  }
 }
 
 // Permanent and irreversible — confirm before ever calling the endpoint.

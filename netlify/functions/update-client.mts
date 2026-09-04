@@ -46,7 +46,14 @@ export default async (req: Request, context: Context) => {
   // other fields never silently wipes out an already-attached website zip.
   const websiteZipUrl = existing.websiteZipUrl ?? null;
   const clientEmail = String(input.clientEmail ?? "").trim();
-  const status: ClientRecord["status"] = input.status === "active" ? "active" : "pending_payment";
+  // Refunds are only ever set by refund-client.mts, but this form's status
+  // dropdown includes "Refunded" so an admin can see/preserve it — without
+  // this, saving any other edit on a refunded client would silently flip
+  // them back to "Pending Payment".
+  const status: ClientRecord["status"] =
+    input.status === "active" ? "active" :
+    input.status === "refunded" ? "refunded" :
+    "pending_payment";
 
   // paymentUrl is optional now — see create-client.mts.
   if (!code || !service || !price) {
@@ -69,8 +76,12 @@ export default async (req: Request, context: Context) => {
     clientEmail: clientEmail || null,
     status,
     // Newly flipped to active by hand -> stamp it now. Already active ->
-    // keep the original timestamp. Set back to pending -> clear it.
-    activatedAt: status === "active" ? (existing.activatedAt ?? new Date().toISOString()) : null,
+    // keep the original timestamp. Refunded -> keep the original activation
+    // date on record. Set back to pending -> clear it.
+    activatedAt:
+      status === "active" ? (existing.activatedAt ?? new Date().toISOString()) :
+      status === "refunded" ? existing.activatedAt :
+      null,
   };
 
   await store.setJSON(account, updated);
