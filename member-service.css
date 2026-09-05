@@ -193,6 +193,28 @@ body.tutorial-open { overflow:hidden; }
 .booking-calendar__chip--cancelled { background: transparent; color: var(--muted); text-decoration: line-through; }
 .booking-calendar__more { font-size: .66rem; color: var(--muted); }
 
+.booking-calendar__headright { display: flex; align-items: center; gap: .75rem; }
+.booking-calendar__viewswitch { display: flex; border: 1px solid var(--line); }
+.booking-calendar__viewswitch button { border: 0; background: var(--bg); color: var(--muted); padding: .4rem .8rem; font-size: .72rem; font-family: var(--mono); text-transform: uppercase; letter-spacing: .04em; cursor: pointer; }
+.booking-calendar__viewswitch button + button { border-left: 1px solid var(--line); }
+.booking-calendar__viewswitch button.is-active { background: var(--gold); color: #111; }
+
+.booking-timegrid__head { display: flex; margin-bottom: 2px; }
+.booking-timegrid__head-gutter { width: 3.4rem; flex: none; }
+.booking-timegrid__head-day { flex: 1; min-width: 80px; text-align: center; padding: .4rem 0; font-family: var(--mono); font-size: .66rem; text-transform: uppercase; letter-spacing: .06em; color: var(--muted); }
+.booking-timegrid__head-day strong { display: block; font-family: var(--sans); font-size: .95rem; color: var(--text); margin-top: .15rem; }
+.booking-timegrid__head-day--today, .booking-timegrid__head-day--today strong { color: var(--gold); }
+.booking-timegrid__scroll { display: flex; max-height: 560px; overflow: auto; border: 1px solid var(--line); }
+.booking-timegrid__hours { width: 3.4rem; flex: none; background: var(--surface); }
+.booking-timegrid__hour { height: 48px; padding: 0 .5rem; text-align: right; font-family: var(--mono); font-size: .64rem; color: var(--muted); border-top: 1px solid var(--line); box-sizing: border-box; }
+.booking-timegrid__hour:first-child { border-top: 0; }
+.booking-timegrid__days { flex: 1; display: flex; min-width: 560px; }
+.booking-timegrid__day { flex: 1; min-width: 80px; position: relative; border-left: 1px solid var(--line); background-image: repeating-linear-gradient(to bottom, transparent, transparent 47px, var(--line) 47px, var(--line) 48px); }
+.booking-timegrid__event { position: absolute; border-radius: 3px; background: color-mix(in srgb, var(--gold) 22%, var(--surface)); border-left: 3px solid var(--gold); padding: 2px 5px; font-size: .66rem; line-height: 1.25; overflow: hidden; cursor: pointer; text-align: left; color: var(--text); font-family: inherit; }
+.booking-timegrid__event strong { display: block; font-size: .68rem; }
+.booking-timegrid__event--pending { background: var(--bg); border-left-style: dashed; color: var(--muted); }
+.booking-timegrid__event--cancelled { background: var(--bg); border-left-color: var(--muted); color: var(--muted); text-decoration: line-through; }
+
 .booking-agenda__head { display: flex; align-items: center; justify-content: space-between; gap: 1rem; }
 .booking-agenda__item { display: flex; justify-content: space-between; align-items: flex-start; gap: 1rem; padding: .75rem 0; border-top: 1px solid var(--line); }
 .booking-agenda__item:first-of-type { border-top: 0; }

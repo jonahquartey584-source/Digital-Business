@@ -70,12 +70,29 @@ async function loadWorkspace() {
 const WEEKDAY_LABEL = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
 const MONTH_LABEL = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
 
-let viewMonth = new Date();
-viewMonth.setDate(1);
+let calendarView = "month"; // "month" | "week" | "day"
+let anchorDate = new Date(); // navigation cursor for whichever view is showing
 let selectedDate = todayStr();
 
 function dateKey(year, month, day) {
   return `${year}-${String(month + 1).padStart(2, "0")}-${String(day).padStart(2, "0")}`;
+}
+
+function dateFromKey(key) {
+  const [y, m, d] = key.split("-").map(Number);
+  return new Date(y, m - 1, d);
+}
+
+function addDays(date, n) {
+  const d = new Date(date);
+  d.setDate(d.getDate() + n);
+  return d;
+}
+
+function startOfWeek(date) {
+  const d = new Date(date);
+  d.setDate(d.getDate() - ((d.getDay() + 6) % 7)); // Monday-start
+  return d;
 }
 
 function bookingsOn(date) {
@@ -84,14 +101,45 @@ function bookingsOn(date) {
     .sort((a, b) => a.time.localeCompare(b.time));
 }
 
-function renderCalendar() {
-  const grid = document.getElementById("bookingCalendarGrid");
+function renderCalendarHead() {
   const label = document.getElementById("bookingMonthLabel");
-  if (!grid || !label) return;
+  if (!label) return;
+  if (calendarView === "month") {
+    label.textContent = `${MONTH_LABEL[anchorDate.getMonth()]} ${anchorDate.getFullYear()}`;
+  } else if (calendarView === "week") {
+    const start = startOfWeek(anchorDate);
+    const end = addDays(start, 6);
+    label.textContent = start.getMonth() === end.getMonth()
+      ? `${start.getDate()}–${end.getDate()} ${MONTH_LABEL[start.getMonth()]} ${start.getFullYear()}`
+      : `${start.getDate()} ${MONTH_LABEL[start.getMonth()]} – ${end.getDate()} ${MONTH_LABEL[end.getMonth()]} ${end.getFullYear()}`;
+  } else {
+    label.textContent = `${WEEKDAY_LABEL[anchorDate.getDay()]} ${anchorDate.getDate()} ${MONTH_LABEL[anchorDate.getMonth()]} ${anchorDate.getFullYear()}`;
+  }
+}
 
-  const year = viewMonth.getFullYear();
-  const month = viewMonth.getMonth();
-  label.textContent = `${MONTH_LABEL[month]} ${year}`;
+function applyCalendarViewVisibility() {
+  const weekdaysHead = document.getElementById("bookingCalendarWeekdays");
+  const grid = document.getElementById("bookingCalendarGrid");
+  const timegrid = document.getElementById("bookingTimegrid");
+  const isMonth = calendarView === "month";
+  if (weekdaysHead) weekdaysHead.hidden = !isMonth;
+  if (grid) grid.hidden = !isMonth;
+  if (timegrid) timegrid.hidden = isMonth;
+}
+
+function renderCalendar() {
+  renderCalendarHead();
+  applyCalendarViewVisibility();
+  if (calendarView === "month") renderMonthGrid();
+  else renderTimegrid();
+}
+
+function renderMonthGrid() {
+  const grid = document.getElementById("bookingCalendarGrid");
+  if (!grid) return;
+
+  const year = anchorDate.getFullYear();
+  const month = anchorDate.getMonth();
 
   const firstOfMonth = new Date(year, month, 1);
   // Monday-start grid: JS getDay() is 0=Sun..6=Sat, shift so Monday=0.
@@ -143,11 +191,118 @@ function renderCalendar() {
   grid.querySelectorAll("[data-calendar-day]").forEach((btn) => {
     btn.addEventListener("click", () => {
       selectedDate = btn.dataset.calendarDay;
+      anchorDate = dateFromKey(selectedDate);
       renderCalendar();
       renderAgenda();
     });
   });
 }
+
+// ---------- Week / Day timegrid ----------
+
+const TIMEGRID_START_HOUR = 7;
+const TIMEGRID_END_HOUR = 21; // last hour row shown is 20:00–21:00
+const TIMEGRID_HOUR_HEIGHT = 48;
+
+function timeToMinutes(time) {
+  const [h, m] = time.split(":").map(Number);
+  return h * 60 + m;
+}
+
+function hourLabel(hour) {
+  if (hour === 0) return "12 AM";
+  if (hour === 12) return "12 PM";
+  return hour > 12 ? `${hour - 12} PM` : `${hour} AM`;
+}
+
+// Greedy column assignment so overlapping bookings on the same day sit
+// side by side instead of on top of each other.
+function layoutDayEvents(bookings) {
+  const sorted = [...bookings].sort((a, b) => a.time.localeCompare(b.time));
+  const columnEnds = [];
+  const placed = sorted.map((booking) => {
+    const start = timeToMinutes(booking.time);
+    const end = start + booking.durationMinutes;
+    let col = columnEnds.findIndex((endMinutes) => endMinutes <= start);
+    if (col === -1) { col = columnEnds.length; columnEnds.push(end); } else columnEnds[col] = end;
+    return { booking, start, col };
+  });
+  const cols = Math.max(1, columnEnds.length);
+  return placed.map((p) => ({ ...p, cols }));
+}
+
+function renderTimegrid() {
+  const head = document.getElementById("bookingTimegridHead");
+  const hours = document.getElementById("bookingTimegridHours");
+  const days = document.getElementById("bookingTimegridDays");
+  if (!head || !hours || !days) return;
+
+  const dayList = calendarView === "day" ? [new Date(anchorDate)] : Array.from({ length: 7 }, (_, i) => addDays(startOfWeek(anchorDate), i));
+  const today = todayStr();
+
+  head.innerHTML =
+    `<div class="booking-timegrid__head-gutter"></div>` +
+    dayList
+      .map((d) => {
+        const key = dateKey(d.getFullYear(), d.getMonth(), d.getDate());
+        return `<div class="booking-timegrid__head-day${key === today ? " booking-timegrid__head-day--today" : ""}">${WEEKDAY_LABEL[d.getDay()]}<strong>${d.getDate()}</strong></div>`;
+      })
+      .join("");
+
+  hours.innerHTML = Array.from({ length: TIMEGRID_END_HOUR - TIMEGRID_START_HOUR }, (_, i) => `<div class="booking-timegrid__hour">${hourLabel(TIMEGRID_START_HOUR + i)}</div>`).join("");
+
+  const totalHeight = (TIMEGRID_END_HOUR - TIMEGRID_START_HOUR) * TIMEGRID_HOUR_HEIGHT;
+  const rangeStart = TIMEGRID_START_HOUR * 60;
+
+  days.innerHTML = dayList
+    .map((d) => {
+      const key = dateKey(d.getFullYear(), d.getMonth(), d.getDate());
+      const laid = layoutDayEvents(bookingsOn(key));
+      const events = laid
+        .map(({ booking, start, col, cols }) => {
+          const clampedStart = Math.min(Math.max(start, rangeStart), rangeStart + totalHeight / TIMEGRID_HOUR_HEIGHT * 60);
+          const top = ((clampedStart - rangeStart) / 60) * TIMEGRID_HOUR_HEIGHT;
+          const height = Math.max(18, ((booking.durationMinutes - (clampedStart - start)) / 60) * TIMEGRID_HOUR_HEIGHT);
+          const width = 100 / cols;
+          const left = width * col;
+          const cls = booking.status === "cancelled" ? " booking-timegrid__event--cancelled" : booking.status === "pending" ? " booking-timegrid__event--pending" : "";
+          return `<button type="button" class="booking-timegrid__event${cls}" style="top:${top}px;height:${height}px;left:${left}%;width:calc(${width}% - 4px)" data-timegrid-booking="${esc(booking.id)}">
+            <strong>${esc(booking.time)}</strong>${esc(booking.customerName)}
+          </button>`;
+        })
+        .join("");
+      return `<div class="booking-timegrid__day" style="height:${totalHeight}px" data-timegrid-day="${esc(key)}">${events}</div>`;
+    })
+    .join("");
+
+  days.querySelectorAll("[data-timegrid-day]").forEach((col) => {
+    col.addEventListener("click", (event) => {
+      if (event.target.closest("[data-timegrid-booking]")) return;
+      selectedDate = col.dataset.timegridDay;
+      anchorDate = dateFromKey(selectedDate);
+      renderCalendar();
+      renderAgenda();
+    });
+  });
+  days.querySelectorAll("[data-timegrid-booking]").forEach((btn) => {
+    btn.addEventListener("click", (event) => {
+      event.stopPropagation();
+      selectedDate = btn.closest("[data-timegrid-day]").dataset.timegridDay;
+      anchorDate = dateFromKey(selectedDate);
+      renderCalendar();
+      renderAgenda();
+    });
+  });
+}
+
+document.querySelectorAll("[data-calendar-view]").forEach((btn) => {
+  btn.addEventListener("click", () => {
+    calendarView = btn.dataset.calendarView;
+    document.querySelectorAll("[data-calendar-view]").forEach((b) => b.classList.toggle("is-active", b.dataset.calendarView === calendarView));
+    anchorDate = dateFromKey(selectedDate);
+    renderCalendar();
+  });
+});
 
 function formatAgendaDate(date) {
   const [y, m, d] = date.split("-").map(Number);
@@ -205,16 +360,19 @@ function renderAgenda() {
 }
 
 document.getElementById("bookingPrevMonth")?.addEventListener("click", () => {
-  viewMonth.setMonth(viewMonth.getMonth() - 1);
+  if (calendarView === "month") anchorDate = new Date(anchorDate.getFullYear(), anchorDate.getMonth() - 1, 1);
+  else if (calendarView === "week") anchorDate = addDays(anchorDate, -7);
+  else anchorDate = addDays(anchorDate, -1);
   renderCalendar();
 });
 document.getElementById("bookingNextMonth")?.addEventListener("click", () => {
-  viewMonth.setMonth(viewMonth.getMonth() + 1);
+  if (calendarView === "month") anchorDate = new Date(anchorDate.getFullYear(), anchorDate.getMonth() + 1, 1);
+  else if (calendarView === "week") anchorDate = addDays(anchorDate, 7);
+  else anchorDate = addDays(anchorDate, 1);
   renderCalendar();
 });
 document.getElementById("bookingTodayBtn")?.addEventListener("click", () => {
-  viewMonth = new Date();
-  viewMonth.setDate(1);
+  anchorDate = new Date();
   selectedDate = todayStr();
   renderCalendar();
   renderAgenda();
@@ -272,6 +430,48 @@ bookingForm?.addEventListener("submit", async (event) => {
   } catch (e) {
     if (bookingFormNote) { bookingFormNote.hidden = false; bookingFormNote.textContent = e.message; }
     else setStatus(e.message, true);
+  }
+});
+
+// ---------- Request Landing Page ----------
+//
+// Not a self-serve builder — this sends a request straight to Qp Digital
+// (netlify/functions/landing-page-request.mts), same pattern as the
+// "New Change Request" action on web-development.html. Qp Digital designs
+// and ships the page by hand.
+
+function bookingAccountId() {
+  return new URLSearchParams(location.search).get("account") || "";
+}
+
+const landingPageModal = document.getElementById("landingPageModal");
+const landingPageForm = document.getElementById("landingPageForm");
+const landingPageFormNote = document.getElementById("landingPageFormNote");
+
+document.getElementById("bookingLandingPageBtn")?.addEventListener("click", () => {
+  landingPageForm?.reset();
+  if (landingPageFormNote) landingPageFormNote.hidden = true;
+  if (landingPageModal) landingPageModal.hidden = false;
+});
+document.getElementById("landingPageModalClose")?.addEventListener("click", () => { if (landingPageModal) landingPageModal.hidden = true; });
+document.getElementById("landingPageFormCancel")?.addEventListener("click", () => { if (landingPageModal) landingPageModal.hidden = true; });
+landingPageModal?.addEventListener("click", (event) => { if (event.target === landingPageModal) landingPageModal.hidden = true; });
+
+landingPageForm?.addEventListener("submit", async (event) => {
+  event.preventDefault();
+  const payload = Object.fromEntries(new FormData(landingPageForm).entries());
+  try {
+    const response = await fetch("/api/landing-page-request", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ account: bookingAccountId(), service: "Booking System", ...payload }),
+    });
+    const data = await response.json().catch(() => ({}));
+    if (!response.ok || data.status !== "ok") throw new Error(data.message || "Couldn't send that — try again.");
+    if (landingPageModal) landingPageModal.hidden = true;
+    setStatus("Landing page request sent — Qp Digital will be in touch.");
+  } catch (e) {
+    if (landingPageFormNote) { landingPageFormNote.hidden = false; landingPageFormNote.textContent = e.message; }
   }
 });
 
