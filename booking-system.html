@@ -1,1 +1,118 @@
-<!doctype html><html lang="en" data-theme="dark"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Booking System — Qp Digital Members Portal</title><link rel="icon" href="favicon-512.png" type="image/png"><link rel="apple-touch-icon" href="apple-touch-icon.png"><link rel="stylesheet" href="style.css"><link rel="stylesheet" href="member-service.css"></head><body><header class="site-header"><div class="container header__inner"><a class="logo" href="/">Qp Digital</a><nav class="nav"><a href="members.html">← Members Portal</a></nav><button class="theme-toggle" data-theme-toggle type="button">Light</button></div></header><main><section class="container member-service-page" data-member-service data-service-aliases="booking,appointment" hidden><div class="member-service-head"><div><p class="section__tag">// Booking System</p><h1>Appointments Dashboard</h1><p>Manage bookings, services and availability from your personalised system.</p></div><div class="member-service-actions"><button class="btn btn--ghost" type="button">Edit Availability</button><button class="btn btn--primary" type="button">+ New Booking</button></div></div><div class="member-service-summary"><div><span>Account</span><strong data-member-account></strong></div><div><span>Today</span><strong>6 bookings</strong></div><div><span>This month</span><strong>42 bookings</strong></div></div><div class="member-service-grid"><article class="member-service-panel"><p class="section__tag">// Today</p><h2>Upcoming bookings</h2><div class="member-service-list"><div class="member-service-row"><span>10:00 · Jamie Reed</span><strong>Confirmed</strong></div><div class="member-service-row"><span>12:30 · Maya Cole</span><strong>Confirmed</strong></div><div class="member-service-row"><span>15:00 · Theo James</span><strong>Pending</strong></div></div></article><article class="member-service-panel"><p class="section__tag">// Services</p><h2>Your bookable services</h2><div class="member-service-list"><div class="member-service-row"><span>Consultation</span><strong>45 min</strong></div><div class="member-service-row"><span>Standard appointment</span><strong>60 min</strong></div></div><button class="btn btn--ghost" type="button">Manage Services</button></article></div></section><section class="container member-service-gate" id="memberServiceGate" hidden><h1>Members Portal access required</h1><p>Sign in with an account that includes a Booking System.</p><a class="btn btn--primary" href="members.html">Return to Members Portal →</a></section></main><script src="member-service.js"></script></body></html>
+<!doctype html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Qp Booking System — Client Workspace</title>
+  <link rel="icon" href="favicon-512.png" type="image/png">
+  <link rel="apple-touch-icon" href="apple-touch-icon.png">
+  <link rel="stylesheet" href="style.css"><link rel="stylesheet" href="member-service.css">
+</head>
+<body>
+  <main class="service-app-shell" data-member-service data-service-aliases="booking,appointment" hidden>
+    <aside class="service-app-sidebar">
+      <a class="service-app-brand" href="booking-system.html"><img src="apple-touch-icon.png" alt="" width="32" height="32"><span>Qp Digital Booking</span></a>
+      <nav class="service-app-nav" aria-label="Booking System navigation">
+        <button data-booking-view="calendar" class="is-active" type="button">Calendar</button>
+        <button data-booking-view="services" type="button">Services</button>
+        <button data-booking-view="availability" type="button">Availability</button>
+        <a href="members.html">← Members Portal</a>
+      </nav>
+    </aside>
+    <section class="service-app-main">
+      <header class="service-app-topbar">
+        <div><p class="section__tag">// Personalised Client Workspace</p><h1 data-booking-view-title>Calendar</h1><p>Account <strong data-member-account></strong> · <span data-booking-view-lead>Every booking, at a glance.</span></p></div>
+        <div class="service-app-tools" data-booking-view="calendar">
+          <button class="btn btn--primary" id="bookingNewBtn" type="button">+ New Booking</button>
+        </div>
+      </header>
+
+      <p class="crm-status" id="bookingStatus" aria-live="polite"></p>
+
+      <div class="member-service-summary">
+        <div><span>Account</span><strong data-member-account></strong></div>
+        <div><span>Today</span><strong id="bookingTodayCount">0 bookings</strong></div>
+        <div><span>This month</span><strong id="bookingMonthCount">0 bookings</strong></div>
+      </div>
+
+      <!-- Calendar -->
+      <div data-booking-panel="calendar" class="crm-panel">
+        <div class="member-service-panel" style="margin-bottom:1rem">
+          <div class="booking-calendar__head">
+            <div class="booking-calendar__nav">
+              <button type="button" id="bookingPrevMonth" aria-label="Previous month">‹</button>
+              <button type="button" id="bookingNextMonth" aria-label="Next month">›</button>
+            </div>
+            <h2 id="bookingMonthLabel">—</h2>
+            <button type="button" class="btn btn--ghost btn--sm" id="bookingTodayBtn">Today</button>
+          </div>
+          <div class="booking-calendar__weekdays">
+            <span>Mon</span><span>Tue</span><span>Wed</span><span>Thu</span><span>Fri</span><span>Sat</span><span>Sun</span>
+          </div>
+          <div class="booking-calendar__grid" id="bookingCalendarGrid" role="grid" aria-label="Booking calendar"></div>
+        </div>
+
+        <div class="member-service-panel">
+          <div class="booking-agenda__head">
+            <h2 id="bookingAgendaTitle">Today</h2>
+            <button type="button" class="btn btn--ghost btn--sm" id="bookingAgendaAddBtn">+ Add booking for this day</button>
+          </div>
+          <div id="bookingAgendaList"></div>
+        </div>
+      </div>
+
+      <!-- Services -->
+      <div data-booking-panel="services" class="crm-panel" hidden>
+        <details class="member-service-panel" style="margin-bottom:1rem">
+          <summary style="cursor:pointer;color:var(--gold)">+ New bookable service</summary>
+          <form id="bookingServiceForm" class="crm-form">
+            <input name="name" placeholder="Service name (e.g. Consultation)" required>
+            <input name="durationMinutes" type="number" min="5" step="5" placeholder="Duration (minutes)" value="30" required>
+            <button class="btn btn--primary" type="submit">Add service</button>
+          </form>
+        </details>
+        <div class="member-service-list" id="bookingServicesList"></div>
+      </div>
+
+      <!-- Availability -->
+      <div data-booking-panel="availability" class="crm-panel" hidden>
+        <div class="member-service-panel">
+          <h2>Weekly availability</h2>
+          <p class="crm-panel__hint">Customers can only be booked in on the days and times you switch on here — this doesn't stop you adding a booking outside these hours by hand.</p>
+          <div id="bookingAvailabilityRows"></div>
+          <button class="btn btn--primary" type="button" id="bookingSaveAvailabilityBtn" style="margin-top:1rem">Save Availability</button>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- New/Edit Booking modal -->
+  <div class="service-action-modal" id="bookingModal" hidden>
+    <div class="service-action-dialog">
+      <div class="service-action-dialog__head">
+        <div><p class="section__tag">// New Booking</p><h2>Add a booking</h2></div>
+        <button class="service-action-close" id="bookingModalClose" type="button" aria-label="Close">×</button>
+      </div>
+      <form class="service-action-form" id="bookingForm">
+        <label>Customer name<input name="customerName" required></label>
+        <label>Phone<input name="customerPhone" type="tel"></label>
+        <label>Email<input name="customerEmail" type="email"></label>
+        <label>Service<select name="serviceId" id="bookingFormService"><option value="">No specific service</option></select></label>
+        <label>Date<input name="date" type="date" required></label>
+        <label>Time<input name="time" type="time" required></label>
+        <label>Notes<textarea name="notes" rows="3"></textarea></label>
+        <p class="service-action-note" id="bookingFormNote" hidden></p>
+        <div class="service-action-form__buttons">
+          <button class="btn btn--ghost" type="button" id="bookingFormCancel">Cancel</button>
+          <button class="btn btn--primary" type="submit">Add Booking</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <div class="service-toast" id="bookingToast" hidden></div>
+
+  <section class="container member-service-gate" id="memberServiceGate" hidden><h1>Members Portal access required</h1><p>Sign in with an account that includes a Booking System.</p><a class="btn btn--primary" href="members.html">Return to Members Portal →</a></section>
+  <script src="member-service.js"></script>
+  <script src="booking-app.js"></script>
+  <script src="client-assistant.js"></script>
+</body></html>
