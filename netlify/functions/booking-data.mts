@@ -135,7 +135,7 @@ export default async (req: Request, _context: Context) => {
 
       const serviceId = str(payload.serviceId);
       const service = serviceId ? ws.services.find((s) => s.id === serviceId) : undefined;
-      const durationMinutes = service?.durationMinutes ?? Number(payload.durationMinutes) || 30;
+      const durationMinutes = service?.durationMinutes ?? (Number(payload.durationMinutes) || 30);
 
       ws.bookings.push({
         id: randomUUID(),
