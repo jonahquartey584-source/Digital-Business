@@ -59,7 +59,7 @@ export default async (req: Request, _context: Context) => {
     source: "website-enquiry",
   });
 
-  const businessInboxEmail = Netlify.env.get("ENQUIRY_NOTIFICATION_EMAIL") ?? "jonahquartey584@gmail.com";
+  const businessInboxEmail = Netlify.env.get("ENQUIRY_NOTIFICATION_EMAIL") ?? "contact@qp-digital.co.uk";
   const summaryHtml = `
     <div style="font-family:sans-serif;color:#222;line-height:1.6;">
       <p>Hi ${escapeHtml(name)},</p>

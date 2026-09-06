@@ -1,6 +1,6 @@
 // ---- Configuration ----------------------------------------------------
 // Update this to the email address that should receive enquiries.
-const BUSINESS_EMAIL = "jonahquartey584@gmail.com";
+const BUSINESS_EMAIL = "contact@qp-digital.co.uk";
 
 // ---- Light / dark theme -------------------------------------------------
 const themeToggle = document.getElementById("themeToggle");
@@ -420,7 +420,7 @@ if (enquiryForm) {
       conversation.push({ role: "assistant", content: data.reply });
     } catch {
       typing.remove();
-      const fallbackReply = "I’m temporarily unavailable. Please call 020 3750 8659 or email jonahquartey584@gmail.com and the Qp Digital team will help.";
+      const fallbackReply = "I’m temporarily unavailable. Please call 020 3750 8659 or email contact@qp-digital.co.uk and the Qp Digital team will help.";
       addMessage("assistant", fallbackReply);
       conversation.push({ role: "assistant", content: fallbackReply });
     } finally {
@@ -466,7 +466,7 @@ if (enquiryForm) {
       addMessage("assistant", "Your request has been sent. A Qp Digital agent will join this chat and be with you soon — please keep this page open.");
       startAgentPolling();
     } catch {
-      handoffNote.textContent = "Couldn’t send that request. Please call 020 3750 8659 or email jonahquartey584@gmail.com.";
+      handoffNote.textContent = "Couldn’t send that request. Please call 020 3750 8659 or email contact@qp-digital.co.uk.";
     } finally {
       submit.disabled = false;
     }

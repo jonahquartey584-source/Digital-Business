@@ -52,7 +52,7 @@ export default async (req: Request, _context: Context) => {
     source: "job-application",
   });
 
-  const ownerEmail = Netlify.env.get("ENQUIRY_NOTIFICATION_EMAIL") ?? "jonahquartey584@gmail.com";
+  const ownerEmail = Netlify.env.get("ENQUIRY_NOTIFICATION_EMAIL") ?? "contact@qp-digital.co.uk";
 
   if (email) {
     await sendEmail({

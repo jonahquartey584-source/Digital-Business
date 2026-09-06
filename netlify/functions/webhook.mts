@@ -132,7 +132,7 @@ export default async (req: Request, context: Context) => {
           });
         }
 
-        const ownerEmail = Netlify.env.get("PAYMENT_NOTIFICATION_EMAIL") ?? "jonahquartey584@gmail.com";
+        const ownerEmail = Netlify.env.get("PAYMENT_NOTIFICATION_EMAIL") ?? "contact@qp-digital.co.uk";
         await sendEmail({
           to: ownerEmail,
           subject: `Payment received: ${client.service} — ${accountNumber}`,
