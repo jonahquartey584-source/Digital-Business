@@ -94,6 +94,73 @@ p {
   background: var(--gold-gradient);
 }
 
+/* Intro animation — plays once on every load of the homepage, before the
+   real header/hero underneath. Pure CSS (runs even with no JS, and even if
+   style.css is slow — it's the first rule the browser applies once the
+   stylesheet loads), so there's nothing to fail open on. */
+.intro-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 999;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+  background: var(--bg);
+  pointer-events: none;
+  animation: introOverlayOut 2.1s ease forwards;
+}
+
+.intro-overlay__mark {
+  font-family: "Playfair Display", "Georgia", serif;
+  font-weight: 700;
+  font-size: clamp(2.2rem, 6vw, 3.4rem);
+  letter-spacing: 0.01em;
+  background: var(--gold-gradient);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  opacity: 0;
+  transform: translateY(10px) scale(0.97);
+  animation: introMarkIn 0.8s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+}
+
+.intro-overlay__line {
+  width: 0;
+  height: 2px;
+  background: var(--gold-gradient);
+  animation: introLineIn 0.7s ease-out 0.35s forwards;
+}
+
+.intro-overlay__tag {
+  font-family: "IBM Plex Mono", ui-monospace, "SFMono-Regular", monospace;
+  font-size: 0.78rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--text-dim);
+  opacity: 0;
+  animation: introTagIn 0.6s ease 0.55s forwards;
+}
+
+@keyframes introMarkIn {
+  to { opacity: 1; transform: none; }
+}
+@keyframes introLineIn {
+  to { width: 96px; }
+}
+@keyframes introTagIn {
+  to { opacity: 1; }
+}
+@keyframes introOverlayOut {
+  0%, 62% { opacity: 1; visibility: visible; }
+  100% { opacity: 0; visibility: hidden; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .intro-overlay { display: none; }
+}
+
 /* Buttons */
 .btn {
   display: inline-flex;
