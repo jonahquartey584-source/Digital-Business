@@ -1,0 +1,55 @@
+# Landlord Finder configuration
+# Copy this file to config.yaml and edit the values below.
+# config.yaml is gitignored so your personal search criteria stay local.
+
+criteria:
+  # Inclusive price range, in whatever currency your listings use.
+  min_price: 800
+  max_price: 2200
+
+  min_bedrooms: 1
+  max_bedrooms: 3
+  min_bathrooms: 1
+
+  # Case-insensitive substring match against the listing's city/neighborhood/zip field.
+  # Leave empty ([]) to allow any location.
+  locations:
+    - "Downtown"
+    - "Riverside"
+    - "60601"
+
+  pets_allowed: true          # set to false if you don't care / don't want pets
+  require_no_app_fee: false   # true = only keep listings that advertise no application fee
+
+  # Listing text must NOT contain any of these (case-insensitive). Good for filtering
+  # out scams or deal-breakers ("no smoking building only", "section 8 not accepted", etc.)
+  exclude_keywords:
+    - "no pets"
+    - "credit check required"
+
+  # Listing text SHOULD contain at least one of these to count as a match (optional).
+  # Leave empty to not require any specific keyword.
+  include_keywords: []
+
+  # Minimum "private landlord" confidence score (0.0-1.0) from the classifier.
+  # Higher = stricter about excluding property-management companies / agencies.
+  min_landlord_confidence: 0.6
+
+notifications:
+  # "desktop" uses notify-send (Linux), osascript (macOS), or PowerShell toast (Windows).
+  # "none" disables pop-ups; you can still check output/matches.csv and the run log.
+  method: desktop
+
+  # Optional: also email new matches. Leave smtp_host blank to skip email entirely.
+  email:
+    smtp_host: ""
+    smtp_port: 587
+    username: ""
+    password: ""       # consider using an app password / environment variable instead
+    from_addr: ""
+    to_addr: ""
+
+paths:
+  inbox_dir: "inbox"        # drop exported CSV/JSON listing files here
+  output_dir: "output"      # matches.csv, run.log, and all-listings history live here
+  database: "output/listings.db"

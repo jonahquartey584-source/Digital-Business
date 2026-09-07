@@ -1,0 +1,11 @@
+config.yaml
+data/model.joblib
+output/*.db
+output/*.csv
+output/*.log
+inbox/*.csv
+inbox/*.json
+!inbox/example_listings.csv
+__pycache__/
+*.pyc
+.venv/

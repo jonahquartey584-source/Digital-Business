@@ -1,0 +1,4 @@
+title,price,bedrooms,bathrooms,location,url,source,description,contact
+"Cozy 2BR near downtown",1450,2,1,"Downtown","https://example.com/listing/1",craigslist,"Private landlord, no agents please, owner managed building, pets considered. No application fee.","jane@example.com"
+"Modern 1BR - Riverside Towers",1800,1,1,"Riverside","https://example.com/listing/2",zillow,"Now leasing at Riverside Towers, managed by Crestview Apartment Homes. Application fee $50, credit and background check required.","leasing@crestview.example.com"
+"Basement studio, quiet street",900,0,1,"60601","https://example.com/listing/3",facebook,"I am the owner renting my basement unit directly, no realtors, cash or check only, small pets ok.","555-0100"
