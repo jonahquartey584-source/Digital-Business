@@ -35,6 +35,7 @@ class Criteria:
     max_bedrooms: float = float("inf")
     min_bathrooms: float = 0
     locations: list[str] = field(default_factory=list)
+    allowed_sources: list[str] = field(default_factory=list)
     pets_allowed: bool | None = None
     require_no_app_fee: bool = False
     exclude_keywords: list[str] = field(default_factory=list)
@@ -83,6 +84,7 @@ def load_config(path: str | None = None) -> AppConfig:
         max_bedrooms=crit_data.get("max_bedrooms", float("inf")),
         min_bathrooms=crit_data.get("min_bathrooms", 0),
         locations=[str(loc).lower() for loc in crit_data.get("locations", [])],
+        allowed_sources=[str(s).lower() for s in crit_data.get("allowed_sources", [])],
         pets_allowed=crit_data.get("pets_allowed"),
         require_no_app_fee=crit_data.get("require_no_app_fee", False),
         exclude_keywords=[str(k).lower() for k in crit_data.get("exclude_keywords", [])],

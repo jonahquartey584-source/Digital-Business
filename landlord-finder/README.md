@@ -53,7 +53,23 @@ inbox/*.csv, *.json  →  ingest & normalize  →  classify (private landlord vs
 5. **Notify**: new matches trigger a desktop notification (Linux
    `notify-send`, macOS `osascript`, Windows PowerShell balloon tip) and,
    optionally, an email if you fill in SMTP settings in `config.yaml`.
-   Everything is also written to `output/matches.csv` and `output/run.log`.
+   Everything is also written to `output/matches.csv` and `output/run.log`,
+   and optionally appended as rows to a Google Sheet (see below).
+
+### Restricting to specific sites (`allowed_sources`)
+
+If you only want listings you found on certain sites, set `allowed_sources`
+in `config.yaml` (e.g. `["spareroom", "gumtree", "openrent"]`) — it's matched
+case-insensitively against the `source` column in your inbox file, so tag
+each row with where you found it.
+
+### Google Sheets output
+
+Set `google_sheets.enabled: true` in `config.yaml` to also append every new
+match as a row in a Google Sheet you own, alongside the local CSV. This
+needs a one-time, free setup (a Google Cloud service account — no developer
+account, no cost): full step-by-step instructions are in the docstring at
+the top of `landlord_finder/sheets.py`.
 
 ## Setup
 

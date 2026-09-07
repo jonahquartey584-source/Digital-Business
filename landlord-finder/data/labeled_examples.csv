@@ -40,3 +40,13 @@ text,label
 "Professionally managed community with on-site staff, gated access, and resident portal.",agency
 "Our brokerage represents the landlord in this transaction, tenant broker fee applies.",agency
 "Managed remotely by an out of state property management company, all communication via portal.",agency
+"Private landlord, no letting agents involved, direct from the owner, no admin or referencing fees.",owner
+"I'm the landlord renting this myself via OpenRent, no agents, no fees, straightforward tenancy.",owner
+"Direct from owner on SpareRoom, no landlords' agent, deposit protected via TDS, viewings arranged by me personally.",owner
+"No agency fees, no tenancy setup fee, I am the freeholder renting out my own flat.",owner
+"Listed by the landlord, not a letting agency, please do not contact if you are an agent.",owner
+"Whole flat managed by our lettings team, admin fee applies, credit check and referencing required.",agency
+"Viewings arranged via our lettings negotiator, this property is part of our managed portfolio.",agency
+"Represented by a registered letting agent, tenant find fee may apply, professional management throughout tenancy.",agency
+"Managed by a licensed lettings agency, all applicants must pass our referencing and credit checks.",agency
+"This property is one of many in our lettings portfolio, contact our office to arrange a viewing.",agency

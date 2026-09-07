@@ -1,4 +1,5 @@
 title,price,bedrooms,bathrooms,location,url,source,description,contact
-"Cozy 2BR near downtown",1450,2,1,"Downtown","https://example.com/listing/1",craigslist,"Private landlord, no agents please, owner managed building, pets considered. No application fee.","jane@example.com"
-"Modern 1BR - Riverside Towers",1800,1,1,"Riverside","https://example.com/listing/2",zillow,"Now leasing at Riverside Towers, managed by Crestview Apartment Homes. Application fee $50, credit and background check required.","leasing@crestview.example.com"
-"Basement studio, quiet street",900,0,1,"60601","https://example.com/listing/3",facebook,"I am the owner renting my basement unit directly, no realtors, cash or check only, small pets ok.","555-0100"
+"Bright studio flat, Angel/Islington",1350,0,1,"N1, Angel","https://www.openrent.co.uk/example/1",openrent,"Private landlord, no letting agents involved, direct from the owner. No admin or referencing fees. Available now.","owner1@example.com"
+"1 bed flat near Finsbury Park",1600,1,1,"N4, Finsbury Park","https://www.spareroom.co.uk/example/2",spareroom,"Whole flat managed by Crestview Lettings Ltd, our team will arrange viewings, admin fee applies, credit check required.","lettings@crestview.example.com"
+"2 bed conversion, Clapham",1900,2,1,"SW4, Clapham","https://www.gumtree.com/example/3",gumtree,"I'm the landlord renting this myself, no agents, no fees, just a straightforward tenancy, pets considered.","555-0100"
+"Studio, Elephant & Castle",1250,0,1,"SE1, Elephant and Castle","https://www.openrent.co.uk/example/4",openrent,"Private landlord letting directly, no agency involved, deposit protected via TDS, small pets ok.","owner4@example.com"

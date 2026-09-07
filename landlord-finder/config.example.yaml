@@ -18,6 +18,11 @@ criteria:
     - "Riverside"
     - "60601"
 
+  # Only keep listings tagged with one of these sources (case-insensitive,
+  # must match the "source" column in your inbox CSV/JSON exactly).
+  # Leave empty ([]) to allow any source.
+  allowed_sources: []
+
   pets_allowed: true          # set to false if you don't care / don't want pets
   require_no_app_fee: false   # true = only keep listings that advertise no application fee
 
@@ -53,3 +58,12 @@ paths:
   inbox_dir: "inbox"        # drop exported CSV/JSON listing files here
   output_dir: "output"      # matches.csv, run.log, and all-listings history live here
   database: "output/listings.db"
+
+# Optional: also write every new match as a row in a Google Sheet.
+# See landlord_finder/sheets.py for the one-time setup steps (free Google
+# Cloud service account, no developer account needed).
+google_sheets:
+  enabled: false
+  spreadsheet_id: ""            # the long ID in the sheet's URL
+  worksheet_name: "Matches"     # tab name; created automatically if missing
+  service_account_json: "service_account.json"   # path to your downloaded key file

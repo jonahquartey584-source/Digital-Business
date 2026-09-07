@@ -40,6 +40,10 @@ OWNER_SIGNALS = [
     r"\bcontact (me|the owner) directly\b",
     r"\bno (property )?management company\b",
     r"\bno application fee\b",
+    r"\bno letting agents?\b",
+    r"\bno agency fees?\b",
+    r"\bnot an agent\b",
+    r"\bnot a letting agency\b",
 ]
 
 AGENCY_SIGNALS = [
@@ -55,6 +59,11 @@ AGENCY_SIGNALS = [
     r"\bresident portal\b",
     r"\bon-?site (staff|maintenance)\b",
     r"\bequal housing opportunity\b",
+    r"\bletting agen(t|cy|cies)\b",
+    r"\blettings (team|negotiator|office|portfolio)\b",
+    r"\btenant find fee\b",
+    r"\breferencing (fee|required)\b",
+    r"\bmanaged portfolio\b",
 ]
 
 

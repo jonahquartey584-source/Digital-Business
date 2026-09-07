@@ -1,4 +1,5 @@
 config.yaml
+service_account.json
 data/model.joblib
 output/*.db
 output/*.csv

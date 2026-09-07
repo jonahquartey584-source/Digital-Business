@@ -19,6 +19,7 @@ from .config import ConfigError, load_config
 from .filters import matches_criteria
 from .ingest import load_inbox
 from .notify import notify_new_matches
+from .sheets import push_new_matches
 from .store import ListingStore
 
 
@@ -94,6 +95,7 @@ def cmd_run(args) -> int:
 
     if new_matches:
         notify_new_matches(config.notifications, new_matches)
+        push_new_matches(config.raw.get("google_sheets"), new_matches)
         for m in new_matches:
             print(f"  NEW MATCH: {m.get('title')} | ${m.get('price')} | {m.get('location')} "
                   f"| confidence={m.get('landlord_confidence'):.2f} | {m.get('url')}")
