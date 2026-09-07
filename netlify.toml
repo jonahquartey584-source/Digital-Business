@@ -5,6 +5,18 @@
 [functions]
   directory = "netlify/functions"
 
+# The site is also reachable at its default qp-digital.netlify.app address
+# (every Netlify site gets one) — that's Netlify's own domain, not ours,
+# and it's what shows up in search results/link previews as "Netlify"
+# instead of Qp Digital if anyone ever links to it. Force every request on
+# that host straight to the real domain so it's never the version anyone
+# sees, shares or has indexed.
+[[redirects]]
+  from = "https://qp-digital.netlify.app/*"
+  to = "https://qp-digital.co.uk/:splat"
+  status = 301
+  force = true
+
 # Keep the internal dashboard available at the short address shown to the
 # administrator. The trailing-dot rule also repairs the commonly pasted
 # "admin." address by sending it to the canonical clean URL.
