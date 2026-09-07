@@ -63,6 +63,29 @@ in `config.yaml` (e.g. `["spareroom", "gumtree", "openrent"]`) — it's matched
 case-insensitively against the `source` column in your inbox file, so tag
 each row with where you found it.
 
+### Using Cowork (or any live search) as the "finder"
+
+This tool doesn't browse the web itself (see above). If you already ask
+Claude Cowork to search sites live and it replies with results, you can feed
+that straight in without manually reformatting it:
+
+1. Ask Cowork something like:
+   > Search SpareRoom, Gumtree, and OpenRent for private-landlord (not
+   > agency) rental listings: studio to 2-bed flats, Zone 1 or 2 London,
+   > rent £1,200+. For each one, give me a CSV row with these exact
+   > columns: title, price, bedrooms, bathrooms, location, url, source,
+   > description, contact
+2. Save its reply as a plain text file, e.g. `raw.txt`.
+3. Run:
+   ```bash
+   python -m landlord_finder.cli import-paste raw.txt --run
+   ```
+   This strips out commentary and markdown code fences, adds a header row
+   if Cowork left one out, saves a clean CSV into `inbox/`, and (with
+   `--run`) immediately classifies, filters, dedupes, notifies, and pushes
+   to Google Sheets — same as a normal `run`. Drop `--run` to just import
+   without processing yet.
+
 ### Google Sheets output
 
 Set `google_sheets.enabled: true` in `config.yaml` to also append every new

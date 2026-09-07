@@ -4,6 +4,7 @@ Usage:
     python -m landlord_finder.cli train
     python -m landlord_finder.cli run [--config config.yaml]
     python -m landlord_finder.cli list-matches [--config config.yaml]
+    python -m landlord_finder.cli import-paste raw.txt [--run]
 """
 
 from __future__ import annotations
@@ -19,6 +20,7 @@ from .config import ConfigError, load_config
 from .filters import matches_criteria
 from .ingest import load_inbox
 from .notify import notify_new_matches
+from .paste_import import clean_pasted_text
 from .sheets import push_new_matches
 from .store import ListingStore
 
@@ -103,6 +105,37 @@ def cmd_run(args) -> int:
     return 0
 
 
+def cmd_import_paste(args) -> int:
+    try:
+        config = load_config(args.config)
+    except ConfigError as exc:
+        print(f"[landlord-finder] {exc}", file=sys.stderr)
+        return 1
+
+    with open(args.input, "r", encoding="utf-8") as fh:
+        raw_text = fh.read()
+
+    cleaned = clean_pasted_text(raw_text)
+    if not cleaned.strip():
+        print(f"[landlord-finder] Couldn't find any CSV-looking rows in '{args.input}'. "
+              "Make sure Cowork's reply used the title,price,bedrooms,... column format.")
+        return 1
+
+    inbox_dir = config.paths["inbox_dir"]
+    os.makedirs(inbox_dir, exist_ok=True)
+    out_path = os.path.join(inbox_dir, f"cowork_{datetime.now(timezone.utc).strftime('%Y%m%dT%H%M%S')}.csv")
+    with open(out_path, "w", encoding="utf-8", newline="") as fh:
+        fh.write(cleaned)
+
+    row_count = cleaned.strip().count("\n")  # header + data rows minus header = data row count
+    print(f"[landlord-finder] Saved {row_count} listing row(s) to '{out_path}'.")
+
+    if args.run:
+        return cmd_run(args)
+    print("[landlord-finder] Run `python -m landlord_finder.cli run` to classify and filter it.")
+    return 0
+
+
 def cmd_list_matches(args) -> int:
     try:
         config = load_config(args.config)
@@ -135,6 +168,15 @@ def build_parser() -> argparse.ArgumentParser:
     p_list = sub.add_parser("list-matches", help="List every match found so far")
     p_list.add_argument("--config", default=None, help="Path to config.yaml (default: ./config.yaml)")
     p_list.set_defaults(func=cmd_list_matches)
+
+    p_paste = sub.add_parser(
+        "import-paste",
+        help="Convert a raw paste (e.g. Cowork's reply) into an inbox CSV",
+    )
+    p_paste.add_argument("input", help="Path to a text file containing the pasted content")
+    p_paste.add_argument("--config", default=None, help="Path to config.yaml (default: ./config.yaml)")
+    p_paste.add_argument("--run", action="store_true", help="Immediately run the full pipeline after importing")
+    p_paste.set_defaults(func=cmd_import_paste)
 
     return parser
 
