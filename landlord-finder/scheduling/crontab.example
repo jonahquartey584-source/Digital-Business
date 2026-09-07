@@ -1,0 +1,4 @@
+# Example cron line for Landlord Finder.
+# Edit the paths below, then install with: crontab -e
+# Runs at 8am and 6pm every day, appending output to output/cron.log
+0 8,18 * * * cd /path/to/landlord-finder && /usr/bin/python3 -m landlord_finder.cli run >> output/cron.log 2>&1
