@@ -6,7 +6,7 @@
   const storageKey = `qpServiceActivity:${accountId}:${service}`;
   const modal = document.createElement("div");
   modal.className = "service-action-modal"; modal.hidden = true;
-  modal.innerHTML = `<section class="service-action-dialog" role="dialog" aria-modal="true" aria-labelledby="serviceActionTitle"><div class="service-action-dialog__head"><div><p class="section__tag">// Client Action</p><h2 id="serviceActionTitle"></h2></div><button class="service-action-close" type="button" aria-label="Close">×</button></div><div id="serviceActionContent"></div></section>`;
+  modal.innerHTML = `<section class="service-action-dialog" role="dialog" aria-modal="true" aria-labelledby="serviceActionTitle"><div class="service-action-dialog__head"><div><p class="section__tag">Client Action</p><h2 id="serviceActionTitle"></h2></div><button class="service-action-close" type="button" aria-label="Close">×</button></div><div id="serviceActionContent"></div></section>`;
   const toast = document.createElement("div"); toast.className = "service-toast"; toast.hidden = true; toast.setAttribute("role", "status");
   document.body.append(modal, toast);
   const content = modal.querySelector("#serviceActionContent"); const title = modal.querySelector("#serviceActionTitle");

@@ -271,12 +271,6 @@ p {
   padding-bottom: 4px;
 }
 
-.nav a:not(.nav-secondary)::before {
-  content: "> ";
-  color: var(--gold);
-  opacity: 0.55;
-}
-
 .nav a::after {
   content: "";
   position: absolute;
@@ -473,23 +467,28 @@ p {
 @keyframes ambientDrift{0%{transform:translate3d(0,0,0)}50%{transform:translate3d(35px,-24px,0)}100%{transform:translate3d(0,0,0)}}
 @media(prefers-reduced-motion:reduce){.hero__ambient::before,.hero__ambient::after,.hero__ambient span,.hero__ambient i{animation:none}}
 
+/* Eyebrow — matches .section__tag: a short gold rule and a tracked caps
+   line. Previously a monospace line opening with a "$" shell prompt. */
 .eyebrow {
   display: inline-flex;
   align-items: center;
   gap: 10px;
   text-transform: uppercase;
   letter-spacing: 0.14em;
-  font-family: "IBM Plex Mono", monospace;
-  font-size: 0.74rem;
-  font-weight: 600;
+  font-family: "Sora", sans-serif;
+  font-size: 0.72rem;
+  font-weight: 700;
   color: var(--gold-bright);
   margin-bottom: 20px;
 }
 
 .eyebrow::before {
-  content: "$";
-  color: var(--gold);
-  font-weight: 700;
+  content: "";
+  flex: none;
+  width: 22px;
+  height: 2px;
+  border-radius: 2px;
+  background: var(--gold-gradient);
 }
 
 .hero h1 {
@@ -497,22 +496,6 @@ p {
   font-weight: 700;
   margin-bottom: 22px;
   color: var(--beige);
-}
-
-.cursor {
-  display: inline-block;
-  width: 0.5em;
-  height: 0.9em;
-  margin-left: 3px;
-  background: var(--gold-bright);
-  vertical-align: text-bottom;
-  animation: blink 1.1s steps(1) infinite;
-}
-
-@keyframes blink {
-  50% {
-    opacity: 0;
-  }
 }
 
 .hero__lead {
@@ -584,9 +567,10 @@ p {
 }
 
 /* Hero rotator — the medium-sized box beside the hero copy that cycles
-   through "why you need this" reasons every few seconds. Same terminal
-   "chrome" language as .terminal-window (gold-gradient border, dot bar)
-   so it reads as part of the same design system, not a bolted-on widget. */
+   through "why you need this" reasons every few seconds. Presented as a
+   plainly-labelled carousel (icon, title, "01/06" counter) rather than a
+   fake log file: this is marketing copy for business owners, so dressing
+   it as developer output made it read as decoration instead of a claim. */
 .hero__rotator {
   position: relative;
   background: linear-gradient(155deg, #1c170f, #0e0c09 75%);
@@ -610,39 +594,52 @@ p {
   pointer-events: none;
 }
 
-.hero__rotator-bar {
+.hero__rotator-head {
   position: relative;
   display: flex;
   align-items: center;
-  gap: 7px;
-  padding: 12px 16px;
+  gap: 11px;
+  padding: 15px 20px;
   border-bottom: 1px solid var(--border-soft);
 }
 
-.hero__rotator-dot {
-  width: 8px;
-  height: 8px;
+.panel-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex: none;
+  width: 28px;
+  height: 28px;
   border-radius: 50%;
-  background: var(--gold);
+  background: rgba(var(--gold-rgb), 0.12);
+  border: 1px solid rgba(var(--gold-rgb), 0.34);
+  color: var(--gold-bright);
 }
 
-.hero__rotator-dot:nth-child(1) {
-  opacity: 0.9;
+.panel-icon svg {
+  width: 15px;
+  height: 15px;
 }
 
-.hero__rotator-dot:nth-child(2) {
-  opacity: 0.6;
+.hero__rotator-title {
+  margin: 0;
+  font-family: "Sora", sans-serif;
+  font-size: 0.84rem;
+  font-weight: 700;
+  color: var(--beige);
 }
 
-.hero__rotator-dot:nth-child(3) {
-  opacity: 0.35;
-}
-
-.hero__rotator-label {
-  margin-left: auto;
-  font-size: 0.68rem;
+.hero__rotator-count {
+  margin: 0 0 0 auto;
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.03em;
   color: var(--text-faint);
-  letter-spacing: 0.05em;
+}
+
+.hero__rotator-count b {
+  color: var(--gold-bright);
+  font-weight: 700;
 }
 
 .hero__rotator-body {
@@ -652,13 +649,6 @@ p {
   display: flex;
   flex-direction: column;
   justify-content: center;
-}
-
-.hero__rotator-eyebrow {
-  font-size: 0.72rem;
-  letter-spacing: 0.08em;
-  color: var(--gold);
-  margin-bottom: 12px;
 }
 
 .hero__rotator-headline {
@@ -677,13 +667,11 @@ p {
   margin: 0;
 }
 
-.hero__rotator-eyebrow,
 .hero__rotator-headline,
 .hero__rotator-text {
   transition: opacity 0.25s ease;
 }
 
-.hero__rotator-body.is-fading .hero__rotator-eyebrow,
 .hero__rotator-body.is-fading .hero__rotator-headline,
 .hero__rotator-body.is-fading .hero__rotator-text {
   opacity: 0;
@@ -730,13 +718,29 @@ section {
   margin-bottom: 44px;
 }
 
+/* Section label — a short gold rule followed by a tracked caps word, the
+   standard editorial way to title a section. Replaced the "// Services"
+   code-comment styling, which made a small-business services site read
+   like a developer's terminal. */
 .section__tag {
-  font-family: "IBM Plex Mono", monospace;
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  font-family: "Sora", sans-serif;
   text-transform: uppercase;
-  letter-spacing: 0.12em;
-  font-size: 0.72rem;
+  letter-spacing: 0.14em;
+  font-size: 0.7rem;
   color: var(--gold);
-  font-weight: 600;
+  font-weight: 700;
+}
+
+.section__tag::before {
+  content: "";
+  flex: none;
+  width: 22px;
+  height: 2px;
+  border-radius: 2px;
+  background: var(--gold-gradient);
 }
 
 .section__title {
@@ -1012,28 +1016,25 @@ section {
 }
 
 .preview-frame__dot {
-  width: 8px;
-  height: 8px;
+  width: 9px;
+  height: 9px;
   border-radius: 50%;
-  background: var(--gold);
-}
-
-.preview-frame__dot:nth-child(1) {
-  opacity: 0.9;
-}
-
-.preview-frame__dot:nth-child(2) {
-  opacity: 0.6;
-}
-
-.preview-frame__dot:nth-child(3) {
-  opacity: 0.35;
+  background: #4b463d;
 }
 
 .preview-frame__url {
-  margin-left: 10px;
-  font-size: 0.74rem;
-  color: var(--text-faint);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  flex: 1;
+  margin-left: 8px;
+  padding: 5px 12px;
+  border-radius: 999px;
+  background: rgba(0, 0, 0, 0.32);
+  border: 1px solid var(--border-soft);
+  font-size: 0.72rem;
+  color: var(--text-dim);
   letter-spacing: 0.03em;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -1083,11 +1084,10 @@ section {
   color: var(--text-faint);
 }
 
-/* Account card — a plain, human-readable stand-in for the terminal-window
-   component used on this section only: this is marketing copy shown to
-   any visitor, not a real system response, so it deliberately doesn't
-   look like code (no braces/quotes) even though it shares the same
-   browser-chrome visual language. */
+/* Account card — the illustrative "here's what you'll be sent" record in
+   the How It Works section. Shown to any visitor as marketing copy, not a
+   real system response, so it's styled as a statement/receipt with a
+   labelled head and an explicit EXAMPLE flag rather than as a code window. */
 .account-card {
   position: relative;
   background: linear-gradient(155deg, #1c170f, #0e0c09 75%);
@@ -1099,39 +1099,32 @@ section {
   justify-self: center;
 }
 
-.account-card__bar {
+.account-card__head {
   display: flex;
   align-items: center;
-  gap: 7px;
-  padding: 12px 16px;
+  gap: 11px;
+  padding: 15px 18px;
   border-bottom: 1px solid var(--border-soft);
 }
 
-.account-card__dot {
-  width: 8px;
-  height: 8px;
-  border-radius: 50%;
-  background: var(--gold);
+.account-card__title {
+  margin: 0;
+  font-family: "Sora", sans-serif;
+  font-size: 0.84rem;
+  font-weight: 700;
+  color: var(--beige);
 }
 
-.account-card__dot:nth-child(1) {
-  opacity: 0.9;
-}
-
-.account-card__dot:nth-child(2) {
-  opacity: 0.6;
-}
-
-.account-card__dot:nth-child(3) {
-  opacity: 0.35;
-}
-
-.account-card__label {
+.account-card__flag {
   margin-left: auto;
-  font-size: 0.68rem;
-  color: var(--text-faint);
-  letter-spacing: 0.05em;
+  padding: 4px 10px;
+  border: 1px solid rgba(var(--gold-rgb), 0.4);
+  border-radius: 999px;
+  font-size: 0.62rem;
+  font-weight: 700;
   text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--gold);
 }
 
 .account-card__body {
@@ -1153,10 +1146,10 @@ section {
 }
 
 .account-card__key {
-  font-family: "IBM Plex Mono", monospace;
-  font-size: 0.72rem;
-  text-transform: uppercase;
-  letter-spacing: 0.06em;
+  font-family: "IBM Plex Sans", sans-serif;
+  font-size: 0.78rem;
+  font-weight: 500;
+  letter-spacing: 0.01em;
   color: var(--text-faint);
 }
 
@@ -1169,8 +1162,9 @@ section {
 .access-card__caption {
   width: 100%;
   margin-top: 14px;
-  font-size: 0.66rem;
-  letter-spacing: 0.04em;
+  font-size: 0.72rem;
+  font-style: italic;
+  letter-spacing: 0.01em;
   color: var(--text-faint);
   text-align: center;
 }
@@ -1247,21 +1241,37 @@ section {
 }
 
 .showcase-card__dot {
-  width: 8px;
-  height: 8px;
+  width: 9px;
+  height: 9px;
   border-radius: 50%;
-  background: var(--gold);
+  background: #4b463d;
 }
 
-.showcase-card__dot:nth-child(1) { opacity: 0.9; }
-.showcase-card__dot:nth-child(2) { opacity: 0.6; }
-.showcase-card__dot:nth-child(3) { opacity: 0.35; }
-
 .showcase-card__url {
-  margin-left: auto;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  flex: 1;
+  margin-left: 8px;
+  padding: 5px 12px;
+  border-radius: 999px;
+  background: rgba(0, 0, 0, 0.32);
+  border: 1px solid var(--border-soft);
   font-size: 0.68rem;
-  color: var(--text-faint);
+  color: var(--text-dim);
   letter-spacing: 0.02em;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.showcase-card__url svg,
+.preview-frame__url svg {
+  width: 10px;
+  height: 10px;
+  flex: none;
+  color: var(--text-faint);
 }
 
 .showcase-card__body {
@@ -2258,7 +2268,7 @@ html[data-theme="light"] .hero{background:radial-gradient(circle at 78% 42%,rgba
 html[data-theme="light"] .hero::before,html[data-theme="light"] .hero::after{opacity:.38}
 html[data-theme="light"] .hero__rotator,html[data-theme="light"] .terminal-window,html[data-theme="light"] .account-card,html[data-theme="light"] .showcase-card__frame{background:linear-gradient(155deg,#fcfaf5,#eee5d3 75%)}
 html[data-theme="light"] .preview-frame__bar{background:linear-gradient(155deg,#fcfaf5,#eee5d3 75%)}
-html[data-theme="light"] .hero__rotator-bar,html[data-theme="light"] .terminal-window__bar,html[data-theme="light"] .account-card__bar,html[data-theme="light"] .showcase-card__bar{background:rgba(218,190,133,.14)}
+html[data-theme="light"] .hero__rotator-head,html[data-theme="light"] .terminal-window__bar,html[data-theme="light"] .account-card__head,html[data-theme="light"] .showcase-card__bar{background:rgba(218,190,133,.14)}
 html[data-theme="light"] .hero__rotator::before,html[data-theme="light"] .terminal-window::before,html[data-theme="light"] .account-card::before{-webkit-mask:linear-gradient(#fff 0 0) content-box,linear-gradient(#fff 0 0);mask:linear-gradient(#fff 0 0) content-box,linear-gradient(#fff 0 0)}
 html[data-theme="light"] .service-card,html[data-theme="light"] .process-card,html[data-theme="light"] .why-card,html[data-theme="light"] .admin-output__block{box-shadow:0 10px 32px rgba(30,25,15,.06)}
 html[data-theme="light"] .ai-help-panel{background:rgba(252,250,245,.985)}
@@ -2292,10 +2302,10 @@ html[data-theme="light"] .theme-toggle__sun{display:none}html[data-theme="light"
 .members-trust strong { color: var(--text); }
 .members-panel { position: relative; background: var(--surface); border: 1px solid var(--border); box-shadow: var(--shadow); }
 .members-panel::after { content: ""; position: absolute; inset: 14px -14px -14px 14px; z-index: -1; border: 1px solid var(--border); }
-.members-panel__bar { min-height: 58px; display: flex; align-items: center; gap: 9px; padding: 0 1.6rem; border-bottom: 1px solid var(--border); background: var(--surface-alt); }
-.members-panel__bar span { width: 10px; height: 10px; border-radius: 50%; background: var(--gold); }
-.members-panel__bar span:nth-child(2) { opacity: .65; }.members-panel__bar span:nth-child(3) { opacity: .35; }
-.members-panel__bar p { margin: 0 0 0 auto; font: 600 .72rem/1 "IBM Plex Mono", monospace; letter-spacing: .08em; color: var(--text-faint); }
+.members-panel__head { min-height: 58px; display: flex; align-items: center; gap: .7rem; padding: .8rem 1.6rem; border-bottom: 1px solid var(--border); background: var(--surface-alt); }
+.members-panel__head p { margin: 0; font: 700 .85rem/1.3 "Sora", sans-serif; color: var(--text); }
+.members-panel__head .members-panel__secure { margin-left: auto; display: inline-flex; align-items: center; gap: .4rem; font: 600 .68rem/1 "IBM Plex Sans", sans-serif; letter-spacing: .06em; text-transform: uppercase; color: var(--text-faint); }
+.members-panel__head .members-panel__secure svg { width: 12px; height: 12px; }
 .members-panel__body { padding: clamp(1.7rem, 4vw, 3.5rem); }
 .members-page.is-dashboard .members-hero { padding: 3rem 0 5rem; }
 .members-page.is-dashboard .members-shell { display: block; }
@@ -2390,7 +2400,7 @@ html[data-theme="light"] .theme-toggle__sun{display:none}html[data-theme="light"
 @media (max-width: 700px) { .service-dashboard__grid { grid-template-columns: 1fr; }.service-dashboard__card--wide { grid-column: auto; }.service-dashboard__head { display: block; }.service-dashboard__head > .status-pill { display: inline-block; margin-top: 1rem; } }
 @media (max-width: 900px) { .members-shell { grid-template-columns: 1fr; }.members-panel { margin-right: 14px; }.members-intro h1 { font-size: clamp(3rem, 12vw, 5rem); } }
 @media (max-width: 700px) { .portal-service-grid { grid-template-columns: 1fr; }.portal-more-service { align-items: stretch; flex-direction: column; } }
-@media (max-width: 560px) { .members-hero { padding-top: 3.5rem; }.members-panel__bar p { display: none; }.members-panel__body { padding: 1.35rem; }.member-purchase { grid-template-columns: 1fr; }.member-purchase dl { grid-template-columns: 1fr; }.member-results__head { display: block; }.member-results__head .btn { margin-top: 1rem; } }
+@media (max-width: 560px) { .members-hero { padding-top: 3.5rem; }.members-panel__secure { display: none; }.members-panel__body { padding: 1.35rem; }.member-purchase { grid-template-columns: 1fr; }.member-purchase dl { grid-template-columns: 1fr; }.member-results__head { display: block; }.member-results__head .btn { margin-top: 1rem; } }
 /* Administrator member access controls */
 .admin-access-panel{margin:1.4rem 0;padding:1.2rem;border:1px solid var(--border);background:color-mix(in srgb,var(--surface) 92%,transparent);display:grid;gap:1rem}
 .admin-access-panel>div:first-child{display:grid;gap:.45rem}

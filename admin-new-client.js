@@ -67,7 +67,7 @@ function buildSnippetHtml(data) {
     nullableLine("deliverableFileUrl", data.deliverableFileUrl),
     line("paymentUrl", data.paymentUrl),
     nullableLine("liveUrl", data.liveUrl, false),
-    `<p class="code-line">},<span class="cursor" aria-hidden="true"></span></p>`,
+    `<p class="code-line">},</p>`,
   ].join("");
 }
 

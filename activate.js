@@ -74,7 +74,7 @@ function previewFrame(result) {
           <span class="preview-frame__dot"></span>
           <span class="preview-frame__dot"></span>
           <span class="preview-frame__dot"></span>
-          <span class="preview-frame__url mono">${urlLabel}</span>
+          <span class="preview-frame__url"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="4.5" y="10.5" width="15" height="10" rx="2"/><path d="M8.5 10.5V7.5a3.5 3.5 0 0 1 7 0v3"/></svg>${urlLabel}</span>
         </div>
         <img class="preview-frame__image" src="${result.previewImageUrl}" alt="Preview of ${result.title || result.service}" loading="lazy" />
         <div class="preview-frame__cta mono">View Full Preview →</div>

@@ -47,14 +47,18 @@
         </div>
 
         <div class="members-panel" id="membersPanel">
-          <div class="members-panel__bar"><span></span><span></span><span></span><p>secure-member-access.log</p></div>
+          <div class="members-panel__head">
+            <span class="panel-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="4.5" y="10.5" width="15" height="10" rx="2"/><path d="M8.5 10.5V7.5a3.5 3.5 0 0 1 7 0v3"/></svg></span>
+            <p>Client account access</p>
+            <span class="members-panel__secure"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="4.5" y="10.5" width="15" height="10" rx="2"/><path d="M8.5 10.5V7.5a3.5 3.5 0 0 1 7 0v3"/></svg>Secure</span>
+          </div>
           <div class="members-panel__body">
             <div class="portal-mode" role="tablist" aria-label="Choose portal access">
               <button class="portal-mode__button is-active" id="memberModeButton" type="button" role="tab" aria-selected="true" aria-controls="memberAccess">Member</button>
               <button class="portal-mode__button" id="adminModeButton" type="button" role="tab" aria-selected="false" aria-controls="adminAccess">Administrator</button>
             </div>
             <div id="memberAccess" role="tabpanel" aria-labelledby="memberModeButton">
-            <p class="section__tag">// Member Login</p>
+            <p class="section__tag">Member Login</p>
             <h2>Access your purchases</h2>
             <p class="members-panel__lead" id="memberPanelLead">First visit? Use your 12-digit code to create a password. Returning clients can sign in with their password.</p>
             <div class="portal-mode member-login-mode" role="tablist" aria-label="Choose member sign in method">
@@ -82,7 +86,7 @@
               <p class="form-note" id="memberPasswordLoginNote" aria-live="polite"></p>
             </form>
             <form id="memberCreatePasswordForm" class="member-login" hidden>
-              <p class="section__tag">// Secure Your Account</p>
+              <p class="section__tag">Secure Your Account</p>
               <h3>Create your members portal password</h3>
               <p class="members-panel__lead">Your 12-digit code has been verified. Create a password for all future logins.</p>
               <label for="newMemberPassword">New password</label>
@@ -99,7 +103,7 @@
             <div class="member-results" id="memberResults" hidden></div>
             </div>
             <div id="adminAccess" role="tabpanel" aria-labelledby="adminModeButton" hidden>
-              <p class="section__tag">// Administrator Login</p>
+              <p class="section__tag">Administrator Login</p>
               <h2>Full portal access</h2>
               <p class="members-panel__lead">Sign in with your Qp Digital administrator details to open the Admin Dashboard, where every management tool has its own page.</p>
               <form id="adminPortalLoginForm" class="member-login">
