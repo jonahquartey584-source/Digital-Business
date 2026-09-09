@@ -2173,6 +2173,16 @@ html[data-theme="light"] .biz-card {
   margin-bottom: 12px;
 }
 
+/* Sub-heading inside a numbered section — used in the privacy policy to
+   split "what we collect" by the situation it's collected in. */
+.legal-page h3 {
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--gold-bright);
+  margin-top: 24px;
+  margin-bottom: 8px;
+}
+
 .legal-page p,
 .legal-page li {
   color: var(--text-dim);
