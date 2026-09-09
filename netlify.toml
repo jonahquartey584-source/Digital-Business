@@ -34,3 +34,78 @@
   from = "/admin/"
   to = "/admin.html"
   status = 200
+
+# ── Security headers ────────────────────────────────────────────────────
+#
+# Applied to every response. Before this, Netlify's deploy log reported
+# "No header rules processed" — the site shipped with no CSP, no HSTS and
+# no clickjacking protection at all.
+#
+# script-src carries no 'unsafe-inline'. Instead each inline <script> is
+# allowed by its own SHA-256 hash, so an injected <script> (e.g. through a
+# CRM lead name or an enquiry message rendered into the DOM) will not run.
+# THE HASHES BELOW MUST BE REGENERATED IF ANY INLINE SCRIPT CHANGES —
+# editing one without updating its hash silently stops it executing. To
+# regenerate them all:
+#
+#   python3 - <<'PY'
+#   import glob, re, hashlib, base64
+#   pat = re.compile(r'<script(?![^>]*\bsrc=)[^>]*>(.*?)</script>', re.S)
+#   for h in sorted({"sha256-" + base64.b64encode(hashlib.sha256(b.encode()).digest()).decode()
+#                    for f in glob.glob("*.html") for b in pat.findall(open(f).read())}):
+#       print(f"'{h}'")
+#   PY
+#
+# The inline scripts these cover are the theme guard (which has to run
+# before first paint to avoid a flash of the wrong theme, so it cannot be
+# moved to a file), the members.html import map, and payment-success.html's
+# status lookup.
+#
+# style-src does keep 'unsafe-inline' — there are ~51 inline style
+# attributes in the markup, and inline styles cannot execute script.
+[[headers]]
+  for = "/*"
+
+  [headers.values]
+    Content-Security-Policy = """
+      default-src 'self'; \
+      script-src 'self' https://js.stripe.com https://esm.sh \
+        'sha256-ZAyMMYydfyReEFYvVl2J3eWRNm6GwhZJLPgvt998HTk=' \
+        'sha256-49aQ7ZI0flR9h9cPyMYFfTN4w22UeiDjKLiYqe/aYro=' \
+        'sha256-TmwOXiqJld404yts4tvfS9aqFNQgvGiZxRhxqujBAhM=' \
+        'sha256-xdRPkUT/UCE2XwKw+VO8BBqDy4cZuEWhoEIcAsFlrtE=' \
+        'sha256-md0tgYoJ3Wk9bgUTtuJAWpqQQeUlwFJLa9WHn/ABnBA='; \
+      style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; \
+      font-src 'self' https://fonts.gstatic.com data:; \
+      img-src 'self' data: blob: https:; \
+      connect-src 'self' https://esm.sh https://api.stripe.com; \
+      frame-src https://js.stripe.com https://hooks.stripe.com https://checkout.stripe.com; \
+      form-action 'self' https://buy.stripe.com https://checkout.stripe.com; \
+      frame-ancestors 'none'; \
+      base-uri 'self'; \
+      object-src 'none'; \
+      upgrade-insecure-requests"""
+    Strict-Transport-Security = "max-age=31536000; includeSubDomains"
+    X-Frame-Options = "DENY"
+    X-Content-Type-Options = "nosniff"
+    Referrer-Policy = "strict-origin-when-cross-origin"
+    Permissions-Policy = "camera=(), microphone=(), geolocation=(), browsing-topics=()"
+    Cross-Origin-Opener-Policy = "same-origin-allow-popups"
+
+# robots.txt is only advisory — a crawler is free to ignore it. X-Robots-Tag
+# is enforced, so the admin tooling and the post-payment page (which shows a
+# client's portal code) stay out of search results either way.
+[[headers]]
+  for = "/admin*"
+  [headers.values]
+    X-Robots-Tag = "noindex, nofollow"
+
+[[headers]]
+  for = "/pipeline-tester.html"
+  [headers.values]
+    X-Robots-Tag = "noindex, nofollow"
+
+[[headers]]
+  for = "/payment-success.html"
+  [headers.values]
+    X-Robots-Tag = "noindex, nofollow"

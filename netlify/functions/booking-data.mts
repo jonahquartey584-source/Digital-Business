@@ -3,14 +3,15 @@
 // crm-data.mts: a calendar of bookings, a list of bookable services, and
 // weekly availability, all read/written through one action-based endpoint.
 //
-// Auth note: same trust model as crm-data.mts/member-access.mts throughout
-// this site — trusts the email the client sends rather than a verified
-// server session. booking-system.html only ever sends the email from a
-// member's own qpMemberSession after they've already passed the Booking
-// System purchase gate.
+// Auth: same rule as crm-data.mts — the workspace is keyed on the caller's
+// own verified Netlify Identity email from getUser(), never on an `email`
+// field supplied by the browser. The old behaviour let anyone read or write
+// any client's calendar, which carries that client's customers' names,
+// emails and phone numbers. Never reintroduce a caller-supplied email here.
 
 import type { Config, Context } from "@netlify/functions";
 import { getStore } from "@netlify/blobs";
+import { getUser } from "@netlify/identity";
 import { randomUUID } from "node:crypto";
 import { json } from "./_shared.mts";
 
@@ -104,9 +105,13 @@ function reportFor(ws: BookingWorkspace) {
 }
 
 export default async (req: Request, _context: Context) => {
+  // Whose workspace this is — decided here, from the signed Identity
+  // session, and never from anything the caller can set.
+  const user = await getUser().catch(() => null);
+  const email = normalizeEmail(user?.email);
+  if (!email) return json(401, { status: "error", message: "Please sign in again." });
+
   if (req.method === "GET") {
-    const email = normalizeEmail(new URL(req.url).searchParams.get("email"));
-    if (!email) return json(400, { status: "error", message: "email is required" });
     const ws = await loadWorkspace(email);
     return json(200, { status: "ok", workspace: ws, report: reportFor(ws) });
   }
@@ -116,10 +121,8 @@ export default async (req: Request, _context: Context) => {
   }
 
   const input = await req.json().catch(() => ({}) as Record<string, unknown>);
-  const email = normalizeEmail(input.email);
   const action = String(input.action ?? "");
   const payload = (input.payload ?? {}) as Record<string, unknown>;
-  if (!email) return json(400, { status: "error", message: "email is required" });
 
   const ws = await loadWorkspace(email);
   const now = new Date().toISOString();

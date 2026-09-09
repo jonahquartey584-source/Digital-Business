@@ -33,12 +33,25 @@ function todayStr() {
   return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
 }
 
+// The API now derives whose workspace this is from the signed-in Identity
+// session on the server, not from anything sent in the request. A 401
+// therefore means the session has expired or was never established — the
+// only fix is signing in again, so say that instead of showing a raw
+// API error.
+function sessionExpired(response) {
+  return response.status === 401;
+}
+
+const SIGN_IN_AGAIN = "Your session has expired. Please sign in again from the Members Portal.";
+
 async function call(action, payload) {
   const response = await fetch("/api/booking-data", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ email, action, payload }),
+    // No email here on purpose — the server reads it from the session.
+    body: JSON.stringify({ action, payload }),
   });
+  if (sessionExpired(response)) throw new Error(SIGN_IN_AGAIN);
   const data = await response.json();
   if (!response.ok || data.status !== "ok") throw new Error(data.message || "Something went wrong.");
   workspace = data.workspace;
@@ -53,7 +66,8 @@ async function loadWorkspace() {
   }
   setStatus("Loading your bookings…");
   try {
-    const response = await fetch(`/api/booking-data?email=${encodeURIComponent(email)}`);
+    const response = await fetch(`/api/booking-data`);
+    if (sessionExpired(response)) throw new Error(SIGN_IN_AGAIN);
     const data = await response.json();
     if (!response.ok || data.status !== "ok") throw new Error(data.message || "Could not load your bookings.");
     workspace = data.workspace;
