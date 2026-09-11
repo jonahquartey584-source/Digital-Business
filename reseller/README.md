@@ -209,6 +209,20 @@ phone, see [Making it a private page](#making-it-a-private-page-you-can-reach-fr
 npm run dev                         # or: npm run build && npm start
 ```
 
+## Updating
+
+```bash
+npm run update
+```
+
+Replaces the code and leaves your data alone — your password, API keys,
+marketplace logins (`data/profiles/`), photos and post history all survive.
+It also lists any new settings this version added, without touching the ones
+you've already set.
+
+Do **not** re-run the install command from *Getting access* to update: it
+deletes the whole folder, including the browser logins you set up.
+
 Open <http://localhost:3000>. The startup log prints exactly which channels are
 ready and what each of the others is still missing:
 
@@ -531,6 +545,7 @@ For a site with no API you usually don't need a new adapter at all: add a
 | `npm run typecheck` | Types only |
 | `Start Reseller.command` | Double-click (macOS) — sets up if needed, then runs |
 | `./setup.sh` | First-run setup: deps, Chromium, `.env`, password |
+| `npm run update` | Update the code, keeping `.env` and `data/` |
 | `npm run set-password -- --write` | Set the page password, saved into `.env` |
 | `npm run login -- <channel>` | One-time browser login for a channel |
 | `npm run ebay:setup` | Guided eBay setup — writes all 11 settings to `.env` |
