@@ -77,7 +77,19 @@ There's no hosted copy — this runs on a computer you control, which is the
 point: your marketplace logins never leave your machine. You need **Node.js
 20 or newer** (<https://nodejs.org>, take the LTS build).
 
-### Option A — the setup script (macOS / Linux / Git Bash on Windows)
+### Option A — double-click, no terminal (macOS)
+
+Download the ZIP, unzip it, open the `reseller` folder, then
+**right-click `Start Reseller.command` → Open** (right-click matters the first
+time: macOS blocks double-clicked scripts from the internet until you approve
+one once). After that, double-clicking works.
+
+It installs what's missing, asks you to choose a page password on first run,
+then starts the app and opens your browser at <http://localhost:3000>. Leave
+the Terminal window it opens alone — that window is the app's engine. Close it
+to stop the app.
+
+### Option B — the setup script (macOS / Linux / Git Bash on Windows)
 
 ```bash
 git clone -b claude/jolly-einstein-f9xxyk \
@@ -91,7 +103,7 @@ npm run dev
 Chromium for the browser channels, creates `.env`, and asks you to choose the
 page password. It's safe to re-run — it only fills in what's missing.
 
-### Option B — no git, or Windows without Git Bash
+### Option C — no git, or Windows without Git Bash
 
 1. Open <https://github.com/jonahquartey584-source/Digital-Business/tree/claude/jolly-einstein-f9xxyk>
 2. **Code → Download ZIP**, and unzip it.
@@ -415,6 +427,7 @@ For a site with no API you usually don't need a new adapter at all: add a
 | `npm run build && npm start` | Production build and run |
 | `npm test` | Test suite |
 | `npm run typecheck` | Types only |
+| `Start Reseller.command` | Double-click (macOS) — sets up if needed, then runs |
 | `./setup.sh` | First-run setup: deps, Chromium, `.env`, password |
 | `npm run set-password -- --write` | Set the page password, saved into `.env` |
 | `npm run login -- <channel>` | One-time browser login for a channel |
