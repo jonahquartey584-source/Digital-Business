@@ -71,13 +71,51 @@ modes, and the UI labels every channel with which one it is:
 
 ---
 
-## Quick start
+## Getting access to it
+
+There's no hosted copy — this runs on a computer you control, which is the
+point: your marketplace logins never leave your machine. You need **Node.js
+20 or newer** (<https://nodejs.org>, take the LTS build).
+
+### Option A — the setup script (macOS / Linux / Git Bash on Windows)
 
 ```bash
-cd reseller
+git clone -b claude/jolly-einstein-f9xxyk \
+  https://github.com/jonahquartey584-source/Digital-Business.git
+cd Digital-Business/reseller
+./setup.sh
+npm run dev
+```
+
+`setup.sh` checks your Node version, installs dependencies, offers to download
+Chromium for the browser channels, creates `.env`, and asks you to choose the
+page password. It's safe to re-run — it only fills in what's missing.
+
+### Option B — no git, or Windows without Git Bash
+
+1. Open <https://github.com/jonahquartey584-source/Digital-Business/tree/claude/jolly-einstein-f9xxyk>
+2. **Code → Download ZIP**, and unzip it.
+3. Open a terminal (PowerShell on Windows) in the `reseller` folder inside it.
+4. Run:
+
+```bash
 npm install
-npx playwright install chromium     # only needed for the browser channels
-cp .env.example .env                # then fill in whatever you want to use
+npx playwright install chromium     # only for Poshmark/Depop/Mercari/etc.
+copy .env.example .env              # macOS/Linux: cp .env.example .env
+npm run set-password -- --write
+npm run dev
+```
+
+Then open <http://localhost:3000> and sign in with the password you chose.
+
+At that point it's reachable from that computer only. To use it from your
+phone, see [Making it a private page](#making-it-a-private-page-you-can-reach-from-anywhere).
+
+---
+
+## Quick start (if you've already set it up)
+
+```bash
 npm run dev                         # or: npm run build && npm start
 ```
 
@@ -377,7 +415,8 @@ For a site with no API you usually don't need a new adapter at all: add a
 | `npm run build && npm start` | Production build and run |
 | `npm test` | Test suite |
 | `npm run typecheck` | Types only |
-| `npm run set-password` | Generate the `ADMIN_PASSWORD_HASH` for `.env` |
+| `./setup.sh` | First-run setup: deps, Chromium, `.env`, password |
+| `npm run set-password -- --write` | Set the page password, saved into `.env` |
 | `npm run login -- <channel>` | One-time browser login for a channel |
 | `npm run snapchat:verify -- --media` | Check Snapchat access, print raw API responses |
 
