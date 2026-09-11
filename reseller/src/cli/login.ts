@@ -42,8 +42,9 @@ if (!adapter || !flow) {
 /**
  * Opens a real browser window and hands you the keyboard. You log in exactly
  * as you normally would -- including 2FA and any "is this you?" checks -- and
- * we save the resulting cookies to data/sessions/<channel>.json so the poster
- * can reuse them. Your password is never typed by, or visible to, this tool.
+ * the resulting cookies stay in a Chrome profile under data/profiles/ that
+ * the poster reuses. Your password is never typed by, or visible to, this
+ * tool.
  */
 console.log(`\n  Logging in to ${adapter.label}`);
 console.log('  A browser window will open. Log in, get all the way to your');
@@ -67,9 +68,51 @@ const rl = readline.createInterface({ input: stdin, output: stdout });
 await rl.question('  Press Enter once you are logged in… ');
 rl.close();
 
-await saveSession(channelId, context);
-console.log(`\n  ✓ Saved session for ${adapter.label}.`);
-console.log('    Do a dry run before posting for real:');
-console.log(`      BROWSER_DRY_RUN=1 npm start\n`);
+/**
+ * Check it actually worked before claiming success.
+ *
+ * Without this you find out the login failed much later, as a confusing
+ * mid-post failure. If the page still shows a logged-out marker, say so now.
+ */
+let looksLoggedIn: boolean | null = null;
+try {
+  const loggedOut = await page
+    .locator(flow.loggedOutSelector.split('||')[0]!.trim())
+    .first()
+    .isVisible({ timeout: 2000 })
+    .catch(() => false);
+  looksLoggedIn = !loggedOut;
+} catch {
+  // Window already closed, or navigated somewhere unexpected. Can't tell.
+  looksLoggedIn = null;
+}
 
-await close();
+/**
+ * With a persistent Chrome profile there is nothing to export: Chrome has
+ * already written the cookies into data/profiles/<channel> itself. Calling
+ * storageState() here is not just redundant, it throws outright if you closed
+ * the browser window before pressing Enter.
+ */
+if (!config.browser.persistProfile) {
+  try {
+    await saveSession(channelId, context);
+  } catch (err) {
+    console.error(`\n  Could not save the session: ${err instanceof Error ? err.message : err}`);
+    console.error('  Leave the browser window open next time, then press Enter.\n');
+    await close().catch(() => {});
+    process.exit(1);
+  }
+}
+
+if (looksLoggedIn === false) {
+  console.warn(`\n  ⚠  That page still looks logged OUT.`);
+  console.warn(`     The session was saved, but ${adapter.label} may reject it.`);
+  console.warn('     Re-run this and make sure you reach your logged-in home page first.\n');
+} else {
+  console.log(`\n  ✓ Saved session for ${adapter.label}.`);
+}
+
+console.log('    Do a dry run before posting for real:');
+console.log('      BROWSER_DRY_RUN=1 npm run dev\n');
+
+await close().catch(() => {});
