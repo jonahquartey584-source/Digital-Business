@@ -79,23 +79,57 @@ point: your marketplace logins never leave your machine. You need **Node.js
 
 ### Option A — double-click, no terminal (macOS)
 
-Download the ZIP, unzip it, open the `reseller` folder, then
-**right-click `Start Reseller.command` → Open** (right-click matters the first
-time: macOS blocks double-clicked scripts from the internet until you approve
-one once). After that, double-clicking works.
+Download the ZIP, unzip it, and open the `reseller` folder. Then you have to
+clear macOS's quarantine on `Start Reseller.command` once — it refuses to run
+scripts downloaded from the internet until you approve them.
 
-It installs what's missing, asks you to choose a page password on first run,
-then starts the app and opens your browser at <http://localhost:3000>. Leave
-the Terminal window it opens alone — that window is the app's engine. Close it
-to stop the app.
+**On macOS 15 (Sequoia) and newer**, right-click → Open no longer works. Apple
+removed that shortcut; you get *"Apple could not verify… is free of malware"*
+with only **Done** and **Move to Bin**. Click **Done**, then:
+
+> **System Settings → Privacy & Security**, scroll to the bottom, find
+> *"Start Reseller.command was blocked…"* and click **Open Anyway**.
+
+**On macOS 14 and older**, right-click `Start Reseller.command` → **Open** →
+**Open**.
+
+Either way it's a one-time approval; after that, double-clicking works.
+
+Prefer one command to all that clicking? This clears the quarantine flag
+directly, and works on every version:
+
+```bash
+xattr -d com.apple.quarantine "Start Reseller.command" setup.sh
+```
+
+Once approved, the launcher installs what's missing, asks you to choose a page
+password on first run, then starts the app and opens your browser at
+<http://localhost:3000>. Leave the Terminal window it opens alone — that
+window is the app's engine. Close it to stop the app.
+
+> Quarantine only blocks *launching* a script as a program. Running
+> `bash setup.sh` yourself is never blocked, because you're the one starting
+> bash — so Option B below sidesteps all of this.
 
 ### Option B — the setup script (macOS / Linux / Git Bash on Windows)
+
+No Gatekeeper prompts on this route. If you already unzipped the download,
+open Terminal, type `cd ` (with a trailing space), then **drag the `reseller`
+folder from Finder into the Terminal window** — that pastes the exact path, so
+there's nothing to type or misspell. Press Enter, then:
+
+```bash
+bash setup.sh
+npm run dev
+```
+
+Starting from scratch instead:
 
 ```bash
 git clone -b claude/jolly-einstein-f9xxyk \
   https://github.com/jonahquartey584-source/Digital-Business.git
 cd Digital-Business/reseller
-./setup.sh
+bash setup.sh
 npm run dev
 ```
 
