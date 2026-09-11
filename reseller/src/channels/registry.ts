@@ -12,6 +12,7 @@ import {
   mercariAdapter,
   offerupAdapter,
   poshmarkAdapter,
+  vintedAdapter,
 } from './browser/index.js';
 
 /** Every channel the system can post to, in the order the UI lists them. */
@@ -23,6 +24,7 @@ export const adapters: ChannelAdapter[] = [
   // Marketplaces with no API — driven through your logged-in browser.
   poshmarkAdapter,
   depopAdapter,
+  vintedAdapter,
   mercariAdapter,
   facebookMarketplaceAdapter,
   offerupAdapter,

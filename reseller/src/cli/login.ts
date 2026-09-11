@@ -9,6 +9,7 @@ import {
   mercariFlow,
   offerupFlow,
   poshmarkFlow,
+  vintedFlow,
 } from '../channels/browser/flows.js';
 import type { Flow } from '../channels/browser/engine.js';
 
@@ -18,6 +19,7 @@ const flows: Record<string, Flow> = {
   mercari: mercariFlow,
   facebook_marketplace: facebookMarketplaceFlow,
   offerup: offerupFlow,
+  vinted: vintedFlow,
 };
 
 function usage(): never {

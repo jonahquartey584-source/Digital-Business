@@ -11,6 +11,7 @@ import {
   mercariFlow,
   offerupFlow,
   poshmarkFlow,
+  vintedFlow,
 } from './flows.js';
 
 /** Values the flow templates ({{title}}, {{priceAmount}}, ...) interpolate. */
@@ -137,4 +138,13 @@ export const offerupAdapter = makeBrowserAdapter({
   flow: offerupFlow,
   note: 'No public listing API. Drives your saved OfferUp session.',
   capabilities: { titleMaxLength: 80, descriptionMaxLength: 1500, maxPhotos: 12 },
+});
+
+export const vintedAdapter = makeBrowserAdapter({
+  id: 'vinted',
+  label: 'Vinted',
+  flow: vintedFlow,
+  note:
+    'No public listing API. Drives your saved Vinted session. Set VINTED_DOMAIN to the country site you sell on (default www.vinted.co.uk).',
+  capabilities: { titleMaxLength: 100, descriptionMaxLength: 3000, maxPhotos: 20, prefersSquarePhotos: true },
 });

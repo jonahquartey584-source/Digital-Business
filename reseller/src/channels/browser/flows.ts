@@ -1,3 +1,4 @@
+import { config } from '../../config.js';
 import type { Flow } from './engine.js';
 
 /**
@@ -208,4 +209,67 @@ export const offerupFlow: Flow = {
     },
     { do: 'sleep', ms: 6000 },
   ],
+};
+
+/**
+ * Vinted — secondhand clothing, big in the UK and across Europe.
+ *
+ * Vinted operates a separate site per country (vinted.co.uk, vinted.com,
+ * vinted.de, vinted.fr, ...) and your account and listings live on exactly
+ * one of them, so the host comes from VINTED_DOMAIN rather than being
+ * hard-coded. Set it to the domain you actually sell on.
+ */
+const vintedHost = config.vintedDomain;
+
+export const vintedFlow: Flow = {
+  verified: false,
+  homeUrl: `https://${vintedHost}/`,
+  loggedOutSelector:
+    'a[href*="/member/signup"] || button:has-text("Sign up | Log in") || [data-testid="header--login-button"]',
+  steps: [
+    { do: 'goto', url: `https://${vintedHost}/items/new` },
+    { do: 'waitFor', selector: 'input[type="file"]', timeoutMs: 30_000 },
+    { do: 'upload', selector: 'input[type="file"]' },
+    { do: 'sleep', ms: 5000 },
+    {
+      do: 'fill',
+      selector:
+        'input#title || input[name="title"] || [data-testid="item-title-input"] input || input[placeholder*="e.g." i]',
+      value: '{{title}}',
+    },
+    {
+      do: 'fill',
+      selector:
+        'textarea#description || textarea[name="description"] || [data-testid="item-description-input"] textarea',
+      value: '{{description}}',
+    },
+    {
+      do: 'fill',
+      selector:
+        'input#price || input[name="price"] || [data-testid="item-price-input"] input',
+      value: '{{priceAmount}}',
+    },
+    // Brand is a typeahead: type it, pause for the suggestion list, take the
+    // first hit. Optional, because plenty of items have no brand.
+    {
+      do: 'fill',
+      selector: 'input#brand || input[name="brand"] || [data-testid="item-brand-input"] input',
+      value: '{{brand}}',
+      optional: true,
+    },
+    { do: 'sleep', ms: 1500 },
+    {
+      do: 'click',
+      selector: '[data-testid*="brand"] [role="option"] || ul[role="listbox"] li',
+      optional: true,
+    },
+    {
+      do: 'click',
+      selector:
+        '[data-testid="upload-form-save-button"] || button:has-text("Upload") || button[type="submit"]',
+      isSubmit: true,
+    },
+    { do: 'waitForUrl', pattern: '/items/\\d+', timeoutMs: 90_000 },
+  ],
+  resultUrlPattern: '/items/\\d+',
 };

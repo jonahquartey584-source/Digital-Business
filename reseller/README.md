@@ -30,6 +30,7 @@ modes, and the UI labels every channel with which one it is:
 | Shopify | Official API | Admin API. The only API channel needing no public URL. |
 | Poshmark | Browser | No public listing API exists. |
 | Depop | Browser | No public listing API exists. |
+| Vinted | Browser | No public listing API. Set `VINTED_DOMAIN` to your country site. |
 | Mercari | Browser | No public US listing API (the partner API is Japan-only). |
 | Facebook Marketplace | Browser | Meta has no Marketplace API for individual sellers. |
 | OfferUp | Browser | No public listing API exists. |
@@ -286,8 +287,8 @@ and **they** come and download the image. So those four channels stay disabled
 until `PUBLIC_BASE_URL` is a real public https URL — which the tunnel in the
 section above gives you, so setting that up covers this too.
 
-Shopify, Poshmark, Depop, Mercari, Marketplace, OfferUp and Snapchat all work
-fine without it.
+Shopify, Poshmark, Depop, Vinted, Mercari, Marketplace, OfferUp and Snapchat
+all work fine without it.
 
 EXIF is stripped from every upload, so the GPS coordinates of wherever you
 shot the photo don't ride along to the marketplace.
@@ -370,7 +371,7 @@ key and IV, hand them over when creating the media container, then upload the
 *encrypted* bytes in chunks. That part is in `snapchat-crypto.ts` and is
 covered by tests, so it's the piece least likely to need touching.
 
-### Browser channels (Poshmark, Depop, Mercari, Marketplace, OfferUp)
+### Browser channels (Poshmark, Depop, Vinted, Mercari, Marketplace, OfferUp)
 
 Log in once per channel. A real browser window opens and **you** type your
 password — this tool never sees or stores it, only the resulting cookies:

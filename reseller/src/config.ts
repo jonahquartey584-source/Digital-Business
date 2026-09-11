@@ -58,6 +58,14 @@ export const config = {
 
   graphApiVersion: process.env.GRAPH_API_VERSION || 'v21.0',
 
+  /**
+   * Vinted runs a separate site per country and a listing only exists on the
+   * one you sell in, so the host has to be configurable rather than assumed.
+   */
+  vintedDomain: (process.env.VINTED_DOMAIN || 'www.vinted.co.uk')
+    .replace(/^https?:\/\//, '')
+    .replace(/\/+$/, ''),
+
   queue: {
     pollIntervalMs: int('QUEUE_POLL_MS', 1500),
     maxAttempts: int('QUEUE_MAX_ATTEMPTS', 3),
