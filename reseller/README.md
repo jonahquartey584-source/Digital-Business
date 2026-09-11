@@ -84,11 +84,11 @@ everything in `~/reseller-app`, then asks you to choose a page password. No
 Finder, no Gatekeeper prompts, no paths to type.
 
 ```bash
-rm -rf ~/reseller-app && mkdir -p ~/reseller-app && cd ~/reseller-app && \
-curl -sL -o app.zip "https://github.com/jonahquartey584-source/Digital-Business/archive/refs/heads/claude/jolly-einstein-f9xxyk.zip" && \
-unzip -oq app.zip && mv Digital-Business-*/reseller/* . && mv Digital-Business-*/reseller/.[!.]* . && \
-rm -rf Digital-Business-* app.zip && bash setup.sh
+rm -rf ~/reseller-app && mkdir -p ~/reseller-app && cd ~/reseller-app && curl -sL -o app.zip "https://github.com/jonahquartey584-source/Digital-Business/archive/refs/heads/claude/jolly-einstein-f9xxyk.zip" && unzip -oq app.zip && cp -R Digital-Business-*/reseller/. . && rm -rf Digital-Business-* app.zip && bash setup.sh
 ```
+
+(Kept on one line on purpose. It's long, but a backslash-continued block is
+one stray newline away from running half a command.)
 
 Note the leading `rm -rf ~/reseller-app`: it wipes any earlier attempt so you
 get a clean slate, including any password you'd already set. Then:
