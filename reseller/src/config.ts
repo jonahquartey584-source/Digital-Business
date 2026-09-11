@@ -24,6 +24,11 @@ export const config = {
   /** Strip a trailing slash so we can always join with `/...`. */
   publicBaseUrl: (process.env.PUBLIC_BASE_URL || 'http://localhost:3000').replace(/\/+$/, ''),
   apiKey: process.env.APP_API_KEY || '',
+  /** scrypt hash from `npm run set-password`. Empty = localhost-only mode. */
+  passwordHash: process.env.ADMIN_PASSWORD_HASH || '',
+  sessionTtlSeconds: int('SESSION_TTL_DAYS', 30) * 24 * 60 * 60,
+  /** Set when behind a reverse proxy (Cloudflare Tunnel, nginx, Caddy). */
+  trustProxy: bool('TRUST_PROXY'),
 
   brand: {
     name: process.env.BRAND_NAME || 'My Closet',

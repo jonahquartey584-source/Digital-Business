@@ -18,6 +18,7 @@ import type { Server } from 'node:http';
 const dataDir = fs.mkdtempSync(path.join(os.tmpdir(), 'reseller-e2e-'));
 process.env.DATA_DIR = dataDir;
 process.env.APP_API_KEY = 'test-key';
+process.env.ADMIN_PASSWORD_HASH = '';  // localhost-only mode; the tests bind to 127.0.0.1
 process.env.BRAND_NAME = 'Test Closet';
 process.env.BRAND_HANDLE = '@testcloset';
 process.env.PUBLIC_BASE_URL = 'http://127.0.0.1:0';
@@ -36,7 +37,7 @@ async function makePhoto(): Promise<Buffer> {
 }
 
 before(async () => {
-  server = createApp().listen(0);
+  server = createApp().listen(0, '127.0.0.1');
   await new Promise<void>((resolve) => server.once('listening', resolve));
   base = `http://127.0.0.1:${(server.address() as AddressInfo).port}`;
   startWorker();
@@ -162,7 +163,7 @@ describe('post once, fan out', () => {
     /* Media: two originals, two squares, one story render. */
     const detail = (await (
       await fetch(`${base}/api/products/${created.product.id}`, { headers: auth })
-    ).json()) as { media: { role: string; width: number; height: number }[] };
+    ).json()) as { media: { role: string; width: number; height: number; relativePath: string }[] };
 
     const roles = detail.media.map((m) => m.role);
     assert.equal(roles.filter((r) => r === 'original').length, 2);
@@ -173,10 +174,18 @@ describe('post once, fan out', () => {
     assert.equal(story.width, 1080);
     assert.equal(story.height, 1920);
 
-    /* The story image is fetchable over HTTP without a key (the APIs need that). */
-    const storyRes = await fetch(`${base}/media/${created.product.id}/story.jpg`);
+    /* The story image is fetchable over HTTP without a key -- eBay and Meta
+       download it themselves -- but only via its random token path. */
+    assert.match(story.relativePath, /^[0-9a-f]{32}\/story\.jpg$/, 'media path is a random token');
+    const storyRes = await fetch(`${base}/media/${story.relativePath}`);
     assert.equal(storyRes.status, 200);
     assert.equal(storyRes.headers.get('content-type'), 'image/jpeg');
+
+    /* The product id gives no access to the same file. */
+    const guessed = await fetch(`${base}/media/${created.product.id}/story.jpg`, {
+      redirect: 'manual',
+    });
+    assert.notEqual(guessed.status, 200);
 
     /* The worker should settle the job; Snapchat is an assist channel, so it
        lands on needs_action with the asset paths attached. */
@@ -207,7 +216,12 @@ describe('post once, fan out', () => {
     const target = products.find((p) => p.title.includes('Air Max'));
     assert.ok(target);
 
-    const res = await fetch(`${base}/handoff/${target.id}`);
+    // The handoff page is behind the session gate like everything else; on a
+    // phone that's your signed-in browser, here it's the API key.
+    const anonymous = await fetch(`${base}/handoff/${target.id}`, { redirect: 'manual' });
+    assert.equal(anonymous.status, 302, 'handoff is private');
+
+    const res = await fetch(`${base}/handoff/${target.id}`, { headers: auth });
     assert.equal(res.status, 200);
     const html = await res.text();
     assert.match(html, /Air Max/);

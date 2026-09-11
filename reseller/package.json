@@ -14,7 +14,8 @@
     "typecheck": "tsc -p tsconfig.json --noEmit",
     "test": "tsx --test tests/*.test.ts",
     "login": "tsx src/cli/login.ts",
-    "snapchat:verify": "tsx src/cli/snapchat-verify.ts"
+    "snapchat:verify": "tsx src/cli/snapchat-verify.ts",
+    "set-password": "tsx src/cli/set-password.ts"
   },
   "dependencies": {
     "better-sqlite3": "^11.8.1",

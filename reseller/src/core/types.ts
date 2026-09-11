@@ -48,6 +48,8 @@ export interface Product {
   color: string | null;
   tags: string[];
   sku: string;
+  /** Random directory name for this product's media (see auth.newMediaToken). */
+  mediaToken: string;
   createdAt: string;
 }
 

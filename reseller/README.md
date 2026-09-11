@@ -96,42 +96,91 @@ ready and what each of the others is still missing:
 Nothing has to be configured to start — the phone handoff channel works out of
 the box, and you can add the rest one at a time.
 
-### Set an API key before exposing this anywhere
+---
 
-`APP_API_KEY` protects the whole `/api` surface. Leave it empty on localhost;
-set it the moment the app is reachable by anyone else:
+## Making it a private page you can reach from anywhere
+
+The app is password-protected and, until you set a password, **refuses every
+request that isn't from localhost**. That's deliberate: forgetting to set one
+before putting the app behind a tunnel would otherwise publish your listing
+tool — and your logged-in marketplace sessions — to the internet.
+
+### 1. Set a password
 
 ```bash
-node -e "console.log(require('crypto').randomBytes(24).toString('hex'))"
+npm run set-password
 ```
 
-Paste it into `.env`, then into the key box at the top right of the UI (it's
-remembered in your browser).
+Type it twice (nothing is echoed), and it prints the line to paste into `.env`:
+
+```
+ADMIN_PASSWORD_HASH=scrypt$1a2b…
+```
+
+The password is hashed with scrypt and never stored anywhere — not in `.env`,
+not in the database, not in your shell history. Restart, and the app asks for
+it at `/login`. A session lasts 30 days (`SESSION_TTL_DAYS`) in an HttpOnly
+cookie, so you sign in once per device.
+
+### 2. Give it a private URL
+
+The app needs a real server — SQLite, the queue worker, Chromium for the
+browser channels — so it can't be a static site or a serverless function.
+Two sensible shapes:
+
+**Run it on your own machine, reachable through a tunnel.** This is the one to
+pick. The browser sessions stay on your computer, posting to Poshmark keeps
+coming from your home IP rather than a datacenter, and you get https for free:
+
+```bash
+cloudflared tunnel --url http://localhost:3000
+```
+
+Paste the https URL it prints into `PUBLIC_BASE_URL`, set `TRUST_PROXY=1`, and
+restart. That one change also unlocks eBay, Instagram and Facebook, which need
+a public URL to fetch your photos from.
+
+For a stable address instead of a random one each run, use a named tunnel and
+put **Cloudflare Access** in front of it (free tier). Access adds a second
+gate — a one-time code to your email — before a request ever reaches the app.
+Password *and* Access is the setup I'd run.
+
+**Or deploy to a small VPS** (Fly.io, Railway, Hetzner, a $5 droplet) with a
+persistent disk for `data/`. Everything works, but be aware the browser
+channels would then log into Poshmark and Depop from a datacenter IP, which is
+more likely to trip their fraud checks. If you use those channels, prefer the
+tunnel.
+
+### What stays public, and why
+
+`/media` is served without authentication, because eBay, Instagram and
+Facebook publish by *fetching* those URLs themselves and can't send a header.
+So the files are made unguessable instead: each product's photos live under a
+random 32-character token (`/media/9f3c…a1/story.jpg`), never under a
+predictable product id, and the directory can't be listed. Photos you're
+about to publish to a marketplace anyway are the only thing exposed.
+
+Everything else — the UI, the whole `/api`, the phone handoff page — is behind
+the session. `/healthz` returns `{ok:true}` and nothing more, for process
+supervisors.
+
+`APP_API_KEY` is optional and separate: a header-based way in for scripts and
+cron jobs, when you don't want a browser session.
 
 ---
 
 ## The public URL requirement
 
 eBay, Instagram and Facebook don't accept photo *uploads*. You give them a URL
-and **they** come and download the image. So your `/media` folder has to be
-reachable from the internet, and those channels stay disabled until
-`PUBLIC_BASE_URL` is a real public https URL.
-
-On a laptop, a tunnel is the easy way:
-
-```bash
-cloudflared tunnel --url http://localhost:3000
-#   or: ngrok http 3000
-# paste the https URL it prints into PUBLIC_BASE_URL, then restart
-```
+and **they** come and download the image. So those four channels stay disabled
+until `PUBLIC_BASE_URL` is a real public https URL — which the tunnel in the
+section above gives you, so setting that up covers this too.
 
 Shopify, Poshmark, Depop, Mercari, Marketplace, OfferUp and Snapchat all work
 fine without it.
 
-> `/media` is served without an API key, because the platforms fetching it
-> can't send a header. Only product photos live there — and they're photos
-> you're about to publish anyway. EXIF is stripped on upload, so the GPS
-> coordinates of wherever you shot the photo don't ride along.
+EXIF is stripped from every upload, so the GPS coordinates of wherever you
+shot the photo don't ride along to the marketplace.
 
 ---
 
@@ -286,6 +335,7 @@ blip backs off and tries again.
 src/
   config.ts              env + paths
   core/
+    auth.ts              scrypt passwords, session tokens, login throttling
     types.ts             ChannelAdapter — the one interface that matters
     media.ts             sharp pipeline + story renderer
     text.ts              SVG text measuring / wrapping / trimming
@@ -303,7 +353,7 @@ src/
       engine.ts          runs a flow against a saved session
       flows.ts           the per-site selector recipes ← edit these
       index.ts           browser channels built from those flows
-  routes/                REST API + the phone handoff page
+  routes/                REST API, login/logout, the phone handoff page
   web/                   the UI (plain HTML/CSS/JS, no build step)
 ```
 
@@ -327,6 +377,7 @@ For a site with no API you usually don't need a new adapter at all: add a
 | `npm run build && npm start` | Production build and run |
 | `npm test` | Test suite |
 | `npm run typecheck` | Types only |
+| `npm run set-password` | Generate the `ADMIN_PASSWORD_HASH` for `.env` |
 | `npm run login -- <channel>` | One-time browser login for a channel |
 | `npm run snapchat:verify -- --media` | Check Snapchat access, print raw API responses |
 
@@ -344,9 +395,12 @@ All under `/api`, with `X-API-Key` when `APP_API_KEY` is set.
 | `GET /posts/:id/logs` | Step-by-step log for one post |
 | `GET /handoff/:id` | Phone page for Snapchat / personal stories |
 
+Plus `GET /login`, `POST /login` and `POST /logout` for the browser session.
+
 ## Data
 
-Everything lives in `data/` (override with `DATA_DIR`): `reseller.db`,
+Everything lives in `data/` (override with `DATA_DIR`): `reseller.db`
+(products, queue, sessions),
 `media/` (photos and story renders), `sessions/` (browser cookies — treat
 these as credentials), `outbox/` (handoff assets and failure screenshots).
 It's gitignored. Back it up if the listing history matters to you.

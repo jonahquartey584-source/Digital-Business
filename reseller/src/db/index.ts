@@ -1,5 +1,6 @@
 import Database from 'better-sqlite3';
 import { config, ensureDirs } from '../config.js';
+import { newMediaToken } from '../core/auth.js';
 import type { MediaAsset, PostRecord, PostStatus, Product } from '../core/types.js';
 
 ensureDirs();
@@ -23,6 +24,7 @@ CREATE TABLE IF NOT EXISTS products (
   size         TEXT,
   color        TEXT,
   tags         TEXT    NOT NULL DEFAULT '[]',
+  media_token  TEXT    NOT NULL DEFAULT '',
   created_at   TEXT    NOT NULL DEFAULT (datetime('now'))
 );
 
@@ -55,6 +57,14 @@ CREATE TABLE IF NOT EXISTS posts (
 );
 CREATE INDEX IF NOT EXISTS idx_posts_claimable ON posts(status, run_after);
 
+CREATE TABLE IF NOT EXISTS sessions (
+  token_hash TEXT PRIMARY KEY,
+  created_at TEXT NOT NULL DEFAULT (datetime('now')),
+  expires_at TEXT NOT NULL,
+  user_agent TEXT
+);
+CREATE INDEX IF NOT EXISTS idx_sessions_expiry ON sessions(expires_at);
+
 CREATE TABLE IF NOT EXISTS logs (
   id         INTEGER PRIMARY KEY AUTOINCREMENT,
   post_id    INTEGER NOT NULL REFERENCES posts(id) ON DELETE CASCADE,
@@ -64,6 +74,18 @@ CREATE TABLE IF NOT EXISTS logs (
 CREATE INDEX IF NOT EXISTS idx_logs_post ON logs(post_id, id);
 `);
 
+/**
+ * Add columns that later versions introduced. SQLite has no
+ * "ADD COLUMN IF NOT EXISTS", so check the table info first.
+ */
+function migrate(): void {
+  const columns = db.prepare('PRAGMA table_info(products)').all() as { name: string }[];
+  if (!columns.some((c) => c.name === 'media_token')) {
+    db.exec("ALTER TABLE products ADD COLUMN media_token TEXT NOT NULL DEFAULT ''");
+  }
+}
+migrate();
+
 /* -------------------------------------------------------------------------- */
 /* Row mapping                                                                */
 /* -------------------------------------------------------------------------- */
@@ -72,7 +94,8 @@ type ProductRow = {
   id: number; sku: string; title: string; description: string | null;
   price_cents: number | null; currency: string; quantity: number;
   brand: string | null; category: string | null; condition: string | null;
-  size: string | null; color: string | null; tags: string; created_at: string;
+  size: string | null; color: string | null; tags: string; media_token: string;
+  created_at: string;
 };
 
 type MediaRow = {
@@ -112,6 +135,7 @@ function toProduct(row: ProductRow): Product {
     size: row.size,
     color: row.color,
     tags: parseJsonArray(row.tags),
+    mediaToken: row.media_token,
     createdAt: row.created_at,
   };
 }
@@ -170,10 +194,10 @@ export function insertProduct(p: NewProduct): Product {
     .prepare(
       `INSERT INTO products
          (sku, title, description, price_cents, currency, quantity, brand,
-          category, condition, size, color, tags)
+          category, condition, size, color, tags, media_token)
        VALUES
          (@sku, @title, @description, @priceCents, @currency, @quantity, @brand,
-          @category, @condition, @size, @color, @tags)`,
+          @category, @condition, @size, @color, @tags, @mediaToken)`,
     )
     .run({
       sku: p.sku,
@@ -188,6 +212,10 @@ export function insertProduct(p: NewProduct): Product {
       size: p.size ?? null,
       color: p.color ?? null,
       tags: JSON.stringify(p.tags ?? []),
+      // Photos must be publicly fetchable (eBay and Meta download them), so
+      // the directory name is random rather than the product id -- public
+      // should not also mean enumerable.
+      mediaToken: newMediaToken(),
     });
   return getProduct(Number(info.lastInsertRowid))!;
 }
@@ -369,4 +397,39 @@ export function getLogs(postId: number, limit = 100): { message: string; created
     .prepare('SELECT message, created_at FROM logs WHERE post_id = ? ORDER BY id DESC LIMIT ?')
     .all(postId, limit) as { message: string; created_at: string }[];
   return rows.reverse().map((r) => ({ message: r.message, createdAt: r.created_at }));
+}
+
+/* -------------------------------------------------------------------------- */
+/* Sessions                                                                   */
+/* -------------------------------------------------------------------------- */
+
+export function createSession(tokenHash: string, ttlSeconds: number, userAgent: string): void {
+  db.prepare(
+    `INSERT INTO sessions (token_hash, expires_at, user_agent)
+     VALUES (?, datetime('now', ?), ?)`,
+  ).run(tokenHash, `+${Math.max(60, Math.round(ttlSeconds))} seconds`, userAgent.slice(0, 300));
+}
+
+/** True when the token matches a session that hasn't expired. */
+export function sessionIsValid(tokenHash: string): boolean {
+  const row = db
+    .prepare(
+      `SELECT 1 AS ok FROM sessions
+        WHERE token_hash = ? AND expires_at > datetime('now')`,
+    )
+    .get(tokenHash) as { ok: number } | undefined;
+  return row !== undefined;
+}
+
+export function deleteSession(tokenHash: string): void {
+  db.prepare('DELETE FROM sessions WHERE token_hash = ?').run(tokenHash);
+}
+
+/** Sign out everywhere -- used by the password-change flow. */
+export function deleteAllSessions(): number {
+  return db.prepare('DELETE FROM sessions').run().changes;
+}
+
+export function purgeExpiredSessions(): number {
+  return db.prepare("DELETE FROM sessions WHERE expires_at <= datetime('now')").run().changes;
 }

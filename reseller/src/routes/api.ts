@@ -1,4 +1,4 @@
-import { Router, type Request, type Response, type NextFunction } from 'express';
+import { Router } from 'express';
 import multer from 'multer';
 import { z } from 'zod';
 import { config } from '../config.js';
@@ -73,20 +73,6 @@ const productSchema = z.object({
   tags: z.string().optional(),
 });
 
-/** Require X-API-Key when one is configured. */
-export function requireApiKey(req: Request, res: Response, next: NextFunction): void {
-  if (!config.apiKey) {
-    next();
-    return;
-  }
-  const provided = req.get('X-API-Key') ?? (req.query.key as string | undefined);
-  if (provided === config.apiKey) {
-    next();
-    return;
-  }
-  res.status(401).json({ error: 'Missing or invalid API key' });
-}
-
 export const api = Router();
 
 api.get('/channels', (_req, res) => {
@@ -155,11 +141,11 @@ api.post('/products', upload.array('photos', MAX_PHOTOS), async (req, res) => {
 
   try {
     for (const [index, file] of files.entries()) {
-      await ingestPhoto(product.id, file.buffer, index + 1);
+      await ingestPhoto(product, file.buffer, index + 1);
     }
     // Story render always uses the first photo -- the one the seller led with.
     const firstFile = files[0];
-    if (firstFile) await renderStoryImage(product.id, firstFile.buffer, product);
+    if (firstFile) await renderStoryImage(firstFile.buffer, product);
   } catch (err) {
     deleteProduct(product.id);
     const reason = err instanceof Error ? err.message : String(err);

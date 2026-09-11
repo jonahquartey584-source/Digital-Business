@@ -17,25 +17,28 @@ export function absolutePath(asset: MediaAsset): string {
   return path.join(config.paths.media, asset.relativePath);
 }
 
-function productDir(productId: number): string {
-  return path.join(config.paths.media, String(productId));
+/** Media lives under the product's random token, never its id. */
+type MediaOwner = Pick<Product, 'id' | 'mediaToken'>;
+
+function ownerDir(owner: MediaOwner): string {
+  return path.join(config.paths.media, owner.mediaToken);
 }
 
 async function write(
-  productId: number,
+  owner: MediaOwner,
   filename: string,
   buffer: Buffer,
   role: MediaAsset['role'],
   position: number,
 ): Promise<MediaAsset> {
-  const dir = productDir(productId);
+  const dir = ownerDir(owner);
   await fs.mkdir(dir, { recursive: true });
   const abs = path.join(dir, filename);
   await fs.writeFile(abs, buffer);
   const meta = await sharp(buffer).metadata();
   return insertMedia({
-    productId,
-    relativePath: path.posix.join(String(productId), filename),
+    productId: owner.id,
+    relativePath: path.posix.join(owner.mediaToken, filename),
     role,
     position,
     width: meta.width ?? 0,
@@ -52,7 +55,7 @@ async function write(
  *    sneaker or a wide jacket doesn't lose its ends.
  */
 export async function ingestPhoto(
-  productId: number,
+  owner: MediaOwner,
   input: Buffer,
   position: number,
 ): Promise<{ original: MediaAsset; square: MediaAsset }> {
@@ -75,8 +78,8 @@ export async function ingestPhoto(
     .jpeg({ quality: 88, mozjpeg: true })
     .toBuffer();
 
-  const original = await write(productId, `photo-${position}.jpg`, originalBuf, 'original', position);
-  const square = await write(productId, `square-${position}.jpg`, squareBuf, 'square', position);
+  const original = await write(owner, `photo-${position}.jpg`, originalBuf, 'original', position);
+  const square = await write(owner, `square-${position}.jpg`, squareBuf, 'square', position);
   return { original, square };
 }
 
@@ -107,9 +110,8 @@ function priceLabel(priceCents: number | null, currency: string): string | null 
  * name, price and a call to action burned in so the story reads on its own.
  */
 export async function renderStoryImage(
-  productId: number,
   sourcePhoto: Buffer,
-  product: Pick<Product, 'title' | 'priceCents' | 'currency' | 'size' | 'brand'>,
+  product: MediaOwner & Pick<Product, 'title' | 'priceCents' | 'currency' | 'size' | 'brand'>,
 ): Promise<MediaAsset> {
   const photo = sharp(sourcePhoto, { failOn: 'none' }).rotate();
 
@@ -265,5 +267,5 @@ export async function renderStoryImage(
     .jpeg({ quality: 90, mozjpeg: true })
     .toBuffer();
 
-  return write(productId, 'story.jpg', storyBuf, 'story', 0);
+  return write(product, 'story.jpg', storyBuf, 'story', 0);
 }

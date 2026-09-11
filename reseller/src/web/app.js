@@ -1,7 +1,6 @@
 /* Reseller Autopost — front end. No framework, no build step. */
 
 const els = {
-  apiKey: document.getElementById('apiKey'),
   form: document.getElementById('postForm'),
   dropzone: document.getElementById('dropzone'),
   photos: document.getElementById('photos'),
@@ -13,29 +12,20 @@ const els = {
   refresh: document.getElementById('refresh'),
 };
 
-/* The key lives in localStorage so you don't retype it every reload. It only
-   ever goes to this app's own origin. */
-const KEY_STORAGE = 'reseller.apiKey';
-try {
-  els.apiKey.value = localStorage.getItem(KEY_STORAGE) ?? '';
-} catch { /* private browsing */ }
-els.apiKey.addEventListener('change', () => {
-  try { localStorage.setItem(KEY_STORAGE, els.apiKey.value.trim()); } catch { /* ignore */ }
-  // Reload both panels: a key that was missing at page load left them empty.
-  void loadChannels();
-  void loadProducts();
-});
-
-function authHeaders() {
-  const key = els.apiKey.value.trim();
-  return key ? { 'X-API-Key': key } : {};
-}
-
 async function api(path, options = {}) {
   const res = await fetch(`/api${path}`, {
     ...options,
-    headers: { ...authHeaders(), ...(options.headers ?? {}) },
+    // Marks the call as a fetch, so the server answers 401 JSON instead of
+    // redirecting a data request to the HTML login page.
+    headers: { 'X-Requested-With': 'fetch', ...(options.headers ?? {}) },
   });
+
+  // The session expired while the tab was open -- go get a new one.
+  if (res.status === 401) {
+    window.location.href = `/login?next=${encodeURIComponent(window.location.pathname)}`;
+    throw new Error('Session expired — redirecting to sign in.');
+  }
+
   const text = await res.text();
   let data = {};
   if (text) {

@@ -31,10 +31,7 @@ body {
 .brand { display: flex; align-items: center; gap: 10px; }
 .brand h1 { font-size: 17px; margin: 0; letter-spacing: -.01em; }
 .dot { width: 10px; height: 10px; border-radius: 50%; background: var(--accent); }
-.key-slot input {
-  background: var(--panel-2); border: 1px solid var(--line); color: var(--text);
-  border-radius: 8px; padding: 8px 11px; font-size: 13px; width: 190px;
-}
+.signout { margin: 0; }
 
 main {
   max-width: 940px; margin: 0 auto; padding: 24px 20px 72px;
@@ -165,5 +162,4 @@ button.link {
 
 @media (max-width: 620px) {
   .grid, .channel-list { grid-template-columns: 1fr; }
-  .key-slot input { width: 150px; }
 }
