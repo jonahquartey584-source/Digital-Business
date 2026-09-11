@@ -77,7 +77,33 @@ There's no hosted copy — this runs on a computer you control, which is the
 point: your marketplace logins never leave your machine. You need **Node.js
 20 or newer** (<https://nodejs.org>, take the LTS build).
 
-### Option A — double-click, no terminal (macOS)
+### Option A — one command (macOS / Linux)
+
+Paste this whole block into Terminal. It downloads, unpacks and sets up
+everything in `~/reseller-app`, then asks you to choose a page password. No
+Finder, no Gatekeeper prompts, no paths to type.
+
+```bash
+rm -rf ~/reseller-app && mkdir -p ~/reseller-app && cd ~/reseller-app && \
+curl -sL -o app.zip "https://github.com/jonahquartey584-source/Digital-Business/archive/refs/heads/claude/jolly-einstein-f9xxyk.zip" && \
+unzip -oq app.zip && mv Digital-Business-*/reseller/* . && mv Digital-Business-*/reseller/.[!.]* . && \
+rm -rf Digital-Business-* app.zip && bash setup.sh
+```
+
+Note the leading `rm -rf ~/reseller-app`: it wipes any earlier attempt so you
+get a clean slate, including any password you'd already set. Then:
+
+```bash
+npm run dev
+```
+
+and open <http://localhost:3000>. To start it again on any later day:
+
+```bash
+cd ~/reseller-app && npm run dev
+```
+
+### Option B — double-click, no terminal (macOS)
 
 Download the ZIP, unzip it, and open the `reseller` folder. Then you have to
 clear macOS's quarantine on `Start Reseller.command` once — it refuses to run
@@ -109,9 +135,9 @@ window is the app's engine. Close it to stop the app.
 
 > Quarantine only blocks *launching* a script as a program. Running
 > `bash setup.sh` yourself is never blocked, because you're the one starting
-> bash — so Option B below sidesteps all of this.
+> bash — so Options A and C sidestep all of this.
 
-### Option B — the setup script (macOS / Linux / Git Bash on Windows)
+### Option C — the setup script (macOS / Linux / Git Bash on Windows)
 
 No Gatekeeper prompts on this route. If you already unzipped the download,
 open Terminal, type `cd ` (with a trailing space), then **drag the `reseller`
@@ -137,7 +163,7 @@ npm run dev
 Chromium for the browser channels, creates `.env`, and asks you to choose the
 page password. It's safe to re-run — it only fills in what's missing.
 
-### Option C — no git, or Windows without Git Bash
+### Option D — no git, or Windows without Git Bash
 
 1. Open <https://github.com/jonahquartey584-source/Digital-Business/tree/claude/jolly-einstein-f9xxyk>
 2. **Code → Download ZIP**, and unzip it.
