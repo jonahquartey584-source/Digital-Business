@@ -105,6 +105,71 @@ const MODE_HELP = {
   assist: 'One-tap handoff',
 };
 
+/** Copy-to-clipboard button for a setup command. */
+function copyButton(text) {
+  const button = document.createElement('button');
+  button.type = 'button';
+  button.className = 'copy';
+  button.textContent = 'Copy';
+  button.addEventListener('click', async (event) => {
+    // Inside a <label>, a click would otherwise toggle the checkbox.
+    event.preventDefault();
+    event.stopPropagation();
+    try {
+      await navigator.clipboard.writeText(text);
+      button.textContent = 'Copied';
+    } catch {
+      button.textContent = 'Select it';
+    }
+    setTimeout(() => { button.textContent = 'Copy'; }, 2000);
+  });
+  return button;
+}
+
+/**
+ * What the user has to do to connect this channel. A greyed-out checkbox on
+ * its own reads as a broken control, so every unconnected channel shows the
+ * actual next step instead -- the exact command for browser channels, or the
+ * keys to add for API ones.
+ */
+function setupSteps(channel) {
+  const wrap = document.createElement('div');
+  wrap.className = 'channel-setup';
+
+  if (channel.mode === 'browser') {
+    const command = `npm run login -- ${channel.id}`;
+    const label = document.createElement('div');
+    label.className = 'setup-label';
+    label.textContent = 'One-time browser login — no API key needed:';
+
+    const row = document.createElement('div');
+    row.className = 'setup-row';
+    const code = document.createElement('code');
+    code.textContent = command;
+    row.append(code, copyButton(command));
+
+    wrap.append(label, row);
+    return wrap;
+  }
+
+  if (channel.mode === 'assist') return null;
+
+  const label = document.createElement('div');
+  label.className = 'setup-label';
+  label.textContent = 'Add to your .env file, then restart:';
+
+  const list = document.createElement('div');
+  list.className = 'setup-keys';
+  for (const item of channel.missing) {
+    const chip = document.createElement('code');
+    chip.textContent = item;
+    list.append(chip);
+  }
+
+  wrap.append(label, list);
+  return wrap;
+}
+
 function channelCheckbox(channel) {
   const label = document.createElement('label');
   label.className = `channel${channel.ready ? '' : ' disabled'}`;
@@ -123,19 +188,32 @@ function channelCheckbox(channel) {
   const name = document.createElement('div');
   name.className = 'channel-name';
   name.append(document.createTextNode(channel.label));
+
   const tag = document.createElement('span');
   tag.className = `tag ${channel.mode}`;
   tag.textContent = MODE_HELP[channel.mode] ?? channel.mode;
   tag.title = channel.mode;
   name.append(tag);
 
-  const note = document.createElement('div');
-  note.className = 'channel-note';
-  note.textContent = channel.ready
-    ? (channel.note ?? '')
-    : `Needs: ${channel.missing.join(', ')}`;
+  const state = document.createElement('span');
+  state.className = `tag ${channel.ready ? 'on' : 'off'}`;
+  state.textContent = channel.ready ? 'Connected' : 'Not connected';
+  name.append(state);
 
-  body.append(name, note);
+  body.append(name);
+
+  if (channel.ready) {
+    if (channel.note) {
+      const note = document.createElement('div');
+      note.className = 'channel-note';
+      note.textContent = channel.note;
+      body.append(note);
+    }
+  } else {
+    const steps = setupSteps(channel);
+    if (steps) body.append(steps);
+  }
+
   label.append(input, body);
   return label;
 }
@@ -153,7 +231,7 @@ async function loadChannels() {
       section.className = 'channel-group';
       const heading = document.createElement('h4');
       const readyCount = group.filter((c) => c.ready).length;
-      heading.textContent = `${GROUP_LABELS[kind]} · ${readyCount}/${group.length} ready`;
+      heading.textContent = `${GROUP_LABELS[kind]} · ${readyCount} of ${group.length} connected`;
       const list = document.createElement('div');
       list.className = 'channel-list';
       for (const channel of group) list.append(channelCheckbox(channel));
