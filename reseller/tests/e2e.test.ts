@@ -61,7 +61,8 @@ describe('API auth', () => {
     assert.equal(res.status, 200);
     const body = (await res.json()) as { channels: { id: string }[] };
     assert.ok(body.channels.some((c) => c.id === 'ebay'));
-    assert.ok(body.channels.some((c) => c.id === 'snapchat'));
+    assert.ok(body.channels.some((c) => c.id === 'snapchat_story'));
+    assert.ok(body.channels.some((c) => c.id === 'story_handoff'));
   });
 });
 
@@ -69,7 +70,7 @@ describe('validation', () => {
   it('refuses a product with no photo', async () => {
     const form = new FormData();
     form.set('title', 'No photos here');
-    form.set('channels', 'snapchat');
+    form.set('channels', 'story_handoff');
     const res = await fetch(`${base}/api/products`, { method: 'POST', headers: auth, body: form });
     assert.equal(res.status, 400);
     assert.match(((await res.json()) as { error: string }).error, /at least one photo/i);
@@ -88,7 +89,7 @@ describe('validation', () => {
   it('treats cleared optional fields as absent', async () => {
     const form = new FormData();
     form.set('title', 'Cleared fields are fine');
-    form.set('channels', 'snapchat');
+    form.set('channels', 'story_handoff');
     form.set('currency', '');
     form.set('quantity', '');
     form.set('price', '');
@@ -108,7 +109,7 @@ describe('validation', () => {
   it('names the offending field in a validation error', async () => {
     const form = new FormData();
     form.set('title', 'Bad currency');
-    form.set('channels', 'snapchat');
+    form.set('channels', 'story_handoff');
     form.set('currency', 'DOLLARS');
     const photo = await makePhoto();
     form.append('photos', new Blob([new Uint8Array(photo)], { type: 'image/jpeg' }), 'a.jpg');
@@ -138,7 +139,7 @@ describe('post once, fan out', () => {
     form.set('brand', 'Nike');
     form.set('size', 'US 10.5');
     form.set('tags', 'airmax, vintage, sneakers');
-    form.set('channels', 'snapchat');
+    form.set('channels', 'story_handoff');
 
     for (const name of ['front.jpg', 'side.jpg']) {
       const photo = await makePhoto();
@@ -153,7 +154,7 @@ describe('post once, fan out', () => {
       queued: string[];
       caption: string;
     };
-    assert.deepEqual(created.queued, ['snapchat']);
+    assert.deepEqual(created.queued, ['story_handoff']);
     assert.equal(created.product.priceCents, 14500, 'parsed "$145" into cents');
     assert.match(created.caption, /\$145/);
     assert.match(created.caption, /#airmax/);

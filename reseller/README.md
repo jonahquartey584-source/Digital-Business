@@ -37,22 +37,31 @@ modes, and the UI labels every channel with which one it is:
 | Instagram Feed | Official API | Graph API content publishing. |
 | Facebook Story | Official API | Posts to a **Page** story. See the limitation below. |
 | Facebook Page Post | Official API | Permanent post to your Page feed. |
-| Snapchat Story | One-tap handoff | Snapchat has **no API** for posting to My Story. See below. |
+| Snapchat Story | Official API | Public Profile API. Needs a free Public Profile + Snap allowlist approval. |
+| Story handoff (phone) | One-tap handoff | For personal accounts, which no API can post to. |
 
 ### Three limitations worth knowing up front
 
-1. **Snapchat cannot be fully automated by anyone.** Snapchat's Marketing API
-   is for paid ads, and Creative Kit only hands media to the Snapchat app from
-   inside a native mobile app you've shipped. No server can post to your My
-   Story. This app gets as close as is possible: it renders the story, writes
-   the caption, and serves a phone page with **Save image** and **Copy
-   caption** buttons. Two taps instead of ten minutes.
+1. **Every story channel needs a business-side account, not a personal one.**
+   This is the single thing that decides whether your stories post themselves:
 
-2. **Facebook and Instagram stories work for business accounts, not personal
-   profiles.** Meta's API can post to a *Page* story and to an *Instagram
-   Business/Creator* story. There is no API for a personal Facebook profile
-   story. If you post from a personal account, use the handoff page for those
-   too — same flow as Snapchat.
+   | You want to post to | Works via API? | What to do |
+   | --- | --- | --- |
+   | Snapchat Public Profile story | Yes | Create a Public Profile (free, in-app) + get allowlisted |
+   | Snapchat personal My Story | No | Use the handoff channel |
+   | Instagram Business/Creator story | Yes | Switch account type in Settings (free, instant) |
+   | Instagram personal story | No | Switch the account type, or use handoff |
+   | Facebook **Page** story | Yes | Already wired up |
+   | Facebook personal profile story | No — no API exists | Use the handoff channel |
+
+   Switching Instagram to a Creator account takes about a minute and is the
+   cheapest win here. For Facebook personal profile stories there is genuinely
+   no API at any account tier.
+
+2. **Snapchat needs Snap's approval before it will post.** The Public Profile
+   API is real and this app implements it, but your client ID has to be added
+   to Snap's allowlist first — you submit the app for review. Until that lands,
+   use the handoff channel. See the Snapchat setup section below.
 
 3. **Browser automation is against several platforms' terms of service.**
    Crosslisting tools (Vendoo, List Perfectly, Crosslist) all work this way and
@@ -76,16 +85,16 @@ Open <http://localhost:3000>. The startup log prints exactly which channels are
 ready and what each of the others is still missing:
 
 ```
-  Channels ready:  1/13
-                   Snapchat Story
+  Channels ready:  1/14
+                   Story handoff (phone)
 
   Still to set up:
     · eBay: EBAY_CLIENT_ID, EBAY_CLIENT_SECRET, ...
     · Poshmark: Browser login (run: npm run login -- poshmark)
 ```
 
-Nothing has to be configured to start — Snapchat handoff works out of the box,
-and you can add channels one at a time.
+Nothing has to be configured to start — the phone handoff channel works out of
+the box, and you can add the rest one at a time.
 
 ### Set an API key before exposing this anywhere
 
@@ -164,6 +173,43 @@ Both use the same Meta app:
    `pages_manage_posts`, `pages_read_engagement`.
 4. Get a long-lived Page access token and your IG user id
    (`GET /me/accounts` → `instagram_business_account`).
+
+### Snapchat
+
+Posts to a Snapchat **Public Profile** story. Public Profiles are free — create
+one in the Snapchat app under your profile settings.
+
+1. Create the Public Profile in-app, and note its profile id.
+2. Register an app at <https://developers.snap.com> and request access to the
+   **Public Profile API**. Your client ID must be added to Snap's allowlist;
+   this is a review, not an instant toggle.
+3. Run the OAuth flow once with the `snapchat-profile-api` scope and keep the
+   refresh token.
+4. Fill in `SNAPCHAT_PROFILE_ID`, `SNAPCHAT_CLIENT_ID`,
+   `SNAPCHAT_CLIENT_SECRET`, `SNAPCHAT_REFRESH_TOKEN`.
+
+Then **verify before you rely on it**:
+
+```bash
+npm run snapchat:verify -- --media
+```
+
+This gets a token, reads your profile, creates a throwaway media container,
+and prints the **raw API responses**. Nothing is posted.
+
+Why that matters: Snap's docs weren't reachable from the environment this was
+built in, so while the endpoints and the flow are right, the exact response
+*field names* are unverified. The adapter therefore looks each value up
+through a list of candidate paths (`MEDIA_ID_PATHS`, `UPLOAD_URL_PATHS`,
+`STORY_ID_PATHS` in `src/channels/snapchat-api.ts`) and, if none match, fails
+with the raw response and the paths it tried. Compare the verify output against
+those lists; if a path is missing, add it to the front of the array. That's the
+whole fix.
+
+The upload itself is not a plain file POST — Snapchat has you generate an AES
+key and IV, hand them over when creating the media container, then upload the
+*encrypted* bytes in chunks. That part is in `snapchat-crypto.ts` and is
+covered by tests, so it's the piece least likely to need touching.
 
 ### Browser channels (Poshmark, Depop, Mercari, Marketplace, OfferUp)
 
@@ -249,7 +295,10 @@ src/
     registry.ts          every channel, in UI order
     http.ts              fetch wrapper, error classification, token cache
     graph.ts             shared Meta Graph API helper
-    ebay.ts etsy.ts shopify.ts instagram.ts facebook.ts snapchat.ts
+    ebay.ts etsy.ts shopify.ts instagram.ts facebook.ts
+    snapchat-api.ts      Public Profile API adapter
+    snapchat-crypto.ts   AES media encryption + chunking (tested)
+    snapchat.ts          the phone handoff fallback
     browser/
       engine.ts          runs a flow against a saved session
       flows.ts           the per-site selector recipes ← edit these
@@ -279,6 +328,7 @@ For a site with no API you usually don't need a new adapter at all: add a
 | `npm test` | Test suite |
 | `npm run typecheck` | Types only |
 | `npm run login -- <channel>` | One-time browser login for a channel |
+| `npm run snapchat:verify -- --media` | Check Snapchat access, print raw API responses |
 
 ## API
 

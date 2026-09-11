@@ -13,7 +13,8 @@
     "start": "node dist/index.js",
     "typecheck": "tsc -p tsconfig.json --noEmit",
     "test": "tsx --test tests/*.test.ts",
-    "login": "tsx src/cli/login.ts"
+    "login": "tsx src/cli/login.ts",
+    "snapchat:verify": "tsx src/cli/snapchat-verify.ts"
   },
   "dependencies": {
     "better-sqlite3": "^11.8.1",

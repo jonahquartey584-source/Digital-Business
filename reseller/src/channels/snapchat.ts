@@ -5,22 +5,23 @@ import { PermanentError } from '../core/types.js';
 import type { ChannelAdapter, PublishContext, PublishResult } from '../core/types.js';
 
 /**
- * Snapchat deliberately has no public API for posting to My Story. The
- * Marketing API covers paid ads only, and Creative Kit can only hand media to
- * the Snapchat app from inside a native mobile app you've shipped -- neither
- * lets a server post on your behalf.
+ * The manual fallback for any story a server genuinely cannot post to:
  *
- * So rather than pretend, this channel does the most it honestly can: it drops
- * the finished 1080x1920 story and its caption into an outbox and gives you a
- * one-tap handoff page. Everything up to the tap is automated.
+ *  - a *personal* Snapchat My Story (the Public Profile API in
+ *    snapchat-api.ts covers public profiles, but not personal accounts)
+ *  - a *personal* Facebook profile story (Meta has no API for these at all)
+ *  - any of the above while an API allowlist or token is still pending
+ *
+ * It drops the finished 1080x1920 story and its caption into an outbox and
+ * serves a one-tap handoff page. Everything up to the tap is automated.
  */
-export const snapchatAdapter: ChannelAdapter = {
-  id: 'snapchat',
-  label: 'Snapchat Story',
+export const storyHandoffAdapter: ChannelAdapter = {
+  id: 'story_handoff',
+  label: 'Story handoff (phone)',
   kind: 'social',
   mode: 'assist',
   note:
-    'Snapchat has no API for posting to My Story. This prepares the story image + caption and gives you a phone handoff page — open it, save, and post. One tap, no retyping.',
+    'For personal accounts, which no API can post to. Prepares the story image + caption and gives you a phone page — open it, save, post. Works for personal Snapchat, Instagram and Facebook stories.',
   capabilities: {
     titleMaxLength: 80,
     descriptionMaxLength: 250,
@@ -39,7 +40,7 @@ export const snapchatAdapter: ChannelAdapter = {
   async publish(ctx: PublishContext): Promise<PublishResult> {
     if (!ctx.storyImage) throw new PermanentError('No story image available.');
 
-    const dir = path.join(config.paths.outbox, 'snapchat', String(ctx.product.id));
+    const dir = path.join(config.paths.outbox, 'handoff', String(ctx.product.id));
     await fs.mkdir(dir, { recursive: true });
 
     const imagePath = path.join(dir, 'story.jpg');

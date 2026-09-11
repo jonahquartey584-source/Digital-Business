@@ -4,7 +4,8 @@ import { etsyAdapter } from './etsy.js';
 import { shopifyAdapter } from './shopify.js';
 import { instagramFeedAdapter, instagramStoryAdapter } from './instagram.js';
 import { facebookPageAdapter, facebookStoryAdapter } from './facebook.js';
-import { snapchatAdapter } from './snapchat.js';
+import { storyHandoffAdapter } from './snapchat.js';
+import { snapchatStoryAdapter } from './snapchat-api.js';
 import {
   depopAdapter,
   facebookMarketplaceAdapter,
@@ -30,7 +31,8 @@ export const adapters: ChannelAdapter[] = [
   instagramFeedAdapter,
   facebookStoryAdapter,
   facebookPageAdapter,
-  snapchatAdapter,
+  snapchatStoryAdapter,
+  storyHandoffAdapter,
 ];
 
 const byId = new Map(adapters.map((a) => [a.id, a]));
