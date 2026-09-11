@@ -15,7 +15,8 @@
     "test": "tsx --test tests/*.test.ts",
     "login": "tsx src/cli/login.ts",
     "snapchat:verify": "tsx src/cli/snapchat-verify.ts",
-    "set-password": "tsx src/cli/set-password.ts"
+    "set-password": "tsx src/cli/set-password.ts",
+    "ebay:setup": "tsx src/cli/ebay-setup.ts"
   },
   "dependencies": {
     "better-sqlite3": "^11.8.1",

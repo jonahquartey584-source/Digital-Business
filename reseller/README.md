@@ -299,15 +299,35 @@ shot the photo don't ride along to the marketplace.
 
 ### eBay
 
-1. Create an app at <https://developer.ebay.com> → get your Client ID / Secret.
-2. Do the OAuth consent flow once with the `sell.inventory` scope and keep the
-   **refresh token** (it lasts 18 months).
-3. In Seller Hub, create a fulfillment (shipping), payment and return policy,
-   and an inventory location. Put their ids in `.env`.
-4. Find the category id for what you sell (eBay's category tree, or copy it
-   from a similar live listing) → `EBAY_DEFAULT_CATEGORY_ID`.
+eBay needs eleven settings, so there's a guided setup rather than a checklist:
 
-Set `EBAY_ENV=sandbox` to practise against eBay's sandbox first.
+```bash
+npm run ebay:setup
+```
+
+Get two things from eBay first, then the script does the rest:
+
+1. **A developer app** — <https://developer.ebay.com> → sign in → *Application
+   Keys* → create a **production** keyset. You want the *App ID (Client ID)*
+   and *Cert ID (Client Secret)*.
+2. **A RuName** — on that same page, *User tokens* → *Get a Token from eBay via
+   Your Application* → add a redirect URL. eBay shows an RuName like
+   `Your-Name-PRD-abc123-xyz789`. Copy the **RuName**, not the URL.
+
+Also switch on Business Policies for your seller account (Seller Hub → Account
+→ Business policies) with one each of shipping, payment and returns. The script
+reads them; it can't create them.
+
+It then prints a consent URL, takes the code eBay redirects you back with,
+exchanges it for a refresh token, lists your policies for you to pick from,
+finds or creates a ship-from location, and writes all eleven values to `.env`.
+
+The only thing it can't discover is `EBAY_DEFAULT_CATEGORY_ID` — the category
+you mostly sell in. It suggests `11450` (Clothing, Shoes & Accessories) as a
+workable default and explains how to find a narrower one.
+
+Answer yes to the sandbox question to practise against eBay's test
+environment first, which sets `EBAY_ENV=sandbox`.
 
 ### Etsy
 
@@ -492,6 +512,7 @@ For a site with no API you usually don't need a new adapter at all: add a
 | `./setup.sh` | First-run setup: deps, Chromium, `.env`, password |
 | `npm run set-password -- --write` | Set the page password, saved into `.env` |
 | `npm run login -- <channel>` | One-time browser login for a channel |
+| `npm run ebay:setup` | Guided eBay setup — writes all 11 settings to `.env` |
 | `npm run snapchat:verify -- --media` | Check Snapchat access, print raw API responses |
 
 ## API
