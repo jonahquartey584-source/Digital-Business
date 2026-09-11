@@ -90,21 +90,106 @@ export async function saveSession(channelId: string, context: BrowserContext): P
   await context.storageState({ path: sessionFile(channelId) });
 }
 
-export async function launch(channelId: string, forceHeadful = false) {
-  const browser: Browser = await chromium.launch({
-    headless: !(config.browser.headful || forceHeadful),
-    slowMo: config.browser.slowMo || undefined,
+function profileDir(channelId: string): string {
+  return path.join(config.paths.profiles, channelId);
+}
+
+/** True once a Chrome profile exists for this channel. */
+export function hasProfile(channelId: string): boolean {
+  return fs.existsSync(path.join(profileDir(channelId), 'Default'));
+}
+
+/**
+ * Chrome sets navigator.webdriver when it is being automated, which is the
+ * single most common thing sites check. Turning the flag off is not a
+ * disguise -- it stops an otherwise ordinary Chrome from announcing itself as
+ * a robot -- but it is also not a cloak: a marketplace that is determined to
+ * refuse automated sessions will still refuse this one, and that refusal
+ * should be respected rather than escalated against.
+ */
+const LAUNCH_ARGS = [
+  '--disable-blink-features=AutomationControlled',
+  '--no-first-run',
+  '--no-default-browser-check',
+];
+
+export interface BrowserSession {
+  context: BrowserContext;
+  close(): Promise<void>;
+}
+
+/**
+ * Open a browser for one channel.
+ *
+ * Prefers the real Google Chrome over Playwright's bundled Chromium. The old
+ * approach -- bundled Chromium plus a user-agent claiming to be Chrome -- is
+ * worse on both counts: the mismatch between the claimed UA and the actual
+ * build is itself a detection signal, and the bundled build lags real Chrome.
+ */
+export async function launch(
+  channelId: string,
+  forceHeadful = false,
+): Promise<BrowserSession> {
+  const headless = !(config.browser.headful || forceHeadful);
+  const slowMo = config.browser.slowMo || undefined;
+
+  const base = {
+    headless,
+    slowMo,
+    args: LAUNCH_ARGS,
     executablePath: config.browser.executablePath,
+    // Only set a channel when Playwright will be finding the browser itself.
+    ...(config.browser.executablePath ? {} : { channel: config.browser.channel }),
+  };
+
+  if (config.browser.persistProfile) {
+    const dir = profileDir(channelId);
+    await fsp.mkdir(dir, { recursive: true });
+
+    const context = await chromium
+      .launchPersistentContext(dir, {
+        ...base,
+        viewport: { width: 1400, height: 1000 },
+        locale: 'en-US',
+      })
+      .catch(async (err: unknown) => {
+        // Chrome not installed, or the profile is locked by a running Chrome.
+        const reason = err instanceof Error ? err.message : String(err);
+        if (/Executable doesn't exist|channel/i.test(reason) && !config.browser.executablePath) {
+          return chromium.launchPersistentContext(dir, {
+            ...base,
+            channel: undefined,
+            viewport: { width: 1400, height: 1000 },
+            locale: 'en-US',
+          });
+        }
+        throw err;
+      });
+
+    return { context, close: () => context.close() };
+  }
+
+  const browser: Browser = await chromium.launch(base).catch(async (err: unknown) => {
+    const reason = err instanceof Error ? err.message : String(err);
+    if (/Executable doesn't exist|channel/i.test(reason) && !config.browser.executablePath) {
+      return chromium.launch({ ...base, channel: undefined });
+    }
+    throw err;
   });
+
   const context = await browser.newContext({
     storageState: hasSession(channelId) ? sessionFile(channelId) : undefined,
     viewport: { width: 1400, height: 1000 },
-    // A default UA containing "HeadlessChrome" gets bot-blocked outright.
-    userAgent:
-      'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36',
     locale: 'en-US',
   });
-  return { browser, context };
+
+  return {
+    context,
+    close: async () => {
+      await context.close().catch(() => {});
+      await browser.close().catch(() => {});
+    },
+  };
 }
 
 /** Screenshot + HTML dump, so a broken selector is a 10-second diagnosis. */
@@ -146,14 +231,15 @@ export async function runFlow(
   photoPaths: string[],
   log: (message: string) => void,
 ): Promise<FlowRunResult> {
-  if (!hasSession(channelId)) {
+  const loggedIn = config.browser.persistProfile ? hasProfile(channelId) : hasSession(channelId);
+  if (!loggedIn) {
     throw new PermanentError(
       `Not logged in to ${label}. Run: npm run login -- ${channelId}`,
     );
   }
 
-  const { browser, context } = await launch(channelId);
-  const page = await context.newPage();
+  const { context, close } = await launch(channelId);
+  const page = context.pages()[0] ?? (await context.newPage());
   const artifacts: string[] = [];
 
   try {
@@ -264,8 +350,9 @@ export async function runFlow(
       }
     }
 
-    // The session cookies usually get refreshed during a post; keep them.
-    await saveSession(channelId, context);
+    // With a persistent profile Chrome has already written the cookies to
+    // disk itself; only the storageState mode needs an explicit save.
+    if (!config.browser.persistProfile) await saveSession(channelId, context);
 
     const finalUrl = page.url();
     const matched = flow.resultUrlPattern
@@ -283,7 +370,6 @@ export async function runFlow(
     );
     throw enriched;
   } finally {
-    await context.close().catch(() => {});
-    await browser.close().catch(() => {});
+    await close().catch(() => {});
   }
 }

@@ -53,8 +53,8 @@ if (!config.browser.headful) {
   console.log('  (Forcing a visible window for this login regardless of BROWSER_HEADFUL.)\n');
 }
 
-const { browser, context } = await launch(channelId, true);
-const page = await context.newPage();
+const { context, close } = await launch(channelId, true);
+const page = context.pages()[0] ?? (await context.newPage());
 
 try {
   await page.goto(flow.homeUrl, { waitUntil: 'domcontentloaded', timeout: 60_000 });
@@ -72,5 +72,4 @@ console.log(`\n  ✓ Saved session for ${adapter.label}.`);
 console.log('    Do a dry run before posting for real:');
 console.log(`      BROWSER_DRY_RUN=1 npm start\n`);
 
-await context.close();
-await browser.close();
+await close();

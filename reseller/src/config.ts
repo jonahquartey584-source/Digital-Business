@@ -41,11 +41,23 @@ export const config = {
     media: path.join(dataDir, 'media'),
     outbox: path.join(dataDir, 'outbox'),
     sessions: path.join(dataDir, 'sessions'),
+    profiles: path.join(dataDir, 'profiles'),
     db: path.join(dataDir, 'reseller.db'),
   },
 
   browser: {
-    headful: bool('BROWSER_HEADFUL'),
+    /**
+     * Show the browser window by default.
+     *
+     * Headless Chrome reports a "HeadlessChrome/..." user-agent, which
+     * marketplaces treat as a bot outright. The alternative -- overriding the
+     * UA to claim a normal Chrome -- makes it worse, because the claimed
+     * version then disagrees with the actual build and that mismatch is
+     * itself a fingerprint. A visible window needs no pretence: it really is
+     * your Chrome doing the thing you asked for. Set BROWSER_HEADFUL=0 to run
+     * hidden, and expect more refusals if you do.
+     */
+    headful: bool('BROWSER_HEADFUL', true),
     slowMo: int('BROWSER_SLOWMO_MS', 0),
     /** Fill the listing form and screenshot it, but don't hit publish. */
     dryRun: bool('BROWSER_DRY_RUN'),
@@ -54,6 +66,19 @@ export const config = {
      * Needed in containers that ship their own browser.
      */
     executablePath: process.env.CHROMIUM_PATH || undefined,
+    /**
+     * Which browser to drive. 'chrome' uses the real Google Chrome you have
+     * installed, which is both less fragile and less likely to be refused
+     * than Playwright's bundled Chromium pretending to be Chrome via a
+     * spoofed user-agent. Set to 'chromium' to force the bundled build.
+     */
+    channel: process.env.BROWSER_CHANNEL || 'chrome',
+    /**
+     * Keep each marketplace's cookies in a real Chrome profile directory
+     * rather than a JSON blob, so the session ages the way a normal browser
+     * session does. Set BROWSER_PERSIST=0 to go back to storageState.
+     */
+    persistProfile: bool('BROWSER_PERSIST', true),
   },
 
   graphApiVersion: process.env.GRAPH_API_VERSION || 'v21.0',

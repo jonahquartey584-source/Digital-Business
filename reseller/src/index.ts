@@ -38,6 +38,11 @@ const server = createApp().listen(config.port, host, () => {
     console.log('     so they stay disabled until you point it at a tunnel');
     console.log(`     (cloudflared tunnel --url http://localhost:${config.port}) or a host.`);
   }
+  if (!config.browser.headful) {
+    console.log('\n  !  BROWSER_HEADFUL=0 — hidden Chrome reports itself as HeadlessChrome,');
+    console.log('     which marketplaces commonly refuse. Expect more failures on the');
+    console.log('     browser channels than with a visible window.');
+  }
   if (config.browser.dryRun) {
     console.log('\n  i  BROWSER_DRY_RUN=1 — browser channels fill forms but do not publish.');
   }

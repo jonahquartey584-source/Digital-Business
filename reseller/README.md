@@ -64,7 +64,24 @@ modes, and the UI labels every channel with which one it is:
    to Snap's allowlist first — you submit the app for review. Until that lands,
    use the handoff channel. See the Snapchat setup section below.
 
-3. **Browser automation is against several platforms' terms of service.**
+3. **Some marketplaces actively block automated browsers, and Depop is one of
+   them.** A first login attempt on Depop can come back as a bare
+   `403 Forbidden` before the login form even loads — that is their WAF
+   refusing the session, not a bug in the flow.
+
+   What this project does about it: drives your real Google Chrome rather than
+   a bundled Chromium, in a visible window, with a persistent profile, and
+   without Chrome announcing `navigator.webdriver`. That is enough for a site
+   that merely dislikes obviously-robotic sessions.
+
+   What it deliberately does **not** do: fingerprint spoofing, residential
+   proxies, CAPTCHA solving, or anything else in the evasion arms race. If a
+   marketplace still refuses after the above, that is a clear statement of
+   intent from the platform, and the right response is to stop automating that
+   channel — not to try harder. Continuing to hammer a WAF is also the fastest
+   route to getting your seller account restricted.
+
+4. **Browser automation is against several platforms' terms of service.**
    Crosslisting tools (Vendoo, List Perfectly, Crosslist) all work this way and
    sellers use them daily, but it is your account at risk, not theirs. The
    defaults post one channel at a time from your own IP, which is the sane way
@@ -400,8 +417,12 @@ password — this tool never sees or stores it, only the resulting cookies:
 npm run login -- poshmark
 ```
 
-Sessions land in `data/sessions/<channel>.json`. They last weeks; when one
-expires the channel fails with a message telling you to re-run the command.
+Sessions land in `data/profiles/<channel>/` — a real Chrome profile, so the
+cookies age the way a normal browser's do. They last weeks; when one expires
+the channel fails with a message telling you to re-run the command.
+
+Close Google Chrome before running a login: Chrome locks a profile directory
+while it's open, and Playwright can't attach to a locked one.
 
 ---
 
