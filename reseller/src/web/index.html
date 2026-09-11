@@ -1,0 +1,114 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Reseller Autopost</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<header class="topbar">
+  <div class="brand">
+    <span class="dot"></span>
+    <h1>Reseller Autopost</h1>
+  </div>
+  <div class="key-slot">
+    <input id="apiKey" type="password" placeholder="API key (if set)" autocomplete="off">
+  </div>
+</header>
+
+<main>
+  <section class="panel">
+    <h2>New item</h2>
+    <p class="hint">Drop the photos in, give it a name and a price, tick where it goes.</p>
+
+    <form id="postForm">
+      <div class="dropzone" id="dropzone" tabindex="0" role="button"
+           aria-label="Add photos">
+        <input type="file" id="photos" name="photos" accept="image/*" multiple hidden>
+        <p class="dz-main">Drop photos here or click to choose</p>
+        <p class="dz-sub">First photo becomes the story image · up to 12</p>
+      </div>
+      <div class="thumbs" id="thumbs" aria-live="polite"></div>
+
+      <div class="grid">
+        <label class="field span2">
+          <span>Product name <em>required</em></span>
+          <input name="title" id="title" required maxlength="300"
+                 placeholder="Vintage Nike Air Max 90 Infrared">
+        </label>
+
+        <label class="field">
+          <span>Price</span>
+          <input name="price" id="price" inputmode="decimal" placeholder="145">
+        </label>
+
+        <label class="field">
+          <span>Currency</span>
+          <input name="currency" value="USD" maxlength="3">
+        </label>
+
+        <label class="field">
+          <span>Brand</span>
+          <input name="brand" placeholder="Nike">
+        </label>
+
+        <label class="field">
+          <span>Size</span>
+          <input name="size" placeholder="US 10.5">
+        </label>
+
+        <label class="field">
+          <span>Colour</span>
+          <input name="color" placeholder="White / Infrared">
+        </label>
+
+        <label class="field">
+          <span>Condition</span>
+          <input name="condition" placeholder="Excellent — worn twice">
+        </label>
+
+        <label class="field">
+          <span>Category</span>
+          <input name="category" placeholder="Sneakers">
+        </label>
+
+        <label class="field">
+          <span>Quantity</span>
+          <input name="quantity" type="number" min="1" max="999" value="1">
+        </label>
+
+        <label class="field span2">
+          <span>Tags <em>comma separated — become hashtags</em></span>
+          <input name="tags" placeholder="airmax, vintage, sneakers, streetwear">
+        </label>
+
+        <label class="field span2">
+          <span>Description <em>left blank, one gets written from the fields above</em></span>
+          <textarea name="description" rows="4"
+                    placeholder="Optional — leave empty to auto-generate"></textarea>
+        </label>
+      </div>
+
+      <h3>Post to</h3>
+      <div id="channels" class="channels">Loading channels…</div>
+
+      <div class="actions">
+        <button type="submit" id="submit" class="primary">Post everywhere</button>
+        <span id="formStatus" class="status" role="status"></span>
+      </div>
+    </form>
+  </section>
+
+  <section class="panel">
+    <div class="panel-head">
+      <h2>Recent items</h2>
+      <button id="refresh" class="ghost" type="button">Refresh</button>
+    </div>
+    <div id="products" class="products">Loading…</div>
+  </section>
+</main>
+
+<script src="app.js"></script>
+</body>
+</html>

@@ -1,0 +1,35 @@
+{
+  "name": "reseller-autopost",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Post a product once, fan it out to every marketplace and social story you sell on.",
+  "type": "module",
+  "engines": {
+    "node": ">=20"
+  },
+  "scripts": {
+    "dev": "tsx watch src/index.ts",
+    "build": "tsc -p tsconfig.json && node scripts/copy-web.mjs",
+    "start": "node dist/index.js",
+    "typecheck": "tsc -p tsconfig.json --noEmit",
+    "test": "tsx --test tests/*.test.ts",
+    "login": "tsx src/cli/login.ts"
+  },
+  "dependencies": {
+    "better-sqlite3": "^11.8.1",
+    "dotenv": "^16.4.7",
+    "express": "^5.2.1",
+    "multer": "^2.3.0",
+    "playwright": "^1.50.1",
+    "sharp": "^0.35.4",
+    "zod": "^3.24.1"
+  },
+  "devDependencies": {
+    "@types/better-sqlite3": "^7.6.12",
+    "@types/express": "^5.0.6",
+    "@types/multer": "^1.4.12",
+    "@types/node": "^22.13.1",
+    "tsx": "^4.19.2",
+    "typescript": "^5.7.3"
+  }
+}
