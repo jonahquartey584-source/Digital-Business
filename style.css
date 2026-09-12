@@ -758,38 +758,6 @@ section {
   text-decoration: underline;
 }
 
-/* Promise band — a short, bold statement of the offer, bookended between
-   the hero and the services grid so it reads as its own beat rather than
-   competing with either section's heading. */
-.promise {
-  background: var(--surface-alt);
-  border-top: 1px solid var(--border-soft);
-  border-bottom: 1px solid var(--border-soft);
-  padding: 64px 0;
-}
-
-.promise__inner {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 18px;
-  max-width: 640px;
-  text-align: center;
-}
-
-.promise__statement {
-  font-family: "Sora", sans-serif;
-  font-weight: 800;
-  font-size: clamp(1.9rem, 4vw, 2.6rem);
-  line-height: 1.15;
-  color: var(--text);
-}
-
-.promise__lead {
-  color: var(--text-dim);
-  max-width: 52ch;
-}
-
 /* Services grid */
 .grid {
   display: grid;
