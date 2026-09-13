@@ -133,8 +133,14 @@ if (heroRotatorBody && heroRotatorHeadline && heroRotatorText) {
     // not to see it.
     if (heroRotatorProgressBar) heroRotatorProgressBar.style.width = "100%";
   } else {
-    restartHeroRotatorProgress();
-    setInterval(() => {
+    // WCAG 2.2.2 (Pause, Stop, Hide): this panel auto-advances its text
+    // indefinitely, so a visitor must be able to stop it. Honouring
+    // prefers-reduced-motion is not enough on its own — the success
+    // criterion asks for a control the user can actually operate.
+    const heroRotatorToggle = document.getElementById("heroRotatorToggle");
+    let heroRotatorTimer = null;
+
+    function advanceHeroRotator() {
       heroRotatorBody.classList.add("is-fading");
       setTimeout(() => {
         heroRotatorIndex = (heroRotatorIndex + 1) % HERO_ROTATOR_ITEMS.length;
@@ -142,7 +148,32 @@ if (heroRotatorBody && heroRotatorHeadline && heroRotatorText) {
         heroRotatorBody.classList.remove("is-fading");
         restartHeroRotatorProgress();
       }, HERO_ROTATE_FADE_MS);
-    }, HERO_ROTATE_MS);
+    }
+
+    function startHeroRotator() {
+      if (heroRotatorTimer) return;
+      restartHeroRotatorProgress();
+      heroRotatorTimer = setInterval(advanceHeroRotator, HERO_ROTATE_MS);
+      if (heroRotatorToggle) {
+        heroRotatorToggle.classList.remove("is-paused");
+        heroRotatorToggle.setAttribute("aria-label", "Pause the rotating reasons");
+      }
+    }
+
+    function stopHeroRotator() {
+      clearInterval(heroRotatorTimer);
+      heroRotatorTimer = null;
+      if (heroRotatorProgressBar) heroRotatorProgressBar.classList.remove("is-animating");
+      if (heroRotatorToggle) {
+        heroRotatorToggle.classList.add("is-paused");
+        heroRotatorToggle.setAttribute("aria-label", "Resume the rotating reasons");
+      }
+    }
+
+    startHeroRotator();
+    heroRotatorToggle?.addEventListener("click", () => {
+      heroRotatorTimer ? stopHeroRotator() : startHeroRotator();
+    });
   }
 }
 
