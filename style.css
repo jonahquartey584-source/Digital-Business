@@ -146,7 +146,7 @@ p {
   text-transform: uppercase;
   color: var(--text-dim);
   opacity: 0;
-  animation: introTagIn 0.6s ease 0.55s forwards;
+  animation: introTag 2.1s ease forwards;
 }
 
 @keyframes introMarkIn {
@@ -155,16 +155,22 @@ p {
 @keyframes introLineIn {
   to { width: 96px; }
 }
-/* The tag used to fade 0 -> 1 opacity. Part-way through that fade the text
-   renders as a blend of --text-dim and the backdrop, which drops under the
-   4.5:1 required by WCAG 1.4.3 — every colour we might use does, below about
-   0.5 opacity, so no palette change fixes it. It snaps to full opacity in the
-   first moment instead and lets the upward motion carry the entrance, so the
-   text is never painted at a partial opacity anyone can read. */
-@keyframes introTagIn {
-  from { opacity: 0; transform: translateY(7px); }
-  1% { opacity: 1; transform: translateY(7px); }
-  to { opacity: 1; transform: none; }
+/* This tag is the only real-coloured text in the intro splash (the wordmark
+   is a clipped gradient, so it has no measurable colour). Any opacity fade
+   of coloured text passes through a stretch below 4.5:1 — around half
+   opacity, whatever colour you pick — so both the entrance and the exit
+   tripped WCAG 1.4.3 while they ran.
+   
+   It therefore runs on the overlay's own 2.1s timeline and never renders
+   part-faded: it snaps to full opacity on entry and lets the upward motion
+   carry the entrance, then clears in ~20ms just before the overlay's
+   curtain begins fading at 62%. The curtain still fades; there is simply no
+   coloured text left inside it by then. */
+@keyframes introTag {
+  0%, 26% { opacity: 0; transform: translateY(7px); }
+  27% { opacity: 1; transform: translateY(7px); }
+  55%, 61% { opacity: 1; transform: none; }
+  62%, 100% { opacity: 0; transform: none; }
 }
 @keyframes introOverlayOut {
   0%, 62% { opacity: 1; visibility: visible; }
