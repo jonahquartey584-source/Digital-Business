@@ -155,8 +155,16 @@ p {
 @keyframes introLineIn {
   to { width: 96px; }
 }
+/* The tag used to fade 0 -> 1 opacity. Part-way through that fade the text
+   renders as a blend of --text-dim and the backdrop, which drops under the
+   4.5:1 required by WCAG 1.4.3 — every colour we might use does, below about
+   0.5 opacity, so no palette change fixes it. It snaps to full opacity in the
+   first moment instead and lets the upward motion carry the entrance, so the
+   text is never painted at a partial opacity anyone can read. */
 @keyframes introTagIn {
-  to { opacity: 1; }
+  from { opacity: 0; transform: translateY(7px); }
+  1% { opacity: 1; transform: translateY(7px); }
+  to { opacity: 1; transform: none; }
 }
 @keyframes introOverlayOut {
   0%, 62% { opacity: 1; visibility: visible; }
@@ -2211,6 +2219,33 @@ html[data-theme="light"] .biz-card {
   font-size: 1.25rem;
   margin-top: 40px;
   margin-bottom: 12px;
+}
+
+/* Statutory consumer notice shown beside the pay button — quieter than the
+   main consent line but still legible, since it carries a legal right. */
+.form-consent--statutory {
+  margin-top: 10px;
+  padding-top: 10px;
+  border-top: 1px solid var(--border-soft);
+}
+
+/* Model cancellation form — a fill-in block quoted inside the Terms, set
+   apart from the surrounding prose so it reads as something to copy. */
+.legal-form {
+  margin: 14px 0 8px;
+  padding: 18px 20px;
+  border: 1px solid var(--border);
+  border-left: 3px solid var(--gold);
+  border-radius: var(--radius);
+  background: var(--surface-alt);
+}
+
+.legal-form p {
+  margin: 0 0 10px;
+}
+
+.legal-form p:last-child {
+  margin-bottom: 0;
 }
 
 /* Sub-heading inside a numbered section — used in the privacy policy to

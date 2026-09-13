@@ -202,6 +202,12 @@ if (activateForm && activateResult) {
           <button type="button" class="btn btn--primary btn--lg" id="embeddedPayButton" data-account="${result.account}">Pay ${result.price} &amp; Activate →</button>
           <p class="order-summary__note" id="embeddedPayNote">Payment happens right here — you won't be sent to a separate site. Once it's confirmed, this service is activated automatically.</p>
           <p class="form-consent">By paying, you agree to our <a href="terms.html">Terms &amp; Conditions</a> and <a href="privacy.html">Privacy Policy</a>.</p>
+          <p class="form-consent form-consent--statutory">
+            Buying as a private individual rather than for a business? You have a 14-day right to cancel
+            (<a href="terms.html">Terms, section 10</a>). Paying here activates the service straight away,
+            so you are asking us to begin within that period &mdash; if you cancel partway through you pay
+            only for the work already done, and the right ends once the service is fully delivered.
+          </p>
         </div>
       `;
       document.getElementById("embeddedCheckout").hidden = true;
