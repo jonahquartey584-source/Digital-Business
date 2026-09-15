@@ -1,14 +1,58 @@
 {
   "artboards": [
-    { "file": "Main.dc.html",      "x": 0,    "y": 0,    "w": 1040, "h": 640 },
-    { "file": "Avatar.dc.html",    "x": 1140, "y": 0,    "w": 900,  "h": 640 },
-    { "file": "Monogram.dc.html",  "x": 0,    "y": 780,  "w": 900,  "h": 520 },
-    { "file": "Wordmark.dc.html",  "x": 1000, "y": 780,  "w": 900,  "h": 520 },
-    { "file": "AltCaps.dc.html",   "x": 0,    "y": 1440, "w": 560,  "h": 520 },
-    { "file": "AltHanger.dc.html", "x": 660,  "y": 1440, "w": 560,  "h": 520 }
+    {
+      "file": "Main.dc.html",
+      "x": 0,
+      "y": 0,
+      "w": 1040,
+      "h": 640
+    },
+    {
+      "file": "Avatar.dc.html",
+      "x": 1140,
+      "y": 0,
+      "w": 900,
+      "h": 640
+    },
+    {
+      "file": "Monogram.dc.html",
+      "x": 0,
+      "y": 780,
+      "w": 900,
+      "h": 560
+    },
+    {
+      "file": "Wordmark.dc.html",
+      "x": 1000,
+      "y": 780,
+      "w": 900,
+      "h": 520
+    },
+    {
+      "file": "AltCaps.dc.html",
+      "x": 0,
+      "y": 1440,
+      "w": 560,
+      "h": 520
+    },
+    {
+      "file": "AltHanger.dc.html",
+      "x": 660,
+      "y": 1440,
+      "w": 560,
+      "h": 520
+    }
   ],
   "annotations": [
-    { "id": "direction", "x": 1300, "y": 1440, "w": 300, "text": "Direction: warm, editorial, independent-shop.\nDeliberately not Vinted's teal, so you don't read as a clone of the platform.\n\nThe two below are alternates, not rejects - each notes its tradeoff." }
+    {
+      "id": "direction",
+      "x": 1300,
+      "y": 1440,
+      "w": 300,
+      "text": "Black and white, as asked.\n\nThe badge says the full name and stands alone. Where a wordmark sits beside it, the mark drops to the Qp monogram so the name isn't said twice.\n\nBelow 48px, MARKET stops being readable - use the monogram there."
+    }
   ],
-  "launch": { "view": "canvas" }
+  "launch": {
+    "view": "canvas"
+  }
 }
