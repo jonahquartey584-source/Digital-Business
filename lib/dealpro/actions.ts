@@ -2,10 +2,10 @@
 
 import { revalidatePath } from "next/cache";
 import { redirect, unstable_rethrow } from "next/navigation";
-import { createClient } from "@/lib/supabase/server";
+import { createAdminClient, createClient } from "@/lib/supabase/server";
 import { isSupabaseConfigured } from "@/lib/supabase/config";
 import { hasActiveSubscription } from "@/lib/subscription";
-import { assertCredits, recordCredits } from "@/lib/dealpro/credits";
+import { refundCredits, reserveCredits } from "@/lib/dealpro/credits";
 import { isAiConfigured, parseAdvertWithAI, researchDeal } from "@/lib/dealpro/ai";
 import {
   DEAL_STATUSES,
@@ -18,6 +18,7 @@ import {
   normalizeDeal,
   parseAdvertLocally,
   type Assumptions,
+  type CreditAction,
   type Deal,
   type DealStatus,
   type DealUnit,
@@ -130,7 +131,7 @@ export async function createDeal() {
     })
     .select("id")
     .single<{ id: string }>();
-  if (error || !data) throw new Error(error?.message ?? "Couldn't create the deal.");
+  if (error || !data) throw new Error("Couldn't create the deal. Please try again.");
   revalidatePath("/dashboard/dealpro");
   redirect(`/dashboard/dealpro/${data.id}`);
 }
@@ -170,7 +171,7 @@ export async function saveDeal(id: string, patch: DealPatch): Promise<ActionResu
       .eq("id", id)
       .select("*")
       .single<Deal>();
-    if (error || !data) throw new Error(error?.message ?? "Couldn't save the deal.");
+    if (error || !data) throw new Error("Couldn't save the deal. Please try again.");
     revalidatePath("/dashboard/dealpro");
     return { ok: true, data: normalizeDeal(data) };
   } catch (e) {
@@ -194,20 +195,54 @@ export async function deleteDeal(id: string) {
 
 // ---------- AI tasks (spend credits) ----------
 
-/** Parses a pasted advert into a new unit on the deal. 1 credit. */
-export async function importAdvert(id: string, advert: string): Promise<ActionResult<Deal>> {
+/**
+ * Reserves credits, runs `work`, and refunds the reservation if it throws.
+ * The deal is loaded through the user's RLS-scoped client first, so a
+ * user can only ever spend on, and write to, their own deals.
+ */
+async function withCredits(
+  id: string,
+  action: CreditAction,
+  work: (ctx: { deal: Deal; userId: string }) => Promise<Deal>
+): Promise<ActionResult<Deal>> {
+  let reservation: string | null = null;
   try {
     const { supabase, user } = await requireDealProAccess();
-    const text = s(advert, 8000).trim();
-    if (!text) throw new Error("Paste an advert first.");
-    await assertCredits(supabase, user, "import");
     const deal = await loadDeal(supabase, id);
+    reservation = await reserveCredits(user, action, id);
+    const saved = await work({ deal, userId: user.id });
+    revalidatePath("/dashboard/dealpro");
+    return { ok: true, data: normalizeDeal(saved) };
+  } catch (e) {
+    if (reservation) await refundCredits(reservation);
+    unstable_rethrow(e);
+    return fail(e);
+  }
+}
 
+/** Writes fields only the server may set (see 0007's trigger). Scoped to the owner explicitly since this bypasses RLS. */
+async function adminUpdateDeal(id: string, userId: string, update: Record<string, unknown>): Promise<Deal> {
+  const { data, error } = await createAdminClient()
+    .from("dealpro_deals")
+    .update(update)
+    .eq("id", id)
+    .eq("owner_id", userId)
+    .select("*")
+    .single<Deal>();
+  if (error || !data) throw new Error("Couldn't save the deal. Please try again.");
+  return data;
+}
+
+/** Parses a pasted advert into a new unit on the deal. 1 credit. */
+export async function importAdvert(id: string, advert: string): Promise<ActionResult<Deal>> {
+  const text = s(advert, 8000).trim();
+  if (!text) return { ok: false, error: "Paste an advert first." };
+  return withCredits(id, "import", async ({ deal, userId }) => {
     const parsed: ParsedAdvert = isAiConfigured ? await parseAdvertWithAI(text) : parseAdvertLocally(text);
     if (!parsed.rent) throw new Error('No rent found. Check the advert includes the monthly rent, e.g. "Rent £1,500".');
 
     const nextNo = deal.units.length + 1;
-    const units = [
+    const units = cleanUnits([
       ...deal.units,
       {
         label: parsed.label ? `${parsed.label} ${nextNo}` : `Unit ${nextNo}`,
@@ -215,78 +250,37 @@ export async function importAdvert(id: string, advert: string): Promise<ActionRe
         dep: parsed.dep ?? parsed.rent,
         rate: parsed.rate ?? 150,
       },
-    ];
-    const { data, error } = await supabase
-      .from("dealpro_deals")
-      .update({ units, area: deal.area || parsed.area || null })
-      .eq("id", id)
-      .select("*")
-      .single<Deal>();
-    if (error || !data) throw new Error(error?.message ?? "Couldn't save the unit.");
-
-    await recordCredits(supabase, user, "import", id);
-    revalidatePath("/dashboard/dealpro");
-    return { ok: true, data: normalizeDeal(data) };
-  } catch (e) {
-    unstable_rethrow(e);
-    return fail(e);
-  }
+    ]);
+    return adminUpdateDeal(id, userId, { units, area: deal.area || s(parsed.area, 200) || null });
+  });
 }
 
 /** Drafts AI findings for every due diligence check. 5 credits. */
 export async function runDealResearch(id: string): Promise<ActionResult<Deal>> {
-  try {
-    const { supabase, user } = await requireDealProAccess();
-    if (!isAiConfigured) throw new Error("AI research isn't set up yet (ANTHROPIC_API_KEY is missing).");
-    await assertCredits(supabase, user, "research");
-    const deal = await loadDeal(supabase, id);
-
+  if (!isAiConfigured) return { ok: false, error: "AI research isn't set up yet (ANTHROPIC_API_KEY is missing)." };
+  return withCredits(id, "research", async ({ deal, userId }) => {
     const findings = await researchDeal(deal);
     const diligence = deal.diligence.map((item) => {
       const f = findings.find((x) => x.k === item.k);
       if (!f) return item;
       // Never overwrite a status the user already set themselves.
-      return { ...item, ai: f.n, s: item.s === "none" ? f.s : item.s };
+      return { ...item, ai: s(f.n, 4000), s: item.s === "none" ? f.s : item.s };
     });
-
-    const { data, error } = await supabase
-      .from("dealpro_deals")
-      .update({ diligence, ai_researched_at: new Date().toISOString() })
-      .eq("id", id)
-      .select("*")
-      .single<Deal>();
-    if (error || !data) throw new Error(error?.message ?? "Couldn't save the findings.");
-
-    await recordCredits(supabase, user, "research", id);
-    revalidatePath("/dashboard/dealpro");
-    return { ok: true, data: normalizeDeal(data) };
-  } catch (e) {
-    unstable_rethrow(e);
-    return fail(e);
-  }
+    return adminUpdateDeal(id, userId, { diligence, ai_researched_at: new Date().toISOString() });
+  });
 }
 
 /** Marks the investor pack final (removes the preview watermark). 3 credits, once per deal. */
 export async function finalizePack(id: string): Promise<ActionResult<Deal>> {
   try {
-    const { supabase, user } = await requireDealProAccess();
+    const { supabase } = await requireDealProAccess();
     const deal = await loadDeal(supabase, id);
     if (deal.pack.final) return { ok: true, data: deal };
-    await assertCredits(supabase, user, "pack");
-
-    const { data, error } = await supabase
-      .from("dealpro_deals")
-      .update({ pack: { ...deal.pack, final: true } })
-      .eq("id", id)
-      .select("*")
-      .single<Deal>();
-    if (error || !data) throw new Error(error?.message ?? "Couldn't generate the pack.");
-
-    await recordCredits(supabase, user, "pack", id);
-    revalidatePath("/dashboard/dealpro");
-    return { ok: true, data: normalizeDeal(data) };
   } catch (e) {
     unstable_rethrow(e);
     return fail(e);
   }
+  return withCredits(id, "pack", ({ deal, userId }) =>
+    adminUpdateDeal(id, userId, { pack: { ...deal.pack, final: true } })
+  );
 }

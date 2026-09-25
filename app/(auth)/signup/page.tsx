@@ -46,6 +46,11 @@ export default function SignUpPage() {
         )}
 
         <SubmitButton pendingText="Creating account…">Create account</SubmitButton>
+        <p className="text-center text-xs text-cream-dim">
+          By creating an account you agree to our{" "}
+          <Link href="/terms" className="text-gold-300 hover:underline">Terms</Link> and{" "}
+          <Link href="/privacy" className="text-gold-300 hover:underline">Privacy policy</Link>.
+        </p>
       </form>
 
       <p className="mt-6 text-center text-sm text-cream-dim">

@@ -1,4 +1,5 @@
 import { MarketingNav } from "@/components/marketing-nav";
+import { LegalFooter } from "@/components/legal-page";
 import { PRODUCTS, type ProductSlug } from "@/lib/stripe";
 
 export const dynamic = "force-dynamic";
@@ -62,6 +63,7 @@ export default function PricingPage() {
           </p>
         </div>
       </main>
+      <LegalFooter />
     </>
   );
 }

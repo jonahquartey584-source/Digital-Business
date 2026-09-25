@@ -132,7 +132,7 @@ npm install
 1. Create a project at [supabase.com](https://supabase.com).
 2. In the SQL Editor, run the migrations in order: `0001_init.sql`,
    `0002_voice.sql`, `0003_booking.sql`, `0004_profiles_email.sql`,
-   `0005_crm_expansion.sql`, `0006_dealpro.sql`.
+   `0005_crm_expansion.sql`, `0006_dealpro.sql`, `0007_dealpro_hardening.sql`.
 3. Copy **Project URL**, **anon public key**, and **service_role key** from
    Project Settings → API.
 
@@ -349,10 +349,33 @@ rent-to-rent deals, built from the "Deal Pro" design. Everything lives at
 200 in `lib/dealpro/credits.ts`): advert import 1, final pack 3, AI
 research 5. Credits are checked before the work and recorded in
 `dealpro_credit_usage` only after it succeeds, so failures are never
-charged. Admin accounts are unlimited. This caps your Anthropic spend per
+charged. The ledger is server-only (`0007_dealpro_hardening.sql`): users
+can read their usage but only the service role can write it, through
+`dealpro_spend_credits()`, which checks and records a spend atomically
+under a per-user lock. That stops parallel requests from overspending, and
+a database trigger stops `pack.final` / `ai_researched_at` from being set
+by writing to the table directly. Admin accounts are unlimited. This caps your Anthropic spend per
 subscriber, and a research run (web search plus two Claude calls) is by
 far the most expensive action. Tune the allowance and costs to your
 pricing.
+
+## Security and legal
+
+- **Security headers** (`next.config.mjs`): Content-Security-Policy
+  (same-origin only, no framing), HSTS, `X-Frame-Options: DENY`,
+  `nosniff`, a strict Referrer-Policy and Permissions-Policy. If you add a
+  third-party script or embed (analytics, chat widget, Stripe.js), add its
+  origin to the CSP or it will be blocked.
+- **Data isolation:** every table is Row Level Security-scoped to
+  `owner_id = auth.uid()`; server actions re-check the subscription;
+  service-role writes always also filter on `owner_id`.
+- **Auth callback** only redirects to same-site paths (`app/auth/callback`).
+- **Legal pages:** `/privacy` (UK GDPR) and `/terms` (incl. Deal Pro's
+  not-advice and user-compliance clauses), linked from the footer and
+  signup. **Before launch, fill in the `[bracketed]` placeholders in
+  `components/legal-page.tsx`** (legal entity, company number, address,
+  privacy email, ICO registration number) and have a solicitor review both
+  pages. They're a sound starting point, not legal advice.
 
 ## Install as an app — no app store needed
 

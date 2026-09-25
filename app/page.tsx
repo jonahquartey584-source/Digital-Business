@@ -2,6 +2,7 @@ import Link from "next/link";
 import { MarketingNav } from "@/components/marketing-nav";
 import { BackgroundDots } from "@/components/background-dots";
 import { PRODUCTS } from "@/lib/stripe";
+import { LegalFooter } from "@/components/legal-page";
 
 export default function HomePage() {
   return (
@@ -85,11 +86,7 @@ export default function HomePage() {
         </section>
       </main>
 
-      <footer className="border-t border-ink-border bg-ink-soft py-10">
-        <div className="mx-auto max-w-6xl px-6 text-center font-mono text-xs uppercase tracking-wider text-cream-dim">
-          © {new Date().getFullYear()} Qp Digital. All rights reserved.
-        </div>
-      </footer>
+      <LegalFooter />
     </>
   );
 }

@@ -1,5 +1,6 @@
 import type { SupabaseClient, User } from "@supabase/supabase-js";
 import { isAdminEmail } from "@/lib/admin";
+import { createAdminClient } from "@/lib/supabase/server";
 import { CREDIT_COSTS, type CreditAction } from "@/lib/dealpro/model";
 
 /**
@@ -42,31 +43,36 @@ export async function getCreditBalance(supabase: SupabaseClient, user: User): Pr
 }
 
 export class NotEnoughCreditsError extends Error {
-  constructor(needed: number, remaining: number) {
+  constructor(needed: number) {
     super(
-      `This needs ${needed} credit${needed === 1 ? "" : "s"} and you have ${remaining} left this month. Credits reset on the 1st.`
+      `This needs ${needed} credit${needed === 1 ? "" : "s"} and you don't have enough left this month. Credits reset on the 1st.`
     );
   }
 }
 
-/** Throws NotEnoughCreditsError if the user can't afford `action`. Call before doing the work. */
-export async function assertCredits(supabase: SupabaseClient, user: User, action: CreditAction) {
-  const balance = await getCreditBalance(supabase, user);
+/**
+ * Atomically checks the balance and records the spend, before the work
+ * runs (supabase/migrations/0007_dealpro_hardening.sql). Goes through the
+ * service role: users can read their ledger but never write to it. Pair
+ * every call with refundCredits() if the work then fails, so failures
+ * are never charged.
+ */
+export async function reserveCredits(user: User, action: CreditAction, dealId: string | null): Promise<string> {
   const needed = CREDIT_COSTS[action];
-  if (balance.remaining < needed) throw new NotEnoughCreditsError(needed, balance.remaining);
+  const { data, error } = await createAdminClient().rpc("dealpro_spend_credits", {
+    p_user: user.id,
+    p_deal: dealId,
+    p_action: action,
+    p_credits: needed,
+    p_allowance: isAdminEmail(user.email) ? null : MONTHLY_CREDITS,
+  });
+  if (error) {
+    if (error.message.includes("insufficient_credits")) throw new NotEnoughCreditsError(needed);
+    throw new Error("Couldn't check your credits. Please try again.");
+  }
+  return data as string;
 }
 
-/** Records the spend. Call only after the work succeeded, so failures are never charged. */
-export async function recordCredits(
-  supabase: SupabaseClient,
-  user: User,
-  action: CreditAction,
-  dealId: string | null
-) {
-  await supabase.from("dealpro_credit_usage").insert({
-    owner_id: user.id,
-    deal_id: dealId,
-    action,
-    credits: CREDIT_COSTS[action],
-  });
+export async function refundCredits(reservationId: string) {
+  await createAdminClient().rpc("dealpro_refund_credits", { p_id: reservationId });
 }
