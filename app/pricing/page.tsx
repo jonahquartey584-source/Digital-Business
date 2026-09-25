@@ -44,10 +44,11 @@ export default function PricingPage() {
           and it subscribes on your existing account instead.
         </p>
 
-        <div className="mt-12 grid gap-6 sm:grid-cols-3">
+        <div className="mt-12 grid gap-6 sm:grid-cols-2">
           <PricingCard slug="crm" />
           <PricingCard slug="voice" />
           <PricingCard slug="booking" />
+          <PricingCard slug="dealpro" />
         </div>
 
         <div className="card mt-6 flex flex-col p-8 opacity-60">

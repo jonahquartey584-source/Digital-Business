@@ -47,6 +47,10 @@ app/
     booking/                 Booking System — gated behind an active "booking" subscription
       page.tsx                settings: business info, weekly hours, services
       appointments/            upcoming/past bookings, cancel
+    dealpro/                 Deal Pro — gated behind an active "dealpro" subscription
+      page.tsx                My deals: list, status, new/delete
+      [id]/                    deal workspace: analyse, due diligence, deal pack, Deal Notice
+      credits/                 monthly AI credit balance + usage log
   book/[slug]/              PUBLIC booking page — no login, this is for the client's customers
   api/stripe/
     checkout/route.ts        creates a Stripe Checkout session
@@ -59,6 +63,7 @@ lib/
   voice/                     AI Reception: provisioning, Twilio webhook handlers, Claude calls
   booking/                   Booking System: dashboard actions + public.ts/public-actions.ts
                               (service-role reads/writes — the public page has no user session)
+  dealpro/                   Deal Pro: model.ts (pure deal maths), actions.ts, ai.ts (Claude), credits.ts
   crypto.ts                  AES-256-GCM encrypt/decrypt for Twilio Subaccount tokens at rest
   stripe.ts                  Stripe client + PRODUCTS catalog (add new services here)
   subscription.ts            hasActiveSubscription() gate used everywhere
@@ -127,14 +132,14 @@ npm install
 1. Create a project at [supabase.com](https://supabase.com).
 2. In the SQL Editor, run the migrations in order: `0001_init.sql`,
    `0002_voice.sql`, `0003_booking.sql`, `0004_profiles_email.sql`,
-   `0005_crm_expansion.sql`.
+   `0005_crm_expansion.sql`, `0006_dealpro.sql`.
 3. Copy **Project URL**, **anon public key**, and **service_role key** from
    Project Settings → API.
 
 ### 3. Create Stripe products
 
-1. In the Stripe Dashboard, create three products, each with a recurring
-   monthly Price: "CRM", "AI Reception", and "Booking System". Copy each
+1. In the Stripe Dashboard, create four products, each with a recurring
+   monthly Price: "CRM", "AI Reception", "Booking System", and "Deal Pro". Copy each
    Price ID (`price_...`).
 2. Create a webhook endpoint pointing at
    `https://YOUR-DOMAIN/api/stripe/webhook`, subscribed to:
@@ -311,6 +316,43 @@ is stored but not yet used for real IANA conversion. Fine as long as a
 business enters their hours with that in mind; a proper fix would run
 `lib/booking/availability.ts` through a timezone library keyed off that
 column.
+
+## Deal Pro
+
+A deal analyser for UK rent-to-serviced-accommodation (R2SA) and
+rent-to-rent deals, built from the "Deal Pro" design. Everything lives at
+`/dashboard/dealpro`; each deal is one row in `dealpro_deals`
+(`supabase/migrations/0006_dealpro.sql`) and autosaves as you type.
+
+- **Analyse deal:** units (rent, deposit, nightly rate) and assumptions
+  (platform fees, cleaning, average stay, other costs) → upfront cash,
+  surplus at 60/80/100% occupancy, a per-unit monthly model, nightly-rate
+  sensitivity and break-even. Automatic flags for the London 90-night
+  limit, the £90k VAT threshold and deposits over 5 weeks' rent. All of this
+  is pure maths in `lib/dealpro/model.ts` and free.
+- **Import from an advert:** paste an advert and Claude extracts a unit
+  (structured output). Falls back to a regex parser if `ANTHROPIC_API_KEY`
+  isn't set.
+- **Due diligence:** an 8-point checklist with a status and notes per
+  check. **Run AI research** does a Claude web-search pass over public
+  sources (council licensing/planning, council tax, transport, market
+  data), then a second call structures it into one draft finding per
+  check. Drafts are labelled "verify before relying on it" and never
+  overwrite a status the user set, and the AI can't mark anything
+  "Verified".
+- **Deal pack:** a pre-NDA investor summary (hides the postcode) that
+  prints to PDF via the browser (`@media print` in `app/globals.css`).
+- **Send to sourcer:** generates a Deal Notice for your Deal Introduction
+  Agreement, signed with the profile's full name (or email).
+
+**Credits.** AI tasks spend from a monthly allowance (`MONTHLY_CREDITS` =
+200 in `lib/dealpro/credits.ts`): advert import 1, final pack 3, AI
+research 5. Credits are checked before the work and recorded in
+`dealpro_credit_usage` only after it succeeds, so failures are never
+charged. Admin accounts are unlimited. This caps your Anthropic spend per
+subscriber, and a research run (web search plus two Claude calls) is by
+far the most expensive action. Tune the allowance and costs to your
+pricing.
 
 ## Install as an app — no app store needed
 

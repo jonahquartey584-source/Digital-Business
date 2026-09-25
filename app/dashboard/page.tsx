@@ -9,6 +9,7 @@ const SERVICE_HREF: Record<ProductSlug, string> = {
   crm: "/dashboard/crm",
   voice: "/dashboard/voice",
   booking: "/dashboard/booking",
+  dealpro: "/dashboard/dealpro",
 };
 
 export default async function DashboardOverviewPage() {

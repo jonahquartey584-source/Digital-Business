@@ -65,6 +65,20 @@ export const PRODUCTS = {
       "New bookings logged straight to your CRM",
     ],
   },
+  dealpro: {
+    slug: "dealpro",
+    name: "Deal Pro",
+    description:
+      "Analyse rent-to-serviced-accommodation deals, run AI due diligence, and send investor packs and Deal Notices.",
+    priceId: process.env.STRIPE_DEALPRO_PRICE_ID ?? "",
+    priceLabel: "£49/month",
+    features: [
+      "Live deal numbers, sensitivity & break-even",
+      "AI advert import & due diligence research",
+      "Investor deal packs and Deal Notices",
+      "200 AI credits every month",
+    ],
+  },
 } as const;
 
 export type ProductSlug = keyof typeof PRODUCTS;

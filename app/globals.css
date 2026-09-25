@@ -60,3 +60,23 @@ body {
 .nav-link {
   @apply font-mono text-xs uppercase tracking-wider text-cream-dim transition-colors hover:text-gold-300;
 }
+
+/* ---------- Deal Pro: print only the investor pack ---------- */
+@media print {
+  body:has(.dealpro-pack) {
+    background: #fff;
+  }
+  body:has(.dealpro-pack) * {
+    visibility: hidden;
+  }
+  .dealpro-pack,
+  .dealpro-pack * {
+    visibility: visible;
+  }
+  .dealpro-pack {
+    position: absolute;
+    inset: 0 auto auto 0;
+    width: 100%;
+    max-width: none;
+  }
+}
