@@ -249,10 +249,14 @@ p {
   border-bottom: 1px solid var(--border-soft);
 }
 
+/* The header runs wider than the body copy on purpose: seven nav links,
+   a theme toggle and a call to action need about 1150px before anything
+   has to fold, and the 1160px body measure left roughly 3px spare. */
 .header__inner {
   display: flex;
   align-items: center;
-  gap: 28px;
+  gap: 34px;
+  max-width: 1320px;
   padding-top: 16px;
   padding-bottom: 16px;
 }
@@ -260,35 +264,14 @@ p {
 .brand {
   display: flex;
   align-items: center;
-  gap: 11px;
   flex: none;
   text-decoration: none;
 }
 
-/* ── brand mark ───────────────────────────────────────────────────────
-   The logo rides beside the wordmark as a CSS background rather than an
-   <img> repeated across twenty-three pages. It is decorative on purpose:
-   the wordmark next to it already says "Qp Digital", so a second copy
-   would only be read out twice by a screen reader.
-
-   Two header patterns exist in the markup — `.brand` (18 pages, with a
-   `.brand__name` span) and a bare `.logo` anchor (5 pages) that had no
-   styling at all and rendered as a default blue link. Both are handled
-   here so every header matches. */
-.brand::before,
-.logo::before {
-  content: "";
-  flex: none;
-  width: 34px;
-  height: 34px;
-  border-radius: 9px;
-  background: url("logo-qp.png") center / cover no-repeat;
-}
 
 .logo {
   display: flex;
   align-items: center;
-  gap: 11px;
   flex: none;
   white-space: nowrap;
   text-decoration: none;
@@ -316,7 +299,18 @@ p {
 
 .nav {
   display: flex;
-  gap: 26px;
+  gap: 30px;
+  flex: 1 1 auto;
+  justify-content: center;
+}
+
+/* Nothing in the header bar may break mid-phrase. "How It Works",
+   "Members Portal" and "Get a Quote" were each folding onto two lines,
+   which is what made the bar look cramped and three rows tall. */
+.nav a,
+.btn--nav,
+.theme-toggle {
+  white-space: nowrap;
 }
 
 .nav a {
@@ -2350,7 +2344,11 @@ html[data-theme="light"] .biz-card {
   }
 }
 
-@media (max-width: 720px) {
+/* Below this the seven links cannot sit on one line, so the menu becomes
+   the toggle instead of wrapping onto two and three rows. This used to
+   happen at 720px, which left everything from 721px to about 1130px
+   folding mid-phrase — "How It Works", "Members Portal", "Get a Quote". */
+@media (max-width: 1199px) {
   .nav {
     position: absolute;
     top: 100%;
@@ -2359,6 +2357,8 @@ html[data-theme="light"] .biz-card {
     background: var(--bg-alt);
     border-bottom: 1px solid var(--border-soft);
     flex-direction: column;
+    justify-content: flex-start;
+    flex: none;
     padding: 18px 24px;
     display: none;
     gap: 16px;
@@ -2371,7 +2371,9 @@ html[data-theme="light"] .biz-card {
   .nav-toggle {
     display: flex;
   }
+}
 
+@media (max-width: 720px) {
   .btn--nav {
     display: none;
   }
