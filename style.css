@@ -260,10 +260,50 @@ p {
 .brand {
   display: flex;
   align-items: center;
+  gap: 11px;
+  flex: none;
   text-decoration: none;
 }
 
+/* ── brand mark ───────────────────────────────────────────────────────
+   The logo rides beside the wordmark as a CSS background rather than an
+   <img> repeated across twenty-three pages. It is decorative on purpose:
+   the wordmark next to it already says "Qp Digital", so a second copy
+   would only be read out twice by a screen reader.
+
+   Two header patterns exist in the markup — `.brand` (18 pages, with a
+   `.brand__name` span) and a bare `.logo` anchor (5 pages) that had no
+   styling at all and rendered as a default blue link. Both are handled
+   here so every header matches. */
+.brand::before,
+.logo::before {
+  content: "";
+  flex: none;
+  width: 34px;
+  height: 34px;
+  border-radius: 9px;
+  background: url("logo-qp.png") center / cover no-repeat;
+}
+
+.logo {
+  display: flex;
+  align-items: center;
+  gap: 11px;
+  flex: none;
+  white-space: nowrap;
+  text-decoration: none;
+  font-family: "Playfair Display", "Georgia", serif;
+  font-weight: 700;
+  font-size: 1.35rem;
+  letter-spacing: 0.01em;
+  background: var(--gold-gradient);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
 .brand__name {
+  white-space: nowrap;
   font-family: "Playfair Display", "Georgia", serif;
   font-weight: 700;
   font-size: 1.35rem;
