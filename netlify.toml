@@ -17,6 +17,58 @@
   status = 301
   force = true
 
+# ── The client workspace, on its own address ────────────────────────────
+#
+# The CRM, booking system and members portal are the product clients pay
+# for; the rest of the site is the shop window. Serving them from
+# app.qp-digital.com keeps the two apart, so a client never sees a
+# marketing URL with ".html" on the end while they are working.
+#
+# This is a front door, not a second site. Netlify Identity belongs to one
+# Netlify project, and crm-data.mts reads the signed-in user server-side
+# through getUser() on that project. A genuinely separate site would mean
+# a second, empty Identity instance — every existing client login would
+# stop working, and the API calls would become cross-origin with no valid
+# token. Same project, extra hostname: nothing behind the scenes moves.
+#
+# These rules are NOT forced, so a real file still wins. Assets
+# (style.css, crm-app.js, the icons) and the /api/* function routes above
+# resolve normally; only paths with nothing behind them fall through to
+# the app shell.
+#
+# Both domains are listed while the move from .co.uk to .com is in
+# progress. The .co.uk pair can be deleted once the move is finished.
+[[redirects]]
+  from = "https://app.qp-digital.com/"
+  to = "/crm.html"
+  status = 200
+
+[[redirects]]
+  from = "https://app.qp-digital.co.uk/"
+  to = "/crm.html"
+  status = 200
+
+# Friendly paths for the other two tools on the same subdomain.
+[[redirects]]
+  from = "https://app.qp-digital.com/bookings"
+  to = "/booking-system.html"
+  status = 200
+
+[[redirects]]
+  from = "https://app.qp-digital.co.uk/bookings"
+  to = "/booking-system.html"
+  status = 200
+
+[[redirects]]
+  from = "https://app.qp-digital.com/account"
+  to = "/members.html"
+  status = 200
+
+[[redirects]]
+  from = "https://app.qp-digital.co.uk/account"
+  to = "/members.html"
+  status = 200
+
 # Keep the internal dashboard available at the short address shown to the
 # administrator. The trailing-dot rule also repairs the commonly pasted
 # "admin." address by sending it to the canonical clean URL.
@@ -107,5 +159,24 @@
 
 [[headers]]
   for = "/payment-success.html"
+  [headers.values]
+    X-Robots-Tag = "noindex, nofollow"
+
+# The client workspace is a signed-in application, not a page for the
+# public. It was reachable to crawlers: crm.html, members.html and
+# booking-system.html carried no exclusion at all, so the login shells
+# could surface in search results under the marketing domain.
+[[headers]]
+  for = "/crm.html"
+  [headers.values]
+    X-Robots-Tag = "noindex, nofollow"
+
+[[headers]]
+  for = "/members.html"
+  [headers.values]
+    X-Robots-Tag = "noindex, nofollow"
+
+[[headers]]
+  for = "/booking-system.html"
   [headers.values]
     X-Robots-Tag = "noindex, nofollow"

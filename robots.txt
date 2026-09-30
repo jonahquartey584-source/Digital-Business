@@ -10,6 +10,9 @@ Disallow: /admin-tutorial-audio.html
 Disallow: /admin-careers.html
 Disallow: /pipeline-tester.html
 Disallow: /payment-success.html
+Disallow: /crm.html
+Disallow: /members.html
+Disallow: /booking-system.html
 Disallow: /api/
 Disallow: /uploads/
 
