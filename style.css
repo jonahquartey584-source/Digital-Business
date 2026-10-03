@@ -857,6 +857,223 @@ section {
   counter-reset: svc;
 }
 
+/* ── services backdrop ──────────────────────────────────────────────────
+   Two slow gold drifts and a fine rule grid behind the cards. Pure CSS, so
+   it is sharp at any size, adds nothing to download, and themes with the
+   rest of the site. It is decorative, so it stops completely when the
+   visitor has asked for reduced motion. */
+.services { position: relative; isolation: isolate; overflow: hidden; }
+
+.services__bg {
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  background-image:
+    linear-gradient(rgba(var(--gold-rgb), 0.045) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(var(--gold-rgb), 0.045) 1px, transparent 1px);
+  background-size: 64px 64px;
+  mask-image: radial-gradient(120% 80% at 50% 40%, #000 35%, transparent 78%);
+  -webkit-mask-image: radial-gradient(120% 80% at 50% 40%, #000 35%, transparent 78%);
+}
+
+.services__drift {
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(90px);
+  opacity: 0.5;
+}
+
+.services__drift--a {
+  width: 44vw;
+  height: 44vw;
+  max-width: 620px;
+  max-height: 620px;
+  top: -12%;
+  left: -8%;
+  background: rgba(var(--gold-rgb), 0.3);
+  animation: svcDriftA 34s ease-in-out infinite alternate;
+}
+
+.services__drift--b {
+  width: 38vw;
+  height: 38vw;
+  max-width: 540px;
+  max-height: 540px;
+  bottom: -14%;
+  right: -6%;
+  background: rgba(var(--gold-rgb), 0.22);
+  animation: svcDriftB 42s ease-in-out infinite alternate;
+}
+
+@keyframes svcDriftA {
+  from { transform: translate3d(0, 0, 0) scale(1); }
+  to   { transform: translate3d(14vw, 8vh, 0) scale(1.14); }
+}
+
+@keyframes svcDriftB {
+  from { transform: translate3d(0, 0, 0) scale(1.08); }
+  to   { transform: translate3d(-12vw, -9vh, 0) scale(0.94); }
+}
+
+html[data-theme="light"] .services__drift { opacity: 0.3; }
+
+@media (prefers-reduced-motion: reduce) {
+  .services__drift { animation: none; }
+}
+
+/* ── openable cards ─────────────────────────────────────────────────── */
+/* The whole card is the target. The button carries the accessible name and
+   the keyboard focus; the heading and copy stay real text underneath it
+   rather than being swallowed into the control. */
+.service-card__hit {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  width: 100%;
+  background: none;
+  border: 0;
+  padding: 0;
+  margin: 0;
+  cursor: pointer;
+  border-radius: var(--radius);
+  appearance: none;
+}
+
+.service-card__hit:focus-visible {
+  outline: 2px solid var(--gold);
+  outline-offset: 3px;
+}
+
+.service-card.is-openable { cursor: pointer; }
+
+.service-card__more {
+  display: block;
+  margin-top: 16px;
+  font-family: "IBM Plex Mono", monospace;
+  font-size: 0.72rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--gold-text);
+  opacity: 0;
+  transform: translateY(4px);
+  transition: opacity 0.2s ease, transform 0.2s ease;
+}
+
+.service-card.is-openable:hover .service-card__more,
+.service-card__hit:focus-visible ~ .service-card__more {
+  opacity: 1;
+  transform: none;
+}
+
+@media (hover: none) {
+  .service-card__more { opacity: 1; transform: none; }
+}
+
+/* ── detail panel ───────────────────────────────────────────────────── */
+.svc-modal {
+  width: min(880px, calc(100vw - 32px));
+  max-height: min(86vh, 900px);
+  padding: 0;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: var(--surface);
+  color: var(--text);
+  overflow: auto;
+}
+
+.svc-modal::backdrop { background: rgba(0, 0, 0, 0.66); backdrop-filter: blur(3px); }
+
+.svc-modal__inner { position: relative; padding: 38px 38px 32px; }
+
+.svc-modal__close {
+  position: absolute;
+  top: 14px;
+  right: 16px;
+  width: 40px;
+  height: 40px;
+  font-size: 1.6rem;
+  line-height: 1;
+  background: none;
+  border: 1px solid var(--border-soft);
+  border-radius: 50%;
+  color: var(--text-dim);
+  cursor: pointer;
+}
+
+.svc-modal__close:hover { color: var(--text); border-color: var(--gold); }
+
+.svc-modal h3 {
+  font-family: "Sora", sans-serif;
+  font-size: clamp(1.5rem, 3.4vw, 2rem);
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  margin-top: 6px;
+}
+
+.svc-modal__lead { margin-top: 14px; color: var(--text-dim); max-width: 60ch; }
+
+.svc-modal__cols { display: grid; gap: 30px; margin-top: 28px; }
+
+@media (min-width: 760px) { .svc-modal__cols { grid-template-columns: 1fr 1fr; } }
+
+.svc-modal h4 {
+  font-family: "IBM Plex Mono", monospace;
+  font-size: 0.7rem;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--gold-text);
+  margin-bottom: 14px;
+}
+
+.svc-modal__list { list-style: none; display: grid; gap: 11px; }
+
+.svc-modal__list li {
+  display: grid;
+  grid-template-columns: 16px 1fr;
+  gap: 11px;
+  align-items: baseline;
+  font-size: 0.95rem;
+  color: var(--text-dim);
+}
+
+.svc-modal__list li::before { content: "\2713"; color: var(--gold-text); font-size: 0.8rem; }
+
+.svc-modal__shots { display: grid; gap: 14px; align-content: start; }
+
+.svc-modal__shots figure { margin: 0; }
+
+.svc-modal__shots img {
+  width: 100%;
+  height: auto;
+  display: block;
+  border: 1px solid var(--border-soft);
+  border-radius: 10px;
+}
+
+.svc-modal__shots figcaption {
+  margin-top: 7px;
+  font-size: 0.78rem;
+  color: var(--text-faint);
+}
+
+.svc-modal__note {
+  margin-top: 22px;
+  font-size: 0.86rem;
+  color: var(--text-faint);
+  border-left: 2px solid var(--border);
+  padding-left: 14px;
+}
+
+.svc-modal__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-top: 28px;
+  padding-top: 24px;
+  border-top: 1px solid var(--border-soft);
+}
+
 .service-card {
   position: relative;
   background: var(--surface);

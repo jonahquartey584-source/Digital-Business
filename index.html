@@ -172,6 +172,13 @@
 
     <!-- SERVICES -->
     <section class="services" id="services">
+      <!-- Decorative only: two slow gold drifts and a fine rule grid behind
+           the cards. Pure CSS so it stays sharp at any size and costs no
+           download; it stops entirely under prefers-reduced-motion. -->
+      <div class="services__bg" aria-hidden="true">
+        <span class="services__drift services__drift--a"></span>
+        <span class="services__drift services__drift--b"></span>
+      </div>
       <div class="container">
         <div class="section__head">
           <div>
@@ -183,96 +190,150 @@
 
         <div class="grid grid--services">
 
-          <article class="service-card" data-reveal>
+          <article class="service-card is-openable" data-reveal>
+            <button class="service-card__hit" type="button" data-service="websites" aria-haspopup="dialog"><span class="visually-hidden">Websites — see what it does and examples</span></button>
             <div class="icon-chip" aria-hidden="true">
               <svg viewBox="0 0 24 24" fill="none" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M3 12h18"/><path d="M12 3c3 3 3 15 0 18"/><path d="M12 3c-3 3-3 15 0 18"/></svg>
             </div>
             <h3>Websites</h3>
             <p>Custom-built, mobile-friendly websites designed to turn visitors into customers.</p>
+          
+            <span class="service-card__more" aria-hidden="true">Details →</span>
           </article>
 
-          <article class="service-card" data-reveal>
+          <article class="service-card is-openable" data-reveal>
+            <button class="service-card__hit" type="button" data-service="crm" aria-haspopup="dialog"><span class="visually-hidden">CRM — see what it does and examples</span></button>
             <div class="icon-chip" aria-hidden="true">
               <svg viewBox="0 0 24 24" fill="none" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="14" rx="2"/><circle cx="9" cy="12" r="2.2"/><path d="M14 10h4M14 14h4"/></svg>
             </div>
             <h3>CRM</h3>
             <p>A simple system to track every lead, customer and conversation in one place.</p>
+          
+            <span class="service-card__more" aria-hidden="true">Details →</span>
           </article>
 
-          <article class="service-card" data-reveal>
+          <article class="service-card is-openable" data-reveal>
+            <button class="service-card__hit" type="button" data-service="management" aria-haspopup="dialog"><span class="visually-hidden">Website Management — see what it does and examples</span></button>
             <div class="icon-chip" aria-hidden="true">
               <svg viewBox="0 0 24 24" fill="none" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M4.2 4.2l2.1 2.1M17.7 17.7l2.1 2.1M2 12h3M19 12h3M4.2 19.8l2.1-2.1M17.7 6.3l2.1-2.1"/></svg>
             </div>
             <h3>Website Management</h3>
             <p>Ongoing updates, hosting, security, fixes and SEO so your site never falls behind and is easier to find.</p>
+          
+            <span class="service-card__more" aria-hidden="true">Details →</span>
           </article>
 
-          <article class="service-card" data-reveal>
+          <article class="service-card is-openable" data-reveal>
+            <button class="service-card__hit" type="button" data-service="booking" aria-haspopup="dialog"><span class="visually-hidden">Booking System — see what it does and examples</span></button>
             <div class="icon-chip" aria-hidden="true">
               <svg viewBox="0 0 24 24" fill="none" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M8 3v4M16 3v4"/><path d="M8.5 15l1.8 1.8L15 13"/></svg>
             </div>
             <h3>Booking System</h3>
             <p>Let customers book appointments or services online, any time of day.</p>
+          
+            <span class="service-card__more" aria-hidden="true">Details →</span>
           </article>
 
-          <article class="service-card" data-reveal>
+          <article class="service-card is-openable" data-reveal>
+            <button class="service-card__hit" type="button" data-service="branding" aria-haspopup="dialog"><span class="visually-hidden">Branding and Print — see what it does and examples</span></button>
             <div class="icon-chip" aria-hidden="true">
               <svg viewBox="0 0 24 24" fill="none" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l7 7-9 9H6v-4z"/><path d="M14 5l5 5"/></svg>
             </div>
             <h3>Branding &amp; Print</h3>
             <p>Logos, brand identity, flyers and business cards that make you look the part.</p>
+          
+            <span class="service-card__more" aria-hidden="true">Details →</span>
           </article>
 
-          <article class="service-card" data-reveal>
+          <article class="service-card is-openable" data-reveal>
+            <button class="service-card__hit" type="button" data-service="social" aria-haspopup="dialog"><span class="visually-hidden">Social Media and Content — see what it does and examples</span></button>
             <div class="icon-chip" aria-hidden="true">
               <svg viewBox="0 0 24 24" fill="none" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="3" width="14" height="18" rx="2"/><path d="M8 8h8M8 12h8M8 16h5"/></svg>
             </div>
             <h3>Social Media &amp; Content</h3>
             <p>Consistent social media posts, captions and content that keep your business visible online.</p>
+          
+            <span class="service-card__more" aria-hidden="true">Details →</span>
           </article>
 
-          <article class="service-card" data-reveal>
+          <article class="service-card is-openable" data-reveal>
+            <button class="service-card__hit" type="button" data-service="reporting" aria-haspopup="dialog"><span class="visually-hidden">Reporting Dashboards — see what it does and examples</span></button>
             <div class="icon-chip" aria-hidden="true">
               <svg viewBox="0 0 24 24" fill="none" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/></svg>
             </div>
             <h3>Reporting Dashboards</h3>
             <p>See leads, calls, bookings and sales at a glance — no digging through spreadsheets.</p>
+          
+            <span class="service-card__more" aria-hidden="true">Details →</span>
           </article>
 
-          <article class="service-card" data-reveal>
+          <article class="service-card is-openable" data-reveal>
+            <button class="service-card__hit" type="button" data-service="automation" aria-haspopup="dialog"><span class="visually-hidden">Automation Systems — see what it does and examples</span></button>
             <div class="icon-chip" aria-hidden="true">
               <svg viewBox="0 0 24 24" fill="none" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="7" y="7" width="10" height="10" rx="1.5"/><path d="M9 3v3M15 3v3M9 18v3M15 18v3M3 9h3M3 15h3M18 9h3M18 15h3"/></svg>
             </div>
             <h3>Automation Systems</h3>
             <p>Repetitive admin handled automatically, so nothing depends on someone remembering.</p>
+          
+            <span class="service-card__more" aria-hidden="true">Details →</span>
           </article>
 
-          <article class="service-card" data-reveal>
+          <article class="service-card is-openable" data-reveal>
+            <button class="service-card__hit" type="button" data-service="followups" aria-haspopup="dialog"><span class="visually-hidden">Automated Follow-Ups — see what it does and examples</span></button>
             <div class="icon-chip" aria-hidden="true">
               <svg viewBox="0 0 24 24" fill="none" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M4 5a1 1 0 011-1h2.2a1 1 0 01.98.79l.66 3a1 1 0 01-.27.95l-1.35 1.35a12 12 0 005.4 5.4l1.35-1.35a1 1 0 01.95-.27l3 .66a1 1 0 01.79.98V19a1 1 0 01-1 1h-1C9.7 20 4 14.3 4 7V5z"/></svg>
             </div>
             <h3>Automated Follow-Ups</h3>
             <p>Missed calls, quotes and review requests followed up automatically — no lead left cold.</p>
+          
+            <span class="service-card__more" aria-hidden="true">Details →</span>
           </article>
 
-          <article class="service-card" data-reveal>
+          <article class="service-card is-openable" data-reveal>
+            <button class="service-card__hit" type="button" data-service="chatbots" aria-haspopup="dialog"><span class="visually-hidden">Chatbots and Live Chat — see what it does and examples</span></button>
             <div class="icon-chip" aria-hidden="true">
               <svg viewBox="0 0 24 24" fill="none" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M4 5h16a1 1 0 011 1v9a1 1 0 01-1 1H9l-5 4v-4H4a1 1 0 01-1-1V6a1 1 0 011-1z"/><circle cx="9" cy="11" r="0.9" fill="currentColor" stroke="none"/><circle cx="12" cy="11" r="0.9" fill="currentColor" stroke="none"/><circle cx="15" cy="11" r="0.9" fill="currentColor" stroke="none"/></svg>
             </div>
             <h3>Chatbots &amp; Live Chat</h3>
             <p>A chatbot or live chat on your website to answer questions and capture leads 24/7.</p>
+          
+            <span class="service-card__more" aria-hidden="true">Details →</span>
           </article>
 
-          <article class="service-card" data-reveal>
+          <article class="service-card is-openable" data-reveal>
+            <button class="service-card__hit" type="button" data-service="custom" aria-haspopup="dialog"><span class="visually-hidden">Something Else? — see what it does and examples</span></button>
             <div class="icon-chip" aria-hidden="true">
               <svg viewBox="0 0 24 24" fill="none" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M5 12h14"/></svg>
             </div>
             <h3>Something Else?</h3>
             <p>If it's digital and it helps your business, we're open to it. Tell us what you need.</p>
+          
+            <span class="service-card__more" aria-hidden="true">Details →</span>
           </article>
 
         </div>
       </div>
+    
+    <dialog class="svc-modal" id="svcModal" aria-labelledby="svcModalTitle">
+      <div class="svc-modal__inner">
+        <button class="svc-modal__close" type="button" id="svcModalClose" aria-label="Close">&times;</button>
+        <p class="section__tag" id="svcModalTag">Service</p>
+        <h3 id="svcModalTitle">&nbsp;</h3>
+        <p class="svc-modal__lead" id="svcModalLead"></p>
+        <div class="svc-modal__cols">
+          <div>
+            <h4>What you get</h4>
+            <ul class="svc-modal__list" id="svcModalList"></ul>
+          </div>
+          <div id="svcModalShots" class="svc-modal__shots"></div>
+        </div>
+        <p class="svc-modal__note" id="svcModalNote"></p>
+        <div class="svc-modal__actions">
+          <a class="btn btn--primary" href="#enquire" data-close-modal>Get a quote →</a>
+          <a class="btn btn--ghost" href="examples.html">See all examples</a>
+        </div>
+      </div>
+    </dialog>
     </section>
 
     <!-- HOW IT WORKS -->
@@ -502,5 +563,6 @@
     <form class="ai-help-composer" id="aiHelpForm"><input id="aiHelpInput" autocomplete="off" maxlength="800" placeholder="Message Qp Digital…" aria-label="Message Qp Digital assistant"><button type="submit" aria-label="Send message">↑</button></form>
   </aside>
   <script src="script.js"></script>
+  <script src="services-detail.js" defer></script>
 </body>
 </html>
