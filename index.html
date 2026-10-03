@@ -71,10 +71,71 @@
 </head>
 <body>
 
+  <!-- Intro splash. Pure CSS/SVG on purpose: it is the first thing painted,
+       so it must not wait on a script or an image download. -->
   <div class="intro-overlay" aria-hidden="true">
-    <span class="intro-overlay__mark">Qp Digital</span>
-    <span class="intro-overlay__line"></span>
-    <span class="intro-overlay__tag">Websites · CRM · Automation</span>
+    <div class="intro-overlay__field">
+      <span class="intro-overlay__grid"></span>
+      <svg class="intro-overlay__net" viewBox="0 0 1000 1000" preserveAspectRatio="xMidYMid slice" focusable="false" aria-hidden="true">
+        <defs>
+          <radialGradient id="introTracer" gradientUnits="userSpaceOnUse" cx="500" cy="500" r="560">
+            <stop class="introStop introStop--hot" offset="0" stop-color="#e0bd83"/>
+            <stop class="introStop introStop--mid" offset="0.42" stop-color="#b8874b"/>
+            <stop class="introStop introStop--out" offset="1" stop-color="#b8874b" stop-opacity="0"/>
+          </radialGradient>
+        </defs>
+        <g class="intro-overlay__nodes">
+          <circle cx="1240.0" cy="577.8" r="3.4"/>
+          <circle cx="1051.6" cy="931.0" r="3.4"/>
+          <circle cx="770.1" cy="1442.0" r="3.4"/>
+          <circle cx="265.1" cy="1222.8" r="3.4"/>
+          <circle cx="-101.6" cy="970.0" r="3.4"/>
+          <circle cx="-132.1" cy="600.1" r="3.4"/>
+          <circle cx="-240.0" cy="185.9" r="3.4"/>
+          <circle cx="183.0" cy="30.0" r="3.4"/>
+          <circle cx="470.0" cy="-359.5" r="3.4"/>
+          <circle cx="994.5" cy="-392.1" r="3.4"/>
+          <circle cx="1078.7" cy="124.2" r="3.4"/>
+          <circle cx="1240.0" cy="396.0" r="3.4"/>
+        </g>
+        <g class="intro-overlay__lines">
+          <path pathLength="1000" d="M 1240.0 577.8 C 911.0 674.4 632.7 619.5 500.0 500.0"/>
+          <path pathLength="1000" d="M 1051.6 931.0 C 740.9 844.0 546.3 661.5 500.0 500.0"/>
+          <path pathLength="1000" d="M 770.1 1442.0 C 489.7 1087.9 419.6 721.0 500.0 500.0"/>
+          <path pathLength="1000" d="M 265.1 1222.8 C 238.4 873.5 352.4 607.2 500.0 500.0"/>
+          <path pathLength="1000" d="M -101.6 970.0 C 72.4 664.1 316.9 506.4 500.0 500.0"/>
+          <path pathLength="1000" d="M -132.1 600.1 C 119.7 446.6 363.1 430.3 500.0 500.0"/>
+          <path pathLength="1000" d="M -240.0 185.9 C 130.5 190.0 400.6 334.6 500.0 500.0"/>
+          <path pathLength="1000" d="M 183.0 30.0 C 400.5 174.7 504.7 364.0 500.0 500.0"/>
+          <path pathLength="1000" d="M 470.0 -359.5 C 633.6 1.6 615.4 328.9 500.0 500.0"/>
+          <path pathLength="1000" d="M 994.5 -392.1 C 940.2 74.9 721.9 396.5 500.0 500.0"/>
+          <path pathLength="1000" d="M 1078.7 124.2 C 898.0 385.9 665.4 508.7 500.0 500.0"/>
+          <path pathLength="1000" d="M 1240.0 396.0 C 942.8 570.1 658.4 584.2 500.0 500.0"/>
+        </g>
+        <g class="intro-overlay__signals">
+          <path pathLength="1000" d="M 1240.0 577.8 C 911.0 674.4 632.7 619.5 500.0 500.0"/>
+          <path pathLength="1000" d="M 1051.6 931.0 C 740.9 844.0 546.3 661.5 500.0 500.0"/>
+          <path pathLength="1000" d="M 770.1 1442.0 C 489.7 1087.9 419.6 721.0 500.0 500.0"/>
+          <path pathLength="1000" d="M 265.1 1222.8 C 238.4 873.5 352.4 607.2 500.0 500.0"/>
+          <path pathLength="1000" d="M -101.6 970.0 C 72.4 664.1 316.9 506.4 500.0 500.0"/>
+          <path pathLength="1000" d="M -132.1 600.1 C 119.7 446.6 363.1 430.3 500.0 500.0"/>
+          <path pathLength="1000" d="M -240.0 185.9 C 130.5 190.0 400.6 334.6 500.0 500.0"/>
+          <path pathLength="1000" d="M 183.0 30.0 C 400.5 174.7 504.7 364.0 500.0 500.0"/>
+          <path pathLength="1000" d="M 470.0 -359.5 C 633.6 1.6 615.4 328.9 500.0 500.0"/>
+          <path pathLength="1000" d="M 994.5 -392.1 C 940.2 74.9 721.9 396.5 500.0 500.0"/>
+          <path pathLength="1000" d="M 1078.7 124.2 C 898.0 385.9 665.4 508.7 500.0 500.0"/>
+          <path pathLength="1000" d="M 1240.0 396.0 C 942.8 570.1 658.4 584.2 500.0 500.0"/>
+        </g>
+      </svg>
+      <span class="intro-overlay__halo"></span>
+      <span class="intro-overlay__ring"></span>
+      <span class="intro-overlay__ring intro-overlay__ring--late"></span>
+    </div>
+    <div class="intro-overlay__plate">
+      <span class="intro-overlay__mark">Qp Digital</span>
+      <span class="intro-overlay__line"></span>
+      <span class="intro-overlay__tag">Lead-Generating Systems</span>
+    </div>
   </div>
 
   <div class="gold-rule"></div>

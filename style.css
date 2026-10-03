@@ -100,43 +100,209 @@ p {
   background: var(--gold-gradient);
 }
 
-/* Intro animation — plays once on every load of the homepage, before the
-   real header/hero underneath. Pure CSS (runs even with no JS, and even if
-   style.css is slow — it's the first rule the browser applies once the
-   stylesheet loads), so there's nothing to fail open on. */
+/* Intro animation — plays once on every load of the homepage, over the real
+   header/hero underneath. Pure CSS and inline SVG on purpose: it is the first
+   thing painted, so it must not wait on a script or an image download, and
+   there is nothing in it that can fail open.
+
+   Everything that needs to stay in step shares one 2.8s timeline, so the
+   percentages in the keyframes below refer to the same clock:
+     0.00–1.05s  grid breathes in; twelve origin nodes register, then each
+                 route is drawn in behind a travelling signal head.
+     ~1.00s      the heads land: a halo blooms and two rings expand out.
+     1.12–2.20s  wordmark resolves out of a blur, rule opens from the centre.
+     1.62–2.18s  strapline holds.
+     2.21–2.80s  the whole frame lifts away. */
 .intro-overlay {
   position: fixed;
   inset: 0;
   z-index: 999;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--bg);
+  pointer-events: none;
+  animation: introOverlayOut 2.8s ease forwards;
+}
+
+.intro-overlay__field {
+  position: absolute;
+  inset: 0;
+}
+
+/* Faint infrastructure grid, masked to a vignette so it has no visible edge. */
+.intro-overlay__grid {
+  position: absolute;
+  inset: -15%;
+  background-image:
+    linear-gradient(rgba(var(--gold-rgb), 0.55) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(var(--gold-rgb), 0.55) 1px, transparent 1px);
+  background-size: 74px 74px;
+  opacity: 0;
+  -webkit-mask-image: radial-gradient(58% 58% at 50% 50%, #000 10%, transparent 80%);
+  mask-image: radial-gradient(58% 58% at 50% 50%, #000 10%, transparent 80%);
+  animation: introGrid 2.8s ease forwards;
+}
+
+.intro-overlay__net {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  fill: none;
+  stroke: url(#introTracer);
+}
+
+.intro-overlay__lines,
+.intro-overlay__signals {
+  animation: introNetOut 2.8s ease forwards;
+}
+
+.intro-overlay__lines path {
+  stroke-width: 1.3;
+  stroke-dasharray: 1000;
+  stroke-dashoffset: 1000;
+  animation: introDraw 0.68s cubic-bezier(0.25, 0.8, 0.3, 1) both;
+}
+
+/* The signal head. Same duration and easing as the tracer it belongs to, so
+   this short dash rides exactly at the head of the line as it is drawn
+   instead of drifting off it. pathLength="1000" on every path normalises the
+   dash maths, so one rule covers curves of different real lengths. */
+.intro-overlay__signals path {
+  stroke-width: 3.4;
+  stroke-linecap: round;
+  stroke-dasharray: 24 1000;
+  stroke-dashoffset: 0;
+  animation: introSignal 0.68s cubic-bezier(0.25, 0.8, 0.3, 1) both;
+}
+
+/* The origin of each route: a lead registering a fraction of a second before
+   its line is pulled in. Flat gold rather than the tracer gradient, which has
+   already fallen to zero this far out from the hub. */
+.intro-overlay__nodes circle {
+  fill: #e0bd83;
+  stroke: none;
+  opacity: 0;
+  animation: introNode 0.5s ease both;
+  animation-delay: var(--d);
+}
+
+.intro-overlay__lines path,
+.intro-overlay__signals path {
+  animation-delay: calc(var(--d) + 0.1s);
+}
+
+/* One delay token per route, shared by that route's node, tracer and signal
+   head because all three groups hold their twelve children in the same order.
+   Scattered rather than a sweep, so the leads read as arriving independently. */
+.intro-overlay__net g { --d: 0s; }
+.intro-overlay__net g > :nth-child(1) { --d: 0s; }
+.intro-overlay__net g > :nth-child(2) { --d: 0.14s; }
+.intro-overlay__net g > :nth-child(3) { --d: 0.06s; }
+.intro-overlay__net g > :nth-child(4) { --d: 0.25s; }
+.intro-overlay__net g > :nth-child(5) { --d: 0.02s; }
+.intro-overlay__net g > :nth-child(6) { --d: 0.19s; }
+.intro-overlay__net g > :nth-child(7) { --d: 0.09s; }
+.intro-overlay__net g > :nth-child(8) { --d: 0.27s; }
+.intro-overlay__net g > :nth-child(9) { --d: 0.16s; }
+.intro-overlay__net g > :nth-child(10) { --d: 0.08s; }
+.intro-overlay__net g > :nth-child(11) { --d: 0.23s; }
+.intro-overlay__net g > :nth-child(12) { --d: 0.11s; }
+
+/* An aperture, not a disc: the centre stays fully transparent so the bloom
+   never ends up behind the wordmark. */
+.intro-overlay__halo {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 112vmin;
+  height: 112vmin;
+  margin: -56vmin 0 0 -56vmin;
+  border-radius: 50%;
+  opacity: 0;
+  background: radial-gradient(circle,
+    rgba(var(--gold-rgb), 0) 0 38%,
+    rgba(var(--gold-rgb), 0.32) 47%,
+    rgba(var(--gold-rgb), 0.09) 60%,
+    rgba(var(--gold-rgb), 0) 74%);
+  animation: introHalo 2.8s ease forwards;
+}
+
+.intro-overlay__ring {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 34vmin;
+  height: 34vmin;
+  margin: -17vmin 0 0 -17vmin;
+  border: 1px solid rgba(var(--gold-rgb), 0.55);
+  border-radius: 50%;
+  opacity: 0;
+  animation: introRing 1.7s cubic-bezier(0.16, 0.9, 0.3, 1) 0.92s both;
+}
+
+.intro-overlay__ring--late {
+  animation-delay: 1.14s;
+}
+
+.intro-overlay__plate {
+  position: relative;
+  z-index: 2;
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: center;
-  gap: 16px;
-  background: var(--bg);
-  pointer-events: none;
-  animation: introOverlayOut 2.1s ease forwards;
+  gap: 18px;
+  padding: 40px 54px;
+}
+
+/* Keeps the wordmark and strapline on the page background rather than on the
+   gold bloom behind them, so the contrast of the splash's text is fixed for
+   its whole run instead of drifting as the halo rises and decays. The colour
+   is written out rather than taken from --bg so it still holds if this rule
+   lands before the custom properties do. */
+.intro-overlay__plate::before {
+  content: "";
+  position: absolute;
+  inset: -10px -30px;
+  z-index: -1;
+  border-radius: 50%;
+  background: radial-gradient(62% 72% at 50% 50%, #0c0b09 0 58%, rgba(12, 11, 9, 0) 100%);
+  opacity: 0;
+  animation: introScrim 2.8s ease forwards;
+}
+
+/* Up before the wordmark has finished resolving and long before the strapline
+   appears, but not during the convergence, where it would carve a dark hole
+   out of the middle of the field. */
+@keyframes introScrim {
+  0%, 34% { opacity: 0; }
+  45%, 100% { opacity: 1; }
 }
 
 .intro-overlay__mark {
   font-family: "Playfair Display", "Georgia", serif;
   font-weight: 700;
   font-size: clamp(2.2rem, 6vw, 3.4rem);
-  letter-spacing: 0.01em;
+  line-height: 1.12;
+  letter-spacing: 0.1em;
   background: var(--gold-gradient);
   -webkit-background-clip: text;
   background-clip: text;
   color: transparent;
   opacity: 0;
-  transform: translateY(10px) scale(0.97);
-  animation: introMarkIn 0.8s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+  filter: blur(10px);
+  transform: scale(1.05);
+  animation: introMarkIn 0.9s cubic-bezier(0.22, 1, 0.36, 1) 1.12s forwards;
 }
 
 .intro-overlay__line {
   width: 0;
   height: 2px;
   background: var(--gold-gradient);
-  animation: introLineIn 0.7s ease-out 0.35s forwards;
+  box-shadow: 0 0 14px rgba(var(--gold-rgb), 0.45);
+  animation: introLineIn 0.7s cubic-bezier(0.22, 1, 0.36, 1) 1.5s forwards;
 }
 
 .intro-overlay__tag {
@@ -146,35 +312,74 @@ p {
   text-transform: uppercase;
   color: var(--text-dim);
   opacity: 0;
-  animation: introTag 2.1s ease forwards;
+  animation: introTag 2.8s ease forwards;
 }
 
+@keyframes introGrid {
+  0% { opacity: 0; transform: scale(1.16); }
+  20% { opacity: 0.2; }
+  40% { opacity: 0.13; transform: scale(1); }
+  56%, 100% { opacity: 0; transform: scale(0.99); }
+}
+@keyframes introDraw {
+  to { stroke-dashoffset: 0; }
+}
+@keyframes introSignal {
+  to { stroke-dashoffset: -1000; }
+}
+@keyframes introNode {
+  0% { opacity: 0; r: 0; }
+  40% { opacity: 0.95; r: 5.4; }
+  100% { opacity: 0; r: 2.4; }
+}
+@keyframes introNetOut {
+  0%, 36% { opacity: 1; }
+  47%, 100% { opacity: 0; }
+}
+@keyframes introHalo {
+  0%, 30% { opacity: 0; transform: scale(0.32); }
+  36% { opacity: 1; transform: scale(1); }
+  55%, 100% { opacity: 0; transform: scale(1.4); }
+}
+@keyframes introRing {
+  0% { opacity: 0; transform: scale(0.22); }
+  12% { opacity: 0.6; }
+  100% { opacity: 0; transform: scale(3.1); }
+}
 @keyframes introMarkIn {
-  to { opacity: 1; transform: none; }
+  to { opacity: 1; letter-spacing: 0.01em; filter: blur(0); transform: none; }
 }
 @keyframes introLineIn {
-  to { width: 96px; }
+  to { width: 132px; }
 }
-/* This tag is the only real-coloured text in the intro splash (the wordmark
-   is a clipped gradient, so it has no measurable colour). Any opacity fade
-   of coloured text passes through a stretch below 4.5:1 — around half
-   opacity, whatever colour you pick — so both the entrance and the exit
-   tripped WCAG 1.4.3 while they ran.
-   
-   It therefore runs on the overlay's own 2.1s timeline and never renders
-   part-faded: it snaps to full opacity on entry and lets the upward motion
-   carry the entrance, then clears in ~20ms just before the overlay's
-   curtain begins fading at 62%. The curtain still fades; there is simply no
-   coloured text left inside it by then. */
+/* This strapline is the only real-coloured text in the splash (the wordmark
+   is a clipped gradient, so it has no measurable colour). Any opacity fade of
+   coloured text passes through a stretch below 4.5:1 — around half opacity,
+   whatever colour you pick — so both the entrance and the exit would trip
+   WCAG 1.4.3 while they ran.
+
+   It therefore runs on the overlay's own 2.8s timeline and never renders
+   part-faded: it snaps to full opacity on entry and lets the letter-spacing
+   and the upward motion carry the entrance, then clears in ~28ms just before
+   the overlay's curtain begins lifting at 79%. The curtain still fades; there
+   is simply no coloured text left inside it by then. */
 @keyframes introTag {
-  0%, 26% { opacity: 0; transform: translateY(7px); }
-  27% { opacity: 1; transform: translateY(7px); }
-  55%, 61% { opacity: 1; transform: none; }
-  62%, 100% { opacity: 0; transform: none; }
+  0%, 57% {
+    opacity: 0; transform: translateY(8px); letter-spacing: 0.26em;
+    /* Discrete, so the jump to full opacity at 58% is not eased across a
+       frame or two of half-faded text. Same for the 77% -> 78% clear. */
+    animation-timing-function: steps(1, end);
+  }
+  58% { opacity: 1; transform: translateY(8px); letter-spacing: 0.26em; }
+  74%, 77% {
+    opacity: 1; transform: none; letter-spacing: 0.08em;
+    animation-timing-function: steps(1, end);
+  }
+  78%, 100% { opacity: 0; transform: none; letter-spacing: 0.08em; }
 }
 @keyframes introOverlayOut {
-  0%, 62% { opacity: 1; visibility: visible; }
-  100% { opacity: 0; visibility: hidden; }
+  0%, 79% { opacity: 1; visibility: visible; transform: none; }
+  100% { opacity: 0; visibility: hidden; transform: scale(1.035); }
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -917,6 +1122,26 @@ section {
 }
 
 html[data-theme="light"] .services__drift { opacity: 0.3; }
+
+/* Light theme: the intro's gradient stops and its text scrim are written as
+   literal colours (so they survive a paint before the custom properties
+   land), which means they need their light counterparts stated here. */
+html[data-theme="light"] .introStop--hot { stop-color: #d7ad58; }
+html[data-theme="light"] .introStop--mid { stop-color: #b88732; }
+html[data-theme="light"] .introStop--out { stop-color: #b88732; }
+html[data-theme="light"] .intro-overlay__plate::before {
+  background: radial-gradient(62% 72% at 50% 50%, #f7f3ea 0 58%, rgba(247, 243, 234, 0) 100%);
+}
+
+/* Gold over cream blooms far harder than gold over near-black, so the halo is
+   carried at roughly two thirds strength here to land at the same weight. */
+html[data-theme="light"] .intro-overlay__halo {
+  background: radial-gradient(circle,
+    rgba(var(--gold-rgb), 0) 0 38%,
+    rgba(var(--gold-rgb), 0.2) 47%,
+    rgba(var(--gold-rgb), 0.055) 60%,
+    rgba(var(--gold-rgb), 0) 74%);
+}
 
 @media (prefers-reduced-motion: reduce) {
   .services__drift { animation: none; }
