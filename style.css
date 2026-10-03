@@ -107,9 +107,9 @@ p {
 
    Everything that needs to stay in step shares one 2.8s timeline, so the
    percentages in the keyframes below refer to the same clock:
-     0.00–1.05s  grid breathes in; twelve origin nodes register, then each
-                 route is drawn in behind a travelling signal head.
-     ~1.00s      the heads land: a halo blooms and two rings expand out.
+     0.00–1.62s  grid breathes in; twelve spiral arms turn through about
+                 170 degrees and draw inward, easing to rest as they fade.
+     ~1.00s      the vortex settles: a halo blooms and two rings expand out.
      1.12–2.20s  wordmark resolves out of a blur, rule opens from the centre.
      1.62–2.18s  strapline holds.
      2.21–2.80s  the whole frame lifts away. */
@@ -154,62 +154,59 @@ p {
   stroke: url(#introTracer);
 }
 
-.intro-overlay__lines,
-.intro-overlay__signals {
-  animation: introNetOut 2.8s ease forwards;
+/* The swirl. Rotation and opacity live on two nested groups rather than one
+   set of keyframes: a single keyframe list re-applies its easing at every
+   stop it declares, so putting the rotation on its own from/to pair is what
+   keeps the turn smooth instead of nudging at each opacity stop. */
+.intro-overlay__swirl {
+  animation: introSwirlFade 2.8s ease forwards;
 }
 
-.intro-overlay__lines path {
-  stroke-width: 1.3;
-  stroke-dasharray: 1000;
-  stroke-dashoffset: 1000;
-  animation: introDraw 0.68s cubic-bezier(0.25, 0.8, 0.3, 1) both;
+.intro-overlay__spin {
+  transform-box: view-box;
+  transform-origin: 500px 500px;
+  animation: introSpin 2.4s cubic-bezier(0.17, 0.72, 0.26, 1) both;
 }
 
-/* The signal head. Same duration and easing as the tracer it belongs to, so
-   this short dash rides exactly at the head of the line as it is drawn
-   instead of drifting off it. pathLength="1000" on every path normalises the
-   dash maths, so one rule covers curves of different real lengths. */
-.intro-overlay__signals path {
-  stroke-width: 3.4;
+.intro-overlay__spin path {
+  stroke-width: 1.25;
+  stroke-opacity: 0.9;
   stroke-linecap: round;
-  stroke-dasharray: 24 1000;
-  stroke-dashoffset: 0;
-  animation: introSignal 0.68s cubic-bezier(0.25, 0.8, 0.3, 1) both;
 }
 
-/* The origin of each route: a lead registering a fraction of a second before
-   its line is pulled in. Flat gold rather than the tracer gradient, which has
-   already fallen to zero this far out from the hub. */
-.intro-overlay__nodes circle {
-  fill: #e0bd83;
-  stroke: none;
+/* Alternate arms run thinner, which reads as depth in the vortex rather than
+   twelve copies of one stroke. */
+.intro-overlay__spin path:nth-child(even) {
+  stroke-width: 0.7;
+  stroke-opacity: 0.65;
+}
+
+/* A slow sweep of light turning with the arms, masked to a ring so it never
+   brightens the middle where the wordmark lands. Its own spin and fade are
+   separate animations for the same reason the arms' are. */
+.intro-overlay__sheen {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 136vmin;
+  height: 136vmin;
+  margin: -68vmin 0 0 -68vmin;
+  border-radius: 50%;
   opacity: 0;
-  animation: introNode 0.5s ease both;
-  animation-delay: var(--d);
+  background: conic-gradient(from 0deg,
+    rgba(var(--gold-rgb), 0) 0deg,
+    rgba(var(--gold-rgb), 0.17) 72deg,
+    rgba(var(--gold-rgb), 0) 156deg,
+    rgba(var(--gold-rgb), 0) 214deg,
+    rgba(var(--gold-rgb), 0.1) 286deg,
+    rgba(var(--gold-rgb), 0) 360deg);
+  filter: blur(18px);
+  -webkit-mask-image: radial-gradient(circle, transparent 0 17%, #000 40%, transparent 72%);
+  mask-image: radial-gradient(circle, transparent 0 17%, #000 40%, transparent 72%);
+  animation:
+    introSheenSpin 2.4s cubic-bezier(0.17, 0.72, 0.26, 1) both,
+    introSwirlFade 2.8s ease forwards;
 }
-
-.intro-overlay__lines path,
-.intro-overlay__signals path {
-  animation-delay: calc(var(--d) + 0.1s);
-}
-
-/* One delay token per route, shared by that route's node, tracer and signal
-   head because all three groups hold their twelve children in the same order.
-   Scattered rather than a sweep, so the leads read as arriving independently. */
-.intro-overlay__net g { --d: 0s; }
-.intro-overlay__net g > :nth-child(1) { --d: 0s; }
-.intro-overlay__net g > :nth-child(2) { --d: 0.14s; }
-.intro-overlay__net g > :nth-child(3) { --d: 0.06s; }
-.intro-overlay__net g > :nth-child(4) { --d: 0.25s; }
-.intro-overlay__net g > :nth-child(5) { --d: 0.02s; }
-.intro-overlay__net g > :nth-child(6) { --d: 0.19s; }
-.intro-overlay__net g > :nth-child(7) { --d: 0.09s; }
-.intro-overlay__net g > :nth-child(8) { --d: 0.27s; }
-.intro-overlay__net g > :nth-child(9) { --d: 0.16s; }
-.intro-overlay__net g > :nth-child(10) { --d: 0.08s; }
-.intro-overlay__net g > :nth-child(11) { --d: 0.23s; }
-.intro-overlay__net g > :nth-child(12) { --d: 0.11s; }
 
 /* An aperture, not a disc: the centre stays fully transparent so the bloom
    never ends up behind the wordmark. */
@@ -321,20 +318,21 @@ p {
   40% { opacity: 0.13; transform: scale(1); }
   56%, 100% { opacity: 0; transform: scale(0.99); }
 }
-@keyframes introDraw {
-  to { stroke-dashoffset: 0; }
+/* One from/to pair, so the turn decelerates on a single curve end to end and
+   has visibly settled by the time the arms have faded. */
+@keyframes introSpin {
+  from { transform: rotate(-172deg) scale(1.5); }
+  to { transform: rotate(0deg) scale(0.88); }
 }
-@keyframes introSignal {
-  to { stroke-dashoffset: -1000; }
+@keyframes introSheenSpin {
+  from { transform: rotate(-96deg) scale(1.3); }
+  to { transform: rotate(78deg) scale(1); }
 }
-@keyframes introNode {
-  0% { opacity: 0; r: 0; }
-  40% { opacity: 0.95; r: 5.4; }
-  100% { opacity: 0; r: 2.4; }
-}
-@keyframes introNetOut {
-  0%, 36% { opacity: 1; }
-  47%, 100% { opacity: 0; }
+@keyframes introSwirlFade {
+  0% { opacity: 0; }
+  12% { opacity: 1; }
+  40% { opacity: 1; }
+  58%, 100% { opacity: 0; }
 }
 @keyframes introHalo {
   0%, 30% { opacity: 0; transform: scale(0.32); }
