@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en" data-theme="light">
+<html lang="en">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -25,9 +25,9 @@
   <link rel="stylesheet" href="style.css" />
   <script>
     try {
-      document.documentElement.dataset.theme = localStorage.getItem("qpTheme") === "dark" ? "dark" : "light";
+      document.documentElement.dataset.theme = localStorage.getItem("qpTheme") === "light" ? "light" : "dark";
     } catch (_) {
-      document.documentElement.dataset.theme = "light";
+      document.documentElement.dataset.theme = "dark";
     }
   </script>
   <noscript><style>[data-reveal] { opacity: 1 !important; transform: none !important; }</style></noscript>
