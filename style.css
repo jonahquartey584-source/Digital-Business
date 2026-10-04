@@ -1,38 +1,34 @@
 :root {
-  /* Black and gold, matched to the Higgins & Co. palette: a neutral black
-     rather than the warm near-black this site used, and a bronze-gold —
-     hue at 35 degrees, saturation held to a third — rather than a yellow
-     one. The warm cast has been taken out of the surfaces and borders too,
-     so gold is the only colour on the page. */
-  --bg: #0f0f0f;
-  --bg-alt: #141414;
-  --surface: #171717;
-  --surface-alt: #1e1e1e;
-  --border: #2e2a24;
-  --border-soft: #1f1d1a;
-  --text: #f2f1ef;
-  --text-dim: #bdb9b2;
-  --text-faint: #a3a09a;
-  --beige: #ddc9a8;
-  --gold: #a48151;
-  --gold-rgb: 164, 129, 81;
-  --gold-bright: #bba281;
+  --bg: #0c0b09;
+  --bg-alt: #131110;
+  --surface: #17140f;
+  --surface-alt: #1f1a13;
+  --border: #332a1c;
+  --border-soft: #241f16;
+  --text: #f4eee2;
+  --text-dim: #a89a83;
+  --text-faint: #9e9180;
+  --beige: #e9dcc3;
+  --gold: #b8874b;
+  --gold-rgb: 184, 135, 75;
+  --gold-bright: #e0bd83;
   /* Gold used as TEXT. Kept separate from --gold/--gold-bright (which also
      fill buttons, badges and gradients) so the light theme can darken gold
      lettering enough to meet WCAG 1.4.3 without turning every gold surface
-     brown. On this black, --gold-text is 7.8:1 and --gold-text-dim 5.3:1. */
-  --gold-text: #bba281;
-  --gold-text-dim: #a48151;
-  --gold-deep: #5b4629;
-  --bronze: #765b32;
-  --accent-text: #0f0f0f;
-  /* Champagne to bronze. It stops at --gold rather than running on into
-     --bronze, because this gradient also fills buttons that carry
-     --accent-text: every point along it has to stay readable under black
-     lettering, and --bronze is 3.0:1. The darkest point here is 5.3:1. */
-  --gold-gradient: linear-gradient(135deg, #ddc9a8, #bba281 46%, #a48151 100%);
+     brown. Identical to the decorative golds in the dark theme. */
+  --gold-text: #e0bd83;
+  --gold-text-dim: #b8874b;
+  --gold-deep: #7c4a24;
+  --bronze: #7c4a24;
+  --accent-text: #0c0b09;
+  /* Stops at --gold rather than running on into --bronze. This gradient also
+     fills the buttons that carry --accent-text, so every point along it has
+     to stay readable under that ink; the bronze end was 3.4:1 and took every
+     primary button on the site under AA. The darkest point here is 6.2:1,
+     and the gradient still reads as champagne into gold. */
+  --gold-gradient: linear-gradient(135deg, var(--gold-bright), var(--gold) 100%);
   --radius: 8px;
-  --shadow: 0 24px 60px -24px rgba(0, 0, 0, 0.8);
+  --shadow: 0 24px 60px -24px rgba(0, 0, 0, 0.75);
   --shadow-gold: 0 12px 32px -14px rgba(var(--gold-rgb), 0.45);
   --max: 1160px;
 }
@@ -729,20 +725,17 @@ p {
 /* Live digital-network backdrop: slow, restrained movement that suggests
    connected systems and automation without competing with the page copy. */
 /* ── the site's background ──────────────────────────────────────────────
-   One fixed field behind every page. The gold line work carries it — the
-   nodes, their lines and the ring — while the three drifts and the sheen are
-   held down to a few hundredths of an alpha so the ground stays black rather
-   than washing to brown. Measured: no part of the backdrop sits more than
-   eight levels above #0f0f0f on any channel. A diagonal
-   sheen that crosses on a long cycle, a single turning ring, and eight
-   signal nodes, each blinking on its own clock with a pulse of light
-   running out along the line attached to it.
+   One fixed field behind every page: a service mesh. Nodes sit on a slow
+   orbit, links between them carry packets that run from one end to the
+   other and stop, and a scan line passes down the whole thing on a long
+   cycle. It is the shape of the work — systems wired together, traffic
+   moving between them — rather than decoration that could belong to any
+   business.
 
-   Pure CSS, so it is sharp at any size, costs nothing to download and
-   themes with the rest of the site. Everything that moves is a transform
-   or an opacity, apart from the pulse travelling along the lines, which is
-   a background-position on eight one-pixel strips. It is decorative, so it
-   stops completely when the visitor has asked for reduced motion. */
+   Inline SVG and CSS, so it is sharp at any size, adds nothing to download
+   and themes with the rest of the site. Everything that moves is a
+   transform, an opacity or a dash offset. It is decorative, so it stops
+   completely when the visitor has asked for reduced motion. */
 .site-ambient {
   position: fixed;
   inset: 0;
@@ -751,11 +744,12 @@ p {
   overflow: hidden;
   contain: strict;
   /* Held almost entirely out of the middle of the viewport. A lit node is
-     brighter than the dimmest gold text on the site, so anywhere one can sit
-     behind a line of copy it takes that line below 4.5:1 — measured at
-     2.2:1 before this mask went in. The nodes therefore live in the margins
-     either side of the content column and their lines fade as they reach
-     inward, which is also the better picture. */
+     brighter than the dimmest gold text on the site, so anywhere one can
+     sit behind a line of copy it takes that line below 4.5:1 — measured at
+     2.2:1 before this mask went in. The mesh therefore reads at full
+     strength down the margins either side of the content column and its
+     links fade as they reach inward. The ramp finishes before the column
+     starts, not inside it. */
   -webkit-mask-image: linear-gradient(90deg,
     #000 0, #000 3%, rgba(0, 0, 0, 0.05) 9%,
     rgba(0, 0, 0, 0.05) 91%, #000 97%, #000 100%);
@@ -764,169 +758,117 @@ p {
     rgba(0, 0, 0, 0.05) 91%, #000 97%, #000 100%);
 }
 
-/* The diagonal sheen. */
+/* The scan: one pass down the field on a long cycle, the way a monitoring
+   view refreshes. */
 .site-ambient::before {
   content: "";
   position: absolute;
-  inset: -20%;
-  background: linear-gradient(115deg,
-    transparent 18%,
-    rgba(var(--gold-rgb), 0.01) 34%,
-    rgba(var(--gold-rgb), 0.028) 49%,
-    rgba(var(--gold-rgb), 0.01) 64%,
-    transparent 82%);
-  animation: ambSweep 34s ease-in-out infinite;
+  inset: -10% 0;
+  background: linear-gradient(180deg,
+    rgba(var(--gold-rgb), 0) 0,
+    rgba(var(--gold-rgb), 0.05) 44%,
+    rgba(var(--gold-rgb), 0.11) 50%,
+    rgba(var(--gold-rgb), 0.05) 56%,
+    rgba(var(--gold-rgb), 0) 100%);
+  animation: ambScan 26s cubic-bezier(0.5, 0, 0.5, 1) infinite;
 }
 
-/* One ring, turning slowly off the right edge. */
-.site-ambient::after {
-  content: "";
+.site-ambient__mesh {
   position: absolute;
-  width: 46vw;
-  height: 46vw;
-  min-width: 320px;
-  min-height: 320px;
-  right: -14%;
-  top: 6%;
-  border: 1px solid rgba(var(--gold-rgb), 0.22);
-  border-radius: 50%;
-  box-shadow:
-    0 0 0 60px rgba(var(--gold-rgb), 0.035),
-    0 0 0 128px rgba(var(--gold-rgb), 0.02);
-  animation: ambOrbit 64s linear infinite;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  fill: none;
+  animation: ambBreathe 44s ease-in-out infinite alternate;
 }
 
-.site-ambient__glow {
-  position: absolute;
-  border-radius: 50%;
-  filter: blur(110px);
-  will-change: transform;
+/* The links. The dim strand is always there; the packet is a short bright
+   dash that runs the length of it and then waits off the end, so a link
+   rests dark between messages instead of strobing. pathLength="100" on
+   every link normalises the dash maths across strands of different real
+   lengths, so one rule covers them all. */
+/* The viewBox is stretched to the window (preserveAspectRatio="none") so the
+   mesh tracks the page at any size; the strokes opt out of that scaling, or
+   they would thicken into ropes on a wide screen. */
+.site-ambient__link {
+  stroke: rgba(var(--gold-rgb), 0.26);
+  stroke-width: 1;
 }
 
-.site-ambient__glow--a {
-  width: 46vw;
-  height: 46vw;
-  max-width: 640px;
-  max-height: 640px;
-  top: -14%;
-  left: -10%;
-  background: rgba(var(--gold-rgb), 0.045);
-  animation: ambGlowA 46s ease-in-out infinite alternate;
+.site-ambient__packet {
+  stroke: var(--gold-bright);
+  stroke-width: 2.2;
+  stroke-linecap: round;
+  stroke-dasharray: 7 100;
+  animation: ambPacket 7s cubic-bezier(0.45, 0, 0.55, 1) infinite;
 }
 
-.site-ambient__glow--b {
-  width: 40vw;
-  height: 40vw;
-  max-width: 560px;
-  max-height: 560px;
-  bottom: -16%;
-  right: -8%;
-  background: rgba(var(--gold-rgb), 0.034);
-  animation: ambGlowB 58s ease-in-out infinite alternate;
-}
-
-.site-ambient__glow--c {
-  width: 32vw;
-  height: 32vw;
-  max-width: 440px;
-  max-height: 440px;
-  top: 38%;
-  left: 46%;
-  background: rgba(var(--gold-rgb), 0.022);
-  animation: ambGlowC 38s ease-in-out infinite alternate;
-}
-
-/* A signal node. Two clocks on purpose — a long drift and a shorter blink —
-   so no two nodes ever repeat the same combination within a visit. */
-.site-ambient b {
+/* An endpoint. Kept in HTML rather than in the stretched viewBox, where a
+   circle would render as an ellipse whose shape changed with the window.
+   The ring around it is what makes the mesh read as services wired together
+   rather than as a scatter of specks. */
+.site-ambient i {
   position: absolute;
   width: 7px;
   height: 7px;
+  margin: -3.5px 0 0 -3.5px;
   border-radius: 50%;
   background: var(--gold-bright);
   box-shadow:
-    0 0 0 5px rgba(var(--gold-rgb), 0.12),
-    0 0 26px rgba(var(--gold-rgb), 0.62);
-  animation:
-    ambDrift 27s ease-in-out infinite,
-    ambBlink 7s ease-in-out infinite;
-}
-
-/* The line attached to the node. Two stacked gradients: the lower one is the
-   wire, the upper is a short bright head that is slid from one end to the
-   other and then held off the end for the rest of the cycle, so the line
-   rests dark between pulses instead of strobing. */
-.site-ambient b::after {
-  content: "";
-  position: absolute;
-  left: 7px;
-  top: 3px;
-  width: var(--len, 190px);
-  height: 1px;
-  transform-origin: left center;
-  transform: rotate(var(--rot, 0deg));
-  background:
-    linear-gradient(90deg, rgba(var(--gold-rgb), 0.95), rgba(var(--gold-rgb), 0)) no-repeat,
-    linear-gradient(90deg, rgba(var(--gold-rgb), 0.42), rgba(var(--gold-rgb), 0));
-  background-size: 28% 100%, 100% 100%;
+    0 0 0 4px rgba(var(--gold-rgb), 0.09),
+    0 0 0 5px rgba(var(--gold-rgb), 0.3),
+    0 0 18px rgba(var(--gold-rgb), 0.45);
   animation: ambPulse 6s ease-in-out infinite;
 }
 
-.site-ambient b:nth-of-type(1) { left: 2.5%; top: 13%; --rot: 26deg; --len: 230px; animation-delay: -2s, -1s; }
-.site-ambient b:nth-of-type(2) { left: 6%; top: 41%; --rot: -21deg; --len: 195px; animation-delay: -14s, -4.5s; }
-.site-ambient b:nth-of-type(3) { left: 3%; top: 67%; --rot: 17deg; --len: 250px; animation-delay: -7s, -2.5s; }
-.site-ambient b:nth-of-type(4) { left: 7%; top: 88%; --rot: -34deg; --len: 175px; animation-delay: -21s, -6s; }
-.site-ambient b:nth-of-type(5) { left: 96%; top: 19%; --rot: 161deg; --len: 215px; animation-delay: -11s, -3.5s; }
-.site-ambient b:nth-of-type(6) { left: 92%; top: 47%; --rot: 199deg; --len: 185px; animation-delay: -4s, -0.5s; }
-.site-ambient b:nth-of-type(7) { left: 97%; top: 72%; --rot: 148deg; --len: 240px; animation-delay: -17s, -5.5s; }
-.site-ambient b:nth-of-type(8) { left: 93%; top: 93%; --rot: 205deg; --len: 200px; animation-delay: -24s, -2s; }
+.site-ambient i:nth-of-type(odd) { animation-delay: -1.5s; }
+.site-ambient i:nth-of-type(3n) { animation-delay: -3.2s; }
+.site-ambient i:nth-of-type(4n) { animation-delay: -4.7s; }
 
-@keyframes ambSweep {
-  0%, 100% { transform: translateX(-46%); }
-  50% { transform: translateX(46%); }
+/* Scattered delays rather than a sweep, so the traffic reads as independent
+   rather than as one wave crossing the page. */
+.site-ambient__packet:nth-of-type(1) { animation-delay: -0.4s; }
+.site-ambient__packet:nth-of-type(2) { animation-delay: -4.1s; }
+.site-ambient__packet:nth-of-type(3) { animation-delay: -1.9s; }
+.site-ambient__packet:nth-of-type(4) { animation-delay: -5.6s; }
+.site-ambient__packet:nth-of-type(5) { animation-delay: -2.7s; }
+.site-ambient__packet:nth-of-type(6) { animation-delay: -6.3s; }
+.site-ambient__packet:nth-of-type(7) { animation-delay: -3.3s; }
+.site-ambient__packet:nth-of-type(8) { animation-delay: -0.9s; }
+.site-ambient__packet:nth-of-type(9) { animation-delay: -4.8s; }
+.site-ambient__packet:nth-of-type(10) { animation-delay: -2.2s; }
+.site-ambient__packet:nth-of-type(11) { animation-delay: -5.1s; }
+.site-ambient__packet:nth-of-type(12) { animation-delay: -1.4s; }
+
+
+@keyframes ambScan {
+  0%, 100% { transform: translateY(-58%); }
+  50% { transform: translateY(58%); }
 }
-@keyframes ambOrbit {
-  to { transform: rotate(360deg); }
+@keyframes ambBreathe {
+  from { transform: scale(1) translate3d(0, 0, 0); }
+  to { transform: scale(1.07) translate3d(-1.5%, 1%, 0); }
 }
-@keyframes ambGlowA {
-  from { transform: translate3d(0, 0, 0) scale(1); }
-  to { transform: translate3d(13vw, 9vh, 0) scale(1.16); }
-}
-@keyframes ambGlowB {
-  from { transform: translate3d(0, 0, 0) scale(1.1); }
-  to { transform: translate3d(-12vw, -10vh, 0) scale(0.92); }
-}
-@keyframes ambGlowC {
-  from { transform: translate3d(0, 0, 0) scale(0.9); }
-  to { transform: translate3d(-9vw, 7vh, 0) scale(1.2); }
-}
-@keyframes ambDrift {
-  0%, 100% { transform: translate3d(0, 0, 0); }
-  25% { transform: translate3d(17px, -21px, 0); }
-  50% { transform: translate3d(-11px, -33px, 0); }
-  75% { transform: translate3d(-23px, -9px, 0); }
-}
-@keyframes ambBlink {
-  0%, 100% { opacity: 0.3; }
-  50% { opacity: 1; }
+@keyframes ambPacket {
+  0% { stroke-dashoffset: 0; }
+  46%, 100% { stroke-dashoffset: -107; }
 }
 @keyframes ambPulse {
-  0% { background-position: -32% 0, 0 0; }
-  58%, 100% { background-position: 142% 0, 0 0; }
+  0%, 100% { opacity: 0.24; }
+  50% { opacity: 0.95; }
 }
 
 @media (prefers-reduced-motion: reduce) {
   .site-ambient::before,
-  .site-ambient::after,
-  .site-ambient__glow,
-  .site-ambient b,
-  .site-ambient b::after {
+  .site-ambient__mesh,
+  .site-ambient__packet,
+  .site-ambient i {
     animation: none;
   }
 }
 
-/* The two full-width bands are let down to let the field read through them,
-   with the opaque colour kept as a fallback for anything without color-mix. */
+/* The one full-width band is let down so the field reads through it, with
+   the opaque colour kept as a fallback for anything without color-mix. */
 .site-footer {
   background: var(--bg-alt);
   background: color-mix(in srgb, var(--bg-alt) 78%, transparent);
@@ -1278,11 +1220,11 @@ section {
 /* Light theme: the intro's gradient stops and its text scrim are written as
    literal colours (so they survive a paint before the custom properties
    land), which means they need their light counterparts stated here. */
-html[data-theme="light"] .introStop--hot { stop-color: #bba281; }
-html[data-theme="light"] .introStop--mid { stop-color: #a48151; }
-html[data-theme="light"] .introStop--out { stop-color: #a48151; }
+html[data-theme="light"] .introStop--hot { stop-color: #d7ad58; }
+html[data-theme="light"] .introStop--mid { stop-color: #b88732; }
+html[data-theme="light"] .introStop--out { stop-color: #b88732; }
 html[data-theme="light"] .intro-overlay__plate::before {
-  background: radial-gradient(62% 72% at 50% 50%, #ffffff 0 58%, rgba(255, 255, 255, 0) 100%);
+  background: radial-gradient(62% 72% at 50% 50%, #f7f3ea 0 58%, rgba(247, 243, 234, 0) 100%);
 }
 
 /* Gold over cream blooms far harder than gold over near-black, so the halo is
@@ -2694,7 +2636,7 @@ textarea {
 }
 
 html[data-theme="light"] .biz-card {
-  background: linear-gradient(155deg, #ffffff, #f4f3f0 75%);
+  background: linear-gradient(155deg, #fcfaf5, #eee5d3 75%);
 }
 
 .biz-card::before {
@@ -2985,13 +2927,13 @@ html[data-theme="light"] .biz-card {
 .ai-help-launcher svg{width:31px!important;height:31px!important}
 .theme-toggle{display:inline-flex;align-items:center;gap:7px;border:1px solid var(--border);border-radius:999px;background:var(--surface);color:var(--text-dim);padding:8px 11px;cursor:pointer;font:600 10px "IBM Plex Mono",monospace;text-transform:uppercase;letter-spacing:.05em}
 .theme-toggle svg{width:15px;height:15px}.theme-toggle__moon{display:none}.theme-toggle:hover{border-color:var(--gold-text-dim);color:var(--gold-text)}
-html[data-theme="light"]{--bg:#ffffff;--bg-alt:#f4f3f0;--surface:#ffffff;--surface-alt:#f4f3f0;--border:#e3e1dc;--border-soft:#edebe6;--text:#121212;--text-dim:#56565a;--text-faint:#65656a;--beige:#56565a;--gold:#a48151;--gold-rgb:164,129,81;--gold-bright:#bba281;--gold-text:#765b32;--gold-text-dim:#5b4629;--gold-deep:#5b4629;--bronze:#765b32;--accent-text:#fff;--gold-gradient:linear-gradient(135deg,#8f6f3f,#765b32 46%,#5b4629 100%);--shadow:0 24px 60px -24px rgba(18,18,18,.18);--shadow-gold:0 12px 32px -14px rgba(var(--gold-rgb),.26)}
-html[data-theme="light"] .site-header{background:rgba(255,255,255,.95)}
+html[data-theme="light"]{--bg:#f7f3ea;--bg-alt:#eee8dc;--surface:#fcfaf5;--surface-alt:#f1eadc;--border:#dfcfaa;--border-soft:#eee3ca;--text:#30291f;--text-dim:#696154;--text-faint:#696155;--beige:#3a3023;--gold:#b88732;--gold-rgb:184,135,50;--gold-bright:#d7ad58;--gold-text:#83621f;--gold-text-dim:#6b4d18;--gold-deep:#8d5e16;--bronze:#8d5e16;--accent-text:#fff;--shadow:0 24px 60px -24px rgba(70,52,24,.2);--shadow-gold:0 12px 32px -14px rgba(var(--gold-rgb),.28);--gold-gradient:linear-gradient(135deg,#9a6a18,#8d5e16 100%)}
+html[data-theme="light"] .site-header{background:rgba(247,243,234,.95)}
 html[data-theme="light"] .hiring-bar{background:color-mix(in srgb,var(--gold) 5%,var(--surface))}
-html[data-theme="light"] .hero{background:#ffffff}
+html[data-theme="light"] .hero{background:radial-gradient(circle at 78% 42%,rgba(184,135,50,.14),transparent 34%),#f7f3ea}
 html[data-theme="light"] .hero::before,html[data-theme="light"] .hero::after{opacity:.38}
-html[data-theme="light"] .hero__rotator,html[data-theme="light"] .terminal-window,html[data-theme="light"] .account-card,html[data-theme="light"] .showcase-card__frame{background:linear-gradient(155deg,#ffffff,#f4f3f0 75%)}
-html[data-theme="light"] .preview-frame__bar{background:linear-gradient(155deg,#ffffff,#f4f3f0 75%)}
+html[data-theme="light"] .hero__rotator,html[data-theme="light"] .terminal-window,html[data-theme="light"] .account-card,html[data-theme="light"] .showcase-card__frame{background:linear-gradient(155deg,#fcfaf5,#eee5d3 75%)}
+html[data-theme="light"] .preview-frame__bar{background:linear-gradient(155deg,#fcfaf5,#eee5d3 75%)}
 /* This panel keeps a champagne fill in the light theme, so its muted text
    colours sit on a mid-tone rather than on white and come in under 4.5:1.
    They take the body ink here instead. */
@@ -3000,11 +2942,11 @@ html[data-theme="light"] .hero__rotator-text,
 html[data-theme="light"] .hero__rotator-count,
 html[data-theme="light"] .hero__rotator-count b,
 html[data-theme="light"] .hero__rotator-headline { color: var(--text); }
-html[data-theme="light"] .hero__rotator-head,html[data-theme="light"] .terminal-window__bar,html[data-theme="light"] .account-card__head,html[data-theme="light"] .showcase-card__bar{background:rgba(164,129,81,.08)}
+html[data-theme="light"] .hero__rotator-head,html[data-theme="light"] .terminal-window__bar,html[data-theme="light"] .account-card__head,html[data-theme="light"] .showcase-card__bar{background:rgba(218,190,133,.14)}
 html[data-theme="light"] .hero__rotator::before,html[data-theme="light"] .terminal-window::before,html[data-theme="light"] .account-card::before{-webkit-mask:linear-gradient(#fff 0 0) content-box,linear-gradient(#fff 0 0);mask:linear-gradient(#fff 0 0) content-box,linear-gradient(#fff 0 0)}
 html[data-theme="light"] .service-card,html[data-theme="light"] .process-card,html[data-theme="light"] .why-card,html[data-theme="light"] .admin-output__block{box-shadow:0 10px 32px rgba(30,25,15,.06)}
 html[data-theme="light"] .ai-help-panel{background:rgba(252,250,245,.985)}
-html[data-theme="light"] .ai-help-composer{background:#ffffff}
+html[data-theme="light"] .ai-help-composer{background:#fcfaf5}
 html[data-theme="light"] .ai-help-message.ai,html[data-theme="light"] .ai-help-message--assistant{background:#f8f2e6}
 html[data-theme="light"] .theme-toggle__sun{display:none}html[data-theme="light"] .theme-toggle__moon{display:block}
 @media(max-width:900px){.theme-toggle__label{display:none}.theme-toggle{padding:8px}}
@@ -3160,185 +3102,9 @@ html[data-theme="light"] .theme-toggle__sun{display:none}html[data-theme="light"
 }
 
 
-/* ── the black bands ───────────────────────────────────────────────────
-   Higgins & Co. is a white site whose masthead, the bars under it and the
-   footer are solid black, with the gold carried across both grounds. The
-   dark theme already renders these regions dark, so this only has to put
-   them back to black once the page behind them is white.
-
-   Rather than restating every colour inside them, the regions redefine the
-   palette tokens to their dark-theme values. Anything that lands in one —
-   a button, a badge, a rule, a link — then picks up ink that is right for
-   a black ground without needing a rule of its own. */
-html[data-theme="light"] :is(.site-header, .hiring-bar, .client-bar, .site-footer) {
-  --bg: #0f0f0f;
-  --bg-alt: #141414;
-  --surface: #171717;
-  --surface-alt: #1e1e1e;
-  --border: #2e2a24;
-  --border-soft: #1f1d1a;
-  --text: #f2f1ef;
-  --text-dim: #bdb9b2;
-  --text-faint: #a3a09a;
-  --beige: #ddc9a8;
-  --gold-text: #bba281;
-  --gold-text-dim: #a48151;
-  --accent-text: #0f0f0f;
-  --gold-gradient: linear-gradient(135deg, #ddc9a8, #bba281 46%, #a48151 100%);
-  --shadow: 0 24px 60px -24px rgba(0, 0, 0, 0.8);
-  background: #0f0f0f;
-  color: var(--text);
-}
-
-html[data-theme="light"] .site-header {
-  border-bottom: 1px solid #2e2a24;
-}
-
-html[data-theme="light"] :is(.hiring-bar, .client-bar) {
-  border-bottom: 1px solid #2e2a24;
-}
-
-/* The field is a gold line drawing. On white it needs the deeper cut of
-   gold to read at all, so the nodes and their lines switch to it here; the
-   drifts stay faint, since a wash of gold on paper goes muddy long before
-   it goes luminous. The mask still keeps the whole thing out of the column
-   the text lives in. */
-/* A wash of gold over paper goes muddy long before it goes luminous — at
-   the strength that suits black, the drifts and the sheen turned the white
-   page cream. On this ground the field is line work only. */
-html[data-theme="light"] .site-ambient__glow {
-  display: none;
-}
-
-html[data-theme="light"] .site-ambient::before {
-  content: none;
-}
-
-/* Same reason: the hero's two corner glows read as a cream cast on paper
-   rather than as light. Higgins puts nothing behind its white pages. */
-html[data-theme="light"] .hero::before,
-html[data-theme="light"] .activate-hero::before {
-  background: none;
-}
-
-/* These panels draw their frame with a gradient-filled pseudo-element that
-   a mask is meant to cut back to a one-pixel edge. The mask was never given
-   a compositing mode, so it fills instead, laying the gold gradient over the
-   whole panel — which on white put the panel's text on a mid-tone. They
-   already carry a real border, so the pseudo-element simply goes. */
-html[data-theme="light"] .hero__rotator::before,
-html[data-theme="light"] .terminal-window::before,
-html[data-theme="light"] .account-card::before {
-  display: none;
-}
-
-/* The mask stays on paper too. The line work is darker than the page but
-   lighter than the muted greys the body copy uses, so a line crossing one
-   of those takes it under 4.5:1 just as a lit node does on black —
-   measured at 3.6:1 with the mask off. */
-html[data-theme="light"] .site-ambient b {
-  width: 6px;
-  height: 6px;
-  background: #765b32;
-  box-shadow:
-    0 0 0 4px rgba(var(--gold-rgb), 0.16),
-    0 0 16px rgba(118, 91, 50, 0.35);
-}
-
-html[data-theme="light"] .site-ambient b::after {
-  background:
-    linear-gradient(90deg, rgba(118, 91, 50, 0.9), rgba(118, 91, 50, 0)) no-repeat,
-    linear-gradient(90deg, rgba(118, 91, 50, 0.45), rgba(118, 91, 50, 0));
-  background-size: 28% 100%, 100% 100%;
-}
-
-html[data-theme="light"] .site-ambient::after {
-  border-color: rgba(118, 91, 50, 0.16);
-  box-shadow:
-    0 0 0 60px rgba(var(--gold-rgb), 0.028),
-    0 0 0 128px rgba(var(--gold-rgb), 0.016);
-}
 
 
-/* ── gold lettering ────────────────────────────────────────────────────
-   The headings carry the brand rather than the body copy. Gold at display
-   sizes reads as the material it is; a whole paragraph of it reads as
-   washed-out text, so the running copy stays in ink and only the headings,
-   the eyebrows and the display numerals turn. --gold-text is 7.8:1 on the
-   black and 6.3:1 on the paper bands, so this holds on both grounds. */
-/* Display headings take the bronze cut, the smaller ones the lighter
-   champagne so they stay comfortable at body-adjacent sizes. On black that
-   is 5.3:1 and 7.8:1; on the paper bands the same two tokens resolve to
-   #5b4629 and #765b32, which are 10.9:1 and 6.3:1. */
-h1, h2,
-.section__title,
-.hero h1 {
-  color: var(--gold-text-dim);
-}
-
-h3 {
-  color: var(--gold-text);
-}
-
-/* Headings inside a gold-filled control keep the ink picked to hold on it.
-   The badge is not in that set — it carries its own --accent-text, and
-   inheriting the page's ink put light text on a gold chip at 3.2:1. */
-.btn--primary h1, .btn--primary h2, .btn--primary h3 {
-  color: inherit;
-}
-
-/* ── the paper bands ───────────────────────────────────────────────────
-   Most of the site is black; these two sections are white, which is the
-   rhythm the Higgins pages have. Same technique as the masthead and footer,
-   inverted: the band redefines the palette tokens to their light values, so
-   every card, rule, border and link inside it picks up ink that is right
-   for paper without needing a rule of its own. */
-.how,
-.enquire {
-  --bg: #ffffff;
-  --bg-alt: #f4f3f0;
-  --surface: #ffffff;
-  --surface-alt: #f4f3f0;
-  --border: #e3e1dc;
-  --border-soft: #edebe6;
-  --text: #121212;
-  --text-dim: #56565a;
-  --text-faint: #65656a;
-  --beige: #56565a;
-  --gold-text: #765b32;
-  --gold-text-dim: #5b4629;
-  --accent-text: #ffffff;
-  --gold-gradient: linear-gradient(135deg, #8f6f3f, #765b32 46%, #5b4629 100%);
-  --shadow: 0 24px 60px -24px rgba(18, 18, 18, 0.18);
-  background: #ffffff;
-  color: var(--text);
-  position: relative;
-  z-index: 1;
-}
-
-.how { background: #f4f3f0; }
-
-/* A hairline of gold where paper meets black, so the join is a seam rather
-   than an edge. */
-.how::before,
-.enquire::before {
-  content: "";
-  position: absolute;
-  inset: 0 0 auto 0;
-  height: 1px;
-  background: linear-gradient(90deg,
-    rgba(var(--gold-rgb), 0) 0,
-    rgba(var(--gold-rgb), 0.55) 24%,
-    rgba(var(--gold-rgb), 0.55) 76%,
-    rgba(var(--gold-rgb), 0) 100%);
-}
-
-/* The field is behind the page, and these bands are opaque, so it does not
-   read through them — which is correct: on paper it would only muddy. */
 
 
-/* On paper this sits on the frame's tinted head, not on white, so the muted
-   grey it used was at 3.9:1. */
-html[data-theme="light"] .showcase-card__url {
-  color: #3c3c40;
-}
+
+
