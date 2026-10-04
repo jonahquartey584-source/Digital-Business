@@ -757,11 +757,11 @@ p {
      either side of the content column and their lines fade as they reach
      inward, which is also the better picture. */
   -webkit-mask-image: linear-gradient(90deg,
-    #000 0, #000 6%, rgba(0, 0, 0, 0.05) 12%,
-    rgba(0, 0, 0, 0.05) 88%, #000 94%, #000 100%);
+    #000 0, #000 3%, rgba(0, 0, 0, 0.05) 9%,
+    rgba(0, 0, 0, 0.05) 91%, #000 97%, #000 100%);
   mask-image: linear-gradient(90deg,
-    #000 0, #000 6%, rgba(0, 0, 0, 0.05) 12%,
-    rgba(0, 0, 0, 0.05) 88%, #000 94%, #000 100%);
+    #000 0, #000 3%, rgba(0, 0, 0, 0.05) 9%,
+    rgba(0, 0, 0, 0.05) 91%, #000 97%, #000 100%);
 }
 
 /* The diagonal sheen. */
@@ -1279,11 +1279,11 @@ section {
 /* Light theme: the intro's gradient stops and its text scrim are written as
    literal colours (so they survive a paint before the custom properties
    land), which means they need their light counterparts stated here. */
-html[data-theme="light"] .introStop--hot { stop-color: #d7ad58; }
-html[data-theme="light"] .introStop--mid { stop-color: #b88732; }
-html[data-theme="light"] .introStop--out { stop-color: #b88732; }
+html[data-theme="light"] .introStop--hot { stop-color: #bba281; }
+html[data-theme="light"] .introStop--mid { stop-color: #a48151; }
+html[data-theme="light"] .introStop--out { stop-color: #a48151; }
 html[data-theme="light"] .intro-overlay__plate::before {
-  background: radial-gradient(62% 72% at 50% 50%, #f7f3ea 0 58%, rgba(247, 243, 234, 0) 100%);
+  background: radial-gradient(62% 72% at 50% 50%, #ffffff 0 58%, rgba(255, 255, 255, 0) 100%);
 }
 
 /* Gold over cream blooms far harder than gold over near-black, so the halo is
@@ -2695,7 +2695,7 @@ textarea {
 }
 
 html[data-theme="light"] .biz-card {
-  background: linear-gradient(155deg, #fcfaf5, #eee5d3 75%);
+  background: linear-gradient(155deg, #ffffff, #f4f3f0 75%);
 }
 
 .biz-card::before {
@@ -2986,13 +2986,13 @@ html[data-theme="light"] .biz-card {
 .ai-help-launcher svg{width:31px!important;height:31px!important}
 .theme-toggle{display:inline-flex;align-items:center;gap:7px;border:1px solid var(--border);border-radius:999px;background:var(--surface);color:var(--text-dim);padding:8px 11px;cursor:pointer;font:600 10px "IBM Plex Mono",monospace;text-transform:uppercase;letter-spacing:.05em}
 .theme-toggle svg{width:15px;height:15px}.theme-toggle__moon{display:none}.theme-toggle:hover{border-color:var(--gold-text-dim);color:var(--gold-text)}
-html[data-theme="light"]{--bg:#ffffff;--bg-alt:#f4f3f0;--surface:#ffffff;--surface-alt:#f4f3f0;--border:#e3e1dc;--border-soft:#edebe6;--text:#121212;--text-dim:#56565a;--text-faint:#6b6b70;--beige:#56565a;--gold:#a48151;--gold-rgb:164,129,81;--gold-bright:#bba281;--gold-text:#765b32;--gold-text-dim:#5b4629;--gold-deep:#5b4629;--bronze:#765b32;--accent-text:#fff;--gold-gradient:linear-gradient(135deg,#8f6f3f,#765b32 46%,#5b4629 100%);--shadow:0 24px 60px -24px rgba(18,18,18,.18);--shadow-gold:0 12px 32px -14px rgba(var(--gold-rgb),.26)}
-html[data-theme="light"] .site-header{background:rgba(247,243,234,.95)}
+html[data-theme="light"]{--bg:#ffffff;--bg-alt:#f4f3f0;--surface:#ffffff;--surface-alt:#f4f3f0;--border:#e3e1dc;--border-soft:#edebe6;--text:#121212;--text-dim:#56565a;--text-faint:#65656a;--beige:#56565a;--gold:#a48151;--gold-rgb:164,129,81;--gold-bright:#bba281;--gold-text:#765b32;--gold-text-dim:#5b4629;--gold-deep:#5b4629;--bronze:#765b32;--accent-text:#fff;--gold-gradient:linear-gradient(135deg,#8f6f3f,#765b32 46%,#5b4629 100%);--shadow:0 24px 60px -24px rgba(18,18,18,.18);--shadow-gold:0 12px 32px -14px rgba(var(--gold-rgb),.26)}
+html[data-theme="light"] .site-header{background:rgba(255,255,255,.95)}
 html[data-theme="light"] .hiring-bar{background:color-mix(in srgb,var(--gold) 5%,var(--surface))}
-html[data-theme="light"] .hero{background:radial-gradient(circle at 78% 42%,rgba(184,135,50,.14),transparent 34%),#f7f3ea}
+html[data-theme="light"] .hero{background:#ffffff}
 html[data-theme="light"] .hero::before,html[data-theme="light"] .hero::after{opacity:.38}
-html[data-theme="light"] .hero__rotator,html[data-theme="light"] .terminal-window,html[data-theme="light"] .account-card,html[data-theme="light"] .showcase-card__frame{background:linear-gradient(155deg,#fcfaf5,#eee5d3 75%)}
-html[data-theme="light"] .preview-frame__bar{background:linear-gradient(155deg,#fcfaf5,#eee5d3 75%)}
+html[data-theme="light"] .hero__rotator,html[data-theme="light"] .terminal-window,html[data-theme="light"] .account-card,html[data-theme="light"] .showcase-card__frame{background:linear-gradient(155deg,#ffffff,#f4f3f0 75%)}
+html[data-theme="light"] .preview-frame__bar{background:linear-gradient(155deg,#ffffff,#f4f3f0 75%)}
 /* This panel keeps a champagne fill in the light theme, so its muted text
    colours sit on a mid-tone rather than on white and come in under 4.5:1.
    They take the body ink here instead. */
@@ -3001,11 +3001,11 @@ html[data-theme="light"] .hero__rotator-text,
 html[data-theme="light"] .hero__rotator-count,
 html[data-theme="light"] .hero__rotator-count b,
 html[data-theme="light"] .hero__rotator-headline { color: var(--text); }
-html[data-theme="light"] .hero__rotator-head,html[data-theme="light"] .terminal-window__bar,html[data-theme="light"] .account-card__head,html[data-theme="light"] .showcase-card__bar{background:rgba(218,190,133,.14)}
+html[data-theme="light"] .hero__rotator-head,html[data-theme="light"] .terminal-window__bar,html[data-theme="light"] .account-card__head,html[data-theme="light"] .showcase-card__bar{background:rgba(164,129,81,.08)}
 html[data-theme="light"] .hero__rotator::before,html[data-theme="light"] .terminal-window::before,html[data-theme="light"] .account-card::before{-webkit-mask:linear-gradient(#fff 0 0) content-box,linear-gradient(#fff 0 0);mask:linear-gradient(#fff 0 0) content-box,linear-gradient(#fff 0 0)}
 html[data-theme="light"] .service-card,html[data-theme="light"] .process-card,html[data-theme="light"] .why-card,html[data-theme="light"] .admin-output__block{box-shadow:0 10px 32px rgba(30,25,15,.06)}
 html[data-theme="light"] .ai-help-panel{background:rgba(252,250,245,.985)}
-html[data-theme="light"] .ai-help-composer{background:#fcfaf5}
+html[data-theme="light"] .ai-help-composer{background:#ffffff}
 html[data-theme="light"] .ai-help-message.ai,html[data-theme="light"] .ai-help-message--assistant{background:#f8f2e6}
 html[data-theme="light"] .theme-toggle__sun{display:none}html[data-theme="light"] .theme-toggle__moon{display:block}
 @media(max-width:900px){.theme-toggle__label{display:none}.theme-toggle{padding:8px}}
@@ -3158,4 +3158,104 @@ html[data-theme="light"] .theme-toggle__sun{display:none}html[data-theme="light"
 .hero__note a {
   text-decoration: underline;
   text-underline-offset: 2px;
+}
+
+
+/* ── the black bands ───────────────────────────────────────────────────
+   Higgins & Co. is a white site whose masthead, the bars under it and the
+   footer are solid black, with the gold carried across both grounds. The
+   dark theme already renders these regions dark, so this only has to put
+   them back to black once the page behind them is white.
+
+   Rather than restating every colour inside them, the regions redefine the
+   palette tokens to their dark-theme values. Anything that lands in one —
+   a button, a badge, a rule, a link — then picks up ink that is right for
+   a black ground without needing a rule of its own. */
+html[data-theme="light"] :is(.site-header, .hiring-bar, .client-bar, .site-footer) {
+  --bg: #0f0f0f;
+  --bg-alt: #141414;
+  --surface: #171717;
+  --surface-alt: #1e1e1e;
+  --border: #2e2a24;
+  --border-soft: #1f1d1a;
+  --text: #f2f1ef;
+  --text-dim: #bdb9b2;
+  --text-faint: #a3a09a;
+  --beige: #ddc9a8;
+  --gold-text: #bba281;
+  --gold-text-dim: #a48151;
+  --accent-text: #0f0f0f;
+  --gold-gradient: linear-gradient(135deg, #ddc9a8, #bba281 46%, #a48151 100%);
+  --shadow: 0 24px 60px -24px rgba(0, 0, 0, 0.8);
+  background: #0f0f0f;
+  color: var(--text);
+}
+
+html[data-theme="light"] .site-header {
+  border-bottom: 1px solid #2e2a24;
+}
+
+html[data-theme="light"] :is(.hiring-bar, .client-bar) {
+  border-bottom: 1px solid #2e2a24;
+}
+
+/* The field is a gold line drawing. On white it needs the deeper cut of
+   gold to read at all, so the nodes and their lines switch to it here; the
+   drifts stay faint, since a wash of gold on paper goes muddy long before
+   it goes luminous. The mask still keeps the whole thing out of the column
+   the text lives in. */
+/* A wash of gold over paper goes muddy long before it goes luminous — at
+   the strength that suits black, the drifts and the sheen turned the white
+   page cream. On this ground the field is line work only. */
+html[data-theme="light"] .site-ambient__glow {
+  display: none;
+}
+
+html[data-theme="light"] .site-ambient::before {
+  content: none;
+}
+
+/* Same reason: the hero's two corner glows read as a cream cast on paper
+   rather than as light. Higgins puts nothing behind its white pages. */
+html[data-theme="light"] .hero::before,
+html[data-theme="light"] .activate-hero::before {
+  background: none;
+}
+
+/* These panels draw their frame with a gradient-filled pseudo-element that
+   a mask is meant to cut back to a one-pixel edge. The mask was never given
+   a compositing mode, so it fills instead, laying the gold gradient over the
+   whole panel — which on white put the panel's text on a mid-tone. They
+   already carry a real border, so the pseudo-element simply goes. */
+html[data-theme="light"] .hero__rotator::before,
+html[data-theme="light"] .terminal-window::before,
+html[data-theme="light"] .account-card::before {
+  display: none;
+}
+
+/* The mask stays on paper too. The line work is darker than the page but
+   lighter than the muted greys the body copy uses, so a line crossing one
+   of those takes it under 4.5:1 just as a lit node does on black —
+   measured at 3.6:1 with the mask off. */
+html[data-theme="light"] .site-ambient b {
+  width: 6px;
+  height: 6px;
+  background: #765b32;
+  box-shadow:
+    0 0 0 4px rgba(var(--gold-rgb), 0.16),
+    0 0 16px rgba(118, 91, 50, 0.35);
+}
+
+html[data-theme="light"] .site-ambient b::after {
+  background:
+    linear-gradient(90deg, rgba(118, 91, 50, 0.9), rgba(118, 91, 50, 0)) no-repeat,
+    linear-gradient(90deg, rgba(118, 91, 50, 0.45), rgba(118, 91, 50, 0));
+  background-size: 28% 100%, 100% 100%;
+}
+
+html[data-theme="light"] .site-ambient::after {
+  border-color: rgba(118, 91, 50, 0.16);
+  box-shadow:
+    0 0 0 60px rgba(var(--gold-rgb), 0.028),
+    0 0 0 128px rgba(var(--gold-rgb), 0.016);
 }
