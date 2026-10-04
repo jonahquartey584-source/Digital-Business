@@ -1,29 +1,38 @@
 :root {
-  --bg: #0c0b09;
-  --bg-alt: #131110;
-  --surface: #17140f;
-  --surface-alt: #1f1a13;
-  --border: #332a1c;
-  --border-soft: #241f16;
-  --text: #f4eee2;
-  --text-dim: #a89a83;
-  --text-faint: #9e9180;
-  --beige: #e9dcc3;
-  --gold: #b8874b;
-  --gold-rgb: 184, 135, 75;
-  --gold-bright: #e0bd83;
+  /* Black and gold, matched to the Higgins & Co. palette: a neutral black
+     rather than the warm near-black this site used, and a bronze-gold —
+     hue at 35 degrees, saturation held to a third — rather than a yellow
+     one. The warm cast has been taken out of the surfaces and borders too,
+     so gold is the only colour on the page. */
+  --bg: #0f0f0f;
+  --bg-alt: #141414;
+  --surface: #171717;
+  --surface-alt: #1e1e1e;
+  --border: #2e2a24;
+  --border-soft: #1f1d1a;
+  --text: #f2f1ef;
+  --text-dim: #bdb9b2;
+  --text-faint: #a3a09a;
+  --beige: #ddc9a8;
+  --gold: #a48151;
+  --gold-rgb: 164, 129, 81;
+  --gold-bright: #bba281;
   /* Gold used as TEXT. Kept separate from --gold/--gold-bright (which also
      fill buttons, badges and gradients) so the light theme can darken gold
      lettering enough to meet WCAG 1.4.3 without turning every gold surface
-     brown. Identical to the decorative golds in the dark theme. */
-  --gold-text: #e0bd83;
-  --gold-text-dim: #b8874b;
-  --gold-deep: #7c4a24;
-  --bronze: #7c4a24;
-  --accent-text: #0c0b09;
-  --gold-gradient: linear-gradient(135deg, var(--gold-bright), var(--gold) 48%, var(--bronze) 100%);
+     brown. On this black, --gold-text is 7.8:1 and --gold-text-dim 5.3:1. */
+  --gold-text: #bba281;
+  --gold-text-dim: #a48151;
+  --gold-deep: #5b4629;
+  --bronze: #765b32;
+  --accent-text: #0f0f0f;
+  /* Champagne to bronze. It stops at --gold rather than running on into
+     --bronze, because this gradient also fills buttons that carry
+     --accent-text: every point along it has to stay readable under black
+     lettering, and --bronze is 3.0:1. The darkest point here is 5.3:1. */
+  --gold-gradient: linear-gradient(135deg, #ddc9a8, #bba281 46%, #a48151 100%);
   --radius: 8px;
-  --shadow: 0 24px 60px -24px rgba(0, 0, 0, 0.75);
+  --shadow: 0 24px 60px -24px rgba(0, 0, 0, 0.8);
   --shadow-gold: 0 12px 32px -14px rgba(var(--gold-rgb), 0.45);
   --max: 1160px;
 }
@@ -41,14 +50,38 @@
   display: none !important;
 }
 
+/* Available to a screen reader, taken out of the visual layout. The service
+   cards' hit targets carry their accessible name in one of these; the class
+   was being used in the markup without ever having been defined here, so
+   those names were rendering on top of the cards. */
+.visually-hidden {
+  position: absolute !important;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  clip-path: inset(50%);
+  white-space: nowrap;
+  border: 0;
+}
+
 html {
   scroll-behavior: smooth;
+}
+
+/* The page colour lives on <html>, not <body>. A fixed element at z-index -1
+   paints above the canvas but below every in-flow box, so leaving the colour
+   on <body> would bury the ambient field underneath it. */
+html {
+  background: var(--bg);
 }
 
 body {
   margin: 0;
   font-family: "IBM Plex Sans", system-ui, -apple-system, Roboto, Helvetica, Arial, sans-serif;
-  background: var(--bg);
+  background: transparent;
   color: var(--text);
   line-height: 1.6;
 }
@@ -675,22 +708,12 @@ p {
   inset: 0;
   z-index: 0;
   pointer-events: none;
+  /* Two soft corner glows. The ruled 64px grid that used to sit here has
+     gone — the squares were the one hard, mechanical thing on an otherwise
+     unbroken black ground. */
   background:
-    repeating-linear-gradient(
-      90deg,
-      rgba(var(--gold-rgb), 0.05) 0,
-      rgba(var(--gold-rgb), 0.05) 1px,
-      transparent 1px,
-      transparent 64px
-    ),
-    repeating-linear-gradient(
-      0deg,
-      rgba(var(--gold-rgb), 0.05) 0,
-      rgba(var(--gold-rgb), 0.05) 1px,
-      transparent 1px,
-      transparent 64px
-    ),
-    radial-gradient(circle at 82% 12%, rgba(var(--gold-rgb), 0.14), transparent 45%);
+    radial-gradient(circle at 82% 10%, rgba(var(--gold-rgb), 0.045), transparent 46%),
+    radial-gradient(circle at 12% 88%, rgba(var(--gold-rgb), 0.025), transparent 52%);
   mask-image: linear-gradient(to bottom, black, transparent 96%);
 }
 
@@ -705,24 +728,211 @@ p {
 
 /* Live digital-network backdrop: slow, restrained movement that suggests
    connected systems and automation without competing with the page copy. */
-.hero__ambient{position:absolute;inset:0;z-index:1;pointer-events:none;overflow:hidden;opacity:.96}
-.hero__ambient::before{content:"";position:absolute;inset:-15%;background:linear-gradient(115deg,transparent 18%,rgba(var(--gold-rgb),.025) 34%,rgba(var(--gold-rgb),.075) 49%,rgba(var(--gold-rgb),.025) 64%,transparent 82%);transform:translateX(-45%);animation:ambientSweep 24s ease-in-out infinite}
-.hero__ambient::after{content:"";position:absolute;width:34vw;height:34vw;min-width:280px;min-height:280px;right:-9%;top:8%;border:1px solid rgba(var(--gold-rgb),.28);border-radius:50%;box-shadow:0 0 0 52px rgba(var(--gold-rgb),.05),0 0 0 104px rgba(var(--gold-rgb),.032);animation:ambientOrbit 26s linear infinite}
-.hero__ambient span{position:absolute;width:9px;height:9px;border-radius:50%;background:var(--gold-bright);box-shadow:0 0 0 6px rgba(var(--gold-rgb),.14),0 0 28px rgba(var(--gold-rgb),.62);animation:ambientNode 6s ease-in-out infinite}
-.hero__ambient span::after{content:"";position:absolute;left:9px;top:4px;width:clamp(90px,16vw,240px);height:1px;background:linear-gradient(90deg,rgba(var(--gold-rgb),.58),transparent);transform-origin:left center}
-.hero__ambient span:nth-child(1){left:7%;top:21%;animation-delay:-1s}.hero__ambient span:nth-child(1)::after{transform:rotate(18deg)}
-.hero__ambient span:nth-child(2){left:24%;top:72%;animation-delay:-4s}.hero__ambient span:nth-child(2)::after{transform:rotate(-22deg)}
-.hero__ambient span:nth-child(3){left:46%;top:14%;animation-delay:-2.5s}.hero__ambient span:nth-child(3)::after{transform:rotate(32deg)}
-.hero__ambient span:nth-child(4){left:67%;top:68%;animation-delay:-5s}.hero__ambient span:nth-child(4)::after{transform:rotate(-34deg)}
-.hero__ambient span:nth-child(5){left:83%;top:30%;animation-delay:-3s}.hero__ambient span:nth-child(5)::after{transform:rotate(145deg)}
-.hero__ambient span:nth-child(6){left:92%;top:78%;animation-delay:-.5s}.hero__ambient span:nth-child(6)::after{transform:rotate(202deg)}
-.hero__ambient i{position:absolute;width:2px;height:2px;border-radius:50%;background:var(--gold);box-shadow:18px 32px var(--gold),54px 9px var(--gold),91px 48px var(--gold),126px 22px var(--gold);opacity:.32;animation:ambientDrift 18s linear infinite}
-.hero__ambient i:nth-of-type(1){left:11%;top:33%}.hero__ambient i:nth-of-type(2){left:53%;top:55%;animation-delay:-7s}.hero__ambient i:nth-of-type(3){left:76%;top:12%;animation-delay:-13s}
-@keyframes ambientSweep{0%,100%{transform:translateX(-48%)}50%{transform:translateX(48%)}}
-@keyframes ambientOrbit{to{transform:rotate(360deg)}}
-@keyframes ambientNode{0%,100%{transform:translateY(0);opacity:.35}50%{transform:translateY(-13px);opacity:1}}
-@keyframes ambientDrift{0%{transform:translate3d(0,0,0)}50%{transform:translate3d(35px,-24px,0)}100%{transform:translate3d(0,0,0)}}
-@media(prefers-reduced-motion:reduce){.hero__ambient::before,.hero__ambient::after,.hero__ambient span,.hero__ambient i{animation:none}}
+/* ── the site's background ──────────────────────────────────────────────
+   One fixed field behind every page. The gold line work carries it — the
+   nodes, their lines and the ring — while the three drifts and the sheen are
+   held down to a few hundredths of an alpha so the ground stays black rather
+   than washing to brown. Measured: no part of the backdrop sits more than
+   eight levels above #0f0f0f on any channel. A diagonal
+   sheen that crosses on a long cycle, a single turning ring, and eight
+   signal nodes, each blinking on its own clock with a pulse of light
+   running out along the line attached to it.
+
+   Pure CSS, so it is sharp at any size, costs nothing to download and
+   themes with the rest of the site. Everything that moves is a transform
+   or an opacity, apart from the pulse travelling along the lines, which is
+   a background-position on eight one-pixel strips. It is decorative, so it
+   stops completely when the visitor has asked for reduced motion. */
+.site-ambient {
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  overflow: hidden;
+  contain: strict;
+  /* Held almost entirely out of the middle of the viewport. A lit node is
+     brighter than the dimmest gold text on the site, so anywhere one can sit
+     behind a line of copy it takes that line below 4.5:1 — measured at
+     2.2:1 before this mask went in. The nodes therefore live in the margins
+     either side of the content column and their lines fade as they reach
+     inward, which is also the better picture. */
+  -webkit-mask-image: linear-gradient(90deg,
+    #000 0, #000 6%, rgba(0, 0, 0, 0.05) 12%,
+    rgba(0, 0, 0, 0.05) 88%, #000 94%, #000 100%);
+  mask-image: linear-gradient(90deg,
+    #000 0, #000 6%, rgba(0, 0, 0, 0.05) 12%,
+    rgba(0, 0, 0, 0.05) 88%, #000 94%, #000 100%);
+}
+
+/* The diagonal sheen. */
+.site-ambient::before {
+  content: "";
+  position: absolute;
+  inset: -20%;
+  background: linear-gradient(115deg,
+    transparent 18%,
+    rgba(var(--gold-rgb), 0.01) 34%,
+    rgba(var(--gold-rgb), 0.028) 49%,
+    rgba(var(--gold-rgb), 0.01) 64%,
+    transparent 82%);
+  animation: ambSweep 34s ease-in-out infinite;
+}
+
+/* One ring, turning slowly off the right edge. */
+.site-ambient::after {
+  content: "";
+  position: absolute;
+  width: 46vw;
+  height: 46vw;
+  min-width: 320px;
+  min-height: 320px;
+  right: -14%;
+  top: 6%;
+  border: 1px solid rgba(var(--gold-rgb), 0.22);
+  border-radius: 50%;
+  box-shadow:
+    0 0 0 60px rgba(var(--gold-rgb), 0.035),
+    0 0 0 128px rgba(var(--gold-rgb), 0.02);
+  animation: ambOrbit 64s linear infinite;
+}
+
+.site-ambient__glow {
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(110px);
+  will-change: transform;
+}
+
+.site-ambient__glow--a {
+  width: 46vw;
+  height: 46vw;
+  max-width: 640px;
+  max-height: 640px;
+  top: -14%;
+  left: -10%;
+  background: rgba(var(--gold-rgb), 0.045);
+  animation: ambGlowA 46s ease-in-out infinite alternate;
+}
+
+.site-ambient__glow--b {
+  width: 40vw;
+  height: 40vw;
+  max-width: 560px;
+  max-height: 560px;
+  bottom: -16%;
+  right: -8%;
+  background: rgba(var(--gold-rgb), 0.034);
+  animation: ambGlowB 58s ease-in-out infinite alternate;
+}
+
+.site-ambient__glow--c {
+  width: 32vw;
+  height: 32vw;
+  max-width: 440px;
+  max-height: 440px;
+  top: 38%;
+  left: 46%;
+  background: rgba(var(--gold-rgb), 0.022);
+  animation: ambGlowC 38s ease-in-out infinite alternate;
+}
+
+/* A signal node. Two clocks on purpose — a long drift and a shorter blink —
+   so no two nodes ever repeat the same combination within a visit. */
+.site-ambient b {
+  position: absolute;
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--gold-bright);
+  box-shadow:
+    0 0 0 5px rgba(var(--gold-rgb), 0.12),
+    0 0 26px rgba(var(--gold-rgb), 0.62);
+  animation:
+    ambDrift 27s ease-in-out infinite,
+    ambBlink 7s ease-in-out infinite;
+}
+
+/* The line attached to the node. Two stacked gradients: the lower one is the
+   wire, the upper is a short bright head that is slid from one end to the
+   other and then held off the end for the rest of the cycle, so the line
+   rests dark between pulses instead of strobing. */
+.site-ambient b::after {
+  content: "";
+  position: absolute;
+  left: 7px;
+  top: 3px;
+  width: var(--len, 190px);
+  height: 1px;
+  transform-origin: left center;
+  transform: rotate(var(--rot, 0deg));
+  background:
+    linear-gradient(90deg, rgba(var(--gold-rgb), 0.95), rgba(var(--gold-rgb), 0)) no-repeat,
+    linear-gradient(90deg, rgba(var(--gold-rgb), 0.42), rgba(var(--gold-rgb), 0));
+  background-size: 28% 100%, 100% 100%;
+  animation: ambPulse 6s ease-in-out infinite;
+}
+
+.site-ambient b:nth-of-type(1) { left: 2.5%; top: 13%; --rot: 26deg; --len: 230px; animation-delay: -2s, -1s; }
+.site-ambient b:nth-of-type(2) { left: 6%; top: 41%; --rot: -21deg; --len: 195px; animation-delay: -14s, -4.5s; }
+.site-ambient b:nth-of-type(3) { left: 3%; top: 67%; --rot: 17deg; --len: 250px; animation-delay: -7s, -2.5s; }
+.site-ambient b:nth-of-type(4) { left: 7%; top: 88%; --rot: -34deg; --len: 175px; animation-delay: -21s, -6s; }
+.site-ambient b:nth-of-type(5) { left: 96%; top: 19%; --rot: 161deg; --len: 215px; animation-delay: -11s, -3.5s; }
+.site-ambient b:nth-of-type(6) { left: 92%; top: 47%; --rot: 199deg; --len: 185px; animation-delay: -4s, -0.5s; }
+.site-ambient b:nth-of-type(7) { left: 97%; top: 72%; --rot: 148deg; --len: 240px; animation-delay: -17s, -5.5s; }
+.site-ambient b:nth-of-type(8) { left: 93%; top: 93%; --rot: 205deg; --len: 200px; animation-delay: -24s, -2s; }
+
+@keyframes ambSweep {
+  0%, 100% { transform: translateX(-46%); }
+  50% { transform: translateX(46%); }
+}
+@keyframes ambOrbit {
+  to { transform: rotate(360deg); }
+}
+@keyframes ambGlowA {
+  from { transform: translate3d(0, 0, 0) scale(1); }
+  to { transform: translate3d(13vw, 9vh, 0) scale(1.16); }
+}
+@keyframes ambGlowB {
+  from { transform: translate3d(0, 0, 0) scale(1.1); }
+  to { transform: translate3d(-12vw, -10vh, 0) scale(0.92); }
+}
+@keyframes ambGlowC {
+  from { transform: translate3d(0, 0, 0) scale(0.9); }
+  to { transform: translate3d(-9vw, 7vh, 0) scale(1.2); }
+}
+@keyframes ambDrift {
+  0%, 100% { transform: translate3d(0, 0, 0); }
+  25% { transform: translate3d(17px, -21px, 0); }
+  50% { transform: translate3d(-11px, -33px, 0); }
+  75% { transform: translate3d(-23px, -9px, 0); }
+}
+@keyframes ambBlink {
+  0%, 100% { opacity: 0.3; }
+  50% { opacity: 1; }
+}
+@keyframes ambPulse {
+  0% { background-position: -32% 0, 0 0; }
+  58%, 100% { background-position: 142% 0, 0 0; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .site-ambient::before,
+  .site-ambient::after,
+  .site-ambient__glow,
+  .site-ambient b,
+  .site-ambient b::after {
+    animation: none;
+  }
+}
+
+/* The two full-width bands are let down to let the field read through them,
+   with the opaque colour kept as a fallback for anything without color-mix. */
+.how,
+.site-footer {
+  background: var(--bg-alt);
+  background: color-mix(in srgb, var(--bg-alt) 78%, transparent);
+}
+
 
 /* Eyebrow — matches .section__tag: a short gold rule and a tracked caps
    line. Previously a monospace line opening with a "$" shell prompt. */
@@ -830,7 +1040,10 @@ p {
    it as developer output made it read as decoration instead of a claim. */
 .hero__rotator {
   position: relative;
-  background: linear-gradient(155deg, #1c170f, #0e0c09 75%);
+  /* Themed rather than a fixed dark gradient: this panel used to keep a
+     warm near-black in both themes, which left the light theme's text
+     colours sitting on a dark ground and failing. */
+  background: linear-gradient(155deg, var(--surface-alt), var(--bg) 78%);
   border: 1px solid var(--border);
   border-radius: 10px;
   overflow: hidden;
@@ -1060,66 +1273,8 @@ section {
   counter-reset: svc;
 }
 
-/* ── services backdrop ──────────────────────────────────────────────────
-   Two slow gold drifts and a fine rule grid behind the cards. Pure CSS, so
-   it is sharp at any size, adds nothing to download, and themes with the
-   rest of the site. It is decorative, so it stops completely when the
-   visitor has asked for reduced motion. */
 .services { position: relative; isolation: isolate; overflow: hidden; }
 
-.services__bg {
-  position: absolute;
-  inset: 0;
-  z-index: -1;
-  pointer-events: none;
-  background-image:
-    linear-gradient(rgba(var(--gold-rgb), 0.045) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(var(--gold-rgb), 0.045) 1px, transparent 1px);
-  background-size: 64px 64px;
-  mask-image: radial-gradient(120% 80% at 50% 40%, #000 35%, transparent 78%);
-  -webkit-mask-image: radial-gradient(120% 80% at 50% 40%, #000 35%, transparent 78%);
-}
-
-.services__drift {
-  position: absolute;
-  border-radius: 50%;
-  filter: blur(90px);
-  opacity: 0.5;
-}
-
-.services__drift--a {
-  width: 44vw;
-  height: 44vw;
-  max-width: 620px;
-  max-height: 620px;
-  top: -12%;
-  left: -8%;
-  background: rgba(var(--gold-rgb), 0.3);
-  animation: svcDriftA 34s ease-in-out infinite alternate;
-}
-
-.services__drift--b {
-  width: 38vw;
-  height: 38vw;
-  max-width: 540px;
-  max-height: 540px;
-  bottom: -14%;
-  right: -6%;
-  background: rgba(var(--gold-rgb), 0.22);
-  animation: svcDriftB 42s ease-in-out infinite alternate;
-}
-
-@keyframes svcDriftA {
-  from { transform: translate3d(0, 0, 0) scale(1); }
-  to   { transform: translate3d(14vw, 8vh, 0) scale(1.14); }
-}
-
-@keyframes svcDriftB {
-  from { transform: translate3d(0, 0, 0) scale(1.08); }
-  to   { transform: translate3d(-12vw, -9vh, 0) scale(0.94); }
-}
-
-html[data-theme="light"] .services__drift { opacity: 0.3; }
 
 /* Light theme: the intro's gradient stops and its text scrim are written as
    literal colours (so they survive a paint before the custom properties
@@ -1139,10 +1294,6 @@ html[data-theme="light"] .intro-overlay__halo {
     rgba(var(--gold-rgb), 0.2) 47%,
     rgba(var(--gold-rgb), 0.055) 60%,
     rgba(var(--gold-rgb), 0) 74%);
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .services__drift { animation: none; }
 }
 
 /* ── openable cards ─────────────────────────────────────────────────── */
@@ -2835,13 +2986,21 @@ html[data-theme="light"] .biz-card {
 .ai-help-launcher svg{width:31px!important;height:31px!important}
 .theme-toggle{display:inline-flex;align-items:center;gap:7px;border:1px solid var(--border);border-radius:999px;background:var(--surface);color:var(--text-dim);padding:8px 11px;cursor:pointer;font:600 10px "IBM Plex Mono",monospace;text-transform:uppercase;letter-spacing:.05em}
 .theme-toggle svg{width:15px;height:15px}.theme-toggle__moon{display:none}.theme-toggle:hover{border-color:var(--gold-text-dim);color:var(--gold-text)}
-html[data-theme="light"]{--bg:#f7f3ea;--bg-alt:#eee8dc;--surface:#fcfaf5;--surface-alt:#f1eadc;--border:#dfcfaa;--border-soft:#eee3ca;--text:#30291f;--text-dim:#696154;--text-faint:#696155;--beige:#3a3023;--gold:#b88732;--gold-rgb:184,135,50;--gold-bright:#d7ad58;--gold-text:#83621f;--gold-text-dim:#6b4d18;--gold-deep:#8d5e16;--bronze:#8d5e16;--accent-text:#fff;--shadow:0 24px 60px -24px rgba(70,52,24,.2);--shadow-gold:0 12px 32px -14px rgba(var(--gold-rgb),.28)}
+html[data-theme="light"]{--bg:#ffffff;--bg-alt:#f4f3f0;--surface:#ffffff;--surface-alt:#f4f3f0;--border:#e3e1dc;--border-soft:#edebe6;--text:#121212;--text-dim:#56565a;--text-faint:#6b6b70;--beige:#56565a;--gold:#a48151;--gold-rgb:164,129,81;--gold-bright:#bba281;--gold-text:#765b32;--gold-text-dim:#5b4629;--gold-deep:#5b4629;--bronze:#765b32;--accent-text:#fff;--gold-gradient:linear-gradient(135deg,#8f6f3f,#765b32 46%,#5b4629 100%);--shadow:0 24px 60px -24px rgba(18,18,18,.18);--shadow-gold:0 12px 32px -14px rgba(var(--gold-rgb),.26)}
 html[data-theme="light"] .site-header{background:rgba(247,243,234,.95)}
 html[data-theme="light"] .hiring-bar{background:color-mix(in srgb,var(--gold) 5%,var(--surface))}
 html[data-theme="light"] .hero{background:radial-gradient(circle at 78% 42%,rgba(184,135,50,.14),transparent 34%),#f7f3ea}
 html[data-theme="light"] .hero::before,html[data-theme="light"] .hero::after{opacity:.38}
 html[data-theme="light"] .hero__rotator,html[data-theme="light"] .terminal-window,html[data-theme="light"] .account-card,html[data-theme="light"] .showcase-card__frame{background:linear-gradient(155deg,#fcfaf5,#eee5d3 75%)}
 html[data-theme="light"] .preview-frame__bar{background:linear-gradient(155deg,#fcfaf5,#eee5d3 75%)}
+/* This panel keeps a champagne fill in the light theme, so its muted text
+   colours sit on a mid-tone rather than on white and come in under 4.5:1.
+   They take the body ink here instead. */
+html[data-theme="light"] .hero__rotator-title,
+html[data-theme="light"] .hero__rotator-text,
+html[data-theme="light"] .hero__rotator-count,
+html[data-theme="light"] .hero__rotator-count b,
+html[data-theme="light"] .hero__rotator-headline { color: var(--text); }
 html[data-theme="light"] .hero__rotator-head,html[data-theme="light"] .terminal-window__bar,html[data-theme="light"] .account-card__head,html[data-theme="light"] .showcase-card__bar{background:rgba(218,190,133,.14)}
 html[data-theme="light"] .hero__rotator::before,html[data-theme="light"] .terminal-window::before,html[data-theme="light"] .account-card::before{-webkit-mask:linear-gradient(#fff 0 0) content-box,linear-gradient(#fff 0 0);mask:linear-gradient(#fff 0 0) content-box,linear-gradient(#fff 0 0)}
 html[data-theme="light"] .service-card,html[data-theme="light"] .process-card,html[data-theme="light"] .why-card,html[data-theme="light"] .admin-output__block{box-shadow:0 10px 32px rgba(30,25,15,.06)}
@@ -2866,7 +3025,7 @@ html[data-theme="light"] .theme-toggle__sun{display:none}html[data-theme="light"
    type, button and surface tokens so both themes remain visually identical. */
 .members-page { min-height: calc(100vh - 88px); }
 .members-hero { position: relative; overflow: hidden; padding: clamp(5rem, 10vw, 9rem) 0; border-bottom: 1px solid var(--border); }
-.members-hero .hero__ambient { opacity: .55; }
+.members-page .site-ambient { opacity: .6; }
 .members-shell { position: relative; z-index: 1; display: grid; grid-template-columns: minmax(0, .9fr) minmax(420px, 1.1fr); gap: clamp(3rem, 8vw, 8rem); align-items: center; }
 .members-intro h1 { margin: 1rem 0 1.5rem; max-width: 760px; font-family: "Sora", sans-serif; font-size: clamp(3.2rem, 6.5vw, 6.8rem); line-height: .96; letter-spacing: -.06em; color: var(--text); }
 .members-intro > p:not(.eyebrow) { max-width: 650px; margin-bottom: 2.2rem; font-size: 1.08rem; line-height: 1.75; color: var(--text-dim); }
@@ -2891,7 +3050,9 @@ html[data-theme="light"] .theme-toggle__sun{display:none}html[data-theme="light"
 .portal-mode { display: grid; grid-template-columns: 1fr 1fr; gap: 4px; margin-bottom: 2.2rem; padding: 4px; border: 1px solid var(--border); background: var(--bg); }
 .portal-mode__button { min-height: 44px; border: 0; background: transparent; color: var(--text-dim); cursor: pointer; font: 700 .72rem/1 "IBM Plex Mono", monospace; letter-spacing: .08em; text-transform: uppercase; transition: background .2s ease, color .2s ease; }
 .portal-mode__button:hover { color: var(--gold-text); }
-.portal-mode__button.is-active { background: var(--gold-gradient); color: #fff; box-shadow: var(--shadow-gold); }
+/* Hard-coded white, which fails on the gold fill. Every other gold-filled
+   control uses --accent-text, which is the ink picked to hold on it. */
+.portal-mode__button.is-active { background: var(--gold-gradient); color: var(--accent-text); box-shadow: var(--shadow-gold); }
 .members-panel__body h2 { margin: .55rem 0 .8rem; font-family: "Sora", sans-serif; font-size: clamp(2rem, 4vw, 3.1rem); letter-spacing: -.04em; color: var(--text); }
 .members-panel__lead { margin: 0 0 2rem; color: var(--text-dim); line-height: 1.65; }
 .member-login { display: grid; gap: .75rem; }

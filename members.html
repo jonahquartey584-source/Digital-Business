@@ -16,6 +16,12 @@
   <script>try{document.documentElement.dataset.theme=localStorage.getItem("qpTheme")==="light"?"light":"dark"}catch(_){document.documentElement.dataset.theme="dark"}</script>
 </head>
 <body>
+  <div class="site-ambient" aria-hidden="true">
+    <span class="site-ambient__glow site-ambient__glow--a"></span>
+    <span class="site-ambient__glow site-ambient__glow--b"></span>
+    <span class="site-ambient__glow site-ambient__glow--c"></span>
+    <b></b><b></b><b></b><b></b><b></b><b></b><b></b><b></b>
+  </div>
   <div class="gold-rule"></div>
   <header class="site-header" id="top">
     <div class="container header__inner">
@@ -35,7 +41,6 @@
 
   <main class="members-page">
     <section class="members-hero">
-      <div class="hero__ambient" aria-hidden="true"><span></span><span></span><span></span><span></span><i></i><i></i></div>
       <div class="container members-shell">
         <div class="members-intro">
           <p class="eyebrow">Qp Digital Members</p>

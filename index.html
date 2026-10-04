@@ -70,6 +70,12 @@
   </script>
 </head>
 <body>
+  <div class="site-ambient" aria-hidden="true">
+    <span class="site-ambient__glow site-ambient__glow--a"></span>
+    <span class="site-ambient__glow site-ambient__glow--b"></span>
+    <span class="site-ambient__glow site-ambient__glow--c"></span>
+    <b></b><b></b><b></b><b></b><b></b><b></b><b></b><b></b>
+  </div>
 
   <!-- Intro splash. Pure CSS/SVG on purpose: it is the first thing painted,
        so it must not wait on a script or an image download. -->
@@ -159,10 +165,6 @@
 
     <!-- HERO -->
     <section class="hero">
-      <div class="hero__ambient" aria-hidden="true">
-        <span></span><span></span><span></span><span></span><span></span><span></span>
-        <i></i><i></i><i></i>
-      </div>
       <div class="container hero__inner">
         <div class="hero__content">
           <p class="eyebrow">Lead-Generating Systems For Growing Businesses</p>
@@ -210,10 +212,6 @@
       <!-- Decorative only: two slow gold drifts and a fine rule grid behind
            the cards. Pure CSS so it stays sharp at any size and costs no
            download; it stops entirely under prefers-reduced-motion. -->
-      <div class="services__bg" aria-hidden="true">
-        <span class="services__drift services__drift--a"></span>
-        <span class="services__drift services__drift--b"></span>
-      </div>
       <div class="container">
         <div class="section__head">
           <div>
