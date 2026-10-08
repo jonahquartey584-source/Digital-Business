@@ -40,7 +40,7 @@ async function callVoice(action, payload) {
 function renderNumberChoices(numbers) {
   const container = document.getElementById("voiceNumberChoices");
   if (!numbers.length) {
-    container.innerHTML = `<p class="crm-column__empty">No numbers found — try again in a moment.</p>`;
+    container.innerHTML = `<p class="crm-column__empty">No numbers found. Try again in a moment.</p>`;
     return;
   }
   container.innerHTML = `
@@ -81,7 +81,7 @@ function renderNumberChoices(numbers) {
 document.getElementById("voiceSetupForm")?.addEventListener("submit", async (event) => {
   event.preventDefault();
   if (!email) {
-    setStatus("Couldn't find your signed-in email — please return to the Members Portal and sign in again.", true);
+    setStatus("Couldn't find your signed-in email. Please return to the Members Portal and sign in again.", true);
     return;
   }
   const button = document.getElementById("voiceSearchBtn");
@@ -162,7 +162,7 @@ function showSetup() {
 
 async function loadVoiceSettings() {
   if (!email) {
-    setStatus("Couldn't find your signed-in email — please return to the Members Portal and sign in again.", true);
+    setStatus("Couldn't find your signed-in email. Please return to the Members Portal and sign in again.", true);
     showSetup();
     return;
   }

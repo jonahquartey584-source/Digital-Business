@@ -78,7 +78,7 @@ const HERO_ROTATOR_ITEMS = [
   },
   {
     headline: "A missed call is a lost customer.",
-    text: "They don't leave a voicemail — they just call the next name on the list.",
+    text: "They don't leave a voicemail. They just call the next name on the list.",
   },
   {
     headline: "Cold leads don't wait.",
@@ -230,7 +230,7 @@ if (enquiryForm) {
 
       if (response.ok && result.status === "ok" && result.saved) {
         if (formNote) {
-          formNote.textContent = "Thanks — your enquiry has been sent directly to the Qp Digital team. We’ll respond as quickly as possible.";
+          formNote.textContent = "Thanks, your enquiry has been sent directly to the Qp Digital team. We’ll respond as quickly as possible.";
           formNote.style.color = "";
         }
         enquiryForm.reset();
@@ -403,7 +403,7 @@ if (enquiryForm) {
         "assistant",
         agentSession
           ? "That message could not be sent. Please try again."
-          : "That previous agent chat has ended. I’ve reopened the Qp Digital help assistant — how can I help?"
+          : "That previous agent chat has ended. I’ve reopened the Qp Digital help assistant. How can I help?"
       );
     } finally {
       pending = false;
@@ -423,7 +423,7 @@ if (enquiryForm) {
     if (/\b(speak|talk|contact|call)\b.*\b(agent|person|human|team|someone)\b|\b(agent|person|human)\b.*\b(speak|talk|contact|call)\b/i.test(text)) {
       addMessage("user", text);
       conversation.push({ role: "user", content: text });
-      const handoffReply = "Of course — leave your name and contact details below. A Qp Digital agent will join this chat and be with you soon.";
+      const handoffReply = "Of course. Leave your name and contact details below. A Qp Digital agent will join this chat and be with you soon.";
       addMessage("assistant", handoffReply);
       conversation.push({ role: "assistant", content: handoffReply });
       showHandoff();
@@ -494,7 +494,7 @@ if (enquiryForm) {
       saveAgentSession();
       handoffForm.reset();
       handoffForm.hidden = true;
-      addMessage("assistant", "Your request has been sent. A Qp Digital agent will join this chat and be with you soon — please keep this page open.");
+      addMessage("assistant", "Your request has been sent. A Qp Digital agent will join this chat and be with you soon. Please keep this page open.");
       startAgentPolling();
     } catch {
       handoffNote.textContent = "Couldn’t send that request. Please call 020 3750 8659 or email contact@qp-digital.co.uk.";

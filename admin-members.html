@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Members — Qp Digital Admin</title>
+  <title>Members | Qp Digital Admin</title>
   <meta name="description" content="Internal tool: search, edit, reissue codes for, or delete existing clients." />
   <meta name="robots" content="noindex, nofollow" />
   <link rel="icon" href="favicon.svg" type="image/svg+xml" />
@@ -42,7 +42,7 @@
     <section class="activate-hero">
       <div class="container activate-hero__inner">
         <a class="admin-back-link" href="admin.html">← Admin Dashboard</a>
-        <p class="eyebrow">Internal Tool — Not Linked From The Site</p>
+        <p class="eyebrow">Internal Tool: Not Linked From The Site</p>
         <div class="admin-page-head">
           <h1>Members</h1>
           <p class="activate-footnote" style="margin:0;">Logged in as <strong id="loggedInEmail"></strong></p>
@@ -68,7 +68,7 @@
             <div class="form-row">
               <label>Service access</label>
               <p class="admin-hint">
-                Check every service this account should have access to — this account
+                Check every service this account should have access to. This account
                 number and 12-digit code work for all of them at once. This is what
                 decides which Members Portal pages (CRM, AI &amp; Automation, Booking
                 System, etc.) their code opens. Unchecking one revokes it immediately
@@ -83,7 +83,7 @@
                 <label class="admin-service-option"><input type="checkbox" name="editServiceOption" value="Social Media & Content"> Social Media &amp; Content</label>
                 <label class="admin-service-option"><input type="checkbox" name="editServiceOption" value="AI & Automation"> AI &amp; Automation</label>
               </div>
-              <input type="text" id="editServiceOther" name="editServiceOther" placeholder="Other / additional detail (optional) — e.g. plan name, tier" />
+              <input type="text" id="editServiceOther" name="editServiceOther" placeholder="Other / additional detail (optional), e.g. plan name, tier" />
               <input type="hidden" id="editService" name="editService" required />
             </div>
 
@@ -121,7 +121,7 @@
             <div class="form-row">
               <label for="editPaymentUrl">Payment link</label>
               <input type="url" id="editPaymentUrl" name="editPaymentUrl" required />
-              <p class="admin-hint">The base link — <code>?client_reference_id=...</code> is reapplied automatically on save.</p>
+              <p class="admin-hint">The base link. <code>?client_reference_id=...</code> is reapplied automatically on save.</p>
             </div>
 
             <div class="form-row">
@@ -132,7 +132,7 @@
             <div class="form-row">
               <label for="editClientEmail">Client email (optional)</label>
               <input type="email" id="editClientEmail" name="editClientEmail" placeholder="client@example.com" />
-              <p class="admin-hint">Not shown to the client anywhere — just so you can email them their account number, code and the redeem link.</p>
+              <p class="admin-hint">Not shown to the client anywhere. It's just so you can email them their account number, code and the redeem link.</p>
             </div>
 
             <div class="form-row">
@@ -142,7 +142,7 @@
                 <option value="active">Active</option>
                 <option value="refunded">Refunded</option>
               </select>
-              <p class="admin-hint">Normally flips automatically when Stripe confirms payment — change this by hand only to override it (e.g. they paid another way). To actually process a refund through Stripe, use the "Refund" button on the client's row instead of setting this directly.</p>
+              <p class="admin-hint">Normally flips automatically when Stripe confirms payment. Change this by hand only to override it (e.g. they paid another way). To actually process a refund through Stripe, use the "Refund" button on the client's row instead of setting this directly.</p>
             </div>
 
             <div class="admin-actions">
@@ -163,7 +163,7 @@
         <div class="brand brand--footer">
           <span class="brand__name">Qp Digital</span>
         </div>
-        <p class="footer__tagline">Websites, CRM, SEO, branding, dashboards and automation — all under one roof. Open to any digital project.</p>
+        <p class="footer__tagline">Websites, CRM, SEO, branding, dashboards and automation, all under one roof. Open to any digital project.</p>
       </div>
       <div class="footer__contact">
         <h4>Contact</h4>

@@ -61,7 +61,7 @@ async function call(action, payload) {
 
 async function loadWorkspace() {
   if (!email) {
-    setStatus("Couldn't find your signed-in email — please return to the Members Portal and sign in again.", true);
+    setStatus("Couldn't find your signed-in email. Please return to the Members Portal and sign in again.", true);
     return;
   }
   setStatus("Loading your bookings…");
@@ -321,7 +321,7 @@ document.querySelectorAll("[data-calendar-view]").forEach((btn) => {
 function formatAgendaDate(date) {
   const [y, m, d] = date.split("-").map(Number);
   const dt = new Date(y, m - 1, d);
-  const prefix = date === todayStr() ? "Today — " : "";
+  const prefix = date === todayStr() ? "Today: " : "";
   return `${prefix}${WEEKDAY_LABEL[dt.getDay()]} ${d} ${MONTH_LABEL[m - 1]} ${y}`;
 }
 
@@ -481,9 +481,9 @@ landingPageForm?.addEventListener("submit", async (event) => {
       body: JSON.stringify({ account: bookingAccountId(), service: "Booking System", ...payload }),
     });
     const data = await response.json().catch(() => ({}));
-    if (!response.ok || data.status !== "ok") throw new Error(data.message || "Couldn't send that — try again.");
+    if (!response.ok || data.status !== "ok") throw new Error(data.message || "Couldn't send that. Try again.");
     if (landingPageModal) landingPageModal.hidden = true;
-    setStatus("Landing page request sent — Qp Digital will be in touch.");
+    setStatus("Landing page request sent. Qp Digital will be in touch.");
   } catch (e) {
     if (landingPageFormNote) { landingPageFormNote.hidden = false; landingPageFormNote.textContent = e.message; }
   }

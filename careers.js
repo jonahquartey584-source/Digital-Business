@@ -43,7 +43,7 @@ if (applicationForm) {
 
       if (response.ok && result.status === "ok") {
         if (applicationFormNote) {
-          applicationFormNote.textContent = "Thanks — your application has been sent directly to the Qp Digital team. We'll be in touch if it's a good fit.";
+          applicationFormNote.textContent = "Thanks, your application has been sent directly to the Qp Digital team. We'll be in touch if it's a good fit.";
           applicationFormNote.style.color = "";
         }
         applicationForm.reset();

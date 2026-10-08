@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Pipeline Tester — Qp Digital</title>
+  <title>Pipeline Tester | Qp Digital</title>
   <meta name="description" content="Internal tool: click through the client activation pipeline without touching live data or real payments." />
   <meta name="robots" content="noindex, nofollow" />
   <link rel="icon" href="favicon.svg" type="image/svg+xml" />
@@ -41,12 +41,12 @@
   <main>
     <section class="activate-hero">
       <div class="container activate-hero__inner">
-        <p class="eyebrow">Internal Tool — Not Linked From The Site</p>
+        <p class="eyebrow">Internal Tool: Not Linked From The Site</p>
         <h1>Pipeline Tester</h1>
         <p class="hero__lead">
           Click through the exact same flow as <a href="admin-new-client.html">New Client Setup</a> and
           <a href="activate.html">Redeem Your Service</a>, entirely in this browser. Test clients
-          live only in this page's <code>localStorage</code> — never in the real database — and a
+          live only in this page's <code>localStorage</code> (never in the real database) and a
           "Simulate Payment" button stands in for a real Stripe webhook. Refresh with dev tools
           open or clear this site's data and every test client here is gone; nothing you do here
           touches a real client, <code>api/create_client.php</code>, or <code>api/redeem.php</code>.
@@ -68,7 +68,7 @@
 
             <div class="form-row">
               <label for="ptService">Service</label>
-              <input type="text" id="ptService" placeholder="e.g. Website — Standard Plan" value="Website — Standard Plan" />
+              <input type="text" id="ptService" placeholder="e.g. Website (Standard Plan)" value="Website (Standard Plan)" />
             </div>
 
             <div class="form-row">
@@ -84,7 +84,7 @@
             <div class="form-row">
               <label for="ptPreviewImageFile">Preview image (optional)</label>
               <input type="file" id="ptPreviewImageFile" accept="image/png, image/jpeg, image/gif, image/webp" />
-              <p class="admin-hint">A screenshot or mockup — attached here just like in <code>admin.html</code>, except it's read straight into the browser rather than uploaded anywhere (no admin password needed for that reason).</p>
+              <p class="admin-hint">A screenshot or mockup, attached here just like in <code>admin.html</code>, except it's read straight into the browser rather than uploaded anywhere (no admin password needed for that reason).</p>
               <p class="form-note" id="ptPreviewImageStatus"></p>
               <img id="ptPreviewImageThumb" class="admin-image-thumb" alt="Attached preview" hidden />
             </div>
@@ -92,14 +92,14 @@
             <div class="form-row">
               <label for="ptPreviewFile">Preview file (optional)</label>
               <input type="file" id="ptPreviewFile" />
-              <p class="admin-hint">Where clicking the preview image sends them — attach anything, e.g. an HTML prototype. Leave blank to just open the attached image itself.</p>
+              <p class="admin-hint">Where clicking the preview image sends them. Attach anything, e.g. an HTML prototype. Leave blank to just open the attached image itself.</p>
               <p class="form-note" id="ptPreviewFileStatus"></p>
             </div>
 
             <div class="form-row">
               <label for="ptPaymentUrl">Payment link (simulated)</label>
               <input type="url" id="ptPaymentUrl" placeholder="https://buy.stripe.com/..." value="https://buy.stripe.com/test-link" />
-              <p class="admin-hint">Their account number is appended automatically, exactly like the real payment link — this one's never actually opened for a real payment.</p>
+              <p class="admin-hint">Their account number is appended automatically, exactly like the real payment link. This one's never actually opened for a real payment.</p>
             </div>
 
             <div class="form-row">
@@ -164,7 +164,7 @@
         <div class="brand brand--footer">
           <span class="brand__name">Qp Digital</span>
         </div>
-        <p class="footer__tagline">Websites, CRM, SEO, branding, dashboards and automation — all under one roof. Open to any digital project.</p>
+        <p class="footer__tagline">Websites, CRM, SEO, branding, dashboards and automation, all under one roof. Open to any digital project.</p>
       </div>
       <div class="footer__contact">
         <h4>Contact</h4>

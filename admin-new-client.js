@@ -187,11 +187,11 @@ function wireFileUpload(fileInput, statusEl, endpoint, onUploaded) {
         fileInput.value = "";
         adminHandleSessionRejected();
       } else {
-        statusEl.textContent = result.message || "Upload failed — try again.";
+        statusEl.textContent = result.message || "Upload failed. Try again.";
         statusEl.style.color = "#ff8a8a";
       }
     } catch (err) {
-      statusEl.textContent = `Couldn't reach ${endpoint} — is the backend deployed?`;
+      statusEl.textContent = `Couldn't reach ${endpoint}. Is the backend deployed?`;
       statusEl.style.color = "#ff8a8a";
     }
   });
@@ -245,22 +245,22 @@ function render() {
     return;
   }
   if (previewImageFile && previewImageFile.files[0] && !uploadedPreviewImageUrl) {
-    saveNote.textContent = "Still uploading the preview image — wait for \"Uploaded ✓\" first.";
+    saveNote.textContent = "Still uploading the preview image. Wait for \"Uploaded ✓\" first.";
     saveNote.style.color = "#ff8a8a";
     return;
   }
   if (previewFile && previewFile.files[0] && !uploadedPreviewFileUrl) {
-    saveNote.textContent = "Still uploading the preview file — wait for \"Uploaded ✓\" first.";
+    saveNote.textContent = "Still uploading the preview file. Wait for \"Uploaded ✓\" first.";
     saveNote.style.color = "#ff8a8a";
     return;
   }
   if (deliverableFile && deliverableFile.files[0] && !uploadedDeliverableFileUrl) {
-    saveNote.textContent = "Still uploading the deliverable file — wait for \"Uploaded ✓\" first.";
+    saveNote.textContent = "Still uploading the deliverable file. Wait for \"Uploaded ✓\" first.";
     saveNote.style.color = "#ff8a8a";
     return;
   }
   if (websiteZipFile && websiteZipFile.files[0] && !uploadedWebsiteZipUrl) {
-    saveNote.textContent = "Still uploading the website .zip — wait for \"Uploaded ✓\" first.";
+    saveNote.textContent = "Still uploading the website .zip. Wait for \"Uploaded ✓\" first.";
     saveNote.style.color = "#ff8a8a";
     return;
   }
@@ -324,7 +324,7 @@ if (saveBtn) {
       const result = await response.json();
 
       if (response.ok && result.status === "created") {
-        saveNote.textContent = `Saved — ${result.account} is live and ready to redeem.`;
+        saveNote.textContent = `Saved. ${result.account} is live and ready to redeem.`;
         saveNote.style.color = "";
         if (emailClientBtn) emailClientBtn.hidden = !currentData.clientEmail;
         if (emailClientNote) emailClientNote.textContent = "";
@@ -332,11 +332,11 @@ if (saveBtn) {
         saveNote.textContent = "";
         adminHandleSessionRejected();
       } else {
-        saveNote.textContent = result.message || "Couldn't save — try again.";
+        saveNote.textContent = result.message || "Couldn't save. Try again.";
         saveNote.style.color = "#ff8a8a";
       }
     } catch (err) {
-      saveNote.textContent = "Couldn't reach api/create_client.php — is the backend deployed? Use the snippet below instead for now.";
+      saveNote.textContent = "Couldn't reach api/create_client.php. Is the backend deployed? Use the snippet below instead for now.";
       saveNote.style.color = "#ff8a8a";
     } finally {
       saveBtn.disabled = false;
@@ -372,11 +372,11 @@ async function sendClientEmail(account, button, noteEl) {
       noteEl.textContent = "Email sent.";
       noteEl.style.color = "";
     } else {
-      noteEl.textContent = result.message || "Couldn't send — try again.";
+      noteEl.textContent = result.message || "Couldn't send. Try again.";
       noteEl.style.color = "#ff8a8a";
     }
   } catch (err) {
-    noteEl.textContent = "Couldn't reach api/send_client_email.php — is the backend deployed?";
+    noteEl.textContent = "Couldn't reach api/send_client_email.php. Is the backend deployed?";
     noteEl.style.color = "#ff8a8a";
   } finally {
     button.disabled = false;

@@ -86,7 +86,7 @@ function ptWireFileAttach(fileInput, statusEl, maxBytes, onRead, onClear) {
     // bigger than the file — keep it small so one big attachment doesn't
     // blow the quota.
     if (file.size > 2 * 1024 * 1024) {
-      statusEl.textContent = `That file is too large for the tester (2MB max here — the real site allows more).`;
+      statusEl.textContent = `That file is too large for the tester (2MB max here, the real site allows more).`;
       statusEl.style.color = "#ff8a8a";
       fileInput.value = "";
       return;
@@ -140,7 +140,7 @@ function ptRenderClientList() {
   if (!ptClientListEl) return;
   const clients = ptLoadClients();
   if (!clients.length) {
-    ptClientListEl.innerHTML = `<p class="empty-note">No test clients yet — generate one above.</p>`;
+    ptClientListEl.innerHTML = `<p class="empty-note">No test clients yet. Generate one above.</p>`;
     return;
   }
   ptClientListEl.innerHTML = clients
@@ -151,7 +151,7 @@ function ptRenderClientList() {
       <div class="client-row">
         <div class="client-row__info">
           <div class="client-row__account mono">${c.account}</div>
-          <div class="client-row__service">${c.service} — ${c.price}</div>
+          <div class="client-row__service">${c.service} · ${c.price}</div>
           <div class="client-row__code mono">Code: ${c.code}</div>
         </div>
         <span class="status-pill status-pill--${c.status === "active" ? "active" : "pending"}">${c.status === "active" ? "Active" : "Pending Payment"}</span>
@@ -182,12 +182,12 @@ if (ptSetupForm) {
       return;
     }
     if (ptPreviewImageFile.files[0] && !ptAttachedImageDataUrl) {
-      ptSetupError.textContent = "Still reading the attached preview image — try again in a moment.";
+      ptSetupError.textContent = "Still reading the attached preview image. Try again in a moment.";
       ptSetupError.style.color = "#ff8a8a";
       return;
     }
     if (ptPreviewFile.files[0] && !ptAttachedFileDataUrl) {
-      ptSetupError.textContent = "Still reading the attached preview file — try again in a moment.";
+      ptSetupError.textContent = "Still reading the attached preview file. Try again in a moment.";
       ptSetupError.style.color = "#ff8a8a";
       return;
     }
@@ -336,7 +336,7 @@ if (ptRedeemForm && ptRedeemResult) {
         <div class="order-summary">
           <p class="order-summary__label mono">Service Active</p>
           <h3 class="order-summary__service">${result.service}</h3>
-          <p class="order-summary__preview">Payment confirmed — this service is live.</p>
+          <p class="order-summary__preview">Payment confirmed. This service is live.</p>
           ${
             result.liveUrl
               ? `<a class="btn btn--primary btn--lg" href="${result.liveUrl}" target="_blank" rel="noopener noreferrer">Visit Your Live Site →</a>`

@@ -137,10 +137,10 @@ function applyWebsiteDeployAccess() {
         body: JSON.stringify({ account, page, request: change.trim(), priority: "Standard" }),
       });
       const data = await response.json().catch(() => ({}));
-      if (!response.ok || data.status !== "ok") throw new Error(data.message || "Couldn't send that — try again.");
-      if (changeRequestNote) changeRequestNote.textContent = "Sent — Qp Digital will be in touch.";
+      if (!response.ok || data.status !== "ok") throw new Error(data.message || "Couldn't send that. Try again.");
+      if (changeRequestNote) changeRequestNote.textContent = "Sent. Qp Digital will be in touch.";
     } catch (error) {
-      if (changeRequestNote) changeRequestNote.textContent = error.message || "Couldn't send that — try again.";
+      if (changeRequestNote) changeRequestNote.textContent = error.message || "Couldn't send that. Try again.";
     } finally {
       changeRequestBtn.disabled = false;
     }
@@ -255,7 +255,7 @@ const serviceTutorials = {
       ["Review the approval queue", "Open every waiting post and check its wording, image, links and scheduled platform."],
       ["Upload brand assets", "Use Upload Assets to supply approved photos, videos, logos or campaign materials."],
       ["Request new content", "Choose Request Content and include the objective, audience, offer, deadline and preferred platform."],
-      ["Track results", "Use the performance panel to review reach, engagement and leads—not just follower numbers."],
+      ["Track results", "Use the performance panel to review reach, engagement and leads, not just follower numbers."],
       ["Get help", "Ask the Qp Client Assistant to explain a metric or help structure a content request."]
     ]
   }

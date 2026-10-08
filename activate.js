@@ -99,7 +99,7 @@ function loadStripeJs() {
     const script = document.createElement("script");
     script.src = "https://js.stripe.com/v3/";
     script.onload = () => resolve(window.Stripe);
-    script.onerror = () => reject(new Error("Couldn't load Stripe — check your connection and try again."));
+    script.onerror = () => reject(new Error("Couldn't load Stripe. Check your connection and try again."));
     document.head.appendChild(script);
   });
   return stripeJsPromise;
@@ -118,7 +118,7 @@ async function startEmbeddedCheckout(account, payButton, note) {
     });
     const data = await response.json();
     if (!response.ok || data.status !== "ok" || !data.clientSecret) {
-      throw new Error(data.message || "Payment couldn't be started — try again shortly.");
+      throw new Error(data.message || "Payment couldn't be started. Try again shortly.");
     }
 
     const Stripe = await loadStripeJs();
@@ -132,7 +132,7 @@ async function startEmbeddedCheckout(account, payButton, note) {
     container.scrollIntoView({ behavior: "smooth", block: "start" });
   } catch (error) {
     payButton.disabled = false;
-    note.textContent = error.message || "Payment couldn't be started — try again shortly.";
+    note.textContent = error.message || "Payment couldn't be started. Try again shortly.";
     note.style.color = "#ff8a8a";
   }
 }
@@ -175,7 +175,7 @@ if (activateForm && activateResult) {
         <div class="order-summary">
           <p class="order-summary__label mono">Service Active</p>
           <h3 class="order-summary__service">${result.service}</h3>
-          <p class="order-summary__preview">Payment confirmed — this service is live.</p>
+          <p class="order-summary__preview">Payment confirmed. This service is live.</p>
           ${
             actions.length
               ? actions.join("")
@@ -200,12 +200,12 @@ if (activateForm && activateResult) {
             <span class="order-summary__price mono">${result.price}</span>
           </div>
           <button type="button" class="btn btn--primary btn--lg" id="embeddedPayButton" data-account="${result.account}">Pay ${result.price} &amp; Activate →</button>
-          <p class="order-summary__note" id="embeddedPayNote">Payment happens right here — you won't be sent to a separate site. Once it's confirmed, this service is activated automatically.</p>
+          <p class="order-summary__note" id="embeddedPayNote">Payment happens right here, so you won't be sent to a separate site. Once it's confirmed, this service is activated automatically.</p>
           <p class="form-consent">By paying, you agree to our <a href="terms.html">Terms &amp; Conditions</a> and <a href="privacy.html">Privacy Policy</a>.</p>
           <p class="form-consent form-consent--statutory">
             Buying as a private individual rather than for a business? You have a 14-day right to cancel
             (<a href="terms.html">Terms, section 10</a>). Paying here activates the service straight away,
-            so you are asking us to begin within that period &mdash; if you cancel partway through you pay
+            so you are asking us to begin within that period. If you cancel partway through you pay
             only for the work already done, and the right ends once the service is fully delivered.
           </p>
         </div>
