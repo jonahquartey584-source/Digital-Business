@@ -607,6 +607,14 @@ p {
   color: var(--beige);
 }
 
+/* The promise gets its own line and the gold lettering, so it reads at a
+   glance as the point of the headline. --gold-text is the gold measured
+   for text in both themes. */
+.hero__highlight {
+  display: block;
+  color: var(--gold-text);
+}
+
 .hero__lead {
   font-size: 1.1rem;
   color: var(--text-dim);
