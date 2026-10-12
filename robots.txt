@@ -16,4 +16,21 @@ Disallow: /booking-system.html
 Disallow: /api/
 Disallow: /uploads/
 
+# SEO-tool and scraping crawlers. They bring no visitors, only load and noise
+# in the analytics, so they are asked to stay away (and turned away at the
+# edge by netlify/edge-functions/bot-filter.ts if they do not). Search
+# engines, link previews and AI search assistants are deliberately not
+# listed: they are how people find the site.
+User-agent: AhrefsBot
+User-agent: SemrushBot
+User-agent: MJ12bot
+User-agent: DotBot
+User-agent: PetalBot
+User-agent: Bytespider
+User-agent: BLEXBot
+User-agent: DataForSeoBot
+User-agent: serpstatbot
+User-agent: Barkrowler
+Disallow: /
+
 Sitemap: https://qp-digital.co.uk/sitemap.xml
