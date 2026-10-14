@@ -3154,3 +3154,49 @@ html[data-theme="light"] .theme-toggle__sun{display:none}html[data-theme="light"
 
 
 
+
+/* ── live example sites ────────────────────────────────────────────────
+   The two website examples are the real sites running in the page rather
+   than screenshots of them. Each renders at its true desktop width and is
+   scaled down to the card, so the layout, the type and the interactions
+   are the genuine article. The frame is inert to the pointer in the card —
+   a visitor scrolling the page should not have the wheel captured by a
+   site inside it — and the link underneath opens it properly. */
+.showcase-card__body--live {
+  position: relative;
+  overflow: hidden;
+  aspect-ratio: 16 / 10;
+  background: var(--bg-alt);
+}
+
+.showcase-card__body--live iframe {
+  position: absolute;
+  top: 0;
+  left: 0;
+  border: 0;
+  transform-origin: top left;
+  pointer-events: none;
+}
+
+.showcase-card__open {
+  margin-top: 10px;
+}
+
+.showcase-card__open a {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  font: 700 0.78rem/1 "Sora", sans-serif;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: var(--gold-text);
+  text-decoration: none;
+  border-bottom: 1px solid rgba(var(--gold-rgb), 0.45);
+  padding-bottom: 3px;
+}
+
+.showcase-card__open a:hover {
+  color: var(--gold-text-dim);
+  border-bottom-color: var(--gold-text-dim);
+}
+

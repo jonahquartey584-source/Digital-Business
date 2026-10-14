@@ -131,7 +131,7 @@
       font-src 'self' https://fonts.gstatic.com data:; \
       img-src 'self' data: blob: https:; \
       connect-src 'self' https://esm.sh https://api.stripe.com; \
-      frame-src https://js.stripe.com https://hooks.stripe.com https://checkout.stripe.com; \
+      frame-src 'self' https://js.stripe.com https://hooks.stripe.com https://checkout.stripe.com; \
       form-action 'self' https://buy.stripe.com https://checkout.stripe.com; \
       frame-ancestors 'none'; \
       base-uri 'self'; \
@@ -143,6 +143,31 @@
     Referrer-Policy = "strict-origin-when-cross-origin"
     Permissions-Policy = "camera=(), microphone=(), geolocation=(), browsing-topics=()"
     Cross-Origin-Opener-Policy = "same-origin-allow-popups"
+
+# The example sites on /examples are embedded as live iframes rather than
+# screenshots, so the demo pages have to permit being framed — by this origin
+# and nothing else. The site-wide rule above is frame-ancestors 'none' plus
+# X-Frame-Options DENY, which blocks even same-origin framing, so both are
+# narrowed here for this path only. Everything else keeps the strict rule.
+#
+# They are also kept out of search results: they are deliberately fictional
+# businesses, and a demo ranking for "plumber bromley" would be worse than
+# useless for everyone involved.
+[[headers]]
+  for = "/demos/*"
+
+  [headers.values]
+    Content-Security-Policy = """
+      default-src 'self'; \
+      script-src 'self' 'unsafe-inline'; \
+      style-src 'self' 'unsafe-inline'; \
+      img-src 'self' data:; \
+      frame-ancestors 'self'; \
+      base-uri 'self'; \
+      form-action 'none'; \
+      object-src 'none'"""
+    X-Frame-Options = "SAMEORIGIN"
+    X-Robots-Tag = "noindex, nofollow"
 
 # robots.txt is only advisory — a crawler is free to ignore it. X-Robots-Tag
 # is enforced, so the admin tooling and the post-payment page (which shows a
