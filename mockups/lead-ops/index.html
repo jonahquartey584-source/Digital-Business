@@ -1,0 +1,191 @@
+<!doctype html>
+<html lang="en-GB">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="robots" content="noindex,nofollow">
+<title>Qp Digital — mockup</title>
+<style>
+  :root{
+    --ink:#ffffff; --dim:rgba(255,255,255,.62); --faint:rgba(255,255,255,.4);
+    --rule:rgba(255,255,255,.16);
+    --sans:"Sora","Inter",system-ui,-apple-system,"Segoe UI",sans-serif;
+    --mono:"IBM Plex Mono",ui-monospace,SFMono-Regular,monospace;
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0;height:100%}
+  body{background:#07070a;color:var(--ink);font-family:var(--sans);-webkit-font-smoothing:antialiased;overflow:hidden}
+
+  .flag{position:fixed;top:0;left:0;right:0;z-index:60;background:rgba(0,0,0,.72);backdrop-filter:blur(6px);
+        text-align:center;padding:6px 16px;font-family:var(--mono);font-size:.6rem;letter-spacing:.16em;text-transform:uppercase;color:rgba(255,255,255,.5)}
+
+  /* ── masthead ─────────────────────────────────────────────── */
+  .bar{position:fixed;top:26px;left:0;right:0;z-index:50;display:flex;align-items:flex-start;
+       padding-inline:clamp(22px,4vw,54px);pointer-events:none}
+  .mark{pointer-events:auto;text-decoration:none;color:var(--ink)}
+  .mark b{display:block;font-size:.84rem;font-weight:700;letter-spacing:.3em;text-transform:uppercase}
+  .mark span{display:block;margin-top:5px;font-family:var(--mono);font-size:.56rem;letter-spacing:.2em;text-transform:uppercase;color:var(--faint)}
+  .bar nav{margin-left:auto;pointer-events:auto;display:flex;align-items:center;gap:8px;
+           font-family:var(--mono);font-size:.62rem;letter-spacing:.18em;text-transform:uppercase;color:var(--dim)}
+  .bar nav a{color:inherit;text-decoration:none;display:inline-flex;align-items:center;gap:7px}
+  .bar nav a:hover{color:var(--ink)}
+
+  /* ── deck ─────────────────────────────────────────────────── */
+  .deck{height:100%;overflow-y:auto;scroll-snap-type:y mandatory;scroll-behavior:smooth}
+  .deck::-webkit-scrollbar{display:none}
+  .deck{scrollbar-width:none}
+
+  .panel{position:relative;height:100svh;min-height:560px;scroll-snap-align:start;overflow:hidden;display:flex;align-items:flex-end}
+  .panel__art{position:absolute;inset:0;z-index:0;transform:scale(1.06);transition:transform 1.4s cubic-bezier(.2,.8,.3,1)}
+  .panel.is-live .panel__art{transform:scale(1)}
+
+  /* a scrim sized to the wording, not the panel, so the headline keeps its
+     contrast whatever the picture behind it is doing */
+  .panel::after{content:"";position:absolute;inset:0;z-index:1;pointer-events:none;
+    background:linear-gradient(180deg,rgba(4,5,8,.55) 0%,rgba(4,5,8,0) 26%,rgba(4,5,8,0) 42%,rgba(4,5,8,.62) 78%,rgba(4,5,8,.86) 100%),
+               linear-gradient(90deg,rgba(4,5,8,.62) 0%,rgba(4,5,8,.18) 46%,rgba(4,5,8,0) 72%)}
+
+  .panel__in{position:relative;z-index:2;width:100%;padding:0 clamp(22px,4vw,54px) clamp(42px,6vh,70px)}
+  .label{font-family:var(--mono);font-size:.58rem;letter-spacing:.22em;text-transform:uppercase;color:var(--faint);
+         margin-bottom:18px;opacity:0;transform:translateY(10px);transition:opacity .7s ease .1s,transform .7s cubic-bezier(.2,.9,.3,1) .1s}
+  h2{margin:0;font-size:clamp(2.35rem,6.4vw,5.1rem);font-weight:800;line-height:.94;letter-spacing:-.045em;text-transform:uppercase;max-width:15ch;
+     opacity:0;transform:translateY(16px);transition:opacity .8s ease .18s,transform .8s cubic-bezier(.2,.9,.3,1) .18s}
+  .sub{margin:20px 0 0;font-size:.96rem;line-height:1.55;color:var(--dim);max-width:38ch;
+       opacity:0;transform:translateY(12px);transition:opacity .8s ease .3s,transform .8s cubic-bezier(.2,.9,.3,1) .3s}
+  .panel.is-live .label,.panel.is-live h2,.panel.is-live .sub{opacity:1;transform:none}
+
+  .count{position:absolute;right:clamp(22px,4vw,54px);bottom:clamp(42px,6vh,70px);z-index:2;
+         font-family:var(--mono);font-size:.62rem;letter-spacing:.16em;color:var(--faint)}
+  .count b{color:var(--ink);font-weight:500}
+
+  /* progress ticks, right edge */
+  .ticks{position:fixed;right:clamp(10px,1.6vw,20px);top:50%;transform:translateY(-50%);z-index:50;display:grid;gap:9px}
+  .ticks i{display:block;width:2px;height:22px;background:rgba(255,255,255,.22);transition:background .3s ease}
+  .ticks i.on{background:var(--ink)}
+
+  .scroll-hint{position:fixed;left:50%;bottom:22px;transform:translateX(-50%);z-index:50;
+    font-family:var(--mono);font-size:.56rem;letter-spacing:.2em;text-transform:uppercase;color:var(--faint);
+    transition:opacity .4s ease}
+  .scroll-hint.gone{opacity:0}
+
+  /* ── placeholder art (stands in for photography) ──────────── */
+  .ph{position:absolute;inset:0}
+  .ph::before{content:"";position:absolute;inset:0;opacity:.5;
+    background-image:radial-gradient(rgba(255,255,255,.14) 1px,transparent 1px);background-size:3px 3px;mix-blend-mode:overlay}
+  .a1{background:radial-gradient(120% 90% at 72% 28%,#2d4a63 0%,#16202c 45%,#070a0e 100%)}
+  .a2{background:radial-gradient(110% 95% at 25% 70%,#4a3a2a 0%,#1d1711 48%,#08070a 100%)}
+  .a3{background:radial-gradient(120% 90% at 60% 35%,#1f4a46 0%,#10211f 50%,#06090a 100%)}
+  .a4{background:radial-gradient(120% 95% at 35% 30%,#3a2f55 0%,#171326 50%,#07060b 100%)}
+  .a5{background:radial-gradient(130% 90% at 70% 60%,#5a4326 0%,#231a0f 50%,#090705 100%)}
+  .a6{background:radial-gradient(120% 90% at 40% 45%,#1d3a55 0%,#101d2a 50%,#06080c 100%)}
+  .ph em{position:absolute;left:50%;top:44%;transform:translate(-50%,-50%);font-style:normal;
+    font-family:var(--mono);font-size:.56rem;letter-spacing:.24em;text-transform:uppercase;color:rgba(255,255,255,.22);text-align:center;white-space:nowrap}
+
+  @media (prefers-reduced-motion: reduce){
+    *{animation:none!important;transition:none!important}
+    .deck{scroll-behavior:auto}
+    .panel__art{transform:none}
+    .label,h2,.sub{opacity:1!important;transform:none!important}
+  }
+</style>
+</head>
+<body>
+<p class="flag">Mockup · placeholder art · not the live site</p>
+
+<div class="bar">
+  <a class="mark" href="#"><b>Qp Digital</b><span>Lead systems</span></a>
+  <nav><a href="#">Our approach <span aria-hidden="true">&#8599;</span></a></nav>
+</div>
+
+<div class="ticks" id="ticks"></div>
+<p class="scroll-hint" id="hint">Scroll</p>
+
+<main class="deck" id="deck">
+  <section class="panel">
+    <div class="panel__art"><div class="ph a1"><em>photography — a lit shopfront at dusk, seen from the street</em></div></div>
+    <div class="panel__in">
+      <p class="label">Websites &amp; landing pages</p>
+      <h2>Every lead.<br>Captured.</h2>
+      <p class="sub">A site built to turn attention into an enquiry, not just to look the part.</p>
+    </div>
+    <p class="count"><b>01</b> / 06</p>
+  </section>
+
+  <section class="panel">
+    <div class="panel__art"><div class="ph a2"><em>photography — a desk at night, one phone lit, notes beside it</em></div></div>
+    <div class="panel__in">
+      <p class="label">CRM</p>
+      <h2>Nothing slips<br>through.</h2>
+      <p class="sub">Every enquiry logged the second it lands, tracked to won or lost, chased in between.</p>
+    </div>
+    <p class="count"><b>02</b> / 06</p>
+  </section>
+
+  <section class="panel">
+    <div class="panel__art"><div class="ph a3"><em>photography — a hand reaching for a ringing phone, motion blur</em></div></div>
+    <div class="panel__in">
+      <p class="label">Automation</p>
+      <h2>Answered in<br>seconds.</h2>
+      <p class="sub">Whoever replies first usually wins the job. Yours replies before you have read it.</p>
+    </div>
+    <p class="count"><b>03</b> / 06</p>
+  </section>
+
+  <section class="panel">
+    <div class="panel__art"><div class="ph a4"><em>photography — an empty studio at first light, chairs set out</em></div></div>
+    <div class="panel__in">
+      <p class="label">Booking systems</p>
+      <h2>Booked while<br>you sleep.</h2>
+      <p class="sub">A diary that fills itself, takes the deposit and confirms, at three in the morning.</p>
+    </div>
+    <p class="count"><b>04</b> / 06</p>
+  </section>
+
+  <section class="panel">
+    <div class="panel__art"><div class="ph a5"><em>photography — a van pulling away down a terraced street, golden hour</em></div></div>
+    <div class="panel__in">
+      <p class="label">SEO &amp; site management</p>
+      <h2>Found before<br>they ask.</h2>
+      <p class="sub">Kept fast, kept current, kept visible, so you are the one they find first.</p>
+    </div>
+    <p class="count"><b>05</b> / 06</p>
+  </section>
+
+  <section class="panel">
+    <div class="panel__art"><div class="ph a6"><em>photography — a screen of clean figures, shallow focus, dark room</em></div></div>
+    <div class="panel__in">
+      <p class="label">Reporting</p>
+      <h2>Proof, not<br>promises.</h2>
+      <p class="sub">What came in, what it was worth, what it cost. On one page, every month.</p>
+    </div>
+    <p class="count"><b>06</b> / 06</p>
+  </section>
+</main>
+
+<script>
+(function(){
+  "use strict";
+  var panels=[].slice.call(document.querySelectorAll(".panel"));
+  var ticks=document.getElementById("ticks");
+  panels.forEach(function(){ ticks.appendChild(document.createElement("i")); });
+  var marks=[].slice.call(ticks.children);
+
+  var io=new IntersectionObserver(function(entries){
+    entries.forEach(function(e){
+      var i=panels.indexOf(e.target);
+      if(e.isIntersecting && e.intersectionRatio>0.55){
+        e.target.classList.add("is-live");
+        marks.forEach(function(m,j){ m.classList.toggle("on", j===i); });
+      }
+    });
+  },{threshold:[0,0.55,1]});
+  panels.forEach(function(p){ io.observe(p); });
+
+  var hint=document.getElementById("hint");
+  document.getElementById("deck").addEventListener("scroll",function(){
+    if(this.scrollTop>40) hint.classList.add("gone");
+  },{passive:true});
+})();
+</script>
+</body>
+</html>
