@@ -2906,3 +2906,101 @@ html[data-theme="light"] .theme-toggle__sun{display:none}html[data-theme="light"
   border-bottom-color: var(--gold-text-dim);
 }
 
+
+/* ── concept gallery ───────────────────────────────────────────────────
+   Eight example sites, each shown on a screen rather than flat, so the
+   card reads as a site that is running rather than a picture of a layout.
+   The image carries the whole card: no chrome around it, no caption bar,
+   nothing competing with the work. */
+.ex-grid {
+  display: grid;
+  gap: 26px;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+}
+
+.ex-card {
+  display: flex;
+  flex-direction: column;
+  background: var(--surface);
+  border: 1px solid var(--border-soft);
+  border-radius: 14px;
+  overflow: hidden;
+  transition: transform 0.22s ease, border-color 0.22s ease, box-shadow 0.22s ease;
+}
+
+.ex-card:hover,
+.ex-card:focus-within {
+  transform: translateY(-4px);
+  border-color: var(--gold);
+  box-shadow: var(--shadow);
+}
+
+.ex-card__screen {
+  position: relative;
+  background: #000;
+  overflow: hidden;
+}
+
+.ex-card__screen img {
+  display: block;
+  width: 100%;
+  height: auto;
+  transition: transform 0.4s ease;
+}
+
+.ex-card:hover .ex-card__screen img {
+  transform: scale(1.03);
+}
+
+/* A faint sheen across the screen, so a still photograph of a laptop reads
+   as lit rather than printed. */
+.ex-card__screen::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: linear-gradient(118deg,
+    rgba(255, 255, 255, 0) 38%,
+    rgba(255, 255, 255, 0.045) 48%,
+    rgba(255, 255, 255, 0) 58%);
+}
+
+.ex-card__body {
+  padding: 20px 22px 24px;
+}
+
+.ex-card__sector {
+  font: 700 0.66rem/1 "Sora", sans-serif;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--gold-text-dim);
+  margin: 0 0 9px;
+}
+
+.ex-card__body h3 {
+  font-size: 1.22rem;
+  margin: 0 0 8px;
+}
+
+.ex-card__body p {
+  font-size: 0.9rem;
+  line-height: 1.6;
+  color: var(--text-dim);
+  margin: 0;
+}
+
+.ex-note {
+  margin-top: 26px;
+  padding-top: 18px;
+  border-top: 1px solid var(--border-soft);
+  font-size: 0.86rem;
+  color: var(--text-faint);
+  max-width: 68ch;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ex-card,
+  .ex-card__screen img { transition: none; }
+  .ex-card:hover { transform: none; }
+  .ex-card:hover .ex-card__screen img { transform: none; }
+}
