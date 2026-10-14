@@ -34,7 +34,7 @@
              "Content changes when you need them",
              "Ongoing SEO so you stay findable",
              "Someone to call when something breaks"],
-      note: "No screenshot for this one — it is ongoing work rather than a thing you look at."
+      note: "No screenshot for this one. It is ongoing work rather than a thing you look at."
     },
     booking: {
       lead: "Customers book themselves in, at the times you actually have free, at eleven at night if that is when they are looking.",
@@ -61,7 +61,7 @@
              "Captions and copy written for you",
              "Content that matches the brand",
              "Planned ahead rather than panicked on the day"],
-      note: "Examples are account-specific — ask and I will show you live work."
+      note: "Examples are account-specific. Ask and I will show you live work."
     },
     reporting: {
       lead: "Leads, calls, bookings and sales on one screen, instead of three spreadsheets and a guess.",
@@ -77,7 +77,7 @@
              "Confirmations, reminders and receipts sent for you",
              "Data moved between tools without copy-paste",
              "Fewer things that only work when you are at your desk"],
-      note: "Set up per business — happy to walk you through a live one."
+      note: "Set up per business. Happy to walk you through a live one."
     },
     followups: {
       lead: "Missed calls, unanswered quotes and review requests chased automatically, so a lead going cold is a decision rather than an accident.",
@@ -85,7 +85,7 @@
              "Quotes chased on a schedule",
              "Review requests after the job is done",
              "Stops when the customer replies"],
-      note: "Runs in the background — ask to see it working on a real account."
+      note: "Runs in the background. Ask to see it working on a real account."
     },
     chatbots: {
       lead: "A chatbot or live chat on the site that answers the common questions and captures the lead at two in the morning.",

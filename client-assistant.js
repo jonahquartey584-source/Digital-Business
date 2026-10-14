@@ -1,15 +1,15 @@
 (() => {
   if (document.body.dataset.clientAssistantReady) return;
   document.body.dataset.clientAssistantReady = "true";
-  const serviceName = document.querySelector("[data-member-service]")?.querySelector("h1")?.textContent?.trim() || document.title.split("—")[0].trim();
+  const serviceName = document.querySelector("[data-member-service]")?.querySelector("h1")?.textContent?.trim() || document.title.split(/[|—]/)[0].trim();
   const launcher = document.createElement("button");
   launcher.className = "client-ai-launcher"; launcher.type = "button"; launcher.setAttribute("aria-label", "Open Qp Digital client assistant"); launcher.textContent = "✦";
   const panel = document.createElement("section");
   panel.className = "client-ai-panel"; panel.hidden = true;
   const portalPage = location.pathname.endsWith("members.html") || location.pathname.endsWith("/members");
   const welcome = portalPage
-    ? "Hi — I’m your Qp Digital members portal guide. I can explain how to sign in, unlock services, use your dashboards, import leads, request changes, or contact the Qp Digital team. What would you like help with?"
-    : "Hi — I’m your Qp Digital client assistant. I can help you understand this workspace, plan your next step, or prepare a request for the Qp Digital team.";
+    ? "Hi, I’m your Qp Digital members portal guide. I can explain how to sign in, unlock services, use your dashboards, import leads, request changes, or contact the Qp Digital team. What would you like help with?"
+    : "Hi, I’m your Qp Digital client assistant. I can help you understand this workspace, plan your next step, or prepare a request for the Qp Digital team.";
   panel.innerHTML = `<div class="client-ai-head"><div><strong>Qp Digital AI Assistant</strong><span>${serviceName} support · Online</span></div><button class="client-ai-close" type="button" aria-label="Close assistant">×</button></div><div class="client-ai-messages" aria-live="polite"><div class="client-ai-message client-ai-message--assistant">${welcome}</div></div>${portalPage ? '<div class="client-ai-quick"><button type="button" data-question="How do I access a service I paid for?">Access a service</button><button type="button" data-question="Why is a service locked?">Locked services</button><button type="button" data-question="How do I use my CRM?">Use my CRM</button></div>' : ''}<form class="client-ai-form"><input name="message" aria-label="Message the Qp Client Assistant" placeholder="Ask about your portal…" autocomplete="off" required><button type="submit" aria-label="Send message">↑</button></form>`;
   document.body.append(launcher, panel);
   const messagesEl = panel.querySelector(".client-ai-messages"); const history = [];

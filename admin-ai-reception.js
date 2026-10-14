@@ -43,7 +43,7 @@ async function callVoice(action, payload) {
 function renderNumberChoices(numbers) {
   const container = document.getElementById("voiceNumberChoices");
   if (!numbers.length) {
-    container.innerHTML = `<p class="crm-column__empty">No numbers found — try again in a moment.</p>`;
+    container.innerHTML = `<p class="crm-column__empty">No numbers found. Try again in a moment.</p>`;
     return;
   }
   container.innerHTML = `
@@ -84,7 +84,7 @@ function renderNumberChoices(numbers) {
 document.getElementById("voiceSetupForm")?.addEventListener("submit", async (event) => {
   event.preventDefault();
   if (!email) {
-    setStatus("Couldn't find your admin session — please log into admin.html again.", true);
+    setStatus("Couldn't find your admin session. Please log into admin.html again.", true);
     return;
   }
   const button = document.getElementById("voiceSearchBtn");
@@ -165,7 +165,7 @@ function showSetup() {
 
 async function loadVoiceSettings() {
   if (!email) {
-    setStatus("Couldn't find your admin session — please log into admin.html again.", true);
+    setStatus("Couldn't find your admin session. Please log into admin.html again.", true);
     return;
   }
   try {

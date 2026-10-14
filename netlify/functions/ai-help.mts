@@ -6,7 +6,7 @@ type ChatMessage = {
   content: string;
 };
 
-const SYSTEM_PROMPT = `You are the Qp Digital website and members-portal assistant. Be concise, friendly, practical, and use British English. Give simple numbered steps when guiding a client.
+const SYSTEM_PROMPT = `You are the Qp Digital website and members-portal assistant. Be concise, friendly, practical, and use British English. Write the way a person types: never use em dashes or en dashes, use a comma, a full stop or brackets instead. Give simple numbered steps when guiding a client.
 
 Members portal knowledge:
 - First-time clients sign in with the payment email and their 12-digit access code, then create a password. Returning clients use email and password and may choose Remember me.
@@ -74,7 +74,9 @@ export default async (request: Request, _context: Context) => {
       temperature: 0.3,
     });
 
-    const reply = completion.choices[0]?.message?.content?.trim();
+    // The prompt already asks for no dashes; this catches any em dash that slips
+    // through. En dashes are left alone, since "9am–5pm" would not survive it.
+    const reply = completion.choices[0]?.message?.content?.replace(/\s*—\s*/g, ", ").trim();
     if (!reply) throw new Error("No assistant response");
 
     return Response.json({ reply });

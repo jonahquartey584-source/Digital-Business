@@ -106,11 +106,11 @@ function wireFileUpload(fileInput, statusEl, endpoint, onUploaded) {
         fileInput.value = "";
         adminHandleSessionRejected();
       } else {
-        statusEl.textContent = result.message || "Upload failed — try again.";
+        statusEl.textContent = result.message || "Upload failed. Try again.";
         statusEl.style.color = "#ff8a8a";
       }
     } catch (err) {
-      statusEl.textContent = `Couldn't reach ${endpoint} — is the backend deployed?`;
+      statusEl.textContent = `Couldn't reach ${endpoint}. Is the backend deployed?`;
       statusEl.style.color = "#ff8a8a";
     }
   });
@@ -144,7 +144,7 @@ async function loadClients() {
     clientsListNote.textContent = clientsCache.length ? `${clientsCache.length} member${clientsCache.length === 1 ? "" : "s"}` : "";
     renderClientsList();
   } catch (err) {
-    clientsListNote.textContent = "Couldn't reach api/list_clients.php — is the backend deployed?";
+    clientsListNote.textContent = "Couldn't reach api/list_clients.php. Is the backend deployed?";
     clientsListNote.style.color = "#ff8a8a";
   }
 }
@@ -165,7 +165,7 @@ function getFilteredClients() {
 
 function renderClientsList() {
   if (!clientsCache.length) {
-    clientsListContainer.innerHTML = `<p class="empty-note">No clients yet — head to <a href="admin-new-client.html">New Client Setup</a> to create one.</p>`;
+    clientsListContainer.innerHTML = `<p class="empty-note">No clients yet. Head to <a href="admin-new-client.html">New Client Setup</a> to create one.</p>`;
     return;
   }
 
@@ -189,7 +189,7 @@ function renderClientsList() {
       <div class="client-row">
         <div class="client-row__info">
           <div class="client-row__account mono">${account}</div>
-          <div class="client-row__service">${adminEscapeHtml(client.title || client.service)} — ${adminEscapeHtml(client.price)}</div>
+          <div class="client-row__service">${adminEscapeHtml(client.title || client.service)} · ${adminEscapeHtml(client.price)}</div>
           <div class="client-row__code mono">Setup code: ${adminEscapeHtml(client.code)}</div>
           ${
             client.status === "active" && client.clientEmail
@@ -198,7 +198,7 @@ function renderClientsList() {
           }
           ${
             client.status === "refunded"
-              ? `<div class="client-row__email mono" style="color:#e07a6b">Refunded ${adminEscapeHtml(client.refundAmount || "")}${client.refundedAt ? ` on ${adminEscapeHtml(new Date(client.refundedAt).toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" }))}` : ""}${client.refundReason ? ` — ${adminEscapeHtml(client.refundReason)}` : ""}</div>`
+              ? `<div class="client-row__email mono" style="color:#e07a6b">Refunded ${adminEscapeHtml(client.refundAmount || "")}${client.refundedAt ? ` on ${adminEscapeHtml(new Date(client.refundedAt).toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" }))}` : ""}${client.refundReason ? `: ${adminEscapeHtml(client.refundReason)}` : ""}</div>`
               : ""
           }
           <div class="client-row__portal-code mono" data-portal-code-row="${account}">
@@ -289,13 +289,13 @@ async function generatePortalCode(account) {
     } else {
       row.innerHTML = originalHtml;
       row.querySelector("[data-generate-code]")?.addEventListener("click", () => generatePortalCode(account));
-      clientsListNote.textContent = result.message || "Couldn't generate a code — try again.";
+      clientsListNote.textContent = result.message || "Couldn't generate a code. Try again.";
       clientsListNote.style.color = "#ff8a8a";
     }
   } catch (err) {
     row.innerHTML = originalHtml;
     row.querySelector("[data-generate-code]")?.addEventListener("click", () => generatePortalCode(account));
-    clientsListNote.textContent = "Couldn't reach /api/manage-member-access — is the backend deployed?";
+    clientsListNote.textContent = "Couldn't reach /api/manage-member-access. Is the backend deployed?";
     clientsListNote.style.color = "#ff8a8a";
   }
 }
@@ -315,7 +315,7 @@ async function refundClient(account) {
     return;
   }
   const reason = window.prompt("Reason for the refund (optional, for your own records):", "") || "";
-  const amountInput = window.prompt("Refund amount in £ — leave blank for a full refund:", "");
+  const amountInput = window.prompt("Refund amount in £ (leave blank for a full refund):", "");
   if (amountInput === null) return; // cancelled
   const amount = amountInput.trim() ? amountInput.trim() : undefined;
 
@@ -341,11 +341,11 @@ async function refundClient(account) {
       clientsListNote.textContent = `Refunded ${result.refundAmount || ""} for ${account}.`;
       await loadClients();
     } else {
-      clientsListNote.textContent = result.message || "Couldn't process that refund — try again.";
+      clientsListNote.textContent = result.message || "Couldn't process that refund. Try again.";
       clientsListNote.style.color = "#ff8a8a";
     }
   } catch (err) {
-    clientsListNote.textContent = "Couldn't reach /api/refund-client — is the backend deployed?";
+    clientsListNote.textContent = "Couldn't reach /api/refund-client. Is the backend deployed?";
     clientsListNote.style.color = "#ff8a8a";
   }
 }
@@ -382,11 +382,11 @@ async function deleteClient(account) {
       }
       await loadClients();
     } else {
-      clientsListNote.textContent = result.message || "Couldn't delete — try again.";
+      clientsListNote.textContent = result.message || "Couldn't delete. Try again.";
       clientsListNote.style.color = "#ff8a8a";
     }
   } catch (err) {
-    clientsListNote.textContent = "Couldn't reach api/delete_client.php — is the backend deployed?";
+    clientsListNote.textContent = "Couldn't reach api/delete_client.php. Is the backend deployed?";
     clientsListNote.style.color = "#ff8a8a";
   }
 }
@@ -514,11 +514,11 @@ if (editClientForm) {
         editingAccount = null;
         await loadClients();
       } else {
-        editClientNote.textContent = result.message || "Couldn't save — try again.";
+        editClientNote.textContent = result.message || "Couldn't save. Try again.";
         editClientNote.style.color = "#ff8a8a";
       }
     } catch (err) {
-      editClientNote.textContent = "Couldn't reach api/update_client.php — is the backend deployed?";
+      editClientNote.textContent = "Couldn't reach api/update_client.php. Is the backend deployed?";
       editClientNote.style.color = "#ff8a8a";
     } finally {
       saveEditBtn.disabled = false;
@@ -553,11 +553,11 @@ async function sendClientEmail(account, button, noteEl) {
       noteEl.textContent = "Email sent.";
       noteEl.style.color = "";
     } else {
-      noteEl.textContent = result.message || "Couldn't send — try again.";
+      noteEl.textContent = result.message || "Couldn't send. Try again.";
       noteEl.style.color = "#ff8a8a";
     }
   } catch (err) {
-    noteEl.textContent = "Couldn't reach api/send_client_email.php — is the backend deployed?";
+    noteEl.textContent = "Couldn't reach api/send_client_email.php. Is the backend deployed?";
     noteEl.style.color = "#ff8a8a";
   } finally {
     button.disabled = false;
@@ -602,15 +602,15 @@ if (editRegenerateCodeBtn) {
 
       if (response.ok && result.status === "ok") {
         const formatted = String(result.code).replace(/(\d{4})(?=\d)/g, "$1 ");
-        editClientNote.textContent = `New portal code (copy it now — it won't be shown again): ${formatted}`;
+        editClientNote.textContent = `New portal code (copy it now, it won't be shown again): ${formatted}`;
         editClientNote.style.color = "";
         await loadClients();
       } else {
-        editClientNote.textContent = result.message || "Couldn't generate a code — try again.";
+        editClientNote.textContent = result.message || "Couldn't generate a code. Try again.";
         editClientNote.style.color = "#ff8a8a";
       }
     } catch (err) {
-      editClientNote.textContent = "Couldn't reach /api/manage-member-access — is the backend deployed?";
+      editClientNote.textContent = "Couldn't reach /api/manage-member-access. Is the backend deployed?";
       editClientNote.style.color = "#ff8a8a";
     } finally {
       editRegenerateCodeBtn.disabled = false;

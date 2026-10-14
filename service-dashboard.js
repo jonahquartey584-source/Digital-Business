@@ -36,7 +36,7 @@ const dashboard = SERVICE_DASHBOARDS[serviceName];
 if (!purchase || !dashboard) {
   document.getElementById("serviceDashboardError").hidden = false;
 } else {
-  document.title = `${serviceName} Dashboard — Qp Digital`;
+  document.title = `${serviceName} Dashboard | Qp Digital`;
   document.getElementById("serviceTitle").textContent = serviceName;
   document.getElementById("serviceDescription").textContent = dashboard[1];
   document.getElementById("serviceAccount").textContent = purchase.account;

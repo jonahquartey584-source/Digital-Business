@@ -185,7 +185,7 @@ function renderServiceLibrary(purchases) {
 
   return services.map(({ service, purchase }) => {
     if (!purchase) {
-      return `<button class="portal-service portal-service--locked" type="button" data-quote-service="${escapeHtml(service.name)}" aria-label="${escapeHtml(service.name)} — locked; request a quote"><div class="portal-service__blur" aria-hidden="true"><span class="status-pill">Available service</span><p>${escapeHtml(service.description)}</p><div class="portal-service__placeholder"></div></div><div class="portal-service__lock"><span aria-hidden="true">&#128274;</span><h3>${escapeHtml(service.name)}</h3><strong>Locked</strong><small>Click to request a quote.</small></div></button>`;
+      return `<button class="portal-service portal-service--locked" type="button" data-quote-service="${escapeHtml(service.name)}" aria-label="${escapeHtml(service.name)}, locked. Request a quote"><div class="portal-service__blur" aria-hidden="true"><span class="status-pill">Available service</span><p>${escapeHtml(service.description)}</p><div class="portal-service__placeholder"></div></div><div class="portal-service__lock"><span aria-hidden="true">&#128274;</span><h3>${escapeHtml(service.name)}</h3><strong>Locked</strong><small>Click to request a quote.</small></div></button>`;
     }
     const liveUrl = safeUrl(purchase.liveUrl);
     const fileUrl = safeUrl(purchase.deliverableFileUrl);
@@ -238,7 +238,7 @@ function renderAdministratorMembers(clients, email) {
     const created = client.createdAt ? new Date(client.createdAt).toLocaleDateString("en-GB", { day: "numeric", month: "long", year: "numeric" }) : "—";
     const accessText = String(client.service || "").toLowerCase();
     const serviceChecks = SERVICE_CATALOG.map((service) => `<label class="admin-access-option"><input type="checkbox" name="services" value="${escapeHtml(service.name)}" ${accessText.includes("all services") || service.aliases.some((alias) => accessText.includes(alias)) ? "checked" : ""}> <span>${escapeHtml(service.name)}</span></label>`).join("");
-    const displayedCode = client.portalCode ? String(client.portalCode).replace(/(\d{4})(?=\d)/g, "$1 ") : "Protected — generate a replacement to view it";
+    const displayedCode = client.portalCode ? String(client.portalCode).replace(/(\d{4})(?=\d)/g, "$1 ") : "Protected. Generate a replacement to view it";
     return `<article class="member-purchase" data-admin-member="${escapeHtml(client.account)}"><div class="member-purchase__number">${String(index + 1).padStart(2, "0")}</div><div class="member-purchase__content"><span class="status-pill ${active ? "status-pill--active" : ""}">${active ? "Active" : "Pending payment"}</span><h3>${escapeHtml(client.title || client.service)}</h3><p>${escapeHtml(client.clientEmail || "No client email saved")}</p><dl><div><dt>Account</dt><dd>${escapeHtml(client.account)}</dd></div><div><dt>Created</dt><dd>${escapeHtml(created)}</dd></div><div><dt>Price</dt><dd>${escapeHtml(client.price)}</dd></div></dl><p>${escapeHtml(client.preview || "No description added.")}</p><section class="admin-access-panel"><div><span class="section__tag">Member access code</span><strong class="admin-access-code">${escapeHtml(displayedCode)}</strong></div><button class="btn btn--ghost" type="button" data-reset-code>Generate New 12-Digit Code</button><details><summary>Edit service access</summary><div class="admin-access-grid">${serviceChecks}</div><label class="portal-remember"><input type="checkbox" name="enabled" ${active ? "checked" : ""}> <span>Member access enabled</span></label><button class="btn btn--primary" type="button" data-save-access>Save Access</button><p class="form-note" data-access-note aria-live="polite"></p></details></section><div class="member-purchase__actions">${liveUrl ? `<a class="btn btn--primary" href="${escapeHtml(liveUrl)}" target="_blank" rel="noopener">Open Service →</a>` : ""}${fileUrl ? `<a class="btn btn--ghost" href="${escapeHtml(fileUrl)}" target="_blank" rel="noopener">Open Deliverable →</a>` : ""}</div></div></article>`;
   }).join("");
 
@@ -310,7 +310,7 @@ function renderOnboardingWizard(purchases, email) {
   results.innerHTML = `<div class="member-onboarding">
     <p class="section__tag">First-time setup</p>
     <h2>Tell us about your business</h2>
-    <p class="members-panel__lead">Answer five quick questions so Qp Digital can personalise your services — takes about a minute, and we save your answers to your account so we'll never ask again.</p>
+    <p class="members-panel__lead">Answer five quick questions so Qp Digital can personalise your services. It takes about a minute, and we save your answers to your account so we'll never ask again.</p>
     <div class="onboarding-progress"><span id="onboardingStepLabel">Question 1/${ONBOARDING_STEPS.length}</span><div class="onboarding-progress__bar"><div class="onboarding-progress__fill" id="onboardingProgressFill" style="width:${Math.round(100 / ONBOARDING_STEPS.length)}%"></div></div></div>
     <form class="member-login member-onboarding__form" id="memberOnboardingForm" novalidate>
       ${ONBOARDING_STEPS.map((step, i) => `
@@ -387,7 +387,7 @@ function renderOnboardingWizard(purchases, email) {
       renderPurchases(purchases, profile);
       startMemberAccessRefresh();
     } catch (error) {
-      wizardNote.textContent = error.message || "Could not save your answers — please try again.";
+      wizardNote.textContent = error.message || "Could not save your answers. Please try again.";
       nextBtn.disabled = false;
       backBtn.disabled = false;
     }
@@ -567,7 +567,7 @@ passwordLoginForm.addEventListener("submit", async (event) => {
     if (purchases.length) {
       await openMemberPortal(purchases, email, passwordLoginForm.remember.checked);
     } else if (isHeadAdmin) {
-      passwordLoginNote.textContent = "Signed in as head administrator — see the Administrator tab above.";
+      passwordLoginNote.textContent = "Signed in as head administrator. See the Administrator tab above.";
       selectPortalMode("admin");
     } else {
       throw new Error("Your purchased services could not be loaded.");

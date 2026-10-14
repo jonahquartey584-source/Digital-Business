@@ -1,7 +1,7 @@
 (() => {
   if (document.body.dataset.serviceActionsReady) return;
   document.body.dataset.serviceActionsReady = "true";
-  const service = document.title.split("—")[0].trim();
+  const service = document.title.split(/[|—]/)[0].trim();
   const accountId = new URLSearchParams(location.search).get("account") || "unknown-account";
   const storageKey = `qpServiceActivity:${accountId}:${service}`;
   const modal = document.createElement("div");

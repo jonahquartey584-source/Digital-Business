@@ -25,7 +25,7 @@ const CLIENT_ACCOUNTS = [
     title: null, // optional — defaults to `service` for the "Preview of …" heading
     account: "QP-2026-0158",
     code: "7F3K-9QXR",
-    service: "Website — Standard Plan",
+    service: "Website (Standard Plan)",
     price: "£450",
     preview:
       "A 5-page mobile-friendly business website with an enquiry form, hosted and ready to customize once payment is confirmed.",

@@ -56,7 +56,7 @@ async function call(action, payload) {
 
 async function loadWorkspace() {
   if (!email) {
-    setStatus("Couldn't find your signed-in email — please return to the Members Portal and sign in again.", true);
+    setStatus("Couldn't find your signed-in email. Please return to the Members Portal and sign in again.", true);
     return;
   }
   setStatus("Loading your CRM…");
@@ -200,7 +200,7 @@ function renderContacts() {
   const list = document.getElementById("crmContactsList");
   if (!list) return;
   if (workspace.contacts.length === 0) {
-    list.innerHTML = `<p class="crm-column__empty">No contacts yet — promote a lead to create one.</p>`;
+    list.innerHTML = `<p class="crm-column__empty">No contacts yet. Promote a lead to create one.</p>`;
     return;
   }
   list.innerHTML = workspace.contacts

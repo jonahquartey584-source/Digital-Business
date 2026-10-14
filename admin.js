@@ -87,7 +87,7 @@ if (loginForm) {
         loginNote.style.color = "#ff8a8a";
       }
     } catch (err) {
-      loginNote.textContent = "Couldn't reach api/admin_login.php — is the backend deployed?";
+      loginNote.textContent = "Couldn't reach api/admin_login.php. Is the backend deployed?";
       loginNote.style.color = "#ff8a8a";
     } finally {
       loginBtn.disabled = false;
