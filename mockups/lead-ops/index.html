@@ -7,8 +7,8 @@
 <title>Qp Digital — Lead Generating Systems</title>
 <style>
   :root{
-    --black:#06060a; --black-soft:#0b0b10;
-    --ink:#ffffff; --dim:rgba(255,255,255,.66); --faint:rgba(255,255,255,.7);
+    --black:#06060a; --ink:#ffffff;
+    --dim:rgba(255,255,255,.66); --faint:rgba(255,255,255,.7);
     --gold:#c69a4e; --gold-bright:#e6c98a; --gold-deep:#8a6520;
     --rule:rgba(198,154,78,.28);
     --sans:"Sora","Inter",system-ui,-apple-system,"Segoe UI",sans-serif;
@@ -19,15 +19,16 @@
   body{background:var(--black);color:var(--ink);font-family:var(--sans);-webkit-font-smoothing:antialiased;overflow:hidden}
 
   .flag{position:fixed;top:0;left:0;right:0;z-index:60;background:rgba(0,0,0,.78);backdrop-filter:blur(6px);
-        border-bottom:1px solid rgba(198,154,78,.2);
-        text-align:center;padding:6px 16px;font-family:var(--mono);font-size:.6rem;letter-spacing:.16em;text-transform:uppercase;color:rgba(255,255,255,.5)}
+        border-bottom:1px solid rgba(198,154,78,.2);text-align:center;padding:6px 16px;
+        font-family:var(--mono);font-size:.6rem;letter-spacing:.16em;text-transform:uppercase;color:rgba(255,255,255,.5)}
 
   /* ── masthead ─────────────────────────────────────────────── */
   .bar{position:fixed;top:52px;left:0;right:0;z-index:50;display:flex;align-items:flex-start;
        padding-inline:clamp(22px,4vw,54px);pointer-events:none}
   .mark{pointer-events:auto;text-decoration:none;color:var(--ink)}
   .mark b{display:block;font-size:.84rem;font-weight:700;letter-spacing:.3em;text-transform:uppercase}
-  .mark span{display:block;margin-top:5px;font-family:var(--mono);font-size:.56rem;letter-spacing:.18em;text-transform:uppercase;color:var(--gold);white-space:nowrap}
+  .mark span{display:block;margin-top:5px;font-family:var(--mono);font-size:.56rem;letter-spacing:.18em;
+             text-transform:uppercase;color:var(--gold);white-space:nowrap}
   .bar nav{margin-left:auto;pointer-events:auto;display:flex;align-items:center;gap:8px;
            font-family:var(--mono);font-size:.62rem;letter-spacing:.18em;text-transform:uppercase;color:var(--dim)}
   .bar nav a{color:inherit;text-decoration:none;display:inline-flex;align-items:center;gap:7px}
@@ -44,16 +45,18 @@
   .panel__art img{width:100%;height:100%;object-fit:cover;display:block}
 
   /* a scrim sized to the wording, not the panel, so the headline keeps its
-     contrast whatever the picture behind it is doing */
+     contrast whatever the photograph behind it is doing */
   .panel::after{content:"";position:absolute;inset:0;z-index:1;pointer-events:none;
     background:linear-gradient(180deg,rgba(4,4,8,.6) 0%,rgba(4,4,8,.08) 26%,rgba(4,4,8,.12) 42%,rgba(4,4,8,.78) 74%,rgba(4,4,8,.93) 100%),
                linear-gradient(90deg,rgba(4,4,8,.74) 0%,rgba(4,4,8,.3) 46%,rgba(4,4,8,0) 74%)}
 
   .panel__in{position:relative;z-index:2;width:100%;padding:0 clamp(22px,4vw,54px) clamp(42px,6vh,70px)}
-  .label{display:flex;align-items:center;gap:12px;font-family:var(--mono);font-size:.58rem;letter-spacing:.22em;text-transform:uppercase;color:var(--gold);
-         margin:0 0 18px;opacity:0;transform:translateY(10px);transition:opacity .7s ease .1s,transform .7s cubic-bezier(.2,.9,.3,1) .1s}
+  .label{display:flex;align-items:center;gap:12px;margin:0 0 18px;font-family:var(--mono);font-size:.58rem;
+         letter-spacing:.22em;text-transform:uppercase;color:var(--gold);
+         opacity:0;transform:translateY(10px);transition:opacity .7s ease .1s,transform .7s cubic-bezier(.2,.9,.3,1) .1s}
   .label::before{content:"";width:clamp(18px,3vw,38px);height:1px;background:var(--gold-deep);flex:none}
-  h2{margin:0;font-size:clamp(2.35rem,6.4vw,5.1rem);font-weight:800;line-height:.94;letter-spacing:-.045em;text-transform:uppercase;max-width:15ch;
+  h2{margin:0;font-size:clamp(2.35rem,6.4vw,5.1rem);font-weight:800;line-height:.94;letter-spacing:-.045em;
+     text-transform:uppercase;max-width:15ch;
      opacity:0;transform:translateY(16px);transition:opacity .8s ease .18s,transform .8s cubic-bezier(.2,.9,.3,1) .18s}
   h2 i{font-style:normal;color:var(--gold-bright)}
   .sub{margin:20px 0 0;font-size:.96rem;line-height:1.55;color:var(--dim);max-width:38ch;
@@ -70,39 +73,34 @@
          font-family:var(--mono);font-size:.62rem;letter-spacing:.16em;color:var(--faint)}
   .count b{color:var(--gold-bright);font-weight:500}
 
-  /* ── title panel ──────────────────────────────────────────── */
-  .open{align-items:center;background:
-    radial-gradient(130% 100% at 78% 18%,rgba(198,154,78,.2) 0%,rgba(138,101,32,.07) 34%,rgba(6,6,10,0) 62%),
-    linear-gradient(170deg,#0d0c11 0%,#06060a 58%,#08070b 100%)}
-  .open::after{display:none}
-  /* gold veining, in the spirit of the marble reference */
-  .vein{position:absolute;inset:0;z-index:0;opacity:.5}
-  .open__in{position:relative;z-index:2;width:100%;padding:clamp(90px,12vh,140px) clamp(22px,4vw,54px) clamp(42px,6vh,70px)}
-  .eyebrow{margin:0 0 22px;font-family:var(--mono);font-size:.58rem;letter-spacing:.24em;text-transform:uppercase;color:var(--gold)}
-  h1{margin:0;font-size:clamp(2.6rem,8.2vw,6.4rem);font-weight:800;line-height:.9;letter-spacing:-.05em;text-transform:uppercase;max-width:16ch}
+  /* ── opening panel ────────────────────────────────────────────
+     Full-bleed photography with the title laid over it, the way the
+     deck this is modelled on opens — not type on a flat background. */
+  .open::after{background:linear-gradient(180deg,rgba(4,4,8,.62) 0%,rgba(4,4,8,.1) 24%,rgba(4,4,8,.22) 44%,rgba(4,4,8,.84) 72%,rgba(4,4,8,.96) 100%),
+                          linear-gradient(90deg,rgba(4,4,8,.78) 0%,rgba(4,4,8,.36) 48%,rgba(4,4,8,.04) 78%)}
+  .eyebrow{display:flex;align-items:center;gap:12px;margin:0 0 20px;font-family:var(--mono);font-size:.58rem;
+           letter-spacing:.24em;text-transform:uppercase;color:var(--gold)}
+  .eyebrow::before{content:"";width:clamp(18px,3vw,38px);height:1px;background:var(--gold-deep);flex:none}
+  h1{margin:0;font-size:clamp(2.6rem,8vw,6.2rem);font-weight:800;line-height:.9;letter-spacing:-.05em;
+     text-transform:uppercase;max-width:16ch}
   h1 em{font-style:normal;display:block;
         background:linear-gradient(100deg,var(--gold-bright) 0%,var(--gold) 46%,#a97f33 100%);
         -webkit-background-clip:text;background-clip:text;color:transparent}
-  .open__sub{margin:26px 0 0;font-size:1.02rem;line-height:1.55;color:var(--dim);max-width:42ch}
-  .stages{margin:clamp(34px,5vh,52px) 0 0;padding:0;list-style:none;display:grid;gap:0;
-          grid-template-columns:repeat(auto-fit,minmax(150px,1fr));border-top:1px solid var(--rule)}
-  .stages li{padding:14px 16px 16px 0;border-bottom:1px solid rgba(198,154,78,.14)}
-  .stages b{display:block;font-family:var(--mono);font-size:.58rem;letter-spacing:.18em;color:var(--gold);margin-bottom:7px}
-  .stages span{display:block;font-size:.82rem;line-height:1.35;color:rgba(255,255,255,.86)}
+  .open__sub{margin:24px 0 0;font-size:1.02rem;line-height:1.55;color:var(--dim);max-width:42ch}
 
   /* ── closing panel ────────────────────────────────────────── */
-  .close{align-items:center;background:linear-gradient(190deg,#06060a 0%,#0b0a10 52%,#06060a 100%)}
-  .close::after{display:none}
-  .close__in{position:relative;z-index:2;width:100%;padding:clamp(90px,12vh,140px) clamp(22px,4vw,54px) clamp(42px,6vh,70px)}
-  .close h2{max-width:20ch}
-  .also{margin:30px 0 0;padding:0;list-style:none;display:flex;flex-wrap:wrap;gap:8px;max-width:58ch}
-  .also li{font-family:var(--mono);font-size:.58rem;letter-spacing:.14em;text-transform:uppercase;color:rgba(255,255,255,.84);
-           border:1px solid var(--rule);padding:8px 12px;border-radius:2px}
-  .cta{display:inline-flex;align-items:center;gap:10px;margin-top:clamp(30px,4vh,44px);
+  .close::after{background:linear-gradient(180deg,rgba(4,4,8,.9) 0%,rgba(4,4,8,.84) 44%,rgba(4,4,8,.96) 100%),
+                           linear-gradient(90deg,rgba(4,4,8,.84) 0%,rgba(4,4,8,.6) 60%,rgba(4,4,8,.4) 100%)}
+  .stages{margin:clamp(26px,4vh,40px) 0 0;padding:0;list-style:none;display:grid;gap:0;
+          grid-template-columns:repeat(auto-fit,minmax(142px,1fr));border-top:1px solid var(--rule)}
+  .stages li{padding:13px 16px 15px 0;border-bottom:1px solid rgba(198,154,78,.14)}
+  .stages b{display:block;font-family:var(--mono);font-size:.58rem;letter-spacing:.18em;color:var(--gold);margin-bottom:6px}
+  .stages span{display:block;font-size:.8rem;line-height:1.35;color:rgba(255,255,255,.88)}
+  .cta{display:inline-flex;align-items:center;gap:10px;margin-top:clamp(26px,3.5vh,40px);
        background:linear-gradient(135deg,var(--gold-bright),var(--gold) 100%);color:#17110a;text-decoration:none;
        font-size:.82rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;padding:15px 26px;border-radius:2px}
   .cta:hover{background:linear-gradient(135deg,#f0d7a0,var(--gold-bright) 100%)}
-  .close__note{margin:18px 0 0;font-family:var(--mono);font-size:.58rem;letter-spacing:.14em;text-transform:uppercase;color:var(--faint)}
+  .close__note{margin:16px 0 0;font-family:var(--mono);font-size:.58rem;letter-spacing:.14em;text-transform:uppercase;color:var(--faint)}
 
   /* progress ticks, right edge */
   .ticks{position:fixed;right:clamp(10px,1.6vw,20px);top:50%;transform:translateY(-50%);z-index:50;display:grid;gap:9px}
@@ -142,134 +140,103 @@
 
 <main class="deck" id="deck">
 
-  <!-- 00 — title -->
+  <!-- opening -->
   <section class="panel open">
-    <svg class="vein" viewBox="0 0 1200 800" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
-      <defs>
-        <linearGradient id="v" x1="0" y1="0" x2="1" y2="1">
-          <stop offset="0" stop-color="#e6c98a" stop-opacity=".9"/>
-          <stop offset=".55" stop-color="#c69a4e" stop-opacity=".45"/>
-          <stop offset="1" stop-color="#8a6520" stop-opacity="0"/>
-        </linearGradient>
-      </defs>
-      <g fill="none" stroke="url(#v)" stroke-linecap="round">
-        <path d="M900 -40 C840 150 1010 260 940 420 C880 560 1040 640 980 840" stroke-width="1.4"/>
-        <path d="M1080 -20 C1020 180 1140 300 1060 470 C990 620 1120 700 1070 860" stroke-width=".8" opacity=".7"/>
-        <path d="M760 40 C820 180 700 280 780 400" stroke-width=".6" opacity=".55"/>
-        <path d="M940 300 C1000 330 1020 400 1090 420" stroke-width=".5" opacity=".5"/>
-      </g>
-    </svg>
-    <div class="open__in">
+    <div class="panel__art"><img src="/assets/deck/hero.webp" alt="" loading="eager" decoding="async" width="1344" height="752"></div>
+    <div class="panel__in">
       <p class="eyebrow">Qp Digital &middot; for small UK businesses</p>
       <h1>Lead generating<em>systems</em></h1>
-      <p class="open__sub">Not a website. A system that finds the lead, captures it, answers it, books it and proves what it was worth.</p>
-      <ol class="stages">
-        <li><b>01 Capture</b><span>Websites &amp; landing pages</span></li>
-        <li><b>02 Respond</b><span>Chatbots &amp; live chat</span></li>
-        <li><b>03 Book</b><span>Booking systems</span></li>
-        <li><b>04 Track</b><span>CRM</span></li>
-        <li><b>05 Follow up</b><span>Automated follow-ups</span></li>
-        <li><b>06 Prove</b><span>Reporting dashboards</span></li>
-      </ol>
+      <p class="open__sub">Not a website. A system that captures the lead, tracks it, answers the call, books the job and shows you what it was worth.</p>
     </div>
   </section>
 
-  <!-- 01 — capture -->
+  <!-- 01 website -->
   <section class="panel">
-    <div class="panel__art"><img src="/assets/deck/capture.webp" alt="" loading="eager" decoding="async" width="1344" height="752"></div>
+    <div class="panel__art"><img src="/assets/deck/website.webp" alt="" loading="lazy" decoding="async" width="1344" height="752"></div>
     <div class="panel__in">
-      <p class="label">01 Capture &middot; Websites &amp; landing pages</p>
+      <p class="label">01 &middot; Website</p>
       <h2>Every lead.<br><i>Captured.</i></h2>
       <p class="sub">Custom-built and mobile-friendly, designed to turn a visitor into an enquiry, not just to look the part.</p>
-      <ul class="buys">
-        <li>Custom build</li><li>Mobile-first</li><li>Enquiry forms</li><li>Click-to-call</li>
-      </ul>
+      <ul class="buys"><li>Custom build</li><li>Mobile-first</li><li>Enquiry forms</li><li>Click-to-call</li></ul>
     </div>
     <p class="count"><b>01</b> / 06</p>
   </section>
 
-  <!-- 02 — respond -->
+  <!-- 02 crm -->
   <section class="panel">
-    <div class="panel__art"><img src="/assets/deck/respond.webp" alt="" loading="lazy" decoding="async" width="1344" height="752"></div>
+    <div class="panel__art"><img src="/assets/deck/crm.webp" alt="" loading="lazy" decoding="async" width="1344" height="752"></div>
     <div class="panel__in">
-      <p class="label">02 Respond &middot; Chatbots &amp; live chat</p>
-      <h2>Answered in<br><i>seconds.</i></h2>
-      <p class="sub">Whoever replies first usually wins the job. A chatbot or live chat answers questions and captures leads 24/7.</p>
-      <ul class="buys">
-        <li>Website chatbot</li><li>Live chat</li><li>24/7 capture</li><li>Missed-call reply</li>
-      </ul>
+      <p class="label">02 &middot; CRM</p>
+      <h2>Nothing slips<br><i>through.</i></h2>
+      <p class="sub">Every lead, customer and conversation in one place. Logged the second it lands, tracked to won or lost.</p>
+      <ul class="buys"><li>One pipeline</li><li>Lead history</li><li>Notes &amp; tasks</li><li>Won / lost</li></ul>
     </div>
     <p class="count"><b>02</b> / 06</p>
   </section>
 
-  <!-- 03 — book -->
+  <!-- 03 business -->
   <section class="panel">
-    <div class="panel__art"><img src="/assets/deck/book.webp" alt="" loading="lazy" decoding="async" width="1344" height="752"></div>
+    <div class="panel__art"><img src="/assets/deck/business.webp" alt="" loading="lazy" decoding="async" width="1344" height="752"></div>
     <div class="panel__in">
-      <p class="label">03 Book &middot; Booking systems</p>
-      <h2>Booked while<br><i>you sleep.</i></h2>
-      <p class="sub">Customers book appointments or services online, any time of day. The diary fills, confirms and reminds on its own.</p>
-      <ul class="buys">
-        <li>Online booking</li><li>Deposits</li><li>Confirmations</li><li>Reminders</li>
-      </ul>
+      <p class="label">03 &middot; Business</p>
+      <h2>The admin<br><i>runs itself.</i></h2>
+      <p class="sub">Bookings, updates, hosting and the repetitive jobs handled automatically, so nothing waits on someone remembering.</p>
+      <ul class="buys"><li>Booking systems</li><li>Admin automation</li><li>Site management</li><li>Social &amp; content</li></ul>
     </div>
     <p class="count"><b>03</b> / 06</p>
   </section>
 
-  <!-- 04 — track -->
+  <!-- 04 finance -->
   <section class="panel">
-    <div class="panel__art"><img src="/assets/deck/track.webp" alt="" loading="lazy" decoding="async" width="1344" height="752"></div>
+    <div class="panel__art"><img src="/assets/deck/finance.webp" alt="" loading="lazy" decoding="async" width="1344" height="752"></div>
     <div class="panel__in">
-      <p class="label">04 Track &middot; CRM</p>
-      <h2>Nothing slips<br><i>through.</i></h2>
-      <p class="sub">Every lead, customer and conversation in one place. Logged the second it lands, tracked to won or lost.</p>
-      <ul class="buys">
-        <li>One pipeline</li><li>Lead history</li><li>Notes &amp; tasks</li><li>Won / lost</li>
-      </ul>
+      <p class="label">04 &middot; Finance</p>
+      <h2>Invoiced.<br><i>Chased. Paid.</i></h2>
+      <p class="sub">Deposits taken at the booking, invoices sent on the job, and what came in, what it was worth and what it cost on one page.</p>
+      <ul class="buys"><li>Deposits</li><li>Invoicing</li><li>Payment chasing</li><li>Revenue dashboard</li></ul>
     </div>
     <p class="count"><b>04</b> / 06</p>
   </section>
 
-  <!-- 05 — follow up -->
+  <!-- 05 clients & calls -->
   <section class="panel">
-    <div class="panel__art"><img src="/assets/deck/followup.webp" alt="" loading="lazy" decoding="async" width="1344" height="752"></div>
+    <div class="panel__art"><img src="/assets/deck/clients.webp" alt="" loading="lazy" decoding="async" width="1344" height="752"></div>
     <div class="panel__in">
-      <p class="label">05 Follow up &middot; Automation</p>
-      <h2>No lead<br><i>goes cold.</i></h2>
-      <p class="sub">Missed calls, quotes and review requests chased automatically, so nothing depends on someone remembering.</p>
-      <ul class="buys">
-        <li>Quote chasing</li><li>Review requests</li><li>Admin automation</li><li>Email &amp; SMS</li>
-      </ul>
+      <p class="label">05 &middot; Clients &amp; calls</p>
+      <h2>Answered in<br><i>seconds.</i></h2>
+      <p class="sub">Whoever replies first usually wins the job. Missed calls, quotes and review requests all chased without you lifting a finger.</p>
+      <ul class="buys"><li>Missed-call reply</li><li>Live chat</li><li>Follow-ups</li><li>Review requests</li></ul>
     </div>
     <p class="count"><b>05</b> / 06</p>
   </section>
 
-  <!-- 06 — prove -->
+  <!-- 06 ai assistant -->
   <section class="panel">
-    <div class="panel__art"><img src="/assets/deck/report.webp" alt="" loading="lazy" decoding="async" width="1344" height="752"></div>
+    <div class="panel__art"><img src="/assets/deck/ai.webp" alt="" loading="lazy" decoding="async" width="1344" height="752"></div>
     <div class="panel__in">
-      <p class="label">06 Prove &middot; Reporting dashboards</p>
-      <h2>Proof, not<br><i>promises.</i></h2>
-      <p class="sub">Leads, calls, bookings and sales at a glance. What came in, what it was worth, with no digging through spreadsheets.</p>
-      <ul class="buys">
-        <li>Live dashboard</li><li>Lead sources</li><li>Monthly report</li><li>No spreadsheets</li>
-      </ul>
+      <p class="label">06 &middot; AI assistant</p>
+      <h2>Never off<br><i>duty.</i></h2>
+      <p class="sub">A chatbot on your site that answers questions, captures the lead and books the job at three in the morning.</p>
+      <ul class="buys"><li>Website chatbot</li><li>24/7 capture</li><li>Instant answers</li><li>Books the job</li></ul>
     </div>
     <p class="count"><b>06</b> / 06</p>
   </section>
 
-  <!-- 07 — close -->
+  <!-- closing -->
   <section class="panel close" id="close">
-    <div class="close__in">
+    <div class="panel__art"><img src="/assets/deck/close.webp" alt="" loading="lazy" decoding="async" width="1344" height="752"></div>
+    <div class="panel__in">
       <p class="label">The whole system, or one piece of it</p>
       <h2>Start with one.<br><i>Scale to the lot.</i></h2>
       <p class="sub">Pick one service or bundle several. Everything is built to work together, and we are open to any digital project.</p>
-      <ul class="also">
-        <li>Website management &amp; SEO</li>
-        <li>Branding &amp; print</li>
-        <li>Social media &amp; content</li>
-        <li>Something else</li>
-      </ul>
+      <ol class="stages">
+        <li><b>01</b><span>Website</span></li>
+        <li><b>02</b><span>CRM</span></li>
+        <li><b>03</b><span>Business</span></li>
+        <li><b>04</b><span>Finance</span></li>
+        <li><b>05</b><span>Clients &amp; calls</span></li>
+        <li><b>06</b><span>AI assistant</span></li>
+      </ol>
       <a class="cta" href="#">Get a free quote <span aria-hidden="true">&#8594;</span></a>
       <p class="close__note">No obligation &middot; Flexible pricing &middot; Fast turnaround</p>
     </div>
