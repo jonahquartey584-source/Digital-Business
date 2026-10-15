@@ -90,8 +90,20 @@
   }
 
   if ("IntersectionObserver" in window) {
+    /* Liveness is judged on the stage, not the panel. A scrub panel is three
+       screens tall, so its intersection ratio tops out around a third and a
+       0.55 test can never pass — the wording would stay at opacity 0 and the
+       opening would render as a black screen with nothing on it. The stage is
+       one screen and pinned, so it reads near 1 while the panel is in front
+       of you, which is the thing we actually mean. */
+    function watched(panel) { return panel.querySelector(".deck__stage") || panel; }
+    var panelOf = new WeakMap();
+    panels.forEach(function (p) { panelOf.set(watched(p), p); });
+
     var live = new IntersectionObserver(function (entries) {
       entries.forEach(function (e) {
+        var panel = panelOf.get(e.target) || e.target;
+        e = { target: panel, isIntersecting: e.isIntersecting, intersectionRatio: e.intersectionRatio };
         var i = panels.indexOf(e.target);
         if (e.isIntersecting && e.intersectionRatio > 0.55) {
           e.target.classList.add("is-live");
@@ -110,7 +122,7 @@
         }
       });
     }, { threshold: [0, 0.1, 0.55, 1] });
-    panels.forEach(function (p) { live.observe(p); });
+    panels.forEach(function (p) { live.observe(watched(p)); });
 
     // the ticks belong to the deck, so they show only while it is on screen
     new IntersectionObserver(function (entries) {
