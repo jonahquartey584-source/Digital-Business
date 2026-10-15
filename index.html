@@ -144,14 +144,15 @@
     <section class="deck" id="deck" aria-label="What we build">
       <div class="deck__ticks" id="deckTicks" aria-hidden="true"></div>
 
-      <div class="deck__panel deck__panel--open">
+      <div class="deck__panel deck__panel--open deck__panel--scrub">
+        <div class="deck__stage">
         <div class="deck__art">
           <!-- the opening hologram rotates and then alternates: telephone,
                money, then the leads converging on the UK. One file, cut with
                cross-fades and wrapped back into its own first frame so the
                loop has no seam. -->
           <img src="assets/deck/holo.webp" alt="" width="1344" height="752" fetchpriority="high" decoding="async">
-          <video data-src="assets/deck/holo.mp4" muted loop playsinline preload="none" aria-hidden="true" tabindex="-1"></video>
+          <video data-src="assets/deck/holo.mp4" muted playsinline preload="none" aria-hidden="true" tabindex="-1"></video>
         </div>
         <div class="deck__in">
           <p class="deck__eyebrow">Qp Digital &middot; Lead generating systems for growing businesses</p>
@@ -168,6 +169,7 @@
           <p class="deck__note">No obligation &middot; Flexible pricing &middot; Fast turnaround</p>
         </div>
         <p class="deck__hint" aria-hidden="true">Scroll</p>
+        </div>
       </div>
 
       <div class="deck__panel">

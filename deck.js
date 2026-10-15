@@ -54,9 +54,17 @@
     // a clip that will not load just leaves the poster in place
     v.addEventListener("error", function () { v.remove(); }, { once: true });
     v.src = src;
+    /* preload="none" means nothing is fetched until something asks to play,
+       and a scrubbed clip is never played — scrolling seeks it. Without this
+       the hero would sit on its poster for ever and never scrub at all. */
+    if (panel.classList.contains("deck__panel--scrub")) {
+      v.preload = "auto";
+      v.load();
+    }
   }
 
   function play(panel) {
+    if (panel.classList.contains("deck__panel--scrub")) return; // scroll drives it
     var v = panel.querySelector("video");
     if (!v || !v.dataset.attached) return;
     var p = v.play();
@@ -64,6 +72,7 @@
   }
 
   function pause(panel) {
+    if (panel.classList.contains("deck__panel--scrub")) return;
     var v = panel.querySelector("video");
     if (v && !v.paused) v.pause();
   }
@@ -103,46 +112,57 @@
     }, { threshold: [0, 0.1, 0.55, 1] });
     panels.forEach(function (p) { live.observe(p); });
 
-    /* The ticks belong to the deck, and the same signal hardens the snap:
-       mandatory between panels, proximity everywhere else.
-
-       The release has to happen BEFORE you try to leave, not after. Under
-       mandatory snap the browser must come to rest on a snap point, and the
-       last one is the final panel — with nothing below it to snap to, the
-       page pins there and everything under the deck becomes unreachable, by
-       wheel and by scrollTo alike. So snapping is hard through the panels
-       and lets go once the last one has settled, which is still every
-       transition the deck actually has. */
-    var deckOnScreen = false, onLastPanel = false;
-    var lastPanel = panels[panels.length - 1];
-
-    function syncSnap() {
-      var hard = deckOnScreen && !onLastPanel;
-      if (ticks) ticks.classList.toggle("is-on", deckOnScreen);
-      if (!reduced) document.documentElement.classList.toggle("is-in-deck", hard);
-    }
-
+    // the ticks belong to the deck, so they show only while it is on screen
     new IntersectionObserver(function (entries) {
-      entries.forEach(function (e) { deckOnScreen = e.isIntersecting; });
-      syncSnap();
+      entries.forEach(function (e) {
+        if (ticks) ticks.classList.toggle("is-on", e.isIntersecting);
+      });
     }, { threshold: 0 }).observe(deck);
-
-    new IntersectionObserver(function (entries) {
-      entries.forEach(function (e) { onLastPanel = e.intersectionRatio >= 0.55; });
-      syncSnap();
-    }, { threshold: [0, 0.55, 1] }).observe(lastPanel);
-
-    /* Safety net. If an observer ever misses, a visitor must not be stuck on
-       a page they cannot scroll: once the deck's bottom is above the fold the
-       snap is released no matter what the observers believe. */
-    addEventListener("scroll", function () {
-      if (document.documentElement.classList.contains("is-in-deck") &&
-          deck.getBoundingClientRect().bottom <= innerHeight) {
-        document.documentElement.classList.remove("is-in-deck");
-      }
-    }, { passive: true });
   } else {
     panels.forEach(function (p) { p.classList.add("is-live"); });
+  }
+
+  /* ---- scroll-scrubbed panels -------------------------------------------
+     The reference effect is a scroll-linked frame sequence: scrolling moves
+     the footage rather than the footage playing itself. A scrub panel is
+     taller than the screen and pinned, so how far you have scrolled through
+     it maps onto the clip's currentTime.
+
+     Seeking is driven from rAF rather than straight off the scroll event,
+     because a seek that is still in flight when the next one arrives is
+     dropped, and the picture sticks. */
+  var scrubs = panels.filter(function (p) { return p.classList.contains("deck__panel--scrub"); });
+  if (scrubs.length && !reduced) {
+    var pending = false;
+
+    function paintScrubs() {
+      pending = false;
+      scrubs.forEach(function (panel) {
+        var v = panel.querySelector("video");
+        if (!v || !v.duration || isNaN(v.duration)) return;
+        var r = panel.getBoundingClientRect();
+        var travel = panel.offsetHeight - innerHeight;
+        if (travel <= 0) return;
+        var progress = Math.min(1, Math.max(0, -r.top / travel));
+        var want = progress * (v.duration - 0.05);
+        // a seek under one frame is not worth the decode
+        if (Math.abs(v.currentTime - want) > 0.04) {
+          try { v.currentTime = want; } catch (e) { /* not seekable yet */ }
+        }
+      });
+    }
+
+    function requestScrub() {
+      if (!pending) { pending = true; requestAnimationFrame(paintScrubs); }
+    }
+
+    addEventListener("scroll", requestScrub, { passive: true });
+    addEventListener("resize", requestScrub);
+    scrubs.forEach(function (panel) {
+      var v = panel.querySelector("video");
+      if (v) v.addEventListener("loadedmetadata", requestScrub, { once: true });
+    });
+    requestScrub();
   }
 
   // a tab in the background should not be decoding video

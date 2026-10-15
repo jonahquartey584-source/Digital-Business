@@ -3101,9 +3101,12 @@ html { scroll-snap-type: y proximity; }
    reference deck scrolls. It drops back to proximity once the deck is behind
    you, because the sections below have no snap points and mandatory would
    fight anyone trying to read a long one. deck.js sets this class. */
-html.is-in-deck { scroll-snap-type: y mandatory; }
+/* Mandatory snapping is gone. It fought the scrubbed opening, which is three
+   screens tall with a single snap point, and it was the thing that pinned the
+   page on the last panel back when every snap point lived inside the deck.
+   Proximity still lands each one-screen panel cleanly. */
 @media (prefers-reduced-motion: reduce) {
-  html, html.is-in-deck { scroll-snap-type: none; }
+  html { scroll-snap-type: none; }
 }
 
 .deck {
@@ -3180,6 +3183,37 @@ html.is-in-deck { scroll-snap-type: y mandatory; }
 /* The opening carries more wording than the other panels and its art is lit
    on the right, so its scrim runs darker and starts higher: the eyebrow and
    the note reach far enough across to meet the lit side otherwise. */
+/* ---------------------------------------------------------------------------
+   Scroll-scrubbed opening. The reference is a scroll-linked frame sequence:
+   the footage does not play by itself, scrolling moves it frame by frame.
+
+   The panel is a little over three screens tall and its contents are pinned
+   for that distance, so there is scroll to spend; deck.js maps how far you
+   are through it onto the clip's currentTime. That clip is re-encoded at
+   12fps with a keyframe every other frame so a seek lands where asked — a
+   normal loop encode seeks back to the previous keyframe and the picture
+   jumps around as you scroll.
+   --------------------------------------------------------------------------- */
+.deck__panel--scrub {
+  height: 320svh;
+  display: block;
+  scroll-snap-align: none;
+}
+.deck__stage {
+  position: sticky; top: 0;
+  height: 100svh;
+  overflow: hidden;
+  display: flex;
+  align-items: flex-end;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  /* no scrub: one screen, the poster and the wording */
+  .deck__panel--scrub { height: 100svh; }
+  .deck__panel--scrub .deck__art video { display: none; }
+}
+
+.deck__panel--open .deck__stage::after,
 .deck__panel--open::after {
   background:
     linear-gradient(180deg, rgba(4,4,8,.5) 0%, rgba(4,4,8,0) 22%, rgba(4,4,8,0) 46%, rgba(4,4,8,.34) 80%, rgba(4,4,8,.54) 100%),
