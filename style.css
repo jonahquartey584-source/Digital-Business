@@ -3195,7 +3195,9 @@ html { scroll-snap-type: y proximity; }
    jumps around as you scroll.
    --------------------------------------------------------------------------- */
 .deck__panel--scrub {
-  height: 320svh;
+  /* the opening gets the longest run; the service panels scrub over less, so
+     going down the deck does not become a marathon */
+  height: 220svh;
   display: block;
   scroll-snap-align: none;
   /* .deck__panel sets overflow:hidden, and an overflow-hidden ancestor turns
@@ -3204,6 +3206,7 @@ html { scroll-snap-type: y proximity; }
      clipping instead. */
   overflow: visible;
 }
+.deck__panel--open.deck__panel--scrub { height: 320svh; }
 .deck__stage {
   position: sticky; top: 0;
   height: 100svh;
