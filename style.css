@@ -3050,7 +3050,16 @@ html.is-in-deck { scroll-snap-type: y mandatory; }
   align-items: flex-end;
 }
 
-.deck__art { position: absolute; inset: 0; z-index: 0; }
+/* The picture settles as the panel lands — it arrives slightly oversized and
+   eases down to true. That drift under the wording is the move the reference
+   deck is built on; without it the panels read as flat stills with text on. */
+.deck__art {
+  position: absolute; inset: 0; z-index: 0;
+  transform: scale(1.07);
+  transition: transform 1.6s cubic-bezier(.2, .8, .3, 1);
+  will-change: transform;
+}
+.deck__panel.is-live .deck__art { transform: scale(1); }
 .deck__art img,
 .deck__art video {
   width: 100%; height: 100%;
@@ -3259,6 +3268,7 @@ html.is-in-deck { scroll-snap-type: y mandatory; }
 
 @media (prefers-reduced-motion: reduce) {
   .deck__art video { display: none; }
+  .deck__art, .deck__panel.is-live .deck__art { transform: none; transition: none; }
   .deck__label, .deck__eyebrow, .deck__title, .deck__sub,
   .deck__buys, .deck__cta, .deck__note {
     opacity: 1 !important; transform: none !important; transition: none !important;
