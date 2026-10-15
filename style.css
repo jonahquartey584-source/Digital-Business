@@ -3101,10 +3101,8 @@ html { scroll-snap-type: y proximity; }
    reference deck scrolls. It drops back to proximity once the deck is behind
    you, because the sections below have no snap points and mandatory would
    fight anyone trying to read a long one. deck.js sets this class. */
-/* Mandatory snapping is gone. It fought the scrubbed opening, which is three
-   screens tall with a single snap point, and it was the thing that pinned the
-   page on the last panel back when every snap point lived inside the deck.
-   Proximity still lands each one-screen panel cleanly. */
+/* Proximity lands on each one-screen film panel without trapping the visitor
+   inside the deck or interfering with the longer sections below it. */
 @media (prefers-reduced-motion: reduce) {
   html { scroll-snap-type: none; }
 }
@@ -3138,15 +3136,8 @@ html { scroll-snap-type: y proximity; }
    deck is built on; without it the panels read as flat stills with text on. */
 .deck__art {
   position: absolute; inset: 0; z-index: 0;
-  /* The settle starts only slightly oversized. The frames are 16:9 and a
-     browser window is usually taller than that, so object-fit: cover is
-     already enlarging them to fill the height — anything more than a touch
-     on top of that and the subject is cropped out of its own composition. */
-  transform: scale(1.035);
-  transition: transform 1.6s cubic-bezier(.2, .8, .3, 1);
-  will-change: transform;
+  transform: none;
 }
-.deck__panel.is-live .deck__art { transform: scale(1); }
 .deck__art img,
 .deck__art video {
   width: 100%; height: 100%;
@@ -3183,42 +3174,14 @@ html { scroll-snap-type: y proximity; }
 /* The opening carries more wording than the other panels and its art is lit
    on the right, so its scrim runs darker and starts higher: the eyebrow and
    the note reach far enough across to meet the lit side otherwise. */
-/* ---------------------------------------------------------------------------
-   Scroll-scrubbed opening. The reference is a scroll-linked frame sequence:
-   the footage does not play by itself, scrolling moves it frame by frame.
-
-   The panel is a little over three screens tall and its contents are pinned
-   for that distance, so there is scroll to spend; deck.js maps how far you
-   are through it onto the clip's currentTime. That clip is re-encoded at
-   12fps with a keyframe every other frame so a seek lands where asked — a
-   normal loop encode seeks back to the previous keyframe and the picture
-   jumps around as you scroll.
-   --------------------------------------------------------------------------- */
-.deck__panel--scrub {
-  /* the opening gets the longest run; the service panels scrub over less, so
-     going down the deck does not become a marathon */
-  height: 220svh;
-  display: block;
-  scroll-snap-align: none;
-  /* .deck__panel sets overflow:hidden, and an overflow-hidden ancestor turns
-     position:sticky into a no-op. The stage then scrolled away instead of
-     pinning and left two empty screens of black below it. The stage does the
-     clipping instead. */
-  overflow: visible;
-}
-.deck__panel--open.deck__panel--scrub { height: 320svh; }
+/* Each deck panel is a normal one-screen section. Scrolling selects the next
+   panel; it never controls the video's timeline. */
 .deck__stage {
-  position: sticky; top: 0;
-  height: 100svh;
+  position: absolute; inset: 0;
+  width: 100%; height: 100%;
   overflow: hidden;
   display: flex;
   align-items: flex-end;
-}
-
-@media (prefers-reduced-motion: reduce) {
-  /* no scrub: one screen, the poster and the wording */
-  .deck__panel--scrub { height: 100svh; }
-  .deck__panel--scrub .deck__art video { display: none; }
 }
 
 .deck__panel--open .deck__stage::after,
@@ -3274,7 +3237,7 @@ html { scroll-snap-type: y proximity; }
   color: var(--d-ink);
 }
 .deck h2.deck__title { font-size: clamp(2.35rem, 6.4vw, 5.1rem); max-width: 15ch; }
-.deck h1.deck__title { font-size: clamp(2.6rem, 8vw, 6.2rem); max-width: 16ch; line-height: .9; letter-spacing: -.05em; }
+.deck h1.deck__title { font-size: clamp(2.45rem, 6.6vw, 5.3rem); max-width: 16ch; line-height: .92; letter-spacing: -.05em; }
 .deck__title i { font-style: normal; color: var(--d-gold-bright); }
 .deck__title em {
   font-style: normal; display: block;
@@ -3297,22 +3260,6 @@ html { scroll-snap-type: y proximity; }
   font-size: .88rem; line-height: 1.5; color: var(--d-dim); max-width: 44ch;
 }
 .deck__why b { display: block; font-weight: 700; color: var(--d-gold-bright); }
-
-/* the hero's two stats, now on the opening panel */
-.deck__stats {
-  margin: 26px 0 0; padding: 0; list-style: none;
-  display: flex; flex-wrap: wrap; gap: 0 clamp(26px, 4vw, 52px);
-}
-.deck__stats li { padding-right: clamp(26px, 4vw, 52px); border-right: 1px solid var(--d-rule); }
-.deck__stats li:last-child { border-right: 0; padding-right: 0; }
-.deck__stats b {
-  display: block; font-family: "Sora", sans-serif; font-size: 1.12rem;
-  font-weight: 700; color: var(--d-gold-bright); letter-spacing: -.01em;
-}
-.deck__stats span {
-  display: block; margin-top: 3px; font-family: "IBM Plex Mono", monospace;
-  font-size: .56rem; letter-spacing: .18em; text-transform: uppercase; color: var(--d-faint);
-}
 
 /* what you actually buy at this stage */
 .deck__buys {
@@ -3338,29 +3285,11 @@ html { scroll-snap-type: y proximity; }
 .deck__count b { color: var(--d-gold-bright); font-weight: 500; }
 
 .deck__cta { display: flex; flex-wrap: wrap; gap: 12px; margin-top: clamp(24px, 3.4vh, 34px); }
-.deck__note {
-  margin: 16px 0 0; font-family: "IBM Plex Mono", monospace; font-size: .58rem;
-  letter-spacing: .14em; text-transform: uppercase; color: var(--d-faint);
-}
-
-/* type arrives as the panel lands */
+/* Copy stays readable and steady over the live background. */
 .deck__label, .deck__eyebrow, .deck__title, .deck__sub, .deck__why,
-.deck__stats, .deck__buys, .deck__cta, .deck__note {
-  opacity: 0; transform: translateY(14px);
-  transition: opacity .8s ease, transform .8s cubic-bezier(.2, .9, .3, 1);
-}
-.deck__panel.is-live .deck__label,
-.deck__panel.is-live .deck__eyebrow { transition-delay: .1s; }
-.deck__panel.is-live .deck__title   { transition-delay: .18s; }
-.deck__panel.is-live .deck__sub     { transition-delay: .3s; }
-.deck__panel.is-live .deck__why     { transition-delay: .38s; }
-.deck__panel.is-live .deck__stats   { transition-delay: .46s; }
-.deck__panel.is-live .deck__buys,
-.deck__panel.is-live .deck__cta     { transition-delay: .4s; }
-.deck__panel.is-live .deck__note    { transition-delay: .5s; }
-.deck__panel.is-live :is(.deck__label, .deck__eyebrow, .deck__title, .deck__sub,
-    .deck__why, .deck__stats, .deck__buys, .deck__cta, .deck__note) {
-  opacity: 1; transform: none;
+.deck__buys, .deck__cta {
+  opacity: 1;
+  transform: none;
 }
 
 /* progress ticks, right edge — only while the deck is the thing on screen */
@@ -3429,10 +3358,13 @@ html { scroll-snap-type: y proximity; }
 
   .deck__cta { gap: 9px; margin-top: 20px; }
   .deck__cta .btn { flex: 1 1 100%; justify-content: center; }
-  /* the floating chat launcher sits in the bottom right corner, and the note
-     was running underneath it */
-  .deck__note { margin-top: 12px; max-width: calc(100% - 84px); }
-
+  .deck__cta .btn--ghost {
+    flex: 0 0 auto; width: auto; min-height: 42px;
+    justify-content: flex-start; padding-inline: 0;
+    border-color: transparent; background: transparent;
+  }
+  .deck__panel--open .deck__art img,
+  .deck__panel--open .deck__art video { object-position: 72% center; }
   /* all four chips, as on a wide screen; the row simply keeps clear of the
      column the floating chat launcher occupies instead of dropping any */
   .deck__buys { max-width: none; margin-top: 16px; padding-right: 76px; }
@@ -3446,16 +3378,13 @@ html { scroll-snap-type: y proximity; }
   .deck__ticks i { height: 16px; }
   .deck__hint { display: none; }
 
-  /* the two promo bars sit above the deck and were taking a third of the
-     first screen on a phone, so the film panel opened half off-frame */
-  .hiring-bar__inner, .client-bar__inner { padding-block: 7px; font-size: .74rem; }
 }
 
 @media (prefers-reduced-motion: reduce) {
   .deck__art video { display: none; }
-  .deck__art, .deck__panel.is-live .deck__art { transform: none; transition: none; }
+  .deck__art { transform: none; transition: none; }
   .deck__label, .deck__eyebrow, .deck__title, .deck__sub, .deck__why,
-  .deck__stats, .deck__buys, .deck__cta, .deck__note {
+  .deck__buys, .deck__cta {
     opacity: 1 !important; transform: none !important; transition: none !important;
   }
 }
