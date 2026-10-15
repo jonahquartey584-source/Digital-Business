@@ -9,15 +9,15 @@
   --text-dim: #a89a83;
   --text-faint: #9e9180;
   --beige: #e9dcc3;
-  --gold: #b8874b;
-  --gold-rgb: 184, 135, 75;
-  --gold-bright: #e0bd83;
+  --gold: #a9803f;
+  --gold-rgb: 169, 128, 63;
+  --gold-bright: #c2954f;
   /* Gold used as TEXT. Kept separate from --gold/--gold-bright (which also
      fill buttons, badges and gradients) so the light theme can darken gold
      lettering enough to meet WCAG 1.4.3 without turning every gold surface
      brown. Identical to the decorative golds in the dark theme. */
-  --gold-text: #e0bd83;
-  --gold-text-dim: #b8874b;
+  --gold-text: #c2954f;
+  --gold-text-dim: #a9803f;
   --gold-deep: #7c4a24;
   --bronze: #7c4a24;
   --accent-text: #0c0b09;
@@ -3017,17 +3017,24 @@ html[data-theme="light"] .theme-toggle__sun{display:none}html[data-theme="light"
    points and must stay free.
    ========================================================================= */
 html { scroll-snap-type: y proximity; }
-@media (prefers-reduced-motion: reduce) { html { scroll-snap-type: none; } }
+/* Inside the deck the snap is decisive, one panel to a screen, the way the
+   reference deck scrolls. It drops back to proximity once the deck is behind
+   you, because the sections below have no snap points and mandatory would
+   fight anyone trying to read a long one. deck.js sets this class. */
+html.is-in-deck { scroll-snap-type: y mandatory; }
+@media (prefers-reduced-motion: reduce) {
+  html, html.is-in-deck { scroll-snap-type: none; }
+}
 
 .deck {
   /* the deck is always the dark cut, whatever the site theme is set to */
   --d-ink: #ffffff;
   --d-dim: rgba(255, 255, 255, .66);
   --d-faint: rgba(255, 255, 255, .7);
-  --d-gold: #c69a4e;
-  --d-gold-bright: #e6c98a;
-  --d-gold-deep: #8a6520;
-  --d-rule: rgba(198, 154, 78, .28);
+  --d-gold: #a9803f;
+  --d-gold-bright: #c2954f;
+  --d-gold-deep: #6b4f20;
+  --d-rule: rgba(169, 128, 63, .34);
   position: relative;
   background: #06060a;
   color: var(--d-ink);
@@ -3059,16 +3066,16 @@ html { scroll-snap-type: y proximity; }
 .deck__panel::after {
   content: ""; position: absolute; inset: 0; z-index: 1; pointer-events: none;
   background:
-    linear-gradient(180deg, rgba(4,4,8,.6) 0%, rgba(4,4,8,.08) 26%, rgba(4,4,8,.12) 42%, rgba(4,4,8,.78) 74%, rgba(4,4,8,.93) 100%),
-    linear-gradient(90deg, rgba(4,4,8,.74) 0%, rgba(4,4,8,.3) 46%, rgba(4,4,8,0) 74%);
+    linear-gradient(180deg, rgba(4,4,8,.5) 0%, rgba(4,4,8,0) 22%, rgba(4,4,8,0) 48%, rgba(4,4,8,.3) 82%, rgba(4,4,8,.5) 100%),
+    linear-gradient(90deg, rgba(4,4,8,.42) 0%, rgba(4,4,8,.06) 42%, rgba(4,4,8,0) 64%);
 }
 /* The opening carries more wording than the other panels and its art is lit
    on the right, so its scrim runs darker and starts higher: the eyebrow and
    the note reach far enough across to meet the lit side otherwise. */
 .deck__panel--open::after {
   background:
-    linear-gradient(180deg, rgba(4,4,8,.62) 0%, rgba(4,4,8,.1) 22%, rgba(4,4,8,.3) 40%, rgba(4,4,8,.82) 58%, rgba(4,4,8,.93) 76%, rgba(4,4,8,.98) 100%),
-    linear-gradient(90deg, rgba(4,4,8,.86) 0%, rgba(4,4,8,.52) 48%, rgba(4,4,8,.14) 78%);
+    linear-gradient(180deg, rgba(4,4,8,.5) 0%, rgba(4,4,8,0) 22%, rgba(4,4,8,0) 46%, rgba(4,4,8,.34) 80%, rgba(4,4,8,.54) 100%),
+    linear-gradient(90deg, rgba(4,4,8,.46) 0%, rgba(4,4,8,.08) 44%, rgba(4,4,8,0) 66%);
 }
 
 .deck__in {
@@ -3076,17 +3083,20 @@ html { scroll-snap-type: y proximity; }
   padding: 0 clamp(22px, 4vw, 54px) clamp(42px, 6vh, 70px);
 }
 
-/* The opening carries the most wording and its artwork has bright gold edges
-   that reach into the text column, so a panel-wide gradient is not enough:
-   the eyebrow was landing straight on a lit edge. This is a scrim bound to
-   the wording itself, faded out to the right so the hologram stays visible. */
-.deck__panel--open .deck__in::before {
+/* Contrast is carried here rather than by a wash over the whole frame. A
+   panel-wide gradient dark enough for small gold type on lit footage also
+   hides the footage, which is the thing worth looking at. This scrim is sized
+   to the text block and masked so it fades out before it reaches the subject,
+   which leaves most of the picture open. */
+.deck__panel .deck__in::before {
   content: ""; position: absolute; z-index: -1;
-  left: 0; right: 0; bottom: 0; top: -26px;
+  left: 0; right: 0; bottom: 0; top: -44px;
+  /* the ramp reaches full strength early: the eyebrow is the top line of the
+     block and was sitting in the part of the gradient still fading up */
   background: linear-gradient(180deg,
-    rgba(4, 4, 8, 0) 0%, rgba(4, 4, 8, .6) 20%, rgba(4, 4, 8, .84) 58%, rgba(4, 4, 8, .93) 100%);
-  -webkit-mask-image: linear-gradient(90deg, #000 0, #000 58%, rgba(0, 0, 0, 0) 100%);
-  mask-image: linear-gradient(90deg, #000 0, #000 58%, rgba(0, 0, 0, 0) 100%);
+    rgba(4, 4, 8, 0) 0%, rgba(4, 4, 8, .74) 13%, rgba(4, 4, 8, .9) 44%, rgba(4, 4, 8, .96) 100%);
+  -webkit-mask-image: linear-gradient(90deg, #000 0, #000 54%, rgba(0, 0, 0, 0) 92%);
+  mask-image: linear-gradient(90deg, #000 0, #000 54%, rgba(0, 0, 0, 0) 92%);
 }
 
 .deck__label,
@@ -3135,10 +3145,13 @@ html { scroll-snap-type: y proximity; }
 }
 
 .deck__count {
-  position: absolute; right: clamp(22px, 4vw, 54px); bottom: clamp(42px, 6vh, 70px);
+  /* clear of the floating chat launcher, which owns the bottom right corner */
+  position: absolute; right: clamp(22px, 4vw, 54px); bottom: clamp(100px, 13vh, 124px);
   z-index: 2; margin: 0;
   font-family: "IBM Plex Mono", monospace; font-size: .62rem;
   letter-spacing: .16em; color: var(--d-faint);
+  /* out on its own in the corner, away from the text block's scrim */
+  background: rgba(6, 6, 10, .62); padding: 5px 9px; border-radius: 2px;
 }
 .deck__count b { color: var(--d-gold-bright); font-weight: 500; }
 
@@ -3204,6 +3217,14 @@ html { scroll-snap-type: y proximity; }
 .hero { scroll-snap-align: start; }
 
 @media (max-width: 640px) {
+  /* On a phone the wording runs the full width of the frame, so the scrim
+     must too. The 54% fade is tuned to the desktop text column and left the
+     right-hand end of the sub and the eyebrow sitting on open footage. */
+  .deck__panel .deck__in::before {
+    -webkit-mask-image: linear-gradient(90deg, #000 0, #000 88%, rgba(0, 0, 0, 0) 100%);
+    mask-image: linear-gradient(90deg, #000 0, #000 88%, rgba(0, 0, 0, 0) 100%);
+  }
+
   /* a panel is one screen, so the wording has to fit one screen: the desktop
      type scale overflows the bottom of the frame on a phone */
   .deck h1.deck__title { font-size: clamp(2rem, 11vw, 3.1rem); max-width: 12ch; }

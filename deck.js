@@ -92,13 +92,16 @@
     }, { threshold: [0, 0.55, 1] });
     panels.forEach(function (p) { live.observe(p); });
 
-    // the ticks belong to the deck, so they show only while it is on screen
-    if (ticks) {
-      var inDeck = new IntersectionObserver(function (entries) {
-        entries.forEach(function (e) { ticks.classList.toggle("is-on", e.isIntersecting); });
-      }, { threshold: 0 });
-      inDeck.observe(deck);
-    }
+    // The ticks belong to the deck, so they show only while it is on screen,
+    // and the same signal hardens the snap: mandatory inside the deck, back to
+    // proximity once you are past it so long sections below stay readable.
+    var inDeck = new IntersectionObserver(function (entries) {
+      entries.forEach(function (e) {
+        if (ticks) ticks.classList.toggle("is-on", e.isIntersecting);
+        if (!reduced) document.documentElement.classList.toggle("is-in-deck", e.isIntersecting);
+      });
+    }, { threshold: 0 });
+    inDeck.observe(deck);
   } else {
     panels.forEach(function (p) { p.classList.add("is-live"); });
   }
