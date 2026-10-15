@@ -11,9 +11,19 @@
   var panels = [].slice.call(deck.querySelectorAll(".deck__panel"));
   if (!panels.length) return;
 
-  var reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
   var connection = navigator.connection;
-  var useClips = !reduced && !(connection && (connection.saveData || /(^|-)(2g|slow-2g)$/.test(connection.effectiveType || "")));
+  var staticQueries = [
+    "(max-width: 720px)",
+    "(orientation: portrait) and (max-width: 1024px)",
+    "(orientation: portrait) and (pointer: coarse)",
+    "(orientation: landscape) and (pointer: coarse) and (max-height: 560px)",
+    "(prefers-reduced-motion: reduce)"
+  ].map(function (query) { return window.matchMedia(query); });
+  function canUseClips() {
+    var saveData = connection && (connection.saveData || /(^|-)(2g|slow-2g)$/.test(connection.effectiveType || ""));
+    return !saveData && !staticQueries.some(function (query) { return query.matches; });
+  }
+  var useClips = canUseClips();
   var ticks = document.getElementById("deckTicks");
   var marks = [];
 
@@ -32,7 +42,10 @@
       if (!source) return;
 
       video.dataset.attached = "1";
-      video.loop = true;
+      // The hologram passes are short, single object animations. A small
+      // scheduler starts each pass just as it fades into the projector so
+      // its first frame is always the same, including on every loop.
+      video.loop = !video.classList.contains("holo-layer");
       video.addEventListener("canplay", function () { video.classList.add("is-ready"); }, { once: true });
       video.addEventListener("error", function () { video.remove(); }, { once: true });
       video.src = source;
@@ -42,6 +55,8 @@
 
   function play(panel) {
     if (!useClips) return;
+    if (panel._deckActive) return;
+    panel._deckActive = true;
     var videos = [].slice.call(panel.querySelectorAll("video"));
     if (!videos.length) return;
     attach(panel);
@@ -56,11 +71,33 @@
     })).then(function () {
       if (panel._deckPlayToken !== token) return;
       var cycle = panel.querySelector(".holo-cycle");
-      if (cycle) cycle.classList.add("is-playing");
+      if (cycle) {
+        cycle.classList.add("is-playing");
+        var phone = panel.querySelector(".holo-layer--phone");
+        var map = panel.querySelector(".holo-layer--map");
+        var pound = panel.querySelector(".holo-layer--pound");
+        function startPass(video) {
+          if (panel._deckPlayToken !== token || !video || !video.isConnected) return;
+          try { video.currentTime = 0; } catch (error) { /* metadata may still be settling */ }
+          var result = video.play();
+          if (result && result.catch) result.catch(function () { /* poster remains visible */ });
+        }
+        startPass(phone);
+        var passes = [{ video: map, delay: 1600 }, { video: pound, delay: 2000 }, { video: phone, delay: 2000 }];
+        var passIndex = 0;
+        function queuePass() {
+          var pass = passes[passIndex];
+          panel._holoTimer = window.setTimeout(function () {
+            if (panel._deckPlayToken !== token) return;
+            startPass(pass.video);
+            passIndex = (passIndex + 1) % passes.length;
+            queuePass();
+          }, pass.delay);
+        }
+        queuePass();
+      }
       videos.forEach(function (video) {
-        if (!video.isConnected) return;
-        var offset = cycle ? Number(video.dataset.cycleOffset || 0) : 0;
-        try { video.currentTime = offset; } catch (error) { /* metadata may still be settling */ }
+        if (!video.isConnected || video.classList.contains("holo-layer")) return;
         var result = video.play();
         if (result && result.catch) result.catch(function () { /* poster remains visible */ });
       });
@@ -68,7 +105,12 @@
   }
 
   function pause(panel) {
+    panel._deckActive = false;
     panel._deckPlayToken = (panel._deckPlayToken || 0) + 1;
+    if (panel._holoTimer) {
+      window.clearTimeout(panel._holoTimer);
+      panel._holoTimer = 0;
+    }
     var cycle = panel.querySelector(".holo-cycle");
     if (cycle) cycle.classList.remove("is-playing");
     panel.querySelectorAll("video").forEach(function (video) {
@@ -76,6 +118,26 @@
       try { video.currentTime = 0; } catch (error) { /* metadata may still be settling */ }
     });
   }
+
+  function updateClipMode() {
+    var next = canUseClips();
+    if (next === useClips) return;
+    useClips = next;
+    if (!useClips) {
+      panels.forEach(pause);
+      return;
+    }
+    panels.forEach(function (panel) {
+      var bounds = panel.getBoundingClientRect();
+      if (bounds.bottom > 0 && bounds.top < window.innerHeight) play(panel);
+    });
+  }
+
+  staticQueries.forEach(function (query) {
+    if (query.addEventListener) query.addEventListener("change", updateClipMode);
+    else if (query.addListener) query.addListener(updateClipMode);
+  });
+  if (connection && connection.addEventListener) connection.addEventListener("change", updateClipMode);
 
   if (useClips && "IntersectionObserver" in window) {
     var preload = new IntersectionObserver(function (entries) {
