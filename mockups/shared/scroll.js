@@ -342,10 +342,8 @@
     k: -1,
   }));
   // MP4 (H.264) first; a VP9 WebM twin covers browsers built without H.264.
-  const probe = document.createElement('video');
-  const VIDEO_URL = probe.canPlayType('video/mp4; codecs="avc1.640028"')
-    ? hero.dataset.scrub
-    : hero.dataset.scrub.replace(/\.mp4$/, '.webm');
+  // Only the MP4 ships here; a browser that cannot play it keeps the still ending frame.
+  const VIDEO_URL = hero.dataset.scrub;
   const POSTER = hero.dataset.poster;
   const ENDING = hero.dataset.ending || POSTER;
 
