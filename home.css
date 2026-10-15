@@ -352,14 +352,16 @@ body > .site-footer { position: relative; z-index: 1; }
     min-height: 92svh;
     display: flex;
     align-items: flex-end;
-    background: #050505 url("assets/hero/hero-ending.jpg") center 30% / cover no-repeat;
+    background: #050505 url("assets/hero/hero-poster.jpg") 68% 38% / cover no-repeat;
   }
 
   .film--static::before {
     content: "";
     position: absolute;
     inset: 0;
-    background: linear-gradient(180deg, rgba(4, 4, 7, 0.82) 0%, rgba(4, 4, 7, 0.55) 38%, rgba(4, 4, 7, 0.93) 100%);
+    background:
+      linear-gradient(180deg, rgba(4, 4, 7, 0.8) 0%, rgba(4, 4, 7, 0.42) 34%, rgba(4, 4, 7, 0.9) 72%, rgba(4, 4, 7, 0.96) 100%),
+      linear-gradient(90deg, rgba(4, 4, 7, 0.74) 0%, rgba(4, 4, 7, 0.3) 62%, rgba(4, 4, 7, 0) 100%);
   }
 
   .film-static__in {

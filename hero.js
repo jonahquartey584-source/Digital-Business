@@ -30,7 +30,7 @@
   var meterLabel = document.getElementById("meterLabel");
 
   var VIDEO_URL = "assets/hero/hero-scrub.mp4";
-  var VIDEO_BYTES = 4241454;
+  var VIDEO_BYTES = 4764879;
   var POSTER_URL = "assets/hero/hero-poster.jpg";
 
   /* ── the signal line (runs on every screen, hero or not) ───────────── */
