@@ -2936,6 +2936,16 @@ html[data-theme="light"] .theme-toggle__sun{display:none}html[data-theme="light"
   box-shadow: var(--shadow);
 }
 
+a.ex-card--link {
+  color: inherit;
+  text-decoration: none;
+}
+
+.ex-more {
+  margin: 34px 0 0;
+  text-align: center;
+}
+
 .ex-card__screen {
   position: relative;
   background: #000;
