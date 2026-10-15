@@ -3,44 +3,36 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Websites, CRM &amp; Booking Systems for Small Businesses | Qp Digital</title>
-  <meta name="description" content="Websites, CRM, booking systems, SEO and automation for small businesses across London and the UK, built and managed in one place." />
-  <!-- Ignored by Google/Bing today, but harmless and cheap to include. Real
-       ranking impact comes from these same terms appearing naturally in the
-       title/description/headings above and below, not from this tag. Kept
-       specific and long-tail on purpose: several unrelated companies also
-       trade as "QP Digital"/"QPDigital" (a venture capital firm, a London
-       ad agency), so generic single-word terms like "qp digital" alone
-       just compete with them — these phrases are what an actual prospect
-       for this business would type. -->
-  <meta name="keywords" content="Qp Digital, web design Greenwich, web design Lewisham, web design Bromley, web design Bexley, web design Southwark, website design London, CRM for small business London, booking system London, branding and print London, business automation London" />
+  <title>Websites, Booking &amp; Automation Systems for Small Businesses | Qp Digital</title>
+  <meta name="description" content="Qp Digital builds the system that catches every lead: websites, booking, automation, CRM and call answering, built and run in one place for small businesses across the UK." />
+  <meta name="keywords" content="Qp Digital, business automation London, automation systems small business, booking system London, website design London, CRM for small business London, automated follow ups, missed call text back UK, branding and print London" />
   <link rel="canonical" href="https://qp-digital.co.uk/" />
 
-  <!-- Favicon -->
   <link rel="icon" href="favicon.svg" type="image/svg+xml" />
   <link rel="icon" href="favicon-32.png" sizes="32x32" type="image/png" />
   <link rel="apple-touch-icon" href="apple-touch-icon.png" />
   <meta name="theme-color" content="#0c0b09" />
 
-  <!-- Open Graph / Twitter — how this page looks when shared (Slack, iMessage, Twitter, etc.) -->
   <meta property="og:type" content="website" />
   <meta property="og:locale" content="en_GB" />
   <meta property="og:site_name" content="Qp Digital" />
   <meta property="og:url" content="https://qp-digital.co.uk/" />
-  <meta property="og:title" content="Websites, CRM &amp; Booking Systems for Small Businesses | Qp Digital" />
-  <meta property="og:description" content="Websites, CRM, booking systems, SEO and automation for small businesses across London and the UK, built and managed in one place." />
+  <meta property="og:title" content="Websites, Booking &amp; Automation Systems for Small Businesses | Qp Digital" />
+  <meta property="og:description" content="The system that always picks up: websites, booking, automation, CRM and call answering, built and run in one place." />
   <meta property="og:image" content="https://qp-digital.co.uk/og-image.png" />
   <meta property="og:image:width" content="1200" />
   <meta property="og:image:height" content="630" />
   <meta name="twitter:card" content="summary_large_image" />
-  <meta name="twitter:title" content="Websites, CRM &amp; Booking Systems for Small Businesses | Qp Digital" />
-  <meta name="twitter:description" content="Websites, CRM, booking systems, SEO and automation for small businesses across London and the UK, built and managed in one place." />
+  <meta name="twitter:title" content="Websites, Booking &amp; Automation Systems for Small Businesses | Qp Digital" />
+  <meta name="twitter:description" content="The system that always picks up: websites, booking, automation, CRM and call answering, built and run in one place." />
   <meta name="twitter:image" content="https://qp-digital.co.uk/og-image.png" />
 
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=Sora:wght@600;700;800&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@500;600&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,700;12..96,800&family=Playfair+Display:wght@700&family=Sora:wght@600;700;800&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@500;600&display=swap" rel="stylesheet" />
+  <link rel="preload" as="image" href="assets/hero/hero-poster.jpg" media="(min-width: 721px)" fetchpriority="high" />
   <link rel="stylesheet" href="style.css" />
+  <link rel="stylesheet" href="home.css" />
   <script>
     try {
       document.documentElement.dataset.theme = localStorage.getItem("qpTheme") === "light" ? "light" : "dark";
@@ -50,8 +42,6 @@
   </script>
   <noscript><style>[data-reveal] { opacity: 1 !important; transform: none !important; }</style></noscript>
 
-  <!-- Structured data — lets Google show Qp Digital as a business (name,
-       contact info) in rich results, separate from the on-page content. -->
   <script type="application/ld+json">
   {
     "@context": "https://schema.org",
@@ -79,18 +69,15 @@
   </script>
 </head>
 <body>
+  <a class="skip-link" href="#main">Skip to content</a>
 
-  <!-- Intro splash. Pure CSS on purpose: it is the first thing painted,
-       so it must not wait on a script or a download. -->
-  <div class="intro-overlay" aria-hidden="true">
-    <div class="intro-overlay__plate">
-      <span class="intro-overlay__reveal"><span class="intro-overlay__mark">Qp Digital</span></span>
-      <span class="intro-overlay__line"></span>
-      <span class="intro-overlay__tag">Lead-Generating Systems</span>
-    </div>
+  <div class="env" aria-hidden="true"></div>
+
+  <!-- The signal line: the one bold element on the page. It fills as you
+       scroll and lights a node at every section head. -->
+  <div class="sig" id="sig" aria-hidden="true">
+    <span class="sig__fill" id="sigFill"></span>
   </div>
-
-  <div class="gold-rule"></div>
 
   <header class="site-header" id="top">
     <div class="container header__inner">
@@ -118,6 +105,91 @@
     </div>
   </header>
 
+  <main id="main" tabindex="-1">
+
+    <!-- ── THE HERO FILM ───────────────────────────────────────────────
+         640vh of scroll drives 11.75s of hologram footage. Five bands of
+         copy sit in the dark left lane; the hologram keeps the right.
+         Phones, portrait tablets and reduced motion get the static hero
+         below instead, and never download the video. -->
+    <section class="film" id="film" aria-label="What Qp Digital builds">
+      <div class="film__stage" id="stage">
+        <div class="film__media" aria-hidden="true">
+          <div class="film__poster" id="poster"></div>
+          <video class="film__video" id="heroVideo" preload="none" muted playsinline aria-hidden="true" tabindex="-1"></video>
+          <div class="film__scrim"></div>
+        </div>
+
+        <svg class="film__ring" id="ring" viewBox="0 0 48 48" aria-hidden="true">
+          <circle cx="24" cy="24" r="20" fill="none" stroke="currentColor" stroke-width="3"
+                  stroke-dasharray="126" style="stroke-dashoffset:var(--ld,126)" />
+        </svg>
+
+        <div class="film__bands">
+          <div class="band" data-band="0,0.15" data-entrance="punch">
+            <p class="band__kicker">Qp Digital &middot; lead systems</p>
+            <h1 class="band__h" data-split="word">Your next customer is calling <em>right now</em>.</h1>
+            <p class="band__p">If nobody picks up, they ring the next number on the list.</p>
+          </div>
+
+          <div class="band" data-band="0.18,0.35" data-entrance="drift">
+            <p class="band__kicker">The honest bit</p>
+            <p class="band__h" data-split="word">You cannot answer the phone <em>from under a sink</em>.</p>
+            <p class="band__p">So we build the system that answers for you, in seconds, every time.</p>
+          </div>
+
+          <div class="band" data-band="0.39,0.57" data-entrance="scatter" data-spread="0.5">
+            <p class="band__kicker">Capture</p>
+            <p class="band__h" data-split="char">Every enquiry lands in <em>one place</em>.</p>
+            <p class="band__p">Website, phone, Instagram, walk ins. Named, tracked, and never lost in a notebook.</p>
+          </div>
+
+          <div class="band" data-band="0.60,0.78" data-entrance="grid" data-spread="0.6">
+            <p class="band__kicker">Automation</p>
+            <p class="band__h" data-split="char">Automation does the <em>chasing</em>.</p>
+            <p class="band__p">A text back in thirty seconds, the booking link sent, reminders before the job and a nudge after it.</p>
+          </div>
+
+          <div class="band" data-band="0.81,1" data-entrance="rise" data-ramp="0.05" data-scrim="deep">
+            <p class="band__kicker">Payday</p>
+            <p class="band__h" data-split="word">And you can see <em>what it was worth</em>.</p>
+            <p class="band__p">Quotes, bookings and paid work on one simple dashboard.</p>
+            <div class="band__cta">
+              <a class="btn btn--primary btn--lg" href="#enquire">Get a free quote</a>
+              <a class="btn btn--ghost btn--lg" href="#services">See what we build</a>
+            </div>
+          </div>
+        </div>
+
+        <p class="film__cue" id="cue" aria-hidden="true"><span></span>Scroll</p>
+
+        <div class="film__meter" aria-hidden="true">
+          <b id="meterBar"></b>
+          <i id="meterLabel">01</i>
+        </div>
+      </div>
+    </section>
+
+    <!-- The static hero: a composed layout over the closing frame. -->
+    <section class="film--static" aria-label="What Qp Digital builds">
+      <div class="container film-static__in">
+        <p class="film-static__kicker">Qp Digital &middot; lead systems</p>
+        <h1 class="film-static__h">The system that <em>always picks up</em>.</h1>
+        <p class="film-static__p">Websites, booking, automation, CRM and call answering, built and run in one place so no enquiry goes cold.</p>
+        <div class="film-static__cta">
+          <a class="btn btn--primary btn--lg" href="#enquire">Get a free quote</a>
+          <a class="btn btn--ghost btn--lg" href="#services">See what we build</a>
+        </div>
+        <ul class="film-static__stats">
+          <li><b>11+</b><span>Services</span></li>
+          <li><b>Days, not months</b><span>Turnaround</span></li>
+          <li><b>No obligation</b><span>Quotes</span></li>
+        </ul>
+      </div>
+    </section>
+
+  <div class="gold-rule"></div>
+
   <div class="hiring-bar">
     <div class="container hiring-bar__inner">
       <span class="hiring-bar__badge">We're Hiring</span>
@@ -133,295 +205,74 @@
     </div>
   </div>
 
-  <main>
+    <!-- ── THE SYSTEM ─────────────────────────────────────────────────── -->
+    <section class="sec sys" id="services">
+      <div class="container">
+        <div class="sec-head" data-reveal data-node>
+          <p class="sec-tag">The system</p>
+          <h2 class="sec-title">One system. <em>Six moving parts.</em></h2>
+          <p class="sec-lead">Start with one piece or run the lot. They are built to talk to each other from the first day.</p>
+        </div>
 
-    <!-- HERO -->
+        <div class="sys__grid">
+          <article class="syscard syscard--lead" data-reveal>
+            <img class="syscard__shot" src="assets/deck/business.webp" alt="" width="1344" height="752" loading="lazy" decoding="async" />
+            <button class="syscard__hit" type="button" data-service="automation" aria-haspopup="dialog"><span class="visually-hidden">Automation systems: see what it does and examples</span></button>
+            <p class="syscard__tag">Most popular</p>
+            <p class="syscard__no">01</p>
+            <h3>Automation systems</h3>
+            <p>The part that works while you are on a job. A missed call goes out as a text in thirty seconds, the booking link follows, reminders go before the job and a review request goes after. Set it once and it runs every day.</p>
+            <span class="syscard__more" aria-hidden="true">Details &rarr;</span>
+          </article>
 
-    <!-- Cinematic deck: the film panels that open the site. Each panel is a
-         poster image with a muted loop laid over it once it is worth loading;
-         the poster is what shows on a slow connection, on mobile, or when the
-         visitor has asked for reduced motion. -->
-    <section class="deck" id="deck" aria-label="What we build">
-      <div class="deck__ticks" id="deckTicks" aria-hidden="true"></div>
+          <article class="syscard" data-reveal data-delay="1">
+            <img class="syscard__shot" src="assets/deck/website.webp" alt="" width="1344" height="752" loading="lazy" decoding="async" />
+            <button class="syscard__hit" type="button" data-service="websites" aria-haspopup="dialog"><span class="visually-hidden">Websites and landing pages: see what it does and examples</span></button>
+            <p class="syscard__no">02</p>
+            <h3>Websites and landing pages</h3>
+            <p>Fast, built for phones first, and written to turn a visitor into an enquiry.</p>
+            <span class="syscard__more" aria-hidden="true">Details &rarr;</span>
+          </article>
 
-      <div class="deck__panel deck__panel--open deck__panel--scrub">
-        <div class="deck__stage">
-        <div class="deck__art">
-          <!-- the opening hologram rotates and then alternates: telephone,
-               money, then the leads converging on the UK. One file, cut with
-               cross-fades and wrapped back into its own first frame so the
-               loop has no seam. -->
-          <img src="assets/deck/holo.webp" alt="" width="1344" height="752" fetchpriority="high" decoding="async">
-          <video data-src="assets/deck/holo.mp4" muted playsinline preload="none" aria-hidden="true" tabindex="-1"></video>
-        </div>
-        <div class="deck__in">
-          <p class="deck__eyebrow">Qp Digital &middot; Lead generating systems for growing businesses</p>
-          <h1 class="deck__title">Lead generating<em>systems</em></h1>
-          <p class="deck__sub">Websites and landing pages, booking systems and automation that captures the lead, tracks it, answers the call, books the job and shows you what it was worth.</p>
-          <div class="deck__cta">
-            <a class="btn btn--primary btn--lg" href="#enquire">Get a Free Quote</a>
-            <a class="btn btn--ghost btn--lg" href="#services">View Services</a>
-          </div>
-          <ul class="deck__stats">
-            <li><b>11+</b><span>Services listed</span></li>
-            <li><b>Lightning fast</b><span>Rapid turnaround</span></li>
-          </ul>
-          <p class="deck__note">No obligation &middot; Flexible pricing &middot; Fast turnaround</p>
-        </div>
-        <p class="deck__hint" aria-hidden="true">Scroll</p>
-        </div>
-      </div>
+          <article class="syscard" data-reveal data-delay="2">
+            <img class="syscard__shot" src="assets/deck/clients.webp" alt="" width="1344" height="752" loading="lazy" decoding="async" />
+            <button class="syscard__hit" type="button" data-service="booking" aria-haspopup="dialog"><span class="visually-hidden">Booking systems: see what it does and examples</span></button>
+            <p class="syscard__no">03</p>
+            <h3>Booking systems</h3>
+            <p>Customers pick a slot that suits them. It lands in your calendar with the details already on it.</p>
+            <span class="syscard__more" aria-hidden="true">Details &rarr;</span>
+          </article>
 
-      <div class="deck__panel deck__panel--scrub">
-        <div class="deck__stage">
-        <div class="deck__art">
-          <img src="assets/deck/website.webp" alt="" width="1344" height="752" loading="lazy" decoding="async">
-          <video data-src="assets/deck/website.mp4" muted playsinline preload="none" aria-hidden="true" tabindex="-1"></video>
-        </div>
-        <div class="deck__in">
-          <p class="deck__label">01 &middot; Websites &amp; landing pages</p>
-          <h2 class="deck__title">Every lead.<br><i>Captured.</i></h2>
-          <p class="deck__sub">Custom-built websites and landing pages, mobile-friendly and designed to turn a visitor into an enquiry, not just to look the part.</p>
-          <p class="deck__why"><b>You're invisible until you're found.</b> Most people check online before they ever pick up the phone, and great service does not matter if you do not show up in local search.</p>
-          <ul class="deck__buys"><li>Websites</li><li>Landing pages</li><li>Mobile-first</li><li>Enquiry forms</li></ul>
-        </div>
-        <p class="deck__count"><b>01</b> / 06</p>
-        </div>
-      </div>
+          <article class="syscard" data-reveal>
+            <img class="syscard__shot" src="assets/deck/crm.webp" alt="" width="1344" height="752" loading="lazy" decoding="async" />
+            <button class="syscard__hit" type="button" data-service="crm" aria-haspopup="dialog"><span class="visually-hidden">CRM: see what it does and examples</span></button>
+            <p class="syscard__no">04</p>
+            <h3>CRM</h3>
+            <p>Every lead with a name, a status and a next step, so nothing sits forgotten in a text thread.</p>
+            <span class="syscard__more" aria-hidden="true">Details &rarr;</span>
+          </article>
 
-      <div class="deck__panel deck__panel--scrub">
-        <div class="deck__stage">
-        <div class="deck__art">
-          <img src="assets/deck/crm.webp" alt="" width="1344" height="752" loading="lazy" decoding="async">
-          <video data-src="assets/deck/crm.mp4" muted playsinline preload="none" aria-hidden="true" tabindex="-1"></video>
-        </div>
-        <div class="deck__in">
-          <p class="deck__label">02 &middot; CRM</p>
-          <h2 class="deck__title">Nothing slips<br><i>through.</i></h2>
-          <p class="deck__sub">Every lead, customer and conversation in one place. Logged the second it lands, tracked to won or lost.</p>
-          <p class="deck__why"><b>A missed call is a lost customer.</b> They do not leave a voicemail. They just call the next name on the list.</p>
-          <ul class="deck__buys"><li>One pipeline</li><li>Lead history</li><li>Notes &amp; tasks</li><li>Won / lost</li></ul>
-        </div>
-        <p class="deck__count"><b>02</b> / 06</p>
-        </div>
-      </div>
+          <article class="syscard" data-reveal data-delay="1">
+            <img class="syscard__shot" src="assets/deck/ai.webp" alt="" width="1344" height="752" loading="lazy" decoding="async" />
+            <button class="syscard__hit" type="button" data-service="chatbots" aria-haspopup="dialog"><span class="visually-hidden">AI call and chat answering: see what it does and examples</span></button>
+            <p class="syscard__no">05</p>
+            <h3>AI call and chat answering</h3>
+            <p>A voice and chat assistant that answers out of hours, takes the details and books the job.</p>
+            <span class="syscard__more" aria-hidden="true">Details &rarr;</span>
+          </article>
 
-      <div class="deck__panel deck__panel--scrub">
-        <div class="deck__stage">
-        <div class="deck__art">
-          <img src="assets/deck/business.webp" alt="" width="1344" height="752" loading="lazy" decoding="async">
-          <video data-src="assets/deck/business.mp4" muted playsinline preload="none" aria-hidden="true" tabindex="-1"></video>
-        </div>
-        <div class="deck__in">
-          <p class="deck__label">03 &middot; Automation &amp; booking systems</p>
-          <h2 class="deck__title">The admin<br><i>runs itself.</i></h2>
-          <p class="deck__sub">Booking systems that fill the diary on their own, and automation that handles the repetitive admin behind them, so nothing waits on someone remembering.</p>
-          <p class="deck__why"><b>Manual admin is a hidden cost.</b> Every hour spent chasing bookings by hand is an hour not spent on paid work.</p>
-          <ul class="deck__buys"><li>Automation systems</li><li>Booking systems</li><li>Deposits &amp; reminders</li><li>Site management</li></ul>
-        </div>
-        <p class="deck__count"><b>03</b> / 06</p>
-        </div>
-      </div>
-
-      <div class="deck__panel deck__panel--scrub">
-        <div class="deck__stage">
-        <div class="deck__art">
-          <img src="assets/deck/finance.webp" alt="" width="1344" height="752" loading="lazy" decoding="async">
-          <video data-src="assets/deck/finance.mp4" muted playsinline preload="none" aria-hidden="true" tabindex="-1"></video>
-        </div>
-        <div class="deck__in">
-          <p class="deck__label">04 &middot; Finance</p>
-          <h2 class="deck__title">Invoiced.<br><i>Chased. Paid.</i></h2>
-          <p class="deck__sub">Deposits taken at the booking, invoices sent on the job, and what came in, what it was worth and what it cost on one page.</p>
-          <p class="deck__why"><b>You can't fix what you can't see.</b> No dashboard means guessing which leads and bookings are actually converting.</p>
-          <ul class="deck__buys"><li>Deposits</li><li>Invoicing</li><li>Payment chasing</li><li>Revenue dashboard</li></ul>
-        </div>
-        <p class="deck__count"><b>04</b> / 06</p>
-        </div>
-      </div>
-
-      <div class="deck__panel deck__panel--scrub">
-        <div class="deck__stage">
-        <div class="deck__art">
-          <img src="assets/deck/clients.webp" alt="" width="1344" height="752" loading="lazy" decoding="async">
-          <video data-src="assets/deck/clients.mp4" muted playsinline preload="none" aria-hidden="true" tabindex="-1"></video>
-        </div>
-        <div class="deck__in">
-          <p class="deck__label">05 &middot; Clients &amp; calls</p>
-          <h2 class="deck__title">Answered in<br><i>seconds.</i></h2>
-          <p class="deck__sub">Missed calls, quotes and review requests all chased automatically, so whoever enquired hears back straight away.</p>
-          <p class="deck__why"><b>Cold leads don't wait.</b> Whoever replies first usually wins the job, not whoever is cheapest.</p>
-          <ul class="deck__buys"><li>Missed-call reply</li><li>Live chat</li><li>Follow-ups</li><li>Review requests</li></ul>
-        </div>
-        <p class="deck__count"><b>05</b> / 06</p>
-        </div>
-      </div>
-
-      <div class="deck__panel deck__panel--scrub">
-        <div class="deck__stage">
-        <div class="deck__art">
-          <img src="assets/deck/ai.webp" alt="" width="1344" height="752" loading="lazy" decoding="async">
-          <video data-src="assets/deck/ai.mp4" muted playsinline preload="none" aria-hidden="true" tabindex="-1"></video>
-        </div>
-        <div class="deck__in">
-          <p class="deck__label">06 &middot; AI assistant</p>
-          <h2 class="deck__title">Never off<br><i>duty.</i></h2>
-          <p class="deck__sub">An assistant with a voice, on the phone and on your site, around the clock. It answers the question, captures the lead and books the job at three in the morning.</p>
-          <p class="deck__why"><b>Enquiries don't keep office hours.</b> A good share of them land in the evening, at the weekend, or at three in the morning.</p>
-          <ul class="deck__buys"><li>Voice assistant</li><li>Live chat</li><li>24/7 capture</li><li>Books the job</li></ul>
-        </div>
-        <p class="deck__count"><b>06</b> / 06</p>
+          <article class="syscard" data-reveal data-delay="2">
+            <img class="syscard__shot" src="assets/deck/finance.webp" alt="" width="1344" height="752" loading="lazy" decoding="async" />
+            <button class="syscard__hit" type="button" data-service="reporting" aria-haspopup="dialog"><span class="visually-hidden">Reporting dashboards: see what it does and examples</span></button>
+            <p class="syscard__no">06</p>
+            <h3>Reporting dashboards</h3>
+            <p>What came in, what got booked and what it was worth. One screen, plain numbers.</p>
+            <span class="syscard__more" aria-hidden="true">Details &rarr;</span>
+          </article>
         </div>
       </div>
     </section>
 
-    <!-- SERVICES -->
-    <section class="services" id="services">
-      <!-- Decorative only: two slow gold drifts and a fine rule grid behind
-           the cards. Pure CSS so it stays sharp at any size and costs no
-           download; it stops entirely under prefers-reduced-motion. -->
-      <div class="services__bg" aria-hidden="true">
-        <span class="services__drift services__drift--a"></span>
-        <span class="services__drift services__drift--b"></span>
-      </div>
-      <div class="container">
-        <div class="section__head">
-          <div>
-            <p class="section__tag">Services</p>
-            <h2 class="section__title">What We Build</h2>
-          </div>
-          <p class="section__lead">Pick one service or bundle several. Everything is built to work together. Not listed? We're open to any digital project, just ask.</p>
-        </div>
-
-        <div class="grid grid--services">
-
-          <article class="service-card is-openable is-lead" data-reveal>
-            <button class="service-card__hit" type="button" data-service="websites" aria-haspopup="dialog"><span class="visually-hidden">Websites: see what it does and examples</span></button>
-            <div class="icon-chip" aria-hidden="true">
-              <svg viewBox="0 0 24 24" fill="none" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M3 12h18"/><path d="M12 3c3 3 3 15 0 18"/><path d="M12 3c-3 3-3 15 0 18"/></svg>
-            </div>
-            <p class="service-card__flag">Core system</p>
-            <h3>Websites</h3>
-            <p>Custom-built, mobile-friendly websites designed to turn visitors into customers.</p>
-          
-            <span class="service-card__more" aria-hidden="true">Details →</span>
-          </article>
-
-          <article class="service-card is-openable is-lead" data-reveal>
-            <button class="service-card__hit" type="button" data-service="booking" aria-haspopup="dialog"><span class="visually-hidden">Booking System: see what it does and examples</span></button>
-            <div class="icon-chip" aria-hidden="true">
-              <svg viewBox="0 0 24 24" fill="none" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M8 3v4M16 3v4"/><path d="M8.5 15l1.8 1.8L15 13"/></svg>
-            </div>
-            <p class="service-card__flag">Core system</p>
-            <h3>Booking System</h3>
-            <p>Let customers book appointments or services online, any time of day.</p>
-          
-            <span class="service-card__more" aria-hidden="true">Details →</span>
-          </article>
-
-          <article class="service-card is-openable is-lead" data-reveal>
-            <button class="service-card__hit" type="button" data-service="automation" aria-haspopup="dialog"><span class="visually-hidden">Automation Systems: see what it does and examples</span></button>
-            <div class="icon-chip" aria-hidden="true">
-              <svg viewBox="0 0 24 24" fill="none" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="7" y="7" width="10" height="10" rx="1.5"/><path d="M9 3v3M15 3v3M9 18v3M15 18v3M3 9h3M3 15h3M18 9h3M18 15h3"/></svg>
-            </div>
-            <p class="service-card__flag">Core system</p>
-            <h3>Automation Systems</h3>
-            <p>Repetitive admin handled automatically, so nothing depends on someone remembering.</p>
-          
-            <span class="service-card__more" aria-hidden="true">Details →</span>
-          </article>
-
-          <article class="service-card is-openable" data-reveal>
-            <button class="service-card__hit" type="button" data-service="crm" aria-haspopup="dialog"><span class="visually-hidden">CRM: see what it does and examples</span></button>
-            <div class="icon-chip" aria-hidden="true">
-              <svg viewBox="0 0 24 24" fill="none" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="14" rx="2"/><circle cx="9" cy="12" r="2.2"/><path d="M14 10h4M14 14h4"/></svg>
-            </div>
-            <h3>CRM</h3>
-            <p>A simple system to track every lead, customer and conversation in one place.</p>
-          
-            <span class="service-card__more" aria-hidden="true">Details →</span>
-          </article>
-
-          <article class="service-card is-openable" data-reveal>
-            <button class="service-card__hit" type="button" data-service="management" aria-haspopup="dialog"><span class="visually-hidden">Website Management: see what it does and examples</span></button>
-            <div class="icon-chip" aria-hidden="true">
-              <svg viewBox="0 0 24 24" fill="none" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M4.2 4.2l2.1 2.1M17.7 17.7l2.1 2.1M2 12h3M19 12h3M4.2 19.8l2.1-2.1M17.7 6.3l2.1-2.1"/></svg>
-            </div>
-            <h3>Website Management</h3>
-            <p>Ongoing updates, hosting, security, fixes and SEO so your site never falls behind and is easier to find.</p>
-          
-            <span class="service-card__more" aria-hidden="true">Details →</span>
-          </article>
-
-          <article class="service-card is-openable" data-reveal>
-            <button class="service-card__hit" type="button" data-service="branding" aria-haspopup="dialog"><span class="visually-hidden">Branding and Print: see what it does and examples</span></button>
-            <div class="icon-chip" aria-hidden="true">
-              <svg viewBox="0 0 24 24" fill="none" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l7 7-9 9H6v-4z"/><path d="M14 5l5 5"/></svg>
-            </div>
-            <h3>Branding &amp; Print</h3>
-            <p>Logos, brand identity, flyers and business cards that make you look the part.</p>
-          
-            <span class="service-card__more" aria-hidden="true">Details →</span>
-          </article>
-
-          <article class="service-card is-openable" data-reveal>
-            <button class="service-card__hit" type="button" data-service="social" aria-haspopup="dialog"><span class="visually-hidden">Social Media and Content: see what it does and examples</span></button>
-            <div class="icon-chip" aria-hidden="true">
-              <svg viewBox="0 0 24 24" fill="none" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="3" width="14" height="18" rx="2"/><path d="M8 8h8M8 12h8M8 16h5"/></svg>
-            </div>
-            <h3>Social Media &amp; Content</h3>
-            <p>Consistent social media posts, captions and content that keep your business visible online.</p>
-          
-            <span class="service-card__more" aria-hidden="true">Details →</span>
-          </article>
-
-          <article class="service-card is-openable" data-reveal>
-            <button class="service-card__hit" type="button" data-service="reporting" aria-haspopup="dialog"><span class="visually-hidden">Reporting Dashboards: see what it does and examples</span></button>
-            <div class="icon-chip" aria-hidden="true">
-              <svg viewBox="0 0 24 24" fill="none" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/></svg>
-            </div>
-            <h3>Reporting Dashboards</h3>
-            <p>See leads, calls, bookings and sales at a glance, with no digging through spreadsheets.</p>
-          
-            <span class="service-card__more" aria-hidden="true">Details →</span>
-          </article>
-
-          <article class="service-card is-openable" data-reveal>
-            <button class="service-card__hit" type="button" data-service="followups" aria-haspopup="dialog"><span class="visually-hidden">Automated Follow-Ups: see what it does and examples</span></button>
-            <div class="icon-chip" aria-hidden="true">
-              <svg viewBox="0 0 24 24" fill="none" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M4 5a1 1 0 011-1h2.2a1 1 0 01.98.79l.66 3a1 1 0 01-.27.95l-1.35 1.35a12 12 0 005.4 5.4l1.35-1.35a1 1 0 01.95-.27l3 .66a1 1 0 01.79.98V19a1 1 0 01-1 1h-1C9.7 20 4 14.3 4 7V5z"/></svg>
-            </div>
-            <h3>Automated Follow-Ups</h3>
-            <p>Missed calls, quotes and review requests followed up automatically, so no lead goes cold.</p>
-          
-            <span class="service-card__more" aria-hidden="true">Details →</span>
-          </article>
-
-          <article class="service-card is-openable" data-reveal>
-            <button class="service-card__hit" type="button" data-service="chatbots" aria-haspopup="dialog"><span class="visually-hidden">Chatbots and Live Chat: see what it does and examples</span></button>
-            <div class="icon-chip" aria-hidden="true">
-              <svg viewBox="0 0 24 24" fill="none" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M4 5h16a1 1 0 011 1v9a1 1 0 01-1 1H9l-5 4v-4H4a1 1 0 01-1-1V6a1 1 0 011-1z"/><circle cx="9" cy="11" r="0.9" fill="currentColor" stroke="none"/><circle cx="12" cy="11" r="0.9" fill="currentColor" stroke="none"/><circle cx="15" cy="11" r="0.9" fill="currentColor" stroke="none"/></svg>
-            </div>
-            <h3>Chatbots &amp; Live Chat</h3>
-            <p>A chatbot or live chat on your website to answer questions and capture leads 24/7.</p>
-          
-            <span class="service-card__more" aria-hidden="true">Details →</span>
-          </article>
-
-          <article class="service-card is-openable" data-reveal>
-            <button class="service-card__hit" type="button" data-service="custom" aria-haspopup="dialog"><span class="visually-hidden">Something Else?: see what it does and examples</span></button>
-            <div class="icon-chip" aria-hidden="true">
-              <svg viewBox="0 0 24 24" fill="none" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M5 12h14"/></svg>
-            </div>
-            <h3>Something Else?</h3>
-            <p>If it's digital and it helps your business, we're open to it. Tell us what you need.</p>
-          
-            <span class="service-card__more" aria-hidden="true">Details →</span>
-          </article>
-
-        </div>
-      </div>
-    
     <dialog class="svc-modal" id="svcModal" aria-labelledby="svcModalTitle">
       <div class="svc-modal__inner">
         <button class="svc-modal__close" type="button" id="svcModalClose" aria-label="Close">&times;</button>
@@ -442,110 +293,150 @@
         </div>
       </div>
     </dialog>
-    </section>
 
-    <!-- HOW IT WORKS -->
-    <section class="how" id="how-it-works">
+    <!-- ── THE HOLD MOMENT ────────────────────────────────────────────── -->
+    <section class="sec live" id="live">
       <div class="container">
-        <div class="section__head">
-          <div>
-            <p class="section__tag">Process</p>
-            <h2 class="section__title">How It Works</h2>
-          </div>
-          <p class="section__lead">A simple path from enquiry to a live, working service.</p>
+        <div class="sec-head" data-reveal data-node>
+          <p class="sec-tag">See it run</p>
+          <h2 class="sec-title">Hold the button. <em>Watch a missed call become a booked job.</em></h2>
+          <p class="sec-lead">This is the automation doing its round. Press and hold, and let go whenever you want.</p>
         </div>
 
-        <ol class="steps">
-          <li class="step" data-reveal>
-            <span class="step__num" aria-hidden="true">01</span>
-            <span class="step__tag">Step One</span>
-            <h3>Enquire</h3>
-            <p>Tell us which service(s) you're after using the enquiry form below.</p>
-          </li>
-          <li class="step" data-reveal>
-            <span class="step__num" aria-hidden="true">02</span>
-            <span class="step__tag">Step Two</span>
-            <h3>Get a Quote</h3>
-            <p>We come back with a price. There's room to negotiate, especially on your first service.</p>
-          </li>
-          <li class="step" data-reveal>
-            <span class="step__num" aria-hidden="true">03</span>
-            <span class="step__tag">Step Three</span>
-            <h3>Receive Your Account &amp; Code</h3>
-            <p>Once agreed, you're issued a personal account number and an activation code tied to that service (e.g. your website).</p>
-          </li>
-          <li class="step" data-reveal>
-            <span class="step__num" aria-hidden="true">04</span>
-            <span class="step__tag">Step Four</span>
-            <h3>Pay &amp; Activate</h3>
-            <p>Pay against your account and code, and the service is switched on for you, with no extra back-and-forth.</p>
-          </li>
-        </ol>
-
-        <div class="access-explainer" data-reveal>
-          <div class="access-explainer__text">
-            <p class="section__tag">What You Receive</p>
-            <h3>An account number and an activation code</h3>
-            <p>After you enquire and we agree a price, we set up an account for you and send a unique activation code by email or text. Enter it on the Activate page and you'll see exactly what you're paying for and the price we agreed, before you pay. The service switches on right after.</p>
+        <div class="live__wrap">
+          <div class="hold" data-reveal>
+            <p class="hold__title">The missed call round</p>
+            <p class="sec-lead" style="margin:0;font-size:0.98rem">One call that nobody answered, and what the system does about it in the next five minutes.</p>
+            <button class="hold__btn" id="holdBtn" type="button" aria-describedby="holdHint">
+              <span id="holdLabel">Hold to run it</span>
+            </button>
+            <p class="hold__hint" id="holdHint">Press and hold. Let go and it eases back.</p>
+            <p class="hold__read" id="holdRead" aria-live="polite">Waiting</p>
           </div>
-          <div class="access-explainer__card">
-            <div class="account-card">
-              <div class="account-card__head">
-                <span class="panel-icon" aria-hidden="true">
-                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M5 3.5h9l5 5V20a1.5 1.5 0 0 1-1.5 1.5h-11A1.5 1.5 0 0 1 5 20V5A1.5 1.5 0 0 1 6.5 3.5Z"/><path d="M13.5 3.5V9h5.5"/><path d="M8.5 13.5h7M8.5 17h4.5"/></svg>
-                </span>
-                <p class="account-card__title">Your account</p>
-                <span class="account-card__flag">Example</span>
-              </div>
-              <div class="account-card__body">
-                <div class="account-card__row">
-                  <span class="account-card__key">Account Number</span>
-                  <span class="account-card__value mono">QP-2026-0158</span>
-                </div>
-                <div class="account-card__row">
-                  <span class="account-card__key">Activation Code</span>
-                  <span class="account-card__value mono">7F3K-9QXR</span>
-                </div>
-                <div class="account-card__row">
-                  <span class="account-card__key">Service</span>
-                  <span class="account-card__value">Website (Standard Plan)</span>
-                </div>
-                <div class="account-card__row">
-                  <span class="account-card__key">Price</span>
-                  <span class="account-card__value">£???</span>
-                </div>
-              </div>
-            </div>
-            <p class="access-card__caption">An illustration of the record we send you, not a real account.</p>
-          </div>
-        </div>
 
-        <div class="activate-cta" data-reveal>
-          <p>Already got your account number and code?</p>
-          <a class="btn btn--ghost" href="activate.html">Redeem Your Service →</a>
+          <ol class="flow" id="flow" data-reveal data-delay="1">
+            <li><b>1</b><div><strong>A call comes in while you are on the tools</strong><span>Nobody picks up. Normally that is the job gone to the next number.</span></div></li>
+            <li><b>2</b><div><strong>A text goes back in thirty seconds</strong><span>Sorry we missed you. Here is a link to book a time that suits you.</span></div></li>
+            <li><b>3</b><div><strong>They pick a slot themselves</strong><span>It lands in your calendar with the job details already on it.</span></div></li>
+            <li><b>4</b><div><strong>The value gets logged</strong><span>Quote sent, job done, money on the dashboard, review request on its way.</span></div></li>
+          </ol>
         </div>
-
-        <p class="how__note">
-          <strong>Negotiable pricing:</strong> pricing is flexible, particularly while we're building
-          up client relationships, so let us know your budget when you enquire.
-        </p>
       </div>
     </section>
 
-    <!-- ENQUIRY FORM -->
-    <section class="enquire" id="enquire">
+    <!-- ── HOW IT WORKS ───────────────────────────────────────────────── -->
+    <section class="sec steps" id="how-it-works">
       <div class="container">
-        <div class="section__head">
-          <div>
-            <p class="section__tag">Get Started</p>
-            <h2 class="section__title">Enquire About a Service</h2>
-          </div>
-          <p class="section__lead">
-            Fill this in and it'll open a pre-filled email to send us. We'll reply with a quote and next steps.
-            Not sure exactly what you need? Say so. We're open to any digital project. Prefer to call or
-            email directly? <a href="tel:+442037508659">020 3750 8659</a> ·
-            <a href="mailto:contact@qp-digital.co.uk">contact@qp-digital.co.uk</a>
-          </p>
+        <div class="sec-head" data-reveal data-node>
+          <p class="sec-tag">How it works</p>
+          <h2 class="sec-title">Three steps. <em>No jargon.</em></h2>
+        </div>
+
+        <div class="path">
+          <article class="path__step" data-reveal>
+            <img class="path__shot" src="assets/deck/crm.webp" alt="A board of enquiries moving from new to booked" width="1344" height="752" loading="lazy" decoding="async" />
+            <div class="path__body">
+              <p class="path__no">Step 01</p>
+              <h3>We find where leads go cold</h3>
+              <p>One short call. Phone, website, socials, word of mouth. We look at what happens to an enquiry today and where it gets dropped.</p>
+            </div>
+          </article>
+
+          <article class="path__step" data-reveal data-delay="1">
+            <img class="path__shot" src="assets/deck/business.webp" alt="A system being wired together" width="1344" height="752" loading="lazy" decoding="async" />
+            <div class="path__body">
+              <p class="path__no">Step 02</p>
+              <h3>We build it and wire it together</h3>
+              <p>Website, booking, CRM and the automation behind them, set up with your real details and tested before it goes anywhere near a customer.</p>
+            </div>
+          </article>
+
+          <article class="path__step" data-reveal data-delay="2">
+            <img class="path__shot" src="assets/deck/finance.webp" alt="A dashboard showing booked work and value" width="1344" height="752" loading="lazy" decoding="async" />
+            <div class="path__body">
+              <p class="path__no">Step 03</p>
+              <h3>We run it with you</h3>
+              <p>We keep it updated, watch what it brings in and change what is not working. Month to month, so you can stop when you want.</p>
+            </div>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <!-- ── PROOF ──────────────────────────────────────────────────────── -->
+    <section class="sec proof" id="proof">
+      <div class="container proof__wrap">
+        <div data-reveal data-node>
+          <p class="sec-tag">Proof</p>
+          <h2 class="sec-title">Click through <em>the real thing</em>.</h2>
+          <p class="sec-lead">Two demo sites you can open and use right now, built the same way yours would be.</p>
+          <ul class="ticks">
+            <li><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 12.5l5 5L20 6.5" stroke-linecap="round" stroke-linejoin="round" /></svg><span>Live demo sites with working booking</span></li>
+            <li><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 12.5l5 5L20 6.5" stroke-linecap="round" stroke-linejoin="round" /></svg><span>Flexible pricing and no long tie in</span></li>
+            <li><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 12.5l5 5L20 6.5" stroke-linecap="round" stroke-linejoin="round" /></svg><span>Built in days, not months</span></li>
+            <li><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 12.5l5 5L20 6.5" stroke-linecap="round" stroke-linejoin="round" /></svg><span>One team for the site, the system and the follow up</span></li>
+          </ul>
+          <p style="margin-top:26px"><a class="btn btn--ghost" href="examples.html">See the examples</a></p>
+        </div>
+        <img class="proof__shot" src="assets/hero/hero-ending.jpg" alt="A hologram of a pound note resting on a dark desk" width="1440" height="806" loading="lazy" decoding="async" data-reveal data-delay="1" />
+      </div>
+    </section>
+
+    <!-- ── FAQ ────────────────────────────────────────────────────────── -->
+    <section class="sec faqs" id="faq">
+      <div class="container">
+        <div class="sec-head" data-reveal data-node>
+          <p class="sec-tag">Questions</p>
+          <h2 class="sec-title">The things people <em>ask first</em>.</h2>
+        </div>
+
+        <div class="faq__wrap">
+        <div class="faq" data-reveal>
+          <details>
+            <summary>How much does it cost?</summary>
+            <p>It depends on what you need, so we price per project instead of selling a package. Tell us what you are after and you get a quote with no obligation.</p>
+          </details>
+          <details>
+            <summary>I am not technical. Is that a problem?</summary>
+            <p>No. We set it up, test it with your real details and show you how to use it in plain words. If you would rather not touch it at all, we run it for you.</p>
+          </details>
+          <details>
+            <summary>How long does it take?</summary>
+            <p>Most builds are days, not months. If you need it quickly, say so in the enquiry and we will tell you honestly what we can do.</p>
+          </details>
+          <details>
+            <summary>Am I tied into a contract?</summary>
+            <p>No long contracts. Management is month to month and you can stop when you want.</p>
+          </details>
+          <details>
+            <summary>Will it work for my kind of business?</summary>
+            <p>It works for anything that lives on enquiries: trades, salons, clinics, garages, cleaners, lettings, takeaways and shops.</p>
+          </details>
+          <details>
+            <summary>Who owns the website?</summary>
+            <p>You do. Your domain, your content and your customer list stay yours.</p>
+          </details>
+        </div>
+
+        <aside class="ask" data-reveal data-delay="1">
+          <p class="ask__tag">Still not sure</p>
+          <h3>Ask us anything first</h3>
+          <p>Tell us what happens to an enquiry in your business today and we will tell you what we would change, before you spend anything.</p>
+          <p class="ask__line"><a href="tel:+442037508659">020 3750 8659</a></p>
+          <p class="ask__line"><a href="mailto:contact@qp-digital.co.uk">contact@qp-digital.co.uk</a></p>
+          <a class="btn btn--primary" href="#enquire">Get a free quote</a>
+        </aside>
+        </div>
+      </div>
+    </section>
+
+    <section class="sec enquire" id="enquire">
+      <div class="container enquire__wrap">
+        <div class="sec-head" data-reveal data-node>
+          <p class="sec-tag">Get started</p>
+          <h2 class="sec-title">Tell us what you need. <em>We will price it.</em></h2>
+          <p class="sec-lead">Fill this in and it opens a pre filled email ready to send. You get a quote and the next steps back, with no obligation. Not sure what you need? Say that instead, we are open to any digital project.</p>
+          <p class="sec-lead">Prefer to talk? <a href="tel:+442037508659">020 3750 8659</a> or <a href="mailto:contact@qp-digital.co.uk">contact@qp-digital.co.uk</a></p>
         </div>
 
         <form class="enquiry-form" id="enquiryForm">
@@ -672,6 +563,6 @@
   </aside>
   <script src="script.js"></script>
   <script src="services-detail.js" defer></script>
-  <script src="deck.js" defer></script>
+  <script src="hero.js" defer></script>
 </body>
 </html>

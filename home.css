@@ -1,0 +1,1062 @@
+/* ──────────────────────────────────────────────────────────────────────
+   home.css — the homepage only.
+
+   The homepage is a scroll-driven film: one hologram clip is scrubbed by
+   the scroll wheel while five bands of copy come and go over it, and the
+   page settles on the closing frame. Everything below the hero is a
+   normal website that inherits the site tokens in style.css, so the
+   header, footer, forms and the light theme keep working as they do on
+   every other page.
+
+   Signature element: the signal line. A thin bronze line runs down the
+   left of the page, draws itself as you scroll, and pulses at every
+   section head. It is the one loud thing here; everything else stays
+   quiet so it reads.
+   ────────────────────────────────────────────────────────────────────── */
+
+:root {
+  --h-ink: #f2ede4;          /* hero text on footage */
+  --h-ink-dim: #cfc6b6;
+  --h-gold: #d9ab60;         /* sampled from the hologram itself */
+  --h-shadow:
+    0 1px 2px rgba(5, 5, 10, 0.95),
+    0 3px 12px rgba(5, 5, 10, 0.78),
+    0 10px 44px rgba(5, 5, 10, 0.8);
+  --ease-out: cubic-bezier(0.22, 0.75, 0.3, 1);
+  --ease-soft: cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+html,
+body {
+  overflow-x: hidden;
+  overflow-x: clip;
+}
+
+/* The page sits in one place: a very slow bronze drift behind everything,
+   so scrolling feels like moving through a room instead of past boxes. */
+.env {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  background:
+    radial-gradient(60% 40% at 16% 12%, rgba(var(--gold-rgb), 0.1), transparent 70%),
+    radial-gradient(50% 40% at 88% 78%, rgba(var(--gold-rgb), 0.08), transparent 72%);
+  animation: envDrift 96s ease-in-out -24s infinite alternate;
+}
+
+html[data-theme="light"] .env { opacity: 0.45; }
+
+@keyframes envDrift {
+  from { transform: translate3d(-1.5%, -1%, 0) scale(1.02); }
+  to   { transform: translate3d(2%, 1.5%, 0) scale(1.06); }
+}
+
+body > main,
+body > .site-header,
+body > .site-footer { position: relative; z-index: 1; }
+
+/* ── the hero ─────────────────────────────────────────────────────────
+   Height is scroll distance, not time: 640vh of travel drives 11.75s of
+   footage, which gives every band roughly a full screen of reading. */
+.film,
+.film--static { padding: 0; }
+
+.film {
+  position: relative;
+  height: 700vh;
+  background: #000;
+}
+
+.film__stage {
+  position: sticky;
+  top: 0;
+  height: 100vh;
+  height: 100svh;
+  overflow: hidden;
+  background: #050505;
+}
+
+.film__media { position: absolute; inset: 0; }
+
+.film__poster,
+.film__video {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: 62% 50%;
+}
+
+.film__poster {
+  background: #050505 center/cover no-repeat;
+  transition: opacity 0.7s var(--ease-soft);
+}
+
+.film__video {
+  opacity: 0;
+  transform: translateZ(0);
+  will-change: transform;
+  transition: opacity 0.7s var(--ease-soft);
+}
+
+.film__stage.video-ready .film__video { opacity: 1; }
+.film__stage.video-failed .film__video { display: none; }
+
+/* Layer 1 of the legibility system: one soft scrim so no frame is ever
+   raw behind the words, plus a left-side ramp under the text lane. */
+.film__scrim {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background:
+    linear-gradient(90deg, rgba(4, 4, 7, 0.9) 0%, rgba(4, 4, 7, 0.72) 34%, rgba(4, 4, 7, 0.12) 60%, rgba(4, 4, 7, 0) 78%),
+    radial-gradient(ellipse 120% 90% at 50% 45%, rgba(8, 8, 14, 0) 35%, rgba(8, 8, 14, 0.6) 100%);
+}
+
+/* the loading ring */
+.film__ring {
+  position: absolute;
+  left: clamp(20px, 6vw, 84px);
+  bottom: clamp(88px, 12vh, 120px);
+  width: 34px;
+  height: 34px;
+  color: var(--h-gold);
+  opacity: 0.85;
+  transform: rotate(-90deg);
+}
+
+.film__ring circle { transition: stroke-dashoffset 0.18s linear; }
+.film__stage.video-ready .film__ring { opacity: 0; transition: opacity 0.5s; }
+
+/* ── caption bands ───────────────────────────────────────────────────── */
+.film__bands {
+  position: absolute;
+  inset: 0;
+  display: block;
+}
+
+.band {
+  position: absolute;
+  left: clamp(20px, 6vw, 92px);
+  top: 50%;
+  transform: translateY(-50%);
+  width: min(46ch, 44vw);
+  opacity: 0;
+  text-shadow: var(--h-shadow);
+  pointer-events: none;
+}
+
+.band.is-on { pointer-events: auto; }
+
+/* Layer 2: a per-band scrim that deepens with the band's own progress, so
+   the footage dims only while words are on it and the corners stay live. */
+.band::before {
+  content: "";
+  position: absolute;
+  inset: -14% -22% -18% -34%;
+  z-index: -1;
+  pointer-events: none;
+  opacity: calc(0.3 + 0.7 * var(--k, 1));
+  background: radial-gradient(ellipse 76% 64% at 42% 50%, rgba(4, 4, 8, 0.72) 0%, rgba(4, 4, 8, 0.5) 46%, rgba(4, 4, 8, 0) 78%);
+}
+
+.band[data-scrim="deep"]::before {
+  opacity: calc(0.42 + 0.58 * var(--k, 1));
+  background: radial-gradient(ellipse 80% 68% at 42% 50%, rgba(4, 4, 8, 0.86) 0%, rgba(4, 4, 8, 0.62) 48%, rgba(4, 4, 8, 0) 80%);
+}
+
+.band__kicker {
+  margin: 0 0 14px;
+  font-family: "IBM Plex Mono", ui-monospace, monospace;
+  font-size: 0.72rem;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--h-gold);
+}
+
+.band__h {
+  margin: 0;
+  font-family: "Bricolage Grotesque", "Sora", system-ui, sans-serif;
+  font-weight: 800;
+  font-size: clamp(2.1rem, 4.2vw, 3.5rem);
+  line-height: 1.04;
+  letter-spacing: -0.025em;
+  color: var(--h-ink);
+}
+
+.band__h em {
+  font-style: normal;
+  color: var(--h-gold);
+}
+
+.band__p {
+  margin: 18px 0 0;
+  max-width: 34ch;
+  font-size: clamp(1rem, 1.25vw, 1.14rem);
+  line-height: 1.55;
+  color: var(--h-ink-dim);
+}
+
+.band__cta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-top: 26px;
+  opacity: var(--kb, 1);
+}
+
+.band .btn { text-shadow: none; }
+
+/* word and character spans, written once at load by hero.js */
+.w { display: inline-block; white-space: pre; }
+.c { display: inline-block; will-change: transform, opacity; }
+
+/* (a) scatter: characters fly in from seeded offsets, like the particles
+   gathering into the hologram */
+.band[data-entrance="scatter"] .c {
+  --kc: clamp(0, (var(--k, 0) - var(--th, 0)) * 2.6, 1);
+  opacity: var(--kc);
+  transform:
+    translate(calc((1 - var(--kc)) * var(--jx, 0px)), calc((1 - var(--kc)) * var(--jy, 0px)))
+    rotate(calc((1 - var(--kc)) * var(--jr, 0deg)));
+}
+
+/* (b) grid: characters slide into reading order, like a list filling in */
+.band[data-entrance="grid"] .c {
+  --kc: clamp(0, (var(--k, 0) - var(--th, 0)) * 3, 1);
+  opacity: var(--kc);
+  transform: translateX(calc((1 - var(--kc)) * var(--jx, 0px)));
+}
+
+/* (d) punch: words pop past full size and settle, like the ring pulse */
+.band[data-entrance="punch"] .w {
+  --kc: clamp(0, (var(--k, 0) - var(--th, 0)) * 3, 1);
+  --ks: clamp(0, (var(--k, 0) - var(--th, 0) - var(--sd, 0.1)) * var(--ss, 3.2), 1);
+  opacity: var(--kc);
+  transform: scale(calc(0.62 + (0.38 + var(--ov, 0.12)) * var(--kc) - var(--ov, 0.12) * var(--ks)));
+}
+
+.band[data-entrance="punch"] .w.em { --ov: 0.24; --sd: 0.16; --ss: 2.6; }
+
+/* (f) drift: words fall into place, like the light falling to the plinth */
+.band[data-entrance="drift"] .w {
+  --kc: clamp(0, (var(--k, 0) - var(--th, 0)) * 2.8, 1);
+  opacity: var(--kc);
+  transform: translateY(calc((1 - var(--kc)) * -26px));
+}
+
+/* (e) rise: the closing beat arrives in three stages */
+.band[data-entrance="rise"] .w {
+  --kc: clamp(0, (var(--k, 0) - var(--th, 0)) * 2.6, 1);
+  opacity: var(--kc);
+  transform: translateY(calc((1 - var(--kc)) * 20px));
+}
+
+.band[data-entrance="rise"] .band__p { opacity: var(--ks, 1); }
+
+/* the scroll cue and the progress chip */
+.film__cue {
+  position: absolute;
+  left: 50%;
+  bottom: 26px;
+  transform: translateX(-50%);
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-family: "IBM Plex Mono", ui-monospace, monospace;
+  font-size: 0.68rem;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--h-ink-dim);
+  background: rgba(8, 8, 15, 0.55);
+  border: 1px solid rgba(var(--gold-rgb), 0.3);
+  border-radius: 999px;
+  padding: 8px 16px;
+  backdrop-filter: blur(10px);
+  text-shadow: 0 1px 3px rgba(5, 5, 10, 0.85);
+  transition: opacity 0.4s var(--ease-soft);
+}
+
+.film__cue span {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--h-gold);
+  animation: cuePulse 2.4s ease-in-out -0.8s infinite;
+}
+
+@keyframes cuePulse {
+  0%, 100% { opacity: 0.35; transform: scale(0.8); }
+  50% { opacity: 1; transform: scale(1.25); }
+}
+
+.film__stage.is-deep .film__cue { opacity: 0; }
+
+.film__meter {
+  position: absolute;
+  right: clamp(26px, 5vw, 64px);
+  top: 50%;
+  transform: translateY(-50%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+}
+
+.film__meter b {
+  width: 2px;
+  height: 128px;
+  background: rgba(255, 255, 255, 0.16);
+  position: relative;
+  overflow: hidden;
+  border-radius: 2px;
+}
+
+.film__meter b::after {
+  content: "";
+  position: absolute;
+  inset: 0 0 auto;
+  height: 100%;
+  background: var(--h-gold);
+  transform: scaleY(var(--p, 0));
+  transform-origin: top;
+}
+
+.film__meter i {
+  font-style: normal;
+  font-family: "IBM Plex Mono", ui-monospace, monospace;
+  font-size: 0.64rem;
+  letter-spacing: 0.18em;
+  color: var(--h-ink-dim);
+  text-shadow: 0 1px 3px rgba(5, 5, 10, 0.9);
+}
+
+/* ── the static hero (phones, portrait tablets, reduced motion) ────────
+   A composed layout over the closing frame, not an apology. The five
+   gates below match hero.js character for character. */
+.film--static { display: none; }
+
+@media (max-width: 720px),
+       (orientation: portrait) and (max-width: 1024px),
+       (orientation: portrait) and (pointer: coarse),
+       (orientation: landscape) and (pointer: coarse) and (max-height: 560px),
+       (prefers-reduced-motion: reduce) {
+  .film { display: none; }
+
+  .film--static {
+    display: block;
+    position: relative;
+    min-height: 92vh;
+    min-height: 92svh;
+    display: flex;
+    align-items: flex-end;
+    background: #050505 url("assets/hero/hero-ending.jpg") center 30% / cover no-repeat;
+  }
+
+  .film--static::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(180deg, rgba(4, 4, 7, 0.82) 0%, rgba(4, 4, 7, 0.55) 38%, rgba(4, 4, 7, 0.93) 100%);
+  }
+
+  .film-static__in {
+    position: relative;
+    padding: 20vh 20px 48px;
+    width: 100%;
+  }
+}
+
+.film-static__kicker {
+  margin: 0 0 12px;
+  font-family: "IBM Plex Mono", ui-monospace, monospace;
+  font-size: 0.68rem;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--h-gold);
+}
+
+.film-static__h {
+  margin: 0;
+  font-family: "Bricolage Grotesque", "Sora", system-ui, sans-serif;
+  font-weight: 800;
+  font-size: clamp(2.1rem, 9vw, 3rem);
+  line-height: 1.05;
+  letter-spacing: -0.025em;
+  color: var(--h-ink);
+  text-shadow: var(--h-shadow);
+}
+
+.film-static__h em { font-style: normal; color: var(--h-gold); }
+
+.film-static__p {
+  margin: 16px 0 24px;
+  max-width: 42ch;
+  color: var(--h-ink-dim);
+  text-shadow: 0 2px 10px rgba(5, 5, 10, 0.9);
+}
+
+.film-static__cta { display: flex; flex-wrap: wrap; gap: 12px; }
+
+.film-static__stats {
+  list-style: none;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px 28px;
+  margin: 28px 0 0;
+  padding: 0;
+}
+
+.film-static__stats li {
+  display: flex;
+  flex-direction: column;
+  font-family: "IBM Plex Mono", ui-monospace, monospace;
+  font-size: 0.68rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--h-ink-dim);
+  text-shadow: 0 2px 8px rgba(5, 5, 10, 0.9);
+}
+
+.film-static__stats b {
+  font-family: "Bricolage Grotesque", "Sora", system-ui, sans-serif;
+  font-size: 1.05rem;
+  letter-spacing: 0;
+  text-transform: none;
+  color: var(--h-ink);
+}
+
+/* ── the signal line (the signature) ──────────────────────────────────
+   One bronze line down the page that draws itself with the scroll and
+   lights a node at every section head. */
+.sig {
+  position: fixed;
+  left: clamp(14px, 3.2vw, 46px);
+  top: 0;
+  bottom: 0;
+  width: 2px;
+  z-index: 2;
+  pointer-events: none;
+  background: linear-gradient(180deg, rgba(var(--gold-rgb), 0) 0%, rgba(var(--gold-rgb), 0.22) 12%, rgba(var(--gold-rgb), 0.22) 88%, rgba(var(--gold-rgb), 0) 100%);
+  opacity: 0;
+  transition: opacity 0.6s var(--ease-soft);
+}
+
+.sig.is-on { opacity: 1; }
+
+.sig__fill {
+  position: absolute;
+  inset: 0 0 auto;
+  height: 100%;
+  background: linear-gradient(180deg, var(--gold-bright), var(--gold));
+  transform: scaleY(var(--p, 0));
+  transform-origin: top;
+  box-shadow: 0 0 18px rgba(var(--gold-rgb), 0.55);
+}
+
+.sig__node {
+  position: absolute;
+  left: 50%;
+  width: 9px;
+  height: 9px;
+  margin-left: -4.5px;
+  margin-top: -4.5px;
+  border-radius: 50%;
+  border: 1px solid rgba(var(--gold-rgb), 0.5);
+  background: var(--bg);
+  transition: background 0.45s var(--ease-soft), box-shadow 0.45s var(--ease-soft), transform 0.45s var(--ease-out);
+}
+
+.sig__node.is-lit {
+  background: var(--gold-bright);
+  box-shadow: 0 0 14px rgba(var(--gold-rgb), 0.85);
+  transform: scale(1.3);
+}
+
+@media (max-width: 980px) { .sig { display: none; } }
+
+/* ── shared section furniture ─────────────────────────────────────────── */
+.sec { position: relative; padding: clamp(72px, 11vh, 126px) 0; }
+
+.sec-head { max-width: 62ch; margin-bottom: clamp(32px, 5vh, 56px); }
+
+.sec-tag {
+  margin: 0 0 12px;
+  font-family: "IBM Plex Mono", ui-monospace, monospace;
+  font-size: 0.72rem;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--gold-text);
+}
+
+.sec-title {
+  margin: 0;
+  font-family: "Bricolage Grotesque", "Sora", system-ui, sans-serif;
+  font-weight: 800;
+  font-size: clamp(1.9rem, 3.6vw, 2.9rem);
+  line-height: 1.08;
+  letter-spacing: -0.025em;
+  color: var(--text);
+}
+
+.sec-title em { font-style: normal; color: var(--gold-text); }
+
+.sec-lead {
+  margin: 16px 0 0;
+  max-width: 56ch;
+  color: var(--text-dim);
+  font-size: 1.04rem;
+}
+
+[data-reveal] {
+  opacity: 0;
+  transform: translateY(22px);
+  transition: opacity 0.6s var(--ease-soft), transform 0.7s var(--ease-out);
+}
+
+[data-reveal].is-visible { opacity: 1; transform: none; }
+
+[data-reveal][data-delay="1"] { transition-delay: 0.08s; }
+[data-reveal][data-delay="2"] { transition-delay: 0.16s; }
+[data-reveal][data-delay="3"] { transition-delay: 0.24s; }
+
+/* delays are for the entrance only; keep them off hovers afterwards */
+[data-reveal].is-visible.is-settled { transition-delay: 0s; }
+
+/* ── the system grid ──────────────────────────────────────────────────── */
+.sys__grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 18px;
+}
+
+.syscard {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  min-height: 268px;
+  padding: 22px;
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  background: var(--surface);
+  overflow: hidden;
+  isolation: isolate;
+  transition: border-color 0.4s var(--ease-soft), transform 0.5s var(--ease-out);
+}
+
+.syscard__shot {
+  position: absolute;
+  inset: 0;
+  z-index: -2;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  opacity: 0.3;
+  transform: scale(1.04);
+  transition: opacity 0.6s var(--ease-soft), transform 1.2s var(--ease-out);
+}
+
+.syscard::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  background: linear-gradient(185deg, rgba(8, 7, 5, 0.52) 0%, rgba(8, 7, 5, 0.86) 62%, rgba(8, 7, 5, 0.95) 100%);
+}
+
+html[data-theme="light"] .syscard::after {
+  background: linear-gradient(185deg, rgba(255, 252, 245, 0.78) 0%, rgba(255, 252, 245, 0.93) 60%, rgba(255, 252, 245, 0.97) 100%);
+}
+
+html[data-theme="light"] .syscard__shot { opacity: 0.22; }
+
+.syscard:hover { border-color: rgba(var(--gold-rgb), 0.5); transform: translateY(-4px); }
+.syscard:hover .syscard__shot { opacity: 0.42; transform: scale(1.09); }
+
+.syscard__hit {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  width: 100%;
+  background: none;
+  border: 0;
+  padding: 0;
+  margin: 0;
+  cursor: pointer;
+  border-radius: 14px;
+  appearance: none;
+}
+
+.syscard__hit:focus-visible { outline: 2px solid var(--gold-bright); outline-offset: 3px; }
+
+.syscard__no {
+  font-family: "IBM Plex Mono", ui-monospace, monospace;
+  font-size: 0.7rem;
+  letter-spacing: 0.2em;
+  color: var(--gold-text);
+}
+
+.syscard h3 {
+  margin: 14px 0 8px;
+  font-family: "Bricolage Grotesque", "Sora", system-ui, sans-serif;
+  font-weight: 700;
+  font-size: 1.35rem;
+  letter-spacing: -0.02em;
+  color: var(--text);
+}
+
+.syscard p { margin: 0; color: var(--text-dim); font-size: 0.97rem; }
+
+.syscard__more {
+  margin-top: auto;
+  padding-top: 18px;
+  font-family: "IBM Plex Mono", ui-monospace, monospace;
+  font-size: 0.7rem;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--gold-text);
+  opacity: 0;
+  transform: translateY(6px);
+  transition: opacity 0.4s var(--ease-soft), transform 0.4s var(--ease-out);
+}
+
+.syscard:hover .syscard__more,
+.syscard:focus-within .syscard__more { opacity: 1; transform: none; }
+
+/* the automation card is the one the whole page leans on, so it gets the
+   space and the only glow in the grid */
+.syscard--lead {
+  grid-column: span 2;
+  grid-row: span 2;
+  min-height: 420px;
+  border-color: rgba(var(--gold-rgb), 0.42);
+}
+
+.syscard--lead h3 { font-size: clamp(1.6rem, 2.6vw, 2.1rem); }
+.syscard--lead p { font-size: 1.05rem; max-width: 46ch; }
+
+.syscard--lead::before {
+  content: "";
+  position: absolute;
+  inset: -1px;
+  border-radius: 14px;
+  box-shadow: inset 0 0 60px rgba(var(--gold-rgb), 0.2);
+  pointer-events: none;
+  animation: leadGlow 7s ease-in-out -2s infinite alternate;
+}
+
+@keyframes leadGlow {
+  from { opacity: 0.45; }
+  to { opacity: 1; }
+}
+
+.syscard__tag {
+  position: absolute;
+  top: 18px;
+  right: 18px;
+  z-index: 1;
+  font-family: "IBM Plex Mono", ui-monospace, monospace;
+  font-size: 0.64rem;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--accent-text);
+  background: var(--gold-gradient);
+  border-radius: 999px;
+  padding: 5px 11px;
+}
+
+/* ── the hold moment ──────────────────────────────────────────────────── */
+.live__wrap {
+  display: grid;
+  grid-template-columns: 0.85fr 1.15fr;
+  gap: clamp(24px, 4vw, 56px);
+  align-items: start;
+}
+
+.hold__title {
+  margin: 0;
+  font-family: "Bricolage Grotesque", "Sora", system-ui, sans-serif;
+  font-weight: 700;
+  font-size: 1.3rem;
+  color: var(--text);
+}
+
+.hold__read {
+  margin: 0;
+  min-height: 1.5em;
+  font-family: "IBM Plex Mono", ui-monospace, monospace;
+  font-size: 0.78rem;
+  letter-spacing: 0.1em;
+  color: var(--gold-text);
+}
+
+.hold {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 18px;
+  padding: 30px;
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  background: var(--surface-alt);
+}
+
+.hold__btn {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  min-height: 56px;
+  padding: 0 26px;
+  border: 1px solid rgba(var(--gold-rgb), 0.55);
+  border-radius: 999px;
+  background: transparent;
+  color: var(--text);
+  font: inherit;
+  font-weight: 600;
+  cursor: pointer;
+  overflow: hidden;
+  touch-action: none;
+  transition: border-color 0.3s var(--ease-soft);
+}
+
+.hold__btn::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  background: var(--gold-gradient);
+  transform: scaleX(var(--hp, 0));
+  transform-origin: left;
+  opacity: 0.9;
+}
+
+.hold__btn span { position: relative; z-index: 1; }
+.hold__btn[data-done="1"] span { color: var(--accent-text); }
+.hold__btn:focus-visible { outline: 2px solid var(--gold-bright); outline-offset: 4px; }
+
+.hold__hint {
+  margin: 0;
+  font-family: "IBM Plex Mono", ui-monospace, monospace;
+  font-size: 0.72rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--text-faint);
+}
+
+.flow { list-style: none; margin: 0; padding: 0; display: grid; gap: 12px; }
+
+.flow li {
+  display: grid;
+  grid-template-columns: 38px 1fr;
+  gap: 14px;
+  align-items: start;
+  padding: 16px 18px;
+  border: 1px solid var(--border-soft);
+  border-radius: 12px;
+  background: var(--surface);
+  opacity: 0.4;
+  transform: translateX(-8px);
+  transition: opacity 0.5s var(--ease-soft), transform 0.5s var(--ease-out), border-color 0.5s var(--ease-soft);
+}
+
+.flow li.is-lit {
+  opacity: 1;
+  transform: none;
+  border-color: rgba(var(--gold-rgb), 0.45);
+}
+
+.flow b {
+  display: grid;
+  place-items: center;
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  border: 1px solid rgba(var(--gold-rgb), 0.4);
+  font-family: "IBM Plex Mono", ui-monospace, monospace;
+  font-size: 0.78rem;
+  color: var(--gold-text);
+}
+
+.flow li.is-lit b { background: var(--gold-gradient); color: var(--accent-text); border-color: transparent; }
+
+.flow strong { display: block; color: var(--text); font-weight: 600; }
+.flow span { color: var(--text-dim); font-size: 0.95rem; }
+
+/* ── how it works ─────────────────────────────────────────────────────── */
+.path { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; }
+
+.path__step {
+  display: flex;
+  flex-direction: column;
+  border: 1px solid var(--border-soft);
+  border-radius: 14px;
+  overflow: hidden;
+  background: var(--surface);
+}
+
+.path__shot {
+  width: 100%;
+  height: auto;
+  aspect-ratio: 16 / 10;
+  object-fit: cover;
+  filter: saturate(0.9);
+}
+
+.path__body { padding: 22px; }
+
+.path__no {
+  font-family: "IBM Plex Mono", ui-monospace, monospace;
+  font-size: 0.7rem;
+  letter-spacing: 0.2em;
+  color: var(--gold-text);
+}
+
+.path__step h3 {
+  margin: 10px 0 8px;
+  font-family: "Bricolage Grotesque", "Sora", system-ui, sans-serif;
+  font-weight: 700;
+  font-size: 1.22rem;
+  color: var(--text);
+}
+
+.path__step p { margin: 0; color: var(--text-dim); font-size: 0.97rem; }
+
+/* ── proof ────────────────────────────────────────────────────────────── */
+.proof__wrap {
+  display: grid;
+  grid-template-columns: 1.1fr 0.9fr;
+  gap: clamp(24px, 4vw, 54px);
+  align-items: center;
+}
+
+.proof__shot {
+  width: 100%;
+  height: auto;
+  aspect-ratio: 16 / 9;
+  object-fit: cover;
+  border-radius: 16px;
+  border: 1px solid var(--border);
+  display: block;
+}
+
+.ticks { list-style: none; margin: 22px 0 0; padding: 0; display: grid; gap: 12px; }
+
+.ticks li {
+  display: grid;
+  grid-template-columns: 22px 1fr;
+  gap: 12px;
+  color: var(--text-dim);
+}
+
+.ticks svg { width: 22px; height: 22px; stroke: var(--gold-bright); fill: none; stroke-width: 1.8; }
+
+/* ── faq ──────────────────────────────────────────────────────────────── */
+.faq { display: grid; gap: 10px; max-width: 70ch; }
+
+.faq details {
+  border: 1px solid var(--border-soft);
+  border-radius: 12px;
+  background: var(--surface);
+  overflow: hidden;
+}
+
+.faq summary {
+  cursor: pointer;
+  list-style: none;
+  padding: 18px 20px;
+  font-weight: 600;
+  color: var(--text);
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
+  align-items: baseline;
+}
+
+.faq summary::-webkit-details-marker { display: none; }
+
+.faq summary::after {
+  content: "+";
+  color: var(--gold-text);
+  font-family: "IBM Plex Mono", ui-monospace, monospace;
+  transition: transform 0.3s var(--ease-out);
+}
+
+.faq details[open] summary::after { transform: rotate(45deg); }
+.faq details[open] { border-color: rgba(var(--gold-rgb), 0.4); }
+.faq p { margin: 0; padding: 0 20px 20px; color: var(--text-dim); }
+
+/* the faq sits beside a short invitation, so the section is not one
+   narrow column with empty air beside it */
+.faq__wrap {
+  display: grid;
+  grid-template-columns: 1.25fr 0.75fr;
+  gap: clamp(24px, 4vw, 56px);
+  align-items: start;
+}
+
+.ask {
+  position: sticky;
+  top: 112px;
+  padding: 26px;
+  border: 1px solid rgba(var(--gold-rgb), 0.38);
+  border-radius: 16px;
+  background: var(--surface-alt);
+}
+
+.ask__tag {
+  margin: 0 0 10px;
+  font-family: "IBM Plex Mono", ui-monospace, monospace;
+  font-size: 0.7rem;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--gold-text);
+}
+
+.ask h3 {
+  margin: 0 0 10px;
+  font-family: "Bricolage Grotesque", "Sora", system-ui, sans-serif;
+  font-weight: 700;
+  font-size: 1.3rem;
+  color: var(--text);
+}
+
+.ask p { margin: 0 0 12px; color: var(--text-dim); font-size: 0.97rem; }
+.ask__line { font-family: "IBM Plex Mono", ui-monospace, monospace; font-size: 0.9rem; }
+.ask__line a { color: var(--gold-text); }
+.ask .btn { margin-top: 8px; }
+
+/* ── responsive ───────────────────────────────────────────────────────── */
+@media (max-width: 1040px) {
+  .sys__grid { grid-template-columns: repeat(2, 1fr); }
+  .syscard--lead { grid-column: span 2; grid-row: span 1; }
+  .live__wrap, .proof__wrap, .faq__wrap { grid-template-columns: 1fr; }
+  .ask { position: static; }
+  .path { grid-template-columns: 1fr; }
+}
+
+@media (max-width: 680px) {
+  .sys__grid { grid-template-columns: 1fr; }
+  .syscard--lead { grid-column: span 1; grid-row: span 1; }
+  .sec { padding: 64px 0; }
+}
+
+@media (max-height: 560px) {
+  .film__cue, .film__meter { display: none; }
+}
+
+@media (pointer: coarse) {
+  .syscard__hit { min-height: 44px; }
+}
+
+/* ── reduced motion ───────────────────────────────────────────────────── */
+@media (prefers-reduced-motion: reduce) {
+  .env,
+  .syscard--lead::before,
+  .film__cue span { animation: none; }
+
+  [data-reveal],
+  [data-reveal].is-visible {
+    opacity: 1;
+    transform: none;
+    transition: none;
+    transition-delay: 0s;
+  }
+
+  .flow li { opacity: 1; transform: none; border-color: rgba(var(--gold-rgb), 0.45); }
+  .flow b { background: var(--gold-gradient); color: var(--accent-text); border-color: transparent; }
+  .syscard, .syscard__shot, .syscard__more, .hold__btn, .sig__node { transition: none; }
+  .syscard__more { opacity: 1; transform: none; }
+}
+
+body.paused *,
+body.paused *::before,
+body.paused *::after { animation-play-state: paused !important; }
+
+/* ── the header floats over the film ──────────────────────────────────
+   The opening is full bleed, so the header rides over the footage with
+   only a soft gradient behind it, then takes its normal solid background
+   once the film is behind you. hero.js toggles .head-solid. */
+body > .site-header {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 60;
+  background: linear-gradient(180deg, rgba(6, 6, 9, 0.86) 0%, rgba(6, 6, 9, 0.5) 58%, rgba(6, 6, 9, 0) 100%);
+  border-bottom-color: transparent;
+  transition: background 0.5s var(--ease-soft), border-color 0.5s var(--ease-soft);
+}
+
+/* In light mode the header still floats over black footage, so its own
+   lettering has to stay light until the film is behind you. */
+html[data-theme="light"] body:not(.head-solid) .nav a,
+html[data-theme="light"] body:not(.head-solid) .theme-toggle,
+html[data-theme="light"] body:not(.head-solid) .theme-toggle__label,
+html[data-theme="light"] body:not(.head-solid) .nav-secondary {
+  color: #f2ede4;
+  border-color: rgba(242, 237, 228, 0.42);
+}
+
+html[data-theme="light"] body:not(.head-solid) .theme-toggle {
+  background: rgba(255, 255, 255, 0.1);
+  border-color: rgba(242, 237, 228, 0.42);
+}
+
+html[data-theme="light"] body:not(.head-solid) .brand__name {
+  background: none;
+  -webkit-text-fill-color: #f2ede4;
+  color: #f2ede4;
+}
+
+html[data-theme="light"] body:not(.head-solid) > .site-header {
+  background: linear-gradient(180deg, rgba(6, 6, 9, 0.9) 0%, rgba(6, 6, 9, 0.55) 60%, rgba(6, 6, 9, 0) 100%);
+}
+
+body.head-solid > .site-header {
+  background: rgba(12, 11, 9, 0.92);
+  border-bottom-color: var(--border-soft);
+}
+
+html[data-theme="light"] body.head-solid > .site-header { background: rgba(247, 243, 234, 0.95); }
+
+html { scroll-padding-top: 96px; }
+
+.skip-link {
+  position: absolute;
+  left: -9999px;
+  top: 0;
+  z-index: 100;
+  padding: 12px 18px;
+  background: var(--gold-gradient);
+  color: var(--accent-text);
+  border-radius: 0 0 10px 0;
+  font-weight: 600;
+}
+
+.skip-link:focus { left: 0; }
+
+#main:focus { outline: none; }
+
+/* ── the enquiry section ──────────────────────────────────────────────
+   The head sits beside the form instead of above it, so the section does
+   not repeat the skeleton of the one before it. */
+.enquire__wrap {
+  display: grid;
+  grid-template-columns: 0.85fr 1.15fr;
+  gap: clamp(24px, 4vw, 60px);
+  align-items: start;
+}
+
+.enquire__wrap .sec-head { margin-bottom: 0; position: sticky; top: 112px; }
+.enquire__wrap .enquiry-form { max-width: none; width: 100%; margin: 0; }
+.enquire__wrap .sec-lead a { color: var(--gold-text); }
+
+@media (max-width: 1040px) {
+  .enquire__wrap { grid-template-columns: 1fr; }
+  .enquire__wrap .sec-head { position: static; }
+}

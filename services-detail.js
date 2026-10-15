@@ -147,9 +147,9 @@
     modal.showModal();
   }
 
-  document.querySelectorAll('.service-card__hit').forEach(function (btn) {
+  document.querySelectorAll('.service-card__hit, .syscard__hit').forEach(function (btn) {
     btn.addEventListener('click', function () {
-      var card = btn.closest('.service-card');
+      var card = btn.closest('.service-card, .syscard');
       var h3 = card && card.querySelector('h3');
       open(btn.getAttribute('data-service'), h3 ? h3.innerHTML : '', btn);
     });
