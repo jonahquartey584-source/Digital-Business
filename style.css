@@ -3198,6 +3198,11 @@ html { scroll-snap-type: y proximity; }
   height: 320svh;
   display: block;
   scroll-snap-align: none;
+  /* .deck__panel sets overflow:hidden, and an overflow-hidden ancestor turns
+     position:sticky into a no-op. The stage then scrolled away instead of
+     pinning and left two empty screens of black below it. The stage does the
+     clipping instead. */
+  overflow: visible;
 }
 .deck__stage {
   position: sticky; top: 0;
