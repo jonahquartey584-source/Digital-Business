@@ -84,14 +84,10 @@
   .head p{color:var(--text-2);margin-top:11px}
 
   /* before / after */
-  .ba{position:relative;border-radius:16px;overflow:hidden;border:1px solid var(--line);aspect-ratio:16/9;cursor:ew-resize;background:var(--bg-2);user-select:none;touch-action:none}
-  .ba svg{position:absolute;inset:0;width:100%;height:100%}
-  .ba__after{position:absolute;inset:0;clip-path:inset(0 0 0 50%)}
-  .ba__handle{position:absolute;top:0;bottom:0;left:50%;width:2px;background:var(--amber);pointer-events:none}
-  .ba__handle::after{content:"";position:absolute;top:50%;left:50%;width:40px;height:40px;transform:translate(-50%,-50%);border-radius:50%;background:var(--amber);
-    box-shadow:0 0 0 5px rgba(255,138,61,.26)}
-  .ba__tag{position:absolute;bottom:12px;font-size:.7rem;font-weight:800;letter-spacing:.12em;text-transform:uppercase;background:rgba(13,17,23,.8);padding:6px 11px;border-radius:7px;pointer-events:none}
-  .ba__tag--l{left:12px}.ba__tag--r{right:12px;color:var(--amber)}
+  .case-photo{position:relative;aspect-ratio:16/9;overflow:hidden;margin:0;border:1px solid var(--line);background:var(--bg-2)}
+  .case-photo img{display:block;width:100%;height:100%;object-fit:cover;object-position:center 48%;filter:saturate(.78) contrast(1.04)}
+  .case-photo::after{content:"";position:absolute;inset:45% 0 0;background:linear-gradient(transparent,rgba(5,8,11,.82));pointer-events:none}
+  .case-photo figcaption{position:absolute;z-index:1;left:clamp(18px,4vw,38px);bottom:clamp(16px,3vw,28px);color:#fff;font-size:.72rem;font-weight:800;letter-spacing:.15em;text-transform:uppercase}
 
   /* services filter */
   .filters{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:18px}
@@ -135,7 +131,8 @@
   .quote{border-radius:3px;background:linear-gradient(135deg,rgba(24,31,40,.98),rgba(15,20,26,.98));border-color:#343b42}
   .btn{border-radius:3px;letter-spacing:.045em}
   .badge,.job{border-radius:3px}
-  .ba,.ba__handle::after,.filters button{border-radius:3px}
+  .case-photo{border-radius:3px;box-shadow:0 38px 100px -48px rgba(0,0,0,.8)}
+  .filters button{border-radius:3px}
   @media(max-width:760px){.hero h1{font-size:clamp(3rem,13vw,4.4rem)}.hero-photo{aspect-ratio:1.4/1}}
   @media (prefers-reduced-motion: reduce){*{animation:none!important;transition:none!important}html{scroll-behavior:auto}}
 </style>
@@ -223,36 +220,13 @@
     <div class="wrap">
       <div class="head">
         <p class="eyebrow">Our work</p>
-        <h2>Drag to see the difference</h2>
-        <p>A corroded copper run in a 1930s semi, replaced in a day. Drag the handle across.</p>
+        <h2>Good work should speak for itself.</h2>
+        <p>From a leaking joint to a full bathroom installation, we explain the fix clearly and leave the space tidy.</p>
       </div>
-      <div class="ba" id="ba" role="slider" aria-label="Before and after comparison" aria-valuemin="0" aria-valuemax="100" aria-valuenow="50" tabindex="0">
-        <svg viewBox="0 0 800 450" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
-          <rect width="800" height="450" fill="#1b2029"/>
-          <g stroke="#6b5637" stroke-width="15" fill="none" stroke-linecap="round">
-            <path d="M80 120 H420 Q470 120 470 170 V330"/><path d="M120 330 H470"/><path d="M600 90 V360"/>
-          </g>
-          <g fill="#4a3a22" opacity=".85">
-            <circle cx="250" cy="120" r="19"/><circle cx="470" cy="250" r="16"/><circle cx="330" cy="330" r="21"/><circle cx="600" cy="200" r="17"/>
-          </g>
-          <g fill="#2a3340"><rect x="0" y="380" width="800" height="70"/></g>
-        </svg>
-        <div class="ba__after">
-          <svg viewBox="0 0 800 450" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
-            <rect width="800" height="450" fill="#1b2029"/>
-            <g stroke="#cfd8e3" stroke-width="15" fill="none" stroke-linecap="round">
-              <path d="M80 120 H420 Q470 120 470 170 V330"/><path d="M120 330 H470"/><path d="M600 90 V360"/>
-            </g>
-            <g stroke="#9fb0c2" stroke-width="4" fill="none">
-              <path d="M240 105 h22 v30 h-22z"/><path d="M460 240 h22 v22 h-22z"/><path d="M590 190 h22 v22 h-22z"/>
-            </g>
-            <g fill="#2a3340"><rect x="0" y="380" width="800" height="70"/></g>
-          </svg>
-        </div>
-        <div class="ba__handle" id="handle"></div>
-        <span class="ba__tag ba__tag--l">Before</span>
-        <span class="ba__tag ba__tag--r">After</span>
-      </div>
+      <figure class="case-photo">
+        <img src="../../assets/demos/hart-pipework.jpg" alt="A plumber working on pipework during a bathroom repair" width="2000" height="1333" loading="lazy">
+        <figcaption>Plumbing repairs · carried out with care</figcaption>
+      </figure>
     </div>
   </section>
 
@@ -335,28 +309,6 @@
   }
   document.querySelectorAll("#job input,#when input,#prop input").forEach(function(i){i.addEventListener("change",quote);});
   quote();
-
-  // before / after slider
-  var ba=document.getElementById("ba"),after=ba.querySelector(".ba__after"),handle=document.getElementById("handle"),dragging=false;
-  function setPos(pct){
-    pct=Math.max(0,Math.min(100,pct));
-    after.style.clipPath="inset(0 0 0 "+pct+"%)";
-    handle.style.left=pct+"%";
-    ba.setAttribute("aria-valuenow",Math.round(pct));
-  }
-  function fromEvent(e){
-    var r=ba.getBoundingClientRect();
-    var x=(e.touches?e.touches[0].clientX:e.clientX)-r.left;
-    setPos(x/r.width*100);
-  }
-  ba.addEventListener("pointerdown",function(e){dragging=true;ba.setPointerCapture(e.pointerId);fromEvent(e);});
-  ba.addEventListener("pointermove",function(e){if(dragging)fromEvent(e);});
-  ba.addEventListener("pointerup",function(){dragging=false;});
-  ba.addEventListener("keydown",function(e){
-    var cur=+ba.getAttribute("aria-valuenow");
-    if(e.key==="ArrowLeft"){setPos(cur-4);e.preventDefault();}
-    if(e.key==="ArrowRight"){setPos(cur+4);e.preventDefault();}
-  });
 
   // service filter
   var filters=document.getElementById("filters");
