@@ -169,6 +169,14 @@
     X-Frame-Options = "SAMEORIGIN"
     X-Robots-Tag = "noindex, nofollow"
 
+# The website mockups are invented businesses too, so they stay out of search
+# results for the same reason as the demos. They run under the site-wide CSP.
+[[headers]]
+  for = "/mockups/*"
+
+  [headers.values]
+    X-Robots-Tag = "noindex, nofollow"
+
 # robots.txt is only advisory — a crawler is free to ignore it. X-Robots-Tag
 # is enforced, so the admin tooling and the post-payment page (which shows a
 # client's portal code) stay out of search results either way.

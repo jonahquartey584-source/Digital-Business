@@ -147,7 +147,8 @@
     modal.showModal();
   }
 
-  document.querySelectorAll('.service-card__hit').forEach(function (btn) {
+  // The Websites card is a plain link to the example sites, so it skips the details dialog.
+  document.querySelectorAll('.service-card__hit:not(.service-card__link)').forEach(function (btn) {
     btn.addEventListener('click', function () {
       var card = btn.closest('.service-card');
       var h3 = card && card.querySelector('h3');

@@ -994,6 +994,7 @@ html[data-theme="light"] .services__drift { opacity: 0.3; }
    the keyboard focus; the heading and copy stay real text underneath it
    rather than being swallowed into the control. */
 .service-card__hit {
+  display: block;
   position: absolute;
   inset: 0;
   z-index: 2;
