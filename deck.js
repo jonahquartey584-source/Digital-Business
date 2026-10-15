@@ -90,9 +90,17 @@
           marks.forEach(function (m, j) { m.classList.toggle("on", j === i); });
         } else {
           pause(e.target);
+          /* Re-arm it. This used to only ever add the class, so a panel
+             animated once per page load and every scroll after that showed
+             static text over a static frame — the deck stopped moving as soon
+             as you had been down it once. Dropping the class when the panel is
+             well clear of the viewport means it plays again on the way back,
+             and the threshold gap (out at 0.1, in at 0.55) keeps it from
+             flickering while a panel sits on the boundary. */
+          if (e.intersectionRatio < 0.1) e.target.classList.remove("is-live");
         }
       });
-    }, { threshold: [0, 0.55, 1] });
+    }, { threshold: [0, 0.1, 0.55, 1] });
     panels.forEach(function (p) { live.observe(p); });
 
     /* The ticks belong to the deck, and the same signal hardens the snap:

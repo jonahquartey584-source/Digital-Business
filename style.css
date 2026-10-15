@@ -3151,6 +3151,20 @@ html.is-in-deck { scroll-snap-type: y mandatory; }
   object-position: center center;
   display: block;
 }
+
+/* On a landscape window the frame and the panel are close to the same shape,
+   so the whole composition fits with only a sliver to spare. Showing all of
+   it, centred, is the right scale — cover was enlarging each frame to fill
+   the last few percent and cropping the subject at the top to do it. The
+   panel behind is near-black and so are the frames, so the sliver reads as
+   part of the picture rather than as a letterbox.
+
+   Portrait keeps cover: a 16:9 frame contained in a phone screen would be a
+   thin strip floating in the middle. */
+@media (min-aspect-ratio: 4 / 3) {
+  .deck__art img,
+  .deck__art video { object-fit: contain; }
+}
 /* the poster sits under the clip and shows until it has frames to give */
 .deck__art video { position: absolute; inset: 0; opacity: 0; transition: opacity .9s ease; }
 .deck__art video.is-ready { opacity: 1; }
