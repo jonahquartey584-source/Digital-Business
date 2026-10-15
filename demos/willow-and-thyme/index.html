@@ -10,7 +10,7 @@
   :root{
     --paper:#fbf9f5; --paper-2:#f2efe7; --ink:#1f2420; --ink-2:#5a635b;
     --sage:#5b7161; --sage-dark:#3f5247; --sage-pale:#e4ebe4;
-    --blush:#c98a7d; --line:#e2ded4; --max:1080px;
+    --blush:#c98a7d; --line:#e2ded4; --max:1200px;
     --sans:"Inter",system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
     --serif:"Iowan Old Style","Palatino Linotype",Palatino,Georgia,serif;
   }
@@ -29,6 +29,7 @@
   .bar{display:flex;align-items:center;gap:26px;padding-block:15px}
   .logo{font-family:var(--serif);font-size:1.22rem;letter-spacing:.06em;text-decoration:none;flex:none}
   .logo b{color:var(--sage)}
+  .bar>.btn{padding:11px 17px;flex:none}
   nav{display:flex;gap:22px;margin-left:auto;flex-wrap:wrap}
   nav a{font-size:.8rem;letter-spacing:.07em;text-transform:uppercase;text-decoration:none;color:var(--ink-2);padding-bottom:2px;border-bottom:1px solid transparent}
   nav a:hover,nav a:focus-visible{color:var(--ink);border-bottom-color:var(--sage)}
@@ -42,20 +43,25 @@
 
   /* hero */
   .hero{position:relative;overflow:hidden;background:
-     radial-gradient(60% 70% at 78% 18%,rgba(91,113,97,.16),transparent 62%),
-     radial-gradient(50% 60% at 10% 88%,rgba(201,138,125,.14),transparent 60%),var(--paper)}
-  .hero .wrap{display:grid;gap:44px;padding-block:68px 60px;align-items:center}
-  @media(min-width:860px){.hero .wrap{grid-template-columns:1.05fr .95fr}}
-  .hero h1{font-size:clamp(2.3rem,5.2vw,3.5rem);margin:16px 0 0}
+     radial-gradient(60% 70% at 78% 18%,rgba(91,113,97,.13),transparent 62%),
+     radial-gradient(50% 60% at 10% 88%,rgba(201,138,125,.12),transparent 60%),var(--paper)}
+  .hero .wrap{display:grid;gap:48px;padding-block:78px 72px;align-items:center}
+  @media(min-width:860px){.hero .wrap{grid-template-columns:1.02fr .98fr}}
+  .hero h1{font-size:clamp(2.6rem,5.3vw,4.6rem);margin:16px 0 0;max-width:13ch;line-height:1.04;letter-spacing:-.035em}
   .hero__sub{margin-top:16px;color:var(--ink-2);font-size:1.03rem;max-width:44ch}
   .hero__cta{display:flex;gap:12px;flex-wrap:wrap;margin-top:26px}
   .rotator{display:inline-block;color:var(--sage);font-style:italic;font-family:var(--serif)}
   .trust{display:flex;gap:20px;flex-wrap:wrap;margin-top:30px;padding-top:22px;border-top:1px solid var(--line);font-size:.82rem;color:var(--ink-2)}
   .trust b{display:block;font-family:var(--serif);font-size:1.3rem;color:var(--ink);font-weight:500}
 
-  .posy{position:relative;aspect-ratio:4/5;border-radius:220px 220px 18px 18px;overflow:hidden;background:linear-gradient(170deg,#e8eee7,#d8e2d6 60%,#cdd9cb);
-        box-shadow:0 30px 70px -40px rgba(31,36,32,.5)}
-  .posy svg{position:absolute;inset:0;width:100%;height:100%}
+  .hero-visual{position:relative;aspect-ratio:1.03/1;border-radius:4px 150px 4px 4px;overflow:hidden;margin:0;background:var(--sage-pale);box-shadow:0 30px 70px -40px rgba(31,36,32,.5)}
+  .hero-visual img{width:100%;height:100%;object-fit:cover;object-position:center 62%;transition:transform .8s cubic-bezier(.2,.7,.2,1)}
+  .hero-visual:hover img{transform:scale(1.035)}
+  .hero-visual::after{content:"";position:absolute;inset:45% 0 0;background:linear-gradient(transparent,rgba(26,34,28,.36));pointer-events:none}
+  .hero-visual figcaption{position:absolute;z-index:1;left:22px;bottom:20px;color:#fff;font-size:.7rem;letter-spacing:.16em;text-transform:uppercase;text-shadow:0 2px 12px rgba(0,0,0,.4)}
+  .hero-note{position:absolute;z-index:2;right:18px;bottom:20px;background:rgba(251,249,245,.94);backdrop-filter:blur(12px);border:1px solid rgba(255,255,255,.8);border-radius:2px;padding:16px 19px;box-shadow:0 14px 36px rgba(31,36,32,.16)}
+  .hero-note b{display:block;font:500 1.15rem/1.1 var(--serif);color:var(--ink)}
+  .hero-note span{display:block;margin-top:5px;font-size:.68rem;letter-spacing:.14em;text-transform:uppercase;color:var(--ink-2)}
 
   /* builder */
   section{padding-block:66px}
@@ -101,7 +107,9 @@
   .cards{display:grid;gap:18px;grid-template-columns:repeat(auto-fit,minmax(215px,1fr))}
   .card{background:#fff;border:1px solid var(--line);border-radius:18px;overflow:hidden;transition:transform .2s ease,box-shadow .2s ease}
   .card:hover{transform:translateY(-4px);box-shadow:0 26px 46px -34px rgba(31,36,32,.55)}
-  .card__art{aspect-ratio:1;position:relative;background:var(--sage-pale)}
+  .card__art{aspect-ratio:1.1;position:relative;background:var(--sage-pale);overflow:hidden}
+  .card__art img{width:100%;height:100%;object-fit:cover;transition:transform .5s ease}
+  .card:hover .card__art img{transform:scale(1.045)}
   .card__art svg{position:absolute;inset:0;width:100%;height:100%}
   .card__body{padding:16px 18px 20px}
   .card h3{font-size:1.08rem}
@@ -125,7 +133,23 @@
   footer{background:var(--sage-dark);color:#e7ede8;margin-top:20px}
   footer .wrap{padding-block:34px;display:flex;gap:18px 30px;flex-wrap:wrap;align-items:center;justify-content:space-between;font-size:.86rem}
   footer a{color:#fff}
-  .demo-flag{background:var(--ink);color:#fff;font-size:.72rem;letter-spacing:.1em;text-transform:uppercase;text-align:center;padding:7px 16px}
+  .demo-flag{background:var(--ink);color:#fff;font-size:.66rem;letter-spacing:.12em;text-transform:uppercase;text-align:center;padding:7px 16px}
+  @media(max-width:760px){.bar{gap:12px;flex-wrap:wrap}.bar nav{order:3;width:100%;justify-content:space-between;gap:10px}.bar nav a{font-size:.67rem}.hero .wrap{padding-block:48px}.hero-visual{aspect-ratio:1.06/1;border-radius:4px 100px 4px 4px}.hero-note{right:12px;bottom:12px;padding:12px 14px}.trust{gap:14px}}
+  /* Editorial, image-first storefront inspired by the bright product site reference. */
+  :root{--sage:#687d6b;--sage-dark:#465c4a;--sage-pale:#e7ede6;--blush:#bf887e;--line:#e2ded5;--paper:#fbf9f4;--paper-2:#f2efe7}
+  .hero{background:linear-gradient(115deg,#fbf9f4 0%,#fbf9f4 48%,#e7ede6 100%)}
+  .hero .wrap{gap:clamp(32px,5vw,76px);padding-block:clamp(54px,7vw,92px)}
+  .hero h1{font-size:clamp(2.65rem,5.1vw,4.6rem);max-width:14ch;letter-spacing:-.045em}
+  .eyebrow{color:var(--sage-dark)}
+  .hero-visual{aspect-ratio:1.08/1;border-radius:2px 2px 110px 2px;box-shadow:0 32px 90px -50px rgba(87,25,47,.48)}
+  .hero-visual::after{background:linear-gradient(transparent 55%,rgba(29,17,22,.45))}
+  .hero-note{border-radius:2px;padding:18px 22px}
+  .btn{border-radius:2px;letter-spacing:.09em}
+  .btn--ghost{border-color:#d9c9cf}
+  .builder{border-radius:3px;box-shadow:0 24px 70px -50px rgba(68,32,45,.38)}
+  .card{border-radius:2px}
+  .card__art{aspect-ratio:1.06}
+  @media(max-width:760px){.hero-visual{aspect-ratio:1.02/1;border-radius:2px 2px 70px 2px}}
   @media (prefers-reduced-motion: reduce){*{animation:none!important;transition:none!important}html{scroll-behavior:auto}}
 </style>
 </head>
@@ -135,12 +159,13 @@
 <header>
   <div class="wrap bar">
     <a class="logo" href="#top">Willow <b>&amp;</b> Thyme</a>
-    <nav>
+    <nav aria-label="Main navigation">
       <a href="#build">Build a bouquet</a>
       <a href="#shop">Shop</a>
       <a href="#delivery">Delivery</a>
       <a href="#order">Order</a>
     </nav>
+    <a class="btn" href="#order">Order now</a>
   </div>
 </header>
 
@@ -161,25 +186,11 @@
           <div><b>7 days</b>including Sundays</div>
         </div>
       </div>
-      <div class="posy" aria-hidden="true">
-        <svg viewBox="0 0 400 500" preserveAspectRatio="xMidYMid slice">
-          <g fill="none" stroke="#5b7161" stroke-width="2" opacity=".55">
-            <path d="M200 470 C195 380 180 320 150 260"/><path d="M200 470 C205 380 220 318 252 256"/>
-            <path d="M200 470 C200 390 198 330 200 250"/><path d="M200 470 C190 400 160 350 118 312"/>
-            <path d="M200 470 C212 400 244 352 286 316"/>
-          </g>
-          <g>
-            <circle cx="150" cy="248" r="34" fill="#c98a7d" opacity=".9"/>
-            <circle cx="252" cy="244" r="30" fill="#e0a99d" opacity=".9"/>
-            <circle cx="200" cy="238" r="38" fill="#f0e3d4"/>
-            <circle cx="118" cy="300" r="25" fill="#9fb3a2"/>
-            <circle cx="286" cy="304" r="27" fill="#b9c9b8"/>
-            <circle cx="200" cy="238" r="13" fill="#c98a7d"/>
-            <circle cx="150" cy="248" r="11" fill="#f0e3d4" opacity=".8"/>
-            <circle cx="252" cy="244" r="10" fill="#f0e3d4" opacity=".8"/>
-          </g>
-        </svg>
-      </div>
+      <figure class="hero-visual">
+        <img src="../../assets/demos/willow-bouquet.jpg" alt="A hand-tied bouquet of soft pink tulips in natural window light" width="2200" height="3300" fetchpriority="high">
+        <figcaption>Seasonal stems · hand tied in Bromley</figcaption>
+        <div class="hero-note"><b>Made fresh today</b><span>Same-day delivery available</span></div>
+      </figure>
     </div>
   </div>
 
@@ -253,9 +264,9 @@
         <p>Made up fresh each morning. When they are gone, they are gone.</p>
       </div>
       <div class="cards">
-        <article class="card"><div class="card__art"><svg viewBox="0 0 200 200"><circle cx="100" cy="92" r="42" fill="#c98a7d"/><circle cx="62" cy="120" r="28" fill="#e0a99d"/><circle cx="140" cy="118" r="30" fill="#f0e3d4"/><path d="M100 196V120" stroke="#5b7161" stroke-width="4"/></svg></div><div class="card__body"><h3>The Saturday</h3><p>Blush roses, stock and eucalyptus.</p><p class="price">£38</p></div></article>
-        <article class="card"><div class="card__art"><svg viewBox="0 0 200 200"><circle cx="100" cy="90" r="38" fill="#9fb3a2"/><circle cx="66" cy="124" r="26" fill="#b9c9b8"/><circle cx="136" cy="122" r="28" fill="#e4ebe4"/><path d="M100 196V118" stroke="#5b7161" stroke-width="4"/></svg></div><div class="card__body"><h3>Garden Gate</h3><p>Soft greens, cream tulips, hellebore.</p><p class="price">£34</p></div></article>
-        <article class="card"><div class="card__art"><svg viewBox="0 0 200 200"><circle cx="100" cy="88" r="40" fill="#e0a99d"/><circle cx="60" cy="122" r="26" fill="#c98a7d"/><circle cx="142" cy="120" r="26" fill="#9fb3a2"/><path d="M100 196V118" stroke="#5b7161" stroke-width="4"/></svg></div><div class="card__body"><h3>Everlasting</h3><p>Dried stems that keep for a year.</p><p class="price">£46</p></div></article>
+        <article class="card"><div class="card__art"><img src="../../assets/demos/willow-saturday.jpg" alt="Blush tulips arranged for The Saturday bouquet" loading="lazy" width="1100" height="1100"></div><div class="card__body"><h3>The Saturday</h3><p>Blush roses, stock and eucalyptus.</p><p class="price">£38</p></div></article>
+        <article class="card"><div class="card__art"><img src="../../assets/demos/willow-garden-gate.jpg" alt="Soft pink tulips with fresh green leaves" loading="lazy" width="1100" height="1100"></div><div class="card__body"><h3>Garden Gate</h3><p>Soft greens, cream tulips, hellebore.</p><p class="price">£34</p></div></article>
+        <article class="card"><div class="card__art"><img src="../../assets/demos/willow-everlasting.jpg" alt="A close view of the petals and stems in a seasonal bunch" loading="lazy" width="1100" height="1100"></div><div class="card__body"><h3>Everlasting</h3><p>Dried stems that keep for a year.</p><p class="price">£46</p></div></article>
       </div>
     </div>
   </section>
