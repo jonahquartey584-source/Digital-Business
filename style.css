@@ -2229,6 +2229,55 @@ textarea {
   transform: none;
 }
 
+/* ---------------------------------------------------------------------------
+   Services and How It Works pop in rather than drift. Each card starts a
+   little small and low and overshoots very slightly on the way to true, which
+   reads as arriving rather than fading up.
+
+   The stagger is by column, not by card: a flat nth-child delay makes the
+   eleventh card wait most of a second, whereas resetting every row gives the
+   same left-to-right ripple on each one however the grid reflows.
+   --------------------------------------------------------------------------- */
+.grid--services .service-card[data-reveal],
+.steps .step[data-reveal] {
+  opacity: 0;
+  transform: translateY(26px) scale(.94);
+  transition: opacity .52s ease, transform .62s cubic-bezier(.2, .9, .3, 1.3);
+}
+.grid--services .service-card[data-reveal].is-visible,
+.steps .step[data-reveal].is-visible {
+  opacity: 1;
+  transform: none;
+}
+
+/* three across on a wide grid, so the ripple resets every third card */
+.grid--services .service-card[data-reveal]:nth-child(3n + 2) { transition-delay: .09s; }
+.grid--services .service-card[data-reveal]:nth-child(3n + 3) { transition-delay: .18s; }
+
+/* the steps are one row of four */
+.steps .step[data-reveal]:nth-child(2) { transition-delay: .1s; }
+.steps .step[data-reveal]:nth-child(3) { transition-delay: .2s; }
+.steps .step[data-reveal]:nth-child(4) { transition-delay: .3s; }
+
+@media (max-width: 900px) {
+  /* two across, so the ripple resets every second card */
+  .grid--services .service-card[data-reveal]:nth-child(3n + 2),
+  .grid--services .service-card[data-reveal]:nth-child(3n + 3) { transition-delay: 0s; }
+  .grid--services .service-card[data-reveal]:nth-child(2n) { transition-delay: .09s; }
+}
+@media (max-width: 620px) {
+  /* single column: a per-card delay would stack into a long wait, and each
+     card is observed separately anyway, so it arrives as you reach it */
+  .grid--services .service-card[data-reveal],
+  .steps .step[data-reveal] { transition-delay: 0s !important; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .grid--services .service-card[data-reveal],
+  .steps .step[data-reveal] {
+    opacity: 1; transform: none; transition: none; transition-delay: 0s !important;
+  }
+}
+
 /* Footer */
 .site-footer {
   background: var(--bg-alt);
@@ -3017,6 +3066,18 @@ html[data-theme="light"] .theme-toggle__sun{display:none}html[data-theme="light"
    points and must stay free.
    ========================================================================= */
 html { scroll-snap-type: y proximity; }
+
+/* The sections below the deck carry snap points too, and they must: snapping
+   only ever moves between snap points, so with all of them inside the deck
+   the page pins on the last panel and nothing underneath can be reached, by
+   wheel or by scrollTo. The old hero used to provide the one past the deck;
+   when it was folded into the slides that escape went with it. These give
+   snapping somewhere forward to go, and land each section cleanly on the way
+   down. */
+.services,
+.how,
+.enquire,
+.site-footer { scroll-snap-align: start; }
 /* Inside the deck the snap is decisive, one panel to a screen, the way the
    reference deck scrolls. It drops back to proximity once the deck is behind
    you, because the sections below have no snap points and mandatory would
@@ -3099,11 +3160,17 @@ html.is-in-deck { scroll-snap-type: y mandatory; }
    which leaves most of the picture open. */
 .deck__panel .deck__in::before {
   content: ""; position: absolute; z-index: -1;
-  left: 0; right: 0; bottom: 0; top: -44px;
-  /* the ramp reaches full strength early: the eyebrow is the top line of the
-     block and was sitting in the part of the gradient still fading up */
+  left: 0; right: 0; bottom: 0; top: -58px;
+  /* The ramp is a fixed distance, not a percentage. Percentages are measured
+     against the block, so adding a line to a panel moves the whole ramp down
+     and the label at the top drifts back out of cover — which is exactly what
+     happened when the rotator reasons moved onto the slides. In pixels, the
+     first line is always clear of the fade however tall the block gets. */
   background: linear-gradient(180deg,
-    rgba(4, 4, 8, 0) 0%, rgba(4, 4, 8, .74) 13%, rgba(4, 4, 8, .9) 44%, rgba(4, 4, 8, .96) 100%);
+    rgba(4, 4, 8, 0) 0,
+    rgba(4, 4, 8, .86) 58px,
+    rgba(4, 4, 8, .93) 65%,
+    rgba(4, 4, 8, .96) 100%);
   -webkit-mask-image: linear-gradient(90deg, #000 0, #000 54%, rgba(0, 0, 0, 0) 92%);
   mask-image: linear-gradient(90deg, #000 0, #000 54%, rgba(0, 0, 0, 0) 92%);
 }
@@ -3141,6 +3208,32 @@ html.is-in-deck { scroll-snap-type: y mandatory; }
 }
 .deck__panel--open .deck__sub { font-size: 1.02rem; max-width: 42ch; margin-top: 24px; }
 
+/* The reason this stage matters. These lines came off the hero rotator,
+   which cycled all six out of sight; one per panel puts each argument
+   next to the thing it argues for. */
+.deck__why {
+  margin: 18px 0 0; padding-left: 14px;
+  border-left: 2px solid var(--d-gold-deep);
+  font-size: .88rem; line-height: 1.5; color: var(--d-dim); max-width: 44ch;
+}
+.deck__why b { display: block; font-weight: 700; color: var(--d-gold-bright); }
+
+/* the hero's two stats, now on the opening panel */
+.deck__stats {
+  margin: 26px 0 0; padding: 0; list-style: none;
+  display: flex; flex-wrap: wrap; gap: 0 clamp(26px, 4vw, 52px);
+}
+.deck__stats li { padding-right: clamp(26px, 4vw, 52px); border-right: 1px solid var(--d-rule); }
+.deck__stats li:last-child { border-right: 0; padding-right: 0; }
+.deck__stats b {
+  display: block; font-family: "Sora", sans-serif; font-size: 1.12rem;
+  font-weight: 700; color: var(--d-gold-bright); letter-spacing: -.01em;
+}
+.deck__stats span {
+  display: block; margin-top: 3px; font-family: "IBM Plex Mono", monospace;
+  font-size: .56rem; letter-spacing: .18em; text-transform: uppercase; color: var(--d-faint);
+}
+
 /* what you actually buy at this stage */
 .deck__buys {
   margin: 22px 0 0; padding: 0; list-style: none;
@@ -3171,7 +3264,8 @@ html.is-in-deck { scroll-snap-type: y mandatory; }
 }
 
 /* type arrives as the panel lands */
-.deck__label, .deck__eyebrow, .deck__title, .deck__sub, .deck__buys, .deck__cta, .deck__note {
+.deck__label, .deck__eyebrow, .deck__title, .deck__sub, .deck__why,
+.deck__stats, .deck__buys, .deck__cta, .deck__note {
   opacity: 0; transform: translateY(14px);
   transition: opacity .8s ease, transform .8s cubic-bezier(.2, .9, .3, 1);
 }
@@ -3179,10 +3273,13 @@ html.is-in-deck { scroll-snap-type: y mandatory; }
 .deck__panel.is-live .deck__eyebrow { transition-delay: .1s; }
 .deck__panel.is-live .deck__title   { transition-delay: .18s; }
 .deck__panel.is-live .deck__sub     { transition-delay: .3s; }
+.deck__panel.is-live .deck__why     { transition-delay: .38s; }
+.deck__panel.is-live .deck__stats   { transition-delay: .46s; }
 .deck__panel.is-live .deck__buys,
 .deck__panel.is-live .deck__cta     { transition-delay: .4s; }
 .deck__panel.is-live .deck__note    { transition-delay: .5s; }
-.deck__panel.is-live :is(.deck__label, .deck__eyebrow, .deck__title, .deck__sub, .deck__buys, .deck__cta, .deck__note) {
+.deck__panel.is-live :is(.deck__label, .deck__eyebrow, .deck__title, .deck__sub,
+    .deck__why, .deck__stats, .deck__buys, .deck__cta, .deck__note) {
   opacity: 1; transform: none;
 }
 
@@ -3222,14 +3319,21 @@ html.is-in-deck { scroll-snap-type: y mandatory; }
 }
 .deck .btn--primary:hover { background: linear-gradient(135deg, #f0d7a0, var(--d-gold-bright) 100%); }
 
-/* the hero below gets a snap point too, so leaving the deck lands cleanly */
-.hero { scroll-snap-align: start; }
+
 
 @media (max-width: 640px) {
   /* On a phone the wording runs the full width of the frame, so the scrim
      must too. The 54% fade is tuned to the desktop text column and left the
-     right-hand end of the sub and the eyebrow sitting on open footage. */
+     right-hand end of the sub and the eyebrow sitting on open footage. The
+     ramp is also a little stronger: there is no empty column on a phone for
+     the gradient to lean on, so the first line needs cover sooner. */
   .deck__panel .deck__in::before {
+    top: -52px;
+    background: linear-gradient(180deg,
+      rgba(4, 4, 8, 0) 0,
+      rgba(4, 4, 8, .92) 52px,
+      rgba(4, 4, 8, .95) 70%,
+      rgba(4, 4, 8, .97) 100%);
     -webkit-mask-image: linear-gradient(90deg, #000 0, #000 88%, rgba(0, 0, 0, 0) 100%);
     mask-image: linear-gradient(90deg, #000 0, #000 88%, rgba(0, 0, 0, 0) 100%);
   }
@@ -3249,16 +3353,17 @@ html.is-in-deck { scroll-snap-type: y mandatory; }
      was running underneath it */
   .deck__note { margin-top: 12px; max-width: calc(100% - 84px); }
 
-  /* two chips, not three: the third runs under the chat launcher */
-  .deck__buys { max-width: none; margin-top: 16px; }
-  .deck__buys li:nth-child(n + 3) { display: none; }
+  /* all four chips, as on a wide screen; the row simply keeps clear of the
+     column the floating chat launcher occupies instead of dropping any */
+  .deck__buys { max-width: none; margin-top: 16px; padding-right: 76px; }
   /* the counter leaves the bottom corner, where the chips now sit, and
      carries its own scrim because up there it is outside the bottom one */
   .deck__count {
     top: 80px; bottom: auto;
     background: rgba(6, 6, 10, .74); padding: 5px 9px; border-radius: 2px;
   }
-  .deck__ticks { display: none; }
+  .deck__ticks { right: 7px; gap: 7px; }
+  .deck__ticks i { height: 16px; }
   .deck__hint { display: none; }
 
   /* the two promo bars sit above the deck and were taking a third of the
@@ -3269,8 +3374,8 @@ html.is-in-deck { scroll-snap-type: y mandatory; }
 @media (prefers-reduced-motion: reduce) {
   .deck__art video { display: none; }
   .deck__art, .deck__panel.is-live .deck__art { transform: none; transition: none; }
-  .deck__label, .deck__eyebrow, .deck__title, .deck__sub,
-  .deck__buys, .deck__cta, .deck__note {
+  .deck__label, .deck__eyebrow, .deck__title, .deck__sub, .deck__why,
+  .deck__stats, .deck__buys, .deck__cta, .deck__note {
     opacity: 1 !important; transform: none !important; transition: none !important;
   }
 }

@@ -19,11 +19,14 @@
 
   function clipsAreWorthIt() {
     if (reduced) return false;
-    if (window.matchMedia("(max-width: 640px)").matches) return false;
+    /* Phones get the footage too — the deck is the same piece of work on a
+       small screen. Screen size is the wrong thing to withhold it on; the
+       connection is the right one, so a metered or slow link still falls
+       back to the posters, which every panel renders from anyway. */
     var c = navigator.connection;
     if (c) {
       if (c.saveData) return false;
-      if (/(^|-)2g$/.test(c.effectiveType || "")) return false;
+      if (/(^|-)(2g|slow-2g)$/.test(c.effectiveType || "")) return false;
     }
     return true;
   }
@@ -92,16 +95,44 @@
     }, { threshold: [0, 0.55, 1] });
     panels.forEach(function (p) { live.observe(p); });
 
-    // The ticks belong to the deck, so they show only while it is on screen,
-    // and the same signal hardens the snap: mandatory inside the deck, back to
-    // proximity once you are past it so long sections below stay readable.
-    var inDeck = new IntersectionObserver(function (entries) {
-      entries.forEach(function (e) {
-        if (ticks) ticks.classList.toggle("is-on", e.isIntersecting);
-        if (!reduced) document.documentElement.classList.toggle("is-in-deck", e.isIntersecting);
-      });
-    }, { threshold: 0 });
-    inDeck.observe(deck);
+    /* The ticks belong to the deck, and the same signal hardens the snap:
+       mandatory between panels, proximity everywhere else.
+
+       The release has to happen BEFORE you try to leave, not after. Under
+       mandatory snap the browser must come to rest on a snap point, and the
+       last one is the final panel — with nothing below it to snap to, the
+       page pins there and everything under the deck becomes unreachable, by
+       wheel and by scrollTo alike. So snapping is hard through the panels
+       and lets go once the last one has settled, which is still every
+       transition the deck actually has. */
+    var deckOnScreen = false, onLastPanel = false;
+    var lastPanel = panels[panels.length - 1];
+
+    function syncSnap() {
+      var hard = deckOnScreen && !onLastPanel;
+      if (ticks) ticks.classList.toggle("is-on", deckOnScreen);
+      if (!reduced) document.documentElement.classList.toggle("is-in-deck", hard);
+    }
+
+    new IntersectionObserver(function (entries) {
+      entries.forEach(function (e) { deckOnScreen = e.isIntersecting; });
+      syncSnap();
+    }, { threshold: 0 }).observe(deck);
+
+    new IntersectionObserver(function (entries) {
+      entries.forEach(function (e) { onLastPanel = e.intersectionRatio >= 0.55; });
+      syncSnap();
+    }, { threshold: [0, 0.55, 1] }).observe(lastPanel);
+
+    /* Safety net. If an observer ever misses, a visitor must not be stuck on
+       a page they cannot scroll: once the deck's bottom is above the fold the
+       snap is released no matter what the observers believe. */
+    addEventListener("scroll", function () {
+      if (document.documentElement.classList.contains("is-in-deck") &&
+          deck.getBoundingClientRect().bottom <= innerHeight) {
+        document.documentElement.classList.remove("is-in-deck");
+      }
+    }, { passive: true });
   } else {
     panels.forEach(function (p) { p.classList.add("is-live"); });
   }
