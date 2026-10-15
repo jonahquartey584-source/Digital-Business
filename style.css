@@ -3004,3 +3004,242 @@ html[data-theme="light"] .theme-toggle__sun{display:none}html[data-theme="light"
   .ex-card:hover { transform: none; }
   .ex-card:hover .ex-card__screen img { transform: none; }
 }
+
+/* ===========================================================================
+   Cinematic deck — the scroll-snapped film panels that open the site.
+   Styled after the reference deck: full-bleed moving footage, a scrim sized
+   to the wording, and type that arrives as each panel lands.
+
+   The snap lives on the root rather than on a nested scroller, so the rest of
+   the page keeps one normal scroll context (a nested scroller traps the wheel
+   on desktop and fights address-bar resize on mobile). "proximity" rather than
+   "mandatory" for the same reason: the sections below the deck have no snap
+   points and must stay free.
+   ========================================================================= */
+html { scroll-snap-type: y proximity; }
+@media (prefers-reduced-motion: reduce) { html { scroll-snap-type: none; } }
+
+.deck {
+  /* the deck is always the dark cut, whatever the site theme is set to */
+  --d-ink: #ffffff;
+  --d-dim: rgba(255, 255, 255, .66);
+  --d-faint: rgba(255, 255, 255, .7);
+  --d-gold: #c69a4e;
+  --d-gold-bright: #e6c98a;
+  --d-gold-deep: #8a6520;
+  --d-rule: rgba(198, 154, 78, .28);
+  position: relative;
+  background: #06060a;
+  color: var(--d-ink);
+}
+
+.deck__panel {
+  position: relative;
+  height: 100svh;
+  min-height: 560px;
+  scroll-snap-align: start;
+  overflow: hidden;
+  display: flex;
+  align-items: flex-end;
+}
+
+.deck__art { position: absolute; inset: 0; z-index: 0; }
+.deck__art img,
+.deck__art video {
+  width: 100%; height: 100%;
+  object-fit: cover;
+  display: block;
+}
+/* the poster sits under the clip and shows until it has frames to give */
+.deck__art video { position: absolute; inset: 0; opacity: 0; transition: opacity .9s ease; }
+.deck__art video.is-ready { opacity: 1; }
+
+/* A scrim sized to the wording rather than to the panel, so the headline keeps
+   its contrast whatever the footage behind it happens to be doing. */
+.deck__panel::after {
+  content: ""; position: absolute; inset: 0; z-index: 1; pointer-events: none;
+  background:
+    linear-gradient(180deg, rgba(4,4,8,.6) 0%, rgba(4,4,8,.08) 26%, rgba(4,4,8,.12) 42%, rgba(4,4,8,.78) 74%, rgba(4,4,8,.93) 100%),
+    linear-gradient(90deg, rgba(4,4,8,.74) 0%, rgba(4,4,8,.3) 46%, rgba(4,4,8,0) 74%);
+}
+/* The opening carries more wording than the other panels and its art is lit
+   on the right, so its scrim runs darker and starts higher: the eyebrow and
+   the note reach far enough across to meet the lit side otherwise. */
+.deck__panel--open::after {
+  background:
+    linear-gradient(180deg, rgba(4,4,8,.62) 0%, rgba(4,4,8,.1) 22%, rgba(4,4,8,.3) 40%, rgba(4,4,8,.82) 58%, rgba(4,4,8,.93) 76%, rgba(4,4,8,.98) 100%),
+    linear-gradient(90deg, rgba(4,4,8,.86) 0%, rgba(4,4,8,.52) 48%, rgba(4,4,8,.14) 78%);
+}
+
+.deck__in {
+  position: relative; z-index: 2; width: 100%;
+  padding: 0 clamp(22px, 4vw, 54px) clamp(42px, 6vh, 70px);
+}
+
+/* The opening carries the most wording and its artwork has bright gold edges
+   that reach into the text column, so a panel-wide gradient is not enough:
+   the eyebrow was landing straight on a lit edge. This is a scrim bound to
+   the wording itself, faded out to the right so the hologram stays visible. */
+.deck__panel--open .deck__in::before {
+  content: ""; position: absolute; z-index: -1;
+  left: 0; right: 0; bottom: 0; top: -26px;
+  background: linear-gradient(180deg,
+    rgba(4, 4, 8, 0) 0%, rgba(4, 4, 8, .6) 20%, rgba(4, 4, 8, .84) 58%, rgba(4, 4, 8, .93) 100%);
+  -webkit-mask-image: linear-gradient(90deg, #000 0, #000 58%, rgba(0, 0, 0, 0) 100%);
+  mask-image: linear-gradient(90deg, #000 0, #000 58%, rgba(0, 0, 0, 0) 100%);
+}
+
+.deck__label,
+.deck__eyebrow {
+  display: flex; align-items: center; gap: 12px; margin: 0 0 18px;
+  font-family: "IBM Plex Mono", monospace; font-size: .58rem;
+  letter-spacing: .22em; text-transform: uppercase; color: var(--d-gold);
+}
+.deck__label::before,
+.deck__eyebrow::before {
+  content: ""; width: clamp(18px, 3vw, 38px); height: 1px;
+  background: var(--d-gold-deep); flex: none;
+}
+
+.deck h2.deck__title,
+.deck h1.deck__title {
+  margin: 0; font-family: "Sora", sans-serif; font-weight: 800;
+  line-height: .94; letter-spacing: -.045em; text-transform: uppercase;
+  color: var(--d-ink);
+}
+.deck h2.deck__title { font-size: clamp(2.35rem, 6.4vw, 5.1rem); max-width: 15ch; }
+.deck h1.deck__title { font-size: clamp(2.6rem, 8vw, 6.2rem); max-width: 16ch; line-height: .9; letter-spacing: -.05em; }
+.deck__title i { font-style: normal; color: var(--d-gold-bright); }
+.deck__title em {
+  font-style: normal; display: block;
+  background: linear-gradient(100deg, var(--d-gold-bright) 0%, var(--d-gold) 46%, #a97f33 100%);
+  -webkit-background-clip: text; background-clip: text; color: transparent;
+}
+
+.deck__sub {
+  margin: 20px 0 0; font-size: .96rem; line-height: 1.55;
+  color: var(--d-dim); max-width: 38ch;
+}
+.deck__panel--open .deck__sub { font-size: 1.02rem; max-width: 42ch; margin-top: 24px; }
+
+/* what you actually buy at this stage */
+.deck__buys {
+  margin: 22px 0 0; padding: 0; list-style: none;
+  display: flex; flex-wrap: wrap; gap: 7px; max-width: min(760px, 62%);
+}
+.deck__buys li {
+  font-family: "IBM Plex Mono", monospace; font-size: .56rem;
+  letter-spacing: .14em; text-transform: uppercase; color: rgba(255, 255, 255, .82);
+  border: 1px solid var(--d-rule); background: rgba(6, 6, 10, .62);
+  padding: 6px 11px; border-radius: 2px;
+}
+
+.deck__count {
+  position: absolute; right: clamp(22px, 4vw, 54px); bottom: clamp(42px, 6vh, 70px);
+  z-index: 2; margin: 0;
+  font-family: "IBM Plex Mono", monospace; font-size: .62rem;
+  letter-spacing: .16em; color: var(--d-faint);
+}
+.deck__count b { color: var(--d-gold-bright); font-weight: 500; }
+
+.deck__cta { display: flex; flex-wrap: wrap; gap: 12px; margin-top: clamp(24px, 3.4vh, 34px); }
+.deck__note {
+  margin: 16px 0 0; font-family: "IBM Plex Mono", monospace; font-size: .58rem;
+  letter-spacing: .14em; text-transform: uppercase; color: var(--d-faint);
+}
+
+/* type arrives as the panel lands */
+.deck__label, .deck__eyebrow, .deck__title, .deck__sub, .deck__buys, .deck__cta, .deck__note {
+  opacity: 0; transform: translateY(14px);
+  transition: opacity .8s ease, transform .8s cubic-bezier(.2, .9, .3, 1);
+}
+.deck__panel.is-live .deck__label,
+.deck__panel.is-live .deck__eyebrow { transition-delay: .1s; }
+.deck__panel.is-live .deck__title   { transition-delay: .18s; }
+.deck__panel.is-live .deck__sub     { transition-delay: .3s; }
+.deck__panel.is-live .deck__buys,
+.deck__panel.is-live .deck__cta     { transition-delay: .4s; }
+.deck__panel.is-live .deck__note    { transition-delay: .5s; }
+.deck__panel.is-live :is(.deck__label, .deck__eyebrow, .deck__title, .deck__sub, .deck__buys, .deck__cta, .deck__note) {
+  opacity: 1; transform: none;
+}
+
+/* progress ticks, right edge — only while the deck is the thing on screen */
+.deck__ticks {
+  position: fixed; right: clamp(10px, 1.6vw, 20px); top: 50%;
+  transform: translateY(-50%); z-index: 40; display: grid; gap: 9px;
+  opacity: 0; pointer-events: none; transition: opacity .35s ease;
+}
+.deck__ticks.is-on { opacity: 1; }
+.deck__ticks i { display: block; width: 2px; height: 22px; background: rgba(198, 154, 78, .26); transition: background .3s ease; }
+.deck__ticks i.on { background: var(--d-gold-bright); }
+
+.deck__hint {
+  position: absolute; left: 50%; bottom: 22px; transform: translateX(-50%);
+  z-index: 3; margin: 0;
+  font-family: "IBM Plex Mono", monospace; font-size: .56rem;
+  letter-spacing: .2em; text-transform: uppercase; color: var(--d-faint);
+}
+
+/* The deck is the dark cut whatever the site theme is, so its buttons cannot
+   inherit the light-theme ink or the ghost button goes dark-on-dark. */
+.deck .btn--ghost {
+  color: var(--d-ink);
+  border-color: rgba(255, 255, 255, .34);
+  background: rgba(6, 6, 10, .46);
+}
+.deck .btn--ghost:hover {
+  color: var(--d-gold-bright);
+  border-color: var(--d-gold);
+  background: rgba(6, 6, 10, .66);
+}
+.deck .btn--primary {
+  background: linear-gradient(135deg, var(--d-gold-bright), var(--d-gold) 100%);
+  color: #17110a;
+  border-color: transparent;
+}
+.deck .btn--primary:hover { background: linear-gradient(135deg, #f0d7a0, var(--d-gold-bright) 100%); }
+
+/* the hero below gets a snap point too, so leaving the deck lands cleanly */
+.hero { scroll-snap-align: start; }
+
+@media (max-width: 640px) {
+  /* a panel is one screen, so the wording has to fit one screen: the desktop
+     type scale overflows the bottom of the frame on a phone */
+  .deck h1.deck__title { font-size: clamp(2rem, 11vw, 3.1rem); max-width: 12ch; }
+  .deck h2.deck__title { font-size: clamp(1.9rem, 10.2vw, 2.9rem); max-width: 13ch; }
+  .deck__sub,
+  .deck__panel--open .deck__sub { font-size: .88rem; margin-top: 16px; max-width: none; }
+  .deck__in { padding-bottom: clamp(26px, 4vh, 44px); }
+  .deck__label, .deck__eyebrow { margin-bottom: 14px; }
+
+  .deck__cta { gap: 9px; margin-top: 20px; }
+  .deck__cta .btn { flex: 1 1 100%; justify-content: center; }
+  /* the floating chat launcher sits in the bottom right corner, and the note
+     was running underneath it */
+  .deck__note { margin-top: 12px; max-width: calc(100% - 84px); }
+
+  /* two chips, not three: the third runs under the chat launcher */
+  .deck__buys { max-width: none; margin-top: 16px; }
+  .deck__buys li:nth-child(n + 3) { display: none; }
+  /* the counter leaves the bottom corner, where the chips now sit, and
+     carries its own scrim because up there it is outside the bottom one */
+  .deck__count {
+    top: 80px; bottom: auto;
+    background: rgba(6, 6, 10, .74); padding: 5px 9px; border-radius: 2px;
+  }
+  .deck__ticks { display: none; }
+  .deck__hint { display: none; }
+
+  /* the two promo bars sit above the deck and were taking a third of the
+     first screen on a phone, so the film panel opened half off-frame */
+  .hiring-bar__inner, .client-bar__inner { padding-block: 7px; font-size: .74rem; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .deck__art video { display: none; }
+  .deck__label, .deck__eyebrow, .deck__title, .deck__sub,
+  .deck__buys, .deck__cta, .deck__note {
+    opacity: 1 !important; transform: none !important; transition: none !important;
+  }
+}
