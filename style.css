@@ -3163,6 +3163,28 @@ html { scroll-snap-type: y proximity; }
 .deck__art video { position: absolute; inset: 0; opacity: 0; transition: opacity .9s ease; }
 .deck__art video.is-ready { opacity: 1; }
 
+/* The three object passes share one camera and projector scene. Short opacity
+   ramps replace the object at each matched rotation point, including the loop. */
+.holo-cycle { position:absolute; inset:0; overflow:hidden; }
+.deck__art .holo-cycle video.holo-layer {
+  visibility:hidden; opacity:0; transition:none; animation-duration:6s;
+  animation-timing-function:linear; animation-iteration-count:infinite;
+  animation-play-state:paused;
+}
+.deck__art .holo-cycle.is-playing video.holo-layer { visibility:visible; animation-play-state:running; }
+.deck__art .holo-cycle .holo-layer--phone { animation-name:holo-phone-cycle; }
+.deck__art .holo-cycle .holo-layer--map { animation-name:holo-map-cycle; }
+.deck__art .holo-cycle .holo-layer--pound { animation-name:holo-pound-cycle; }
+@keyframes holo-phone-cycle {
+  0%,30% { opacity:1; } 33.333%,96.666% { opacity:0; } 100% { opacity:1; }
+}
+@keyframes holo-map-cycle {
+  0%,30% { opacity:0; } 33.333%,63.333% { opacity:1; } 66.666%,100% { opacity:0; }
+}
+@keyframes holo-pound-cycle {
+  0%,63.333% { opacity:0; } 66.666%,96.666% { opacity:1; } 100% { opacity:0; }
+}
+
 /* A scrim sized to the wording rather than to the panel, so the headline keeps
    its contrast whatever the footage behind it happens to be doing. */
 .deck__panel::after {

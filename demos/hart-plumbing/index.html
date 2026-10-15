@@ -11,7 +11,7 @@
     --bg:#0d1117; --bg-2:#131a23; --panel:#18212c; --line:#243140;
     --text:#eef3f8; --text-2:#9fb0c2; --text-3:#7d8fa3;
     --amber:#ff8a3d; --amber-2:#ffa866; --amber-deep:#c45c17;
-    --green:#3ddc84; --max:1080px;
+    --green:#3ddc84; --max:1200px;
     --sans:"Inter",system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
   }
   *{box-sizing:border-box}
@@ -33,6 +33,7 @@
   .bar{display:flex;align-items:center;gap:22px;padding-block:14px}
   .logo{display:flex;align-items:center;gap:10px;text-decoration:none;font-weight:800;letter-spacing:-.02em;font-size:1.05rem;flex:none}
   .logo i{width:30px;height:30px;border-radius:8px;background:var(--amber);display:grid;place-items:center;font-style:normal;color:#0d1117;font-size:.9rem}
+  .bar>.btn{padding:12px 16px;flex:none}
   nav{display:flex;gap:20px;margin-left:auto;flex-wrap:wrap}
   nav a{font-size:.82rem;font-weight:600;text-decoration:none;color:var(--text-2)}
   nav a:hover{color:var(--text)}
@@ -44,9 +45,9 @@
 
   .hero{position:relative;overflow:hidden;border-bottom:1px solid var(--line);
         background:radial-gradient(70% 80% at 85% 0%,rgba(255,138,61,.14),transparent 60%),var(--bg)}
-  .hero .wrap{display:grid;gap:40px;padding-block:58px;align-items:center}
-  @media(min-width:880px){.hero .wrap{grid-template-columns:1.1fr .9fr}}
-  .hero h1{font-size:clamp(2.1rem,5vw,3.3rem);margin-top:14px}
+  .hero .wrap{display:grid;gap:40px;padding-block:62px;align-items:center}
+  @media(min-width:880px){.hero .wrap{grid-template-columns:1fr 1fr;gap:64px}}
+  .hero h1{font-size:clamp(2.5rem,5.4vw,4.35rem);margin-top:14px;max-width:12ch;line-height:1.02;letter-spacing:-.045em}
   .hero h1 em{font-style:normal;color:var(--amber)}
   .hero p.lead{margin-top:16px;color:var(--text-2);font-size:1.03rem;max-width:46ch}
   .cta{display:flex;gap:11px;flex-wrap:wrap;margin-top:24px}
@@ -55,7 +56,12 @@
   .badge svg{width:14px;height:14px;color:var(--green);flex:none}
 
   /* quote engine */
-  .quote{background:var(--panel);border:1px solid var(--line);border-radius:18px;padding:24px;box-shadow:0 30px 60px -40px #000}
+  .hero-side{display:grid;gap:14px}
+  .hero-photo{position:relative;aspect-ratio:1.9/1;overflow:hidden;border:1px solid var(--line);border-radius:16px;margin:0;background:var(--bg-2)}
+  .hero-photo img{display:block;width:100%;height:100%;object-fit:cover;object-position:34% 42%;filter:saturate(.85)}
+  .hero-photo::after{content:"";position:absolute;inset:40% 0 0;background:linear-gradient(transparent,rgba(8,12,17,.72))}
+  .hero-photo figcaption{position:absolute;z-index:1;left:19px;bottom:16px;color:#fff;font-size:.68rem;font-weight:800;letter-spacing:.15em;text-transform:uppercase}
+  .quote{background:rgba(24,33,44,.96);border:1px solid #304152;border-radius:16px;padding:24px;box-shadow:0 30px 60px -40px #000}
   .quote h2{font-size:1.15rem}
   .quote > p{color:var(--text-3);font-size:.85rem;margin-top:5px}
   fieldset{border:0;margin:18px 0 0;padding:0}
@@ -114,7 +120,23 @@
 
   footer{border-top:1px solid var(--line);background:var(--bg-2)}
   footer .wrap{padding-block:30px;display:flex;gap:16px 28px;flex-wrap:wrap;justify-content:space-between;font-size:.84rem;color:var(--text-2)}
-  .demo-flag{background:#000;color:#fff;font-size:.72rem;letter-spacing:.1em;text-transform:uppercase;text-align:center;padding:7px 16px}
+  .demo-flag{background:#000;color:#fff;font-size:.66rem;letter-spacing:.12em;text-transform:uppercase;text-align:center;padding:7px 16px}
+  @media(max-width:760px){.bar{gap:12px;flex-wrap:wrap}.bar nav{order:3;width:100%;justify-content:space-between;gap:10px}.bar nav a{font-size:.72rem}.hero .wrap{padding-block:42px;gap:28px}.hero-photo{aspect-ratio:1.55/1}.badges{gap:8px}.badge{font-size:.72rem;padding:7px 11px}}
+  /* Cinematic, oversized type and high contrast inspired by the dark product site reference. */
+  :root{--bg:#080a0d;--bg-2:#10151b;--panel:#151c24;--line:#28313b;--amber:#d7a45b;--amber-2:#efc37f;--amber-deep:#8d5423}
+  .hero{background:radial-gradient(70% 90% at 83% 5%,rgba(215,164,91,.15),transparent 64%),linear-gradient(110deg,#080a0d 0%,#0c1015 54%,#14171a 100%)}
+  .hero .wrap{max-width:1320px;gap:clamp(34px,5vw,76px);padding-block:clamp(58px,7vw,96px)}
+  .hero h1{font-family:Impact,"Arial Narrow","Franklin Gothic Condensed",sans-serif;font-size:clamp(3.2rem,6.4vw,6.2rem);font-stretch:condensed;text-transform:uppercase;letter-spacing:-.025em;line-height:.93;max-width:10ch}
+  .hero h1 em{color:var(--amber-2)}
+  .hero p.lead{max-width:39ch;font-size:1.08rem}
+  .hero-photo{aspect-ratio:1.58/1;border:0;border-radius:2px;box-shadow:0 38px 100px -48px rgba(0,0,0,.9)}
+  .hero-photo img{filter:saturate(.7) contrast(1.08);object-position:42% 43%}
+  .hero-photo::after{inset:20% 0 0;background:linear-gradient(180deg,rgba(5,8,11,.08),rgba(5,8,11,.78))}
+  .quote{border-radius:3px;background:linear-gradient(135deg,rgba(24,31,40,.98),rgba(15,20,26,.98));border-color:#343b42}
+  .btn{border-radius:3px;letter-spacing:.045em}
+  .badge,.job{border-radius:3px}
+  .ba,.ba__handle::after,.filters button{border-radius:3px}
+  @media(max-width:760px){.hero h1{font-size:clamp(3rem,13vw,4.4rem)}.hero-photo{aspect-ratio:1.4/1}}
   @media (prefers-reduced-motion: reduce){*{animation:none!important;transition:none!important}html{scroll-behavior:auto}}
 </style>
 </head>
@@ -125,12 +147,13 @@
 <header>
   <div class="wrap bar">
     <a class="logo" href="#top"><i>H</i>Hart Plumbing &amp; Heating</a>
-    <nav>
+    <nav aria-label="Main navigation">
       <a href="#quote">Instant quote</a>
       <a href="#work">Our work</a>
       <a href="#jobs">Services</a>
       <a href="#callback">Callback</a>
     </nav>
+    <a class="btn" href="#quote">Get a quote</a>
   </div>
 </header>
 
@@ -152,6 +175,11 @@
         </div>
       </div>
 
+      <div class="hero-side">
+      <figure class="hero-photo">
+        <img src="../../assets/demos/hart-engineer.jpg" alt="A heating engineer in safety gear at work" width="2200" height="1469" fetchpriority="high">
+        <figcaption>Heating · plumbing · emergency response</figcaption>
+      </figure>
       <div class="quote" id="quote">
         <h2>Instant price guide</h2>
         <p>Three taps and you will know roughly what it costs. No email required.</p>
@@ -186,6 +214,7 @@
           <p id="basis">Leak or burst · within the week · flat or 1–2 bed</p>
         </div>
         <a class="btn" href="#callback">Book this in</a>
+      </div>
       </div>
     </div>
   </div>
@@ -277,7 +306,7 @@
 
 <footer>
   <div class="wrap">
-    <div><strong>Hart Plumbing &amp; Heating</strong> · Gas Safe 000000 · 24 hours, 7 days</div>
+    <div><strong>Hart Plumbing &amp; Heating</strong> · Gas Safe registered · 24 hours, 7 days</div>
     <div>Demonstration site built by <a href="../../index.html" target="_top">Qp Digital</a></div>
   </div>
 </footer>

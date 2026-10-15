@@ -134,8 +134,12 @@
         <div class="deck__art">
           <!-- A quiet, looping hologram keeps the hero alive without tying
                motion to the visitor's scroll position. -->
-          <img src="assets/deck/holo.webp" alt="" width="1344" height="752" fetchpriority="high" decoding="async">
-          <video data-src="assets/deck/holo-higgsfield.mp4" muted playsinline loop preload="none" aria-hidden="true" tabindex="-1"></video>
+          <img src="assets/deck/holo-higgsfield-poster.jpg" alt="" width="3840" height="2160" fetchpriority="high" decoding="async">
+          <div class="holo-cycle" aria-hidden="true">
+            <video class="holo-layer holo-layer--phone" data-cycle-offset="0" data-src="assets/deck/holo-phone-4k.mp4" muted playsinline loop preload="none" tabindex="-1"></video>
+            <video class="holo-layer holo-layer--map" data-cycle-offset="0.2" data-src="assets/deck/holo-map-4k.mp4" muted playsinline loop preload="none" tabindex="-1"></video>
+            <video class="holo-layer holo-layer--pound" data-cycle-offset="0.2" data-src="assets/deck/holo-pound-4k.mp4" muted playsinline loop preload="none" tabindex="-1"></video>
+          </div>
         </div>
         <div class="deck__in">
           <p class="deck__eyebrow">Qp Digital &middot; Business automation for growing businesses</p>

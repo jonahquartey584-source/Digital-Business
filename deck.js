@@ -26,31 +26,55 @@
   }
 
   function attach(panel) {
-    var video = panel.querySelector("video");
-    if (!video || video.dataset.attached) return;
-    var source = video.getAttribute("data-src");
-    if (!source) return;
+    panel.querySelectorAll("video[data-src]").forEach(function (video) {
+      if (video.dataset.attached) return;
+      var source = video.getAttribute("data-src");
+      if (!source) return;
 
-    video.dataset.attached = "1";
-    video.loop = true;
-    video.addEventListener("canplay", function () { video.classList.add("is-ready"); }, { once: true });
-    video.addEventListener("error", function () { video.remove(); }, { once: true });
-    video.src = source;
-    video.load();
+      video.dataset.attached = "1";
+      video.loop = true;
+      video.addEventListener("canplay", function () { video.classList.add("is-ready"); }, { once: true });
+      video.addEventListener("error", function () { video.remove(); }, { once: true });
+      video.src = source;
+      video.load();
+    });
   }
 
   function play(panel) {
     if (!useClips) return;
-    var video = panel.querySelector("video");
-    if (!video) return;
+    var videos = [].slice.call(panel.querySelectorAll("video"));
+    if (!videos.length) return;
     attach(panel);
-    var result = video.play();
-    if (result && result.catch) result.catch(function () { /* the poster remains visible */ });
+    var token = (panel._deckPlayToken || 0) + 1;
+    panel._deckPlayToken = token;
+    Promise.all(videos.map(function (video) {
+      if (video.readyState >= 2) return Promise.resolve();
+      return new Promise(function (resolve) {
+        video.addEventListener("canplay", resolve, { once: true });
+        video.addEventListener("error", resolve, { once: true });
+      });
+    })).then(function () {
+      if (panel._deckPlayToken !== token) return;
+      var cycle = panel.querySelector(".holo-cycle");
+      if (cycle) cycle.classList.add("is-playing");
+      videos.forEach(function (video) {
+        if (!video.isConnected) return;
+        var offset = cycle ? Number(video.dataset.cycleOffset || 0) : 0;
+        try { video.currentTime = offset; } catch (error) { /* metadata may still be settling */ }
+        var result = video.play();
+        if (result && result.catch) result.catch(function () { /* poster remains visible */ });
+      });
+    });
   }
 
   function pause(panel) {
-    var video = panel.querySelector("video");
-    if (video && !video.paused) video.pause();
+    panel._deckPlayToken = (panel._deckPlayToken || 0) + 1;
+    var cycle = panel.querySelector(".holo-cycle");
+    if (cycle) cycle.classList.remove("is-playing");
+    panel.querySelectorAll("video").forEach(function (video) {
+      if (!video.paused) video.pause();
+      try { video.currentTime = 0; } catch (error) { /* metadata may still be settling */ }
+    });
   }
 
   if (useClips && "IntersectionObserver" in window) {
