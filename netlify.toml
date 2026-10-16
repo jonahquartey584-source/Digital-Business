@@ -177,6 +177,13 @@
   [headers.values]
     X-Robots-Tag = "noindex, nofollow"
 
+# The deliberately dated "before" sites are just as fictional.
+[[headers]]
+  for = "/old-websites/*"
+
+  [headers.values]
+    X-Robots-Tag = "noindex, nofollow"
+
 # robots.txt is only advisory — a crawler is free to ignore it. X-Robots-Tag
 # is enforced, so the admin tooling and the post-payment page (which shows a
 # client's portal code) stay out of search results either way.
